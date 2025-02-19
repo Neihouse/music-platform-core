@@ -1,9 +1,9 @@
 "use client";
 
-import { TrackCard } from "@/components/track/track-card";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, Title, Stack, SimpleGrid, Skeleton, Alert } from '@mantine/core';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useEffect, useState } from "react";
+import { TrackCard } from "@/components/track/TrackCard";
 
 interface FavoriteTracksProps {
   userId: string;
@@ -15,6 +15,16 @@ interface Track {
   artist: string;
   coverArt: string;
   upvotes: number;
+}
+
+interface DatabaseTrack {
+  id: string;
+  title: string;
+  artist: {
+    username: string;
+  };
+  cover_art_url: string;
+  votes: number;
 }
 
 export function FavoriteTracks({ userId }: FavoriteTracksProps) {
@@ -39,8 +49,9 @@ export function FavoriteTracks({ userId }: FavoriteTracksProps) {
 
       if (error) throw error;
 
+      const tracks = data as unknown as { tracks: DatabaseTrack }[];
       setFavoriteTracks(
-        data.map((item: any) => ({
+        tracks.map(item => ({
           id: item.tracks.id,
           title: item.tracks.title,
           artist: item.tracks.artist.username,
@@ -57,25 +68,41 @@ export function FavoriteTracks({ userId }: FavoriteTracksProps) {
   };
 
   const handlePlay = (trackId: string) => {
-    // Implement play functionality
     console.log(`Playing track ${trackId}`);
   };
 
   const handleUpvote = (trackId: string) => {
-    // Implement upvote functionality
     console.log(`Upvoting track ${trackId}`);
   };
 
-  if (isLoading) return <div>Loading favorite tracks...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (isLoading) {
+    return (
+      <Card shadow="sm" padding="lg" radius="md" withBorder>
+        <Stack gap="lg">
+          <Skeleton height={30} width={200} radius="md" />
+          <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
+            <Skeleton height={200} radius="md" />
+            <Skeleton height={200} radius="md" />
+            <Skeleton height={200} radius="md" />
+          </SimpleGrid>
+        </Stack>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert color="red" title="Error" variant="filled">
+        {error}
+      </Alert>
+    );
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Favorite Tracks</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Stack gap="lg">
+        <Title order={2}>Favorite Tracks</Title>
+        <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
           {favoriteTracks.map((track) => (
             <TrackCard
               key={track.id}
@@ -88,8 +115,8 @@ export function FavoriteTracks({ userId }: FavoriteTracksProps) {
               onUpvote={() => handleUpvote(track.id)}
             />
           ))}
-        </div>
-      </CardContent>
+        </SimpleGrid>
+      </Stack>
     </Card>
   );
 }

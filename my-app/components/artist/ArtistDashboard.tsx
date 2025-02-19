@@ -1,10 +1,9 @@
 "use client";
 
-import { TrackList } from "@/components/track/track-list";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrackList } from "@/components/track/TrackList";
+import { Card, Button, Group, Text, Stack, SimpleGrid, Title, Skeleton } from '@mantine/core';
+import { IconUpload } from '@tabler/icons-react';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface ArtistStats {
@@ -14,10 +13,33 @@ interface ArtistStats {
 }
 
 interface Track {
-  id: string;
+  id: number;
   title: string;
   artist: string;
-  votes: number;
+  plays?: number;
+  likes?: number;
+  genre?: string;
+  duration?: string;
+}
+
+interface StatCardProps {
+  title: string;
+  value: number;
+}
+
+function StatCard({ title, value }: StatCardProps) {
+  return (
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Stack gap="xs">
+        <Text size="lg" fw={500} c="dimmed">
+          {title}
+        </Text>
+        <Text size="xl" fw={700}>
+          {value.toLocaleString()}
+        </Text>
+      </Stack>
+    </Card>
+  );
 }
 
 export function ArtistDashboard() {
@@ -52,13 +74,16 @@ export function ArtistDashboard() {
         // Fetch artist tracks
         const { data: tracksData, error: tracksError } = await supabase
           .from("tracks")
-          .select("id, title, artist, votes")
+          .select("id, title, artist, plays, likes")
           .eq("artist_id", user.id);
 
         if (tracksError) {
           console.error("Error fetching tracks:", tracksError);
         } else {
-          setTracks(tracksData);
+          setTracks(tracksData.map(track => ({
+            ...track,
+            id: parseInt(track.id)
+          })));
         }
       }
       setIsLoading(false);
@@ -68,46 +93,51 @@ export function ArtistDashboard() {
   }, [supabase]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Stack gap="lg">
+        <SimpleGrid cols={{ base: 1, sm: 3 }}>
+          <Skeleton height={120} radius="md" />
+          <Skeleton height={120} radius="md" />
+          <Skeleton height={120} radius="md" />
+        </SimpleGrid>
+        <Skeleton height={50} radius="md" />
+        <Skeleton height={200} radius="md" />
+      </Stack>
+    );
   }
 
+  const handlePlay = (id: number) => {
+    console.log('Playing track:', id);
+  };
+
+  const handleLike = (id: number) => {
+    console.log('Liked track:', id);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Plays</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats?.totalPlays}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Upvotes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats?.totalUpvotes}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Followers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats?.followers}</p>
-          </CardContent>
-        </Card>
-      </div>
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Your Tracks</h2>
-          <Button>
-            <Upload className="mr-2 h-4 w-4" /> Upload New Track
+    <Stack gap="xl">
+      <SimpleGrid cols={{ base: 1, sm: 3 }}>
+        <StatCard title="Total Plays" value={stats?.totalPlays || 0} />
+        <StatCard title="Total Upvotes" value={stats?.totalUpvotes || 0} />
+        <StatCard title="Followers" value={stats?.followers || 0} />
+      </SimpleGrid>
+
+      <Stack gap="md">
+        <Group justify="space-between" align="center">
+          <Title order={2}>Your Tracks</Title>
+          <Button 
+            leftSection={<IconUpload size={16} />}
+            variant="light"
+          >
+            Upload New Track
           </Button>
-        </div>
-        <TrackList tracks={tracks} onVote={() => {}} />
-      </div>
-    </div>
+        </Group>
+        <TrackList 
+          tracks={tracks} 
+          onPlay={handlePlay}
+          onLike={handleLike}
+        />
+      </Stack>
+    </Stack>
   );
 }

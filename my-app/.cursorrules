@@ -1,0 +1,28 @@
+
+7. BEST PRACTICES
+----------------
+1. Always use Mantine's built-in components instead of HTML elements when available
+2. Use the useForm hook for form handling
+3. Utilize Mantine's hook library (@mantine/hooks) for common functionality
+4. Follow Mantine's theming system for consistent styling
+5. Use responsive props instead of media queries
+6. Implement dark mode using Mantine's ColorSchemeProvider
+
+8. ICONS
+--------
+Use @tabler/icons-react for icons:
+
+
+10. DEBUGGING
+------------
+1. Use Mantine's dev tools in development
+2. Check component props in Mantine documentation
+3. Use browser dev tools to inspect Mantine's generated classes
+4. Console.log form values and state when debugging forms
+
+Remember:
+- Always refer to official Mantine documentation
+- Keep components simple and focused
+- Use TypeScript for better type safety
+- Follow Mantine's naming conventions
+- Update @mantine packages together to avoid version conflicts

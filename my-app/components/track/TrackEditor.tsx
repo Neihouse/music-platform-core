@@ -1,40 +1,50 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { 
+  TextInput, 
+  Button, 
+  Stack, 
+  Alert, 
+  Select, 
+  FileInput, 
+  LoadingOverlay, 
+  Paper,
+  rem
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { IconUpload, IconPhoto, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Loader2, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 
-const formSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(100, "Title must be 100 characters or less"),
-  genre: z.string().min(1, "Genre is required"),
-  coverArt: z.instanceof(File).optional(),
-});
+type FormValues = {
+  title: string;
+  genre: string;
+  coverArt: File | null;
+};
 
-type FormValues = z.infer<typeof formSchema>;
+interface TrackUpdate {
+  title: string;
+  genre: string;
+  cover_art_url?: string;
+}
+
+const GENRE_OPTIONS = [
+  { value: 'house', label: 'House' },
+  { value: 'techno', label: 'Techno' },
+  { value: 'trance', label: 'Trance' },
+  { value: 'dubstep', label: 'Dubstep' },
+  { value: 'drum-and-bass', label: 'Drum and Bass' },
+  { value: 'future-bass', label: 'Future Bass' },
+  { value: 'trap', label: 'Trap' },
+  { value: 'hardstyle', label: 'Hardstyle' },
+  { value: 'progressive-house', label: 'Progressive House' },
+  { value: 'deep-house', label: 'Deep House' },
+  { value: 'electro-house', label: 'Electro House' },
+  { value: 'big-room', label: 'Big Room' },
+  { value: 'minimal', label: 'Minimal' },
+  { value: 'psytrance', label: 'Psytrance' },
+  { value: 'edm', label: 'EDM (General)' },
+];
 
 interface TrackEditorProps {
   trackId: string;
@@ -46,16 +56,21 @@ export function TrackEditor({ trackId }: TrackEditorProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const supabase = createClientComponentClient({
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  });
+  const supabase = createClientComponentClient();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
+    initialValues: {
       title: "",
       genre: "",
+      coverArt: null,
+    },
+    validate: {
+      title: (value) => {
+        if (!value) return "Title is required";
+        if (value.length > 100) return "Title must be 100 characters or less";
+        return null;
+      },
+      genre: (value) => (!value ? "Genre is required" : null),
     },
   });
 
@@ -72,14 +87,16 @@ export function TrackEditor({ trackId }: TrackEditorProps) {
 
         if (error) throw error;
         if (data) {
-          form.reset({
+          form.setValues({
             title: data.title || "",
             genre: data.genre || "",
+            coverArt: null,
           });
         } else {
           setError("Track details not found.");
         }
-      } catch (err) {
+      } catch (error) {
+        console.error('Error fetching track details:', error);
         setError("Failed to fetch track details.");
       } finally {
         setIsLoading(false);
@@ -87,14 +104,17 @@ export function TrackEditor({ trackId }: TrackEditorProps) {
     };
 
     fetchTrackDetails();
-  }, [trackId]);
+  }, [trackId, form]);
 
   const onSubmit = async (values: FormValues) => {
+    if (!form.isValid()) return;
+    
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);
+    
     try {
-      const updates: any = {
+      const updates: TrackUpdate = {
         title: values.title,
         genre: values.genre,
       };
@@ -120,110 +140,72 @@ export function TrackEditor({ trackId }: TrackEditorProps) {
       if (error) throw error;
 
       setSuccess("Track updated successfully.");
-    } catch (err) {
+      form.resetDirty();
+    } catch (error) {
+      console.error('Error updating track:', error);
       setError("Failed to update track.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (isLoading)
-    return <div className="text-center">Loading track details...</div>;
-
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Fields */}
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="genre"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Genre</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a genre" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="house">House</SelectItem>
-                  <SelectItem value="techno">Techno</SelectItem>
-                  <SelectItem value="trance">Trance</SelectItem>
-                  <SelectItem value="dubstep">Dubstep</SelectItem>
-                  <SelectItem value="drum-and-bass">Drum and Bass</SelectItem>
-                  <SelectItem value="future-bass">Future Bass</SelectItem>
-                  <SelectItem value="trap">Trap</SelectItem>
-                  <SelectItem value="hardstyle">Hardstyle</SelectItem>
-                  <SelectItem value="progressive-house">
-                    Progressive House
-                  </SelectItem>
-                  <SelectItem value="deep-house">Deep House</SelectItem>
-                  <SelectItem value="electro-house">Electro House</SelectItem>
-                  <SelectItem value="big-room">Big Room</SelectItem>
-                  <SelectItem value="minimal">Minimal</SelectItem>
-                  <SelectItem value="psytrance">Psytrance</SelectItem>
-                  <SelectItem value="edm">EDM (General)</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="coverArt"
-          render={({ field: { onChange, ...rest } }) => (
-            <FormItem>
-              <FormLabel>Cover Art</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => onChange(e.target.files?.[0] || null)}
-                  {...rest}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Paper pos="relative" p="md" radius="md" withBorder>
+      <LoadingOverlay 
+        visible={isLoading} 
+        zIndex={1000} 
+        overlayProps={{ radius: "sm", blur: 2 }}
+      />
+      
+      <form onSubmit={form.onSubmit(onSubmit)}>
+        <Stack gap="md">
+          <TextInput
+            label="Title"
+            placeholder="Enter track title"
+            required
+            {...form.getInputProps('title')}
+          />
 
-        {/* Alerts */}
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {success && (
-          <Alert>
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
+          <Select
+            label="Genre"
+            placeholder="Select a genre"
+            data={GENRE_OPTIONS}
+            searchable
+            required
+            {...form.getInputProps('genre')}
+          />
 
-        {/* Submit Button */}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Upload className="mr-2 h-4 w-4" />
+          <FileInput
+            label="Cover Art"
+            placeholder="Upload cover art"
+            accept="image/*"
+            clearable
+            leftSection={<IconPhoto size={rem(14)} />}
+            {...form.getInputProps('coverArt')}
+          />
+
+          {error && (
+            <Alert color="red" title="Error" variant="filled" icon={<IconAlertCircle size={16} />}>
+              {error}
+            </Alert>
           )}
-          {isSubmitting ? "Updating..." : "Update Track"}
-        </Button>
+
+          {success && (
+            <Alert color="green" title="Success" variant="filled" icon={<IconCheck size={16} />}>
+              {success}
+            </Alert>
+          )}
+
+          <Button 
+            type="submit" 
+            loading={isSubmitting}
+            leftSection={<IconUpload size={16} />}
+            disabled={isSubmitting || !form.isDirty()}
+          >
+            {isSubmitting ? "Updating..." : "Update Track"}
+          </Button>
+        </Stack>
       </form>
-    </Form>
+    </Paper>
   );
 }

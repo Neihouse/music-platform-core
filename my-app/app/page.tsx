@@ -1,37 +1,122 @@
 "use client";
 
-import { FeaturedTrack } from "@/components/track/FeatureTrack";
-import { TrackList } from "@/components/track/TrackList";
+import { 
+  Container, 
+  Grid, 
+  Paper, 
+  Title, 
+  Text, 
+  Button, 
+  Group, 
+  Stack, 
+  Card, 
+  UnstyledButton,
+  Box,
+  rem,
+  MantineTheme
+} from '@mantine/core';
+import { IconPlayerPlay } from '@tabler/icons-react';
 
-export default function Home() {
+interface TopTrack {
+  id: number;
+  title: string;
+  artist: string;
+}
+
+function TopTrackItem({ title, artist }: TopTrack) {
+  return (
+    <UnstyledButton
+      w="100%"
+      p="md"
+      display="block"
+      style={(theme: MantineTheme) => ({
+        borderRadius: theme.radius.md,
+        '&:hover': {
+          backgroundColor: theme.colors.gray[0],
+        },
+        transition: 'background-color 150ms ease',
+      })}
+    >
+      <Group wrap="nowrap">
+        <IconPlayerPlay 
+          size={16} 
+          color="var(--mantine-color-blue-5)"
+        />
+        <Box>
+          <Text size="sm" fw={500}>{title}</Text>
+          <Text size="sm" c="dimmed">{artist}</Text>
+        </Box>
+      </Group>
+    </UnstyledButton>
+  );
+}
+
+export default function HomePage() {
   const featuredTrack = {
+    id: 1,
     title: "Summer Breeze",
     artist: "Chill Vibes",
-    coverArt: "/placeholder.svg",
-    onPlay: () => alert("Playing featured track!"), // Example: Replace with actual functionality
+    description: "Listen to our top pick",
   };
 
-  const tracks = [
-    { id: "1", title: "Midnight Dreams", artist: "Luna", votes: 42 },
-    { id: "2", title: "Neon Lights", artist: "The Glow", votes: 38 },
-    { id: "3", title: "Ocean Waves", artist: "Serene", votes: 35 },
+  const topTracks: TopTrack[] = [
+    { id: 1, title: "Midnight Dreams", artist: "Luna" },
+    { id: 2, title: "Neon Lights", artist: "The Glow" },
+    { id: 3, title: "Ocean Waves", artist: "Serene" },
   ];
 
   return (
-    <main className="flex-grow container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Featured Track</h2>
-          <FeaturedTrack {...featuredTrack} />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Top Tracks</h2>
-          <TrackList
-            tracks={tracks}
-            onVote={(id) => alert(`Voted for track ${id}`)} // Example: Replace with actual functionality
-          />
-        </div>
-      </div>
-    </main>
+    <Container size="lg" py={rem(48)}>
+      <Grid gutter={rem(32)}>
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Stack gap="md">
+            <Title order={2}>Featured Track</Title>
+            <Card padding="xl" radius="md" withBorder>
+              <Stack gap="md">
+                <Title order={3}>Featured Track of the Day</Title>
+                <Text c="dimmed" size="sm">{featuredTrack.description}</Text>
+                <Paper 
+                  radius="md" 
+                  bg="gray.1"
+                  style={{ 
+                    aspectRatio: '16/9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Text c="dimmed" size="xl">Track Image</Text>
+                </Paper>
+                <Stack gap="xs">
+                  <Title order={4}>{featuredTrack.title}</Title>
+                  <Text c="dimmed">{featuredTrack.artist}</Text>
+                </Stack>
+                <Button 
+                  fullWidth 
+                  leftSection={<IconPlayerPlay size={20} />}
+                  variant="filled"
+                  color="dark"
+                >
+                  Play Now
+                </Button>
+              </Stack>
+            </Card>
+          </Stack>
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Stack gap="md">
+            <Title order={2}>Top Tracks</Title>
+            <Card padding="md" radius="md" withBorder>
+              <Stack gap="xs">
+                {topTracks.map((track) => (
+                  <TopTrackItem key={track.id} {...track} />
+                ))}
+              </Stack>
+            </Card>
+          </Stack>
+        </Grid.Col>
+      </Grid>
+    </Container>
   );
 }

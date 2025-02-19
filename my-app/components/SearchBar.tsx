@@ -1,10 +1,24 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Search } from 'lucide-react'
+import { 
+  TextInput, 
+  ActionIcon, 
+  Paper, 
+  Stack, 
+  Group, 
+  Text, 
+  Badge, 
+  Box,
+  Transition,
+  Loader,
+  Overlay,
+  rem
+} from '@mantine/core'
+import { IconSearch, IconMusic, IconUser, IconX } from '@tabler/icons-react'
+import { useClickOutside, useDebouncedValue, useDisclosure } from '@mantine/hooks'
+import Link from 'next/link'
 
 interface SearchResult {
   id: string
@@ -15,20 +29,28 @@ interface SearchResult {
 
 export function SearchBar() {
   const [query, setQuery] = useState('')
+  const [debouncedQuery] = useDebouncedValue(query, 300)
   const [results, setResults] = useState<SearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [opened, { open, close }] = useDisclosure(false)
   const supabase = createClientComponentClient()
+  
+  const ref = useClickOutside(close)
 
   const handleSearch = async () => {
-    if (!query.trim()) return
+    if (!debouncedQuery.trim()) {
+      setResults([])
+      return
+    }
 
     setIsSearching(true)
+    open()
     try {
       // Search tracks
       const { data: trackData, error: trackError } = await supabase
         .from('tracks')
         .select('id, title')
-        .ilike('title', `%${query}%`)
+        .ilike('title', `%${debouncedQuery}%`)
         .limit(5)
 
       if (trackError) throw trackError
@@ -38,7 +60,7 @@ export function SearchBar() {
         .from('users')
         .select('id, username')
         .eq('user_type', 'artist')
-        .ilike('username', `%${query}%`)
+        .ilike('username', `%${debouncedQuery}%`)
         .limit(5)
 
       if (artistError) throw artistError
@@ -56,30 +78,110 @@ export function SearchBar() {
     }
   }
 
+  useEffect(() => {
+    handleSearch()
+  }, [debouncedQuery])
+
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="flex">
-        <Input
-          type="text"
-          placeholder="Search tracks or artists..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="flex-grow"
+    <Box pos="relative" ref={ref} maw={400} w="100%" mx="auto">
+      <TextInput
+        placeholder="Search tracks or artists..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        size="md"
+        radius="xl"
+        leftSection={<IconSearch size={18} stroke={1.5} />}
+        rightSection={
+          isSearching ? (
+            <Loader size="xs" />
+          ) : query ? (
+            <ActionIcon 
+              variant="subtle" 
+              onClick={() => setQuery('')}
+              radius="xl"
+              size="sm"
+            >
+              <IconX size={14} />
+            </ActionIcon>
+          ) : null
+        }
+        styles={(theme) => ({
+          input: {
+            '&:focus': {
+              borderColor: theme.colors.blue[5],
+            },
+          },
+        })}
+      />
+      
+      <Transition mounted={results.length > 0 && opened} transition="pop-top-left" duration={200}>
+        {(styles) => (
+          <Paper 
+            shadow="md" 
+            radius="md" 
+            pos="absolute" 
+            top={45} 
+            left={0} 
+            right={0} 
+            withBorder
+            style={styles}
+            pt="xs"
+          >
+            <Stack gap={0}>
+              {results.map((result) => (
+                <Box
+                  key={result.id}
+                  component={Link}
+                  href={result.type === 'track' ? `/track/${result.id}` : `/artist/${result.id}`}
+                  p="sm"
+                  style={(theme) => ({
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: theme.colors.gray[0]
+                    },
+                    transition: 'background-color 150ms ease'
+                  })}
+                >
+                  <Group wrap="nowrap">
+                    {result.type === 'track' ? (
+                      <IconMusic size={16} stroke={1.5} />
+                    ) : (
+                      <IconUser size={16} stroke={1.5} />
+                    )}
+                    <Box style={{ flex: 1, minWidth: 0 }}>
+                      <Text size="sm" fw={500} lineClamp={1}>
+                        {result.type === 'track' ? result.title : result.name}
+                      </Text>
+                    </Box>
+                    <Badge 
+                      size="sm" 
+                      variant="light"
+                      radius="xl"
+                      px="sm"
+                      color={result.type === 'track' ? 'blue' : 'green'}
+                    >
+                      {result.type}
+                    </Badge>
+                  </Group>
+                </Box>
+              ))}
+            </Stack>
+          </Paper>
+        )}
+      </Transition>
+
+      {opened && results.length > 0 && (
+        <Overlay 
+          color="#000" 
+          backgroundOpacity={0.05} 
+          blur={1}
+          zIndex={198}
+          onClick={close}
         />
-        <Button onClick={handleSearch} disabled={isSearching} className="ml-2">
-          <Search className="h-4 w-4" />
-        </Button>
-      </div>
-      {results.length > 0 && (
-        <ul className="mt-2 bg-white shadow-md rounded-md overflow-hidden">
-          {results.map((result) => (
-            <li key={result.id} className="p-2 hover:bg-gray-100">
-              {result.type === 'track' ? result.title : result.name} ({result.type})
-            </li>
-          ))}
-        </ul>
       )}
-    </div>
+    </Box>
   )
 }
 

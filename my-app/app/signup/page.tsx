@@ -1,14 +1,17 @@
 "use client";
 
+import { Container, Title, Box } from '@mantine/core';
 import { Auth } from "@/components/Auth";
 
 export default function SignupPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-md mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-center">Create Account</h1>
+    <Container size="xs" py="xl">
+      <Box maw={400} mx="auto">
+        <Title order={1} ta="center" mb="lg">
+          Create Account
+        </Title>
         <Auth view="sign_up" />
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 }
