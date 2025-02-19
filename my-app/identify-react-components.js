@@ -6,9 +6,9 @@ const directory = './my-app/components'; // Adjust the directory path to your co
 const isReactComponent = (filePath) => {
     const content = fs.readFileSync(filePath, 'utf-8');
     return (
-        content.includes('return') &&
-        (content.includes('<') && content.includes('>')) && // JSX-like syntax
-        content.match(/export\s+(const|function|default|class)/)
+        // JSX-like syntax
+        (content.includes('return') &&
+        (content.includes('<') && content.includes('>')) && content.match(/export\s+(const|function|default|class)/))
     );
 };
 
