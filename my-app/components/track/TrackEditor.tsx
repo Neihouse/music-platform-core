@@ -13,20 +13,29 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconUpload, IconPhoto, IconAlertCircle, IconCheck } from '@tabler/icons-react';
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useEffect, useState } from "react";
+import { notifications } from '@mantine/notifications';
+import { getUser } from '@/utils/auth';
+
+// Mock data for development
+const MOCK_TRACKS = {
+  '1': {
+    title: 'Summer Vibes',
+    genre: 'house',
+    cover_art_url: 'https://picsum.photos/400/400?random=1'
+  },
+  '2': {
+    title: 'Night Drive',
+    genre: 'techno',
+    cover_art_url: 'https://picsum.photos/400/400?random=2'
+  }
+};
 
 type FormValues = {
   title: string;
   genre: string;
   coverArt: File | null;
 };
-
-interface TrackUpdate {
-  title: string;
-  genre: string;
-  cover_art_url?: string;
-}
 
 const GENRE_OPTIONS = [
   { value: 'house', label: 'House' },
@@ -48,15 +57,12 @@ const GENRE_OPTIONS = [
 
 interface TrackEditorProps {
   trackId: string;
+  onUpdate?: (updatedTrack: { title: string; genre: string; cover_art_url?: string }) => void;
 }
 
-export function TrackEditor({ trackId }: TrackEditorProps) {
+export function TrackEditor({ trackId, onUpdate }: TrackEditorProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-
-  const supabase = createClientComponentClient();
 
   const form = useForm<FormValues>({
     initialValues: {
@@ -77,27 +83,42 @@ export function TrackEditor({ trackId }: TrackEditorProps) {
   useEffect(() => {
     const fetchTrackDetails = async () => {
       setIsLoading(true);
-      setError(null);
+      
       try {
-        const { data, error } = await supabase
-          .from("tracks")
-          .select("title, genre")
-          .eq("id", trackId)
-          .single();
+        const user = getUser();
+        if (!user) {
+          notifications.show({
+            title: 'Error',
+            message: 'Please log in to edit tracks',
+            color: 'red'
+          });
+          return;
+        }
 
-        if (error) throw error;
-        if (data) {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const mockTrack = MOCK_TRACKS[trackId as keyof typeof MOCK_TRACKS];
+        if (mockTrack) {
           form.setValues({
-            title: data.title || "",
-            genre: data.genre || "",
+            title: mockTrack.title,
+            genre: mockTrack.genre,
             coverArt: null,
           });
         } else {
-          setError("Track details not found.");
+          notifications.show({
+            title: 'Error',
+            message: 'Track not found',
+            color: 'red'
+          });
         }
       } catch (error) {
         console.error('Error fetching track details:', error);
-        setError("Failed to fetch track details.");
+        notifications.show({
+          title: 'Error',
+          message: 'Failed to fetch track details',
+          color: 'red'
+        });
       } finally {
         setIsLoading(false);
       }
@@ -110,40 +131,60 @@ export function TrackEditor({ trackId }: TrackEditorProps) {
     if (!form.isValid()) return;
     
     setIsSubmitting(true);
-    setError(null);
-    setSuccess(null);
     
     try {
-      const updates: TrackUpdate = {
-        title: values.title,
-        genre: values.genre,
-      };
-
-      if (values.coverArt) {
-        const fileName = `${trackId}_${Date.now()}.jpg`;
-        const { error: uploadError } = await supabase.storage
-          .from("cover-art")
-          .upload(fileName, values.coverArt);
-
-        if (uploadError) throw uploadError;
-
-        const { data } = supabase.storage
-          .from("cover-art")
-          .getPublicUrl(fileName);
-        updates.cover_art_url = data.publicUrl;
+      const user = getUser();
+      if (!user) {
+        notifications.show({
+          title: 'Error',
+          message: 'Please log in to update tracks',
+          color: 'red'
+        });
+        return;
       }
 
-      const { error } = await supabase
-        .from("tracks")
-        .update(updates)
-        .eq("id", trackId);
-      if (error) throw error;
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      setSuccess("Track updated successfully.");
+      let cover_art_url: string | undefined;
+      
+      if (values.coverArt) {
+        // Simulate cover art upload
+        await new Promise(resolve => setTimeout(resolve, 500));
+        cover_art_url = URL.createObjectURL(values.coverArt);
+      }
+
+      const updatedTrack = {
+        title: values.title,
+        genre: values.genre,
+        ...(cover_art_url && { cover_art_url })
+      };
+
+      // Update mock data
+      if (trackId in MOCK_TRACKS) {
+        MOCK_TRACKS[trackId as keyof typeof MOCK_TRACKS] = {
+          ...MOCK_TRACKS[trackId as keyof typeof MOCK_TRACKS],
+          ...updatedTrack
+        };
+      }
+
+      notifications.show({
+        title: 'Success',
+        message: 'Track updated successfully',
+        color: 'green',
+        icon: <IconCheck size={16} />
+      });
+
       form.resetDirty();
+      onUpdate?.(updatedTrack);
     } catch (error) {
       console.error('Error updating track:', error);
-      setError("Failed to update track.");
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to update track',
+        color: 'red',
+        icon: <IconAlertCircle size={16} />
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -163,6 +204,7 @@ export function TrackEditor({ trackId }: TrackEditorProps) {
             label="Title"
             placeholder="Enter track title"
             required
+            size="md"
             {...form.getInputProps('title')}
           />
 
@@ -172,35 +214,26 @@ export function TrackEditor({ trackId }: TrackEditorProps) {
             data={GENRE_OPTIONS}
             searchable
             required
+            size="md"
             {...form.getInputProps('genre')}
           />
 
           <FileInput
             label="Cover Art"
-            placeholder="Upload cover art"
+            placeholder="Upload new cover art"
             accept="image/*"
             clearable
+            size="md"
             leftSection={<IconPhoto size={rem(14)} />}
             {...form.getInputProps('coverArt')}
           />
-
-          {error && (
-            <Alert color="red" title="Error" variant="filled" icon={<IconAlertCircle size={16} />}>
-              {error}
-            </Alert>
-          )}
-
-          {success && (
-            <Alert color="green" title="Success" variant="filled" icon={<IconCheck size={16} />}>
-              {success}
-            </Alert>
-          )}
 
           <Button 
             type="submit" 
             loading={isSubmitting}
             leftSection={<IconUpload size={16} />}
             disabled={isSubmitting || !form.isDirty()}
+            size="md"
           >
             {isSubmitting ? "Updating..." : "Update Track"}
           </Button>

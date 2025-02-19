@@ -1,37 +1,59 @@
 "use client";
 
 import { Card, Title, Stack, SimpleGrid, Skeleton, Alert } from '@mantine/core';
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useEffect, useState } from "react";
 import { TrackCard } from "@/components/track/TrackCard";
+import { notifications } from '@mantine/notifications';
+import { getUser } from '@/utils/auth';
+
+// Mock data for development
+const MOCK_FAVORITE_TRACKS = [
+  {
+    title: "Summer Vibes",
+    artist: "DJ Cool",
+    coverArt: "https://picsum.photos/300/300?random=1",
+    likes: 156,
+    isLiked: true
+  },
+  {
+    title: "Night Drive",
+    artist: "The Cruisers",
+    coverArt: "https://picsum.photos/300/300?random=2",
+    likes: 89,
+    isLiked: true
+  },
+  {
+    title: "Mountain High",
+    artist: "Nature Sounds",
+    coverArt: "https://picsum.photos/300/300?random=3",
+    likes: 234,
+    isLiked: true
+  },
+  {
+    title: "Urban Dreams",
+    artist: "City Beats",
+    coverArt: "https://picsum.photos/300/300?random=4",
+    likes: 178,
+    isLiked: true
+  }
+];
 
 interface FavoriteTracksProps {
   userId: string;
 }
 
 interface Track {
-  id: string;
   title: string;
   artist: string;
   coverArt: string;
-  upvotes: number;
-}
-
-interface DatabaseTrack {
-  id: string;
-  title: string;
-  artist: {
-    username: string;
-  };
-  cover_art_url: string;
-  votes: number;
+  likes: number;
+  isLiked: boolean;
 }
 
 export function FavoriteTracks({ userId }: FavoriteTracksProps) {
   const [favoriteTracks, setFavoriteTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     fetchFavoriteTracks();
@@ -39,26 +61,16 @@ export function FavoriteTracks({ userId }: FavoriteTracksProps) {
 
   const fetchFavoriteTracks = async () => {
     try {
-      const { data, error } = await supabase
-        .from("favorites")
-        .select(
-          "track_id, tracks(id, title, artist:users(username), cover_art_url, votes)"
-        )
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
+      const user = getUser();
+      if (!user) {
+        setError("Please log in to view your favorite tracks");
+        return;
+      }
 
-      if (error) throw error;
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const tracks = data as unknown as { tracks: DatabaseTrack }[];
-      setFavoriteTracks(
-        tracks.map(item => ({
-          id: item.tracks.id,
-          title: item.tracks.title,
-          artist: item.tracks.artist.username,
-          coverArt: item.tracks.cover_art_url,
-          upvotes: item.tracks.votes,
-        }))
-      );
+      setFavoriteTracks(MOCK_FAVORITE_TRACKS);
     } catch (err) {
       setError("Failed to fetch favorite tracks");
       console.error("Error fetching favorite tracks:", err);
@@ -67,12 +79,28 @@ export function FavoriteTracks({ userId }: FavoriteTracksProps) {
     }
   };
 
-  const handlePlay = (trackId: string) => {
-    console.log(`Playing track ${trackId}`);
+  const handlePlay = (track: Track) => {
+    notifications.show({
+      title: 'Playing',
+      message: `Now playing ${track.title}`,
+      color: 'blue'
+    });
   };
 
-  const handleUpvote = (trackId: string) => {
-    console.log(`Upvoting track ${trackId}`);
+  const handleLike = (track: Track) => {
+    const updatedTracks = favoriteTracks.map(t => {
+      if (t.title === track.title) {
+        return { ...t, isLiked: !t.isLiked, likes: t.isLiked ? t.likes - 1 : t.likes + 1 };
+      }
+      return t;
+    });
+    setFavoriteTracks(updatedTracks);
+    
+    notifications.show({
+      title: 'Success',
+      message: track.isLiked ? 'Track removed from favorites' : 'Track added to favorites',
+      color: 'green'
+    });
   };
 
   if (isLoading) {
@@ -102,20 +130,22 @@ export function FavoriteTracks({ userId }: FavoriteTracksProps) {
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Stack gap="lg">
         <Title order={2}>Favorite Tracks</Title>
-        <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
-          {favoriteTracks.map((track) => (
-            <TrackCard
-              key={track.id}
-              id={track.id}
-              title={track.title}
-              artist={track.artist}
-              coverArt={track.coverArt}
-              upvotes={track.upvotes}
-              onPlay={() => handlePlay(track.id)}
-              onUpvote={() => handleUpvote(track.id)}
-            />
-          ))}
-        </SimpleGrid>
+        {favoriteTracks.length > 0 ? (
+          <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
+            {favoriteTracks.map((track) => (
+              <TrackCard
+                key={track.title}
+                {...track}
+                onPlay={() => handlePlay(track)}
+                onLike={() => handleLike(track)}
+              />
+            ))}
+          </SimpleGrid>
+        ) : (
+          <Alert color="gray" variant="light">
+            No favorite tracks yet
+          </Alert>
+        )}
       </Stack>
     </Card>
   );

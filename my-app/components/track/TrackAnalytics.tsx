@@ -1,113 +1,101 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { Card, Group, Stack, Text, Title, RingProgress } from '@mantine/core'
+import { IconHeadphones, IconHeart, IconShare } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
 
 interface TrackAnalytics {
-  id: string
-  title: string
-  total_plays: number
-  total_votes: number
-  total_comments: number
-  daily_stats: {
-    date: string
-    plays: number
-    votes: number
-    comments: number
-  }[]
+  plays: number
+  likes: number
+  shares: number
 }
 
-export function TrackAnalytics({ trackId }: { trackId: string }) {
-  const [analytics, setAnalytics] = useState<TrackAnalytics | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const supabase = createClientComponentClient()
+interface TrackAnalyticsProps {
+  trackId: string
+}
+
+const MOCK_ANALYTICS: Record<string, TrackAnalytics> = {
+  'track-1': { plays: 1250, likes: 432, shares: 89 },
+  'track-2': { plays: 850, likes: 234, shares: 45 },
+  // Add more mock data as needed
+}
+
+export function TrackAnalytics({ trackId }: TrackAnalyticsProps) {
+  const [analytics, setAnalytics] = useState<TrackAnalytics>({ plays: 0, likes: 0, shares: 0 })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchTrackAnalytics()
+    // Simulate API call delay
+    const fetchAnalytics = async () => {
+      setLoading(true)
+      try {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        const data = MOCK_ANALYTICS[trackId] || { plays: 0, likes: 0, shares: 0 }
+        setAnalytics(data)
+      } catch (error) {
+        console.error('Error fetching analytics:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAnalytics()
   }, [trackId])
 
-  const fetchTrackAnalytics = async () => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const { data, error } = await supabase
-        .from('track_analytics')
-        .select('*')
-        .eq('id', trackId)
-        .single()
-
-      if (error) throw error
-
-      setAnalytics(data)
-    } catch (err) {
-      setError('Failed to fetch track analytics')
-      console.error('Error fetching track analytics:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  if (isLoading) return <div>Loading track analytics...</div>
-  if (error) return <div>Error: {error}</div>
-  if (!analytics) return <div>No analytics data available</div>
+  // Calculate engagement rate (likes + shares / plays * 100)
+  const engagementRate = analytics.plays > 0
+    ? ((analytics.likes + analytics.shares) / analytics.plays) * 100
+    : 0
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Track Analytics: {analytics.title}</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Plays</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{analytics.total_plays}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Votes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{analytics.total_votes}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Comments</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{analytics.total_comments}</p>
-          </CardContent>
-        </Card>
-      </div>
+    <Card withBorder radius="md" padding="xl">
+      <Title order={2} size="h3" mb="xl">Track Analytics</Title>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Engagement Trends</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={analytics.daily_stats}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="plays" stroke="#8884d8" name="Plays" />
-                <Line type="monotone" dataKey="votes" stroke="#82ca9d" name="Votes" />
-                <Line type="monotone" dataKey="comments" stroke="#ffc658" name="Comments" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+      <Group justify="space-between" align="flex-start">
+        <Stack gap="lg">
+          <Group gap="xl">
+            <Group gap="xs">
+              <IconHeadphones size={20} style={{ color: 'var(--mantine-color-blue-6)' }} />
+              <Text size="lg" fw={500}>{analytics.plays.toLocaleString()}</Text>
+              <Text size="sm" c="dimmed">Plays</Text>
+            </Group>
+
+            <Group gap="xs">
+              <IconHeart size={20} style={{ color: 'var(--mantine-color-red-6)' }} />
+              <Text size="lg" fw={500}>{analytics.likes.toLocaleString()}</Text>
+              <Text size="sm" c="dimmed">Likes</Text>
+            </Group>
+
+            <Group gap="xs">
+              <IconShare size={20} style={{ color: 'var(--mantine-color-green-6)' }} />
+              <Text size="lg" fw={500}>{analytics.shares.toLocaleString()}</Text>
+              <Text size="sm" c="dimmed">Shares</Text>
+            </Group>
+          </Group>
+
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>Engagement Rate</Text>
+            <Text size="xs" c="dimmed">
+              Calculated from likes and shares relative to total plays
+            </Text>
+          </Stack>
+        </Stack>
+
+        <RingProgress
+          size={120}
+          thickness={12}
+          roundCaps
+          sections={[{ value: engagementRate, color: 'blue' }]}
+          label={
+            <Text ta="center" size="sm" fw={700}>
+              {engagementRate.toFixed(1)}%
+            </Text>
+          }
+        />
+      </Group>
+    </Card>
   )
 }
 

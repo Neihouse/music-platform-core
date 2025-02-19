@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Play } from "lucide-react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 interface FeaturedTrackProps {
   title: string;

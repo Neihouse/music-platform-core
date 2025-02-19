@@ -10,124 +10,91 @@ import {
   rem
 } from '@mantine/core'
 import { IconThumbUp, IconThumbUpFilled } from '@tabler/icons-react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { useHover } from '@mantine/hooks'
+import { notifications } from '@mantine/notifications'
+import { getUser } from '@/utils/auth'
 
 interface VoteButtonProps {
   trackId: string
-  initialVotes: number
-  userHasVoted: boolean
-  onAuthRequired?: () => void
+  initialVotes?: number
+  initialVoted?: boolean
 }
 
-export function VoteButton({ 
-  trackId, 
-  initialVotes, 
-  userHasVoted,
-  onAuthRequired 
-}: VoteButtonProps) {
+export function VoteButton({ trackId, initialVotes = 0, initialVoted = false }: VoteButtonProps) {
   const [votes, setVotes] = useState(initialVotes)
-  const [hasVoted, setHasVoted] = useState(userHasVoted)
-  const [isLoading, setIsLoading] = useState(false)
-  const { hovered, ref } = useHover()
-  const supabase = createClientComponentClient()
+  const [voted, setVoted] = useState(initialVoted)
+  const [loading, setLoading] = useState(false)
 
   const handleVote = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      onAuthRequired?.()
-      return
-    }
-
-    setIsLoading(true)
     try {
-      if (hasVoted) {
-        // Remove vote
-        const { error } = await supabase
-          .from('votes')
-          .delete()
-          .match({ user_id: user.id, track_id: trackId })
+      setLoading(true)
+      const user = getUser()
 
-        if (!error) {
-          setVotes(votes - 1)
-          setHasVoted(false)
-        }
-      } else {
-        // Add vote
-        const { error } = await supabase
-          .from('votes')
-          .insert({ user_id: user.id, track_id: trackId })
-
-        if (!error) {
-          setVotes(votes + 1)
-          setHasVoted(true)
-        }
+      if (!user) {
+        notifications.show({
+          title: 'Error',
+          message: 'Please log in to vote',
+          color: 'red',
+        })
+        return
       }
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      if (voted) {
+        setVotes(prev => prev - 1)
+        setVoted(false)
+        notifications.show({
+          title: 'Success',
+          message: 'Vote removed',
+          color: 'blue',
+        })
+      } else {
+        setVotes(prev => prev + 1)
+        setVoted(true)
+        notifications.show({
+          title: 'Success',
+          message: 'Vote added',
+          color: 'green',
+        })
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to update vote',
+        color: 'red',
+      })
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   return (
-    <Group gap={8} ref={ref}>
+    <Group gap={8}>
       <Tooltip 
-        label={hasVoted ? "Remove vote" : "Vote for this track"}
+        label={voted ? "Remove vote" : "Vote for this track"}
         position="top"
         withArrow
         arrowSize={6}
       >
         <ActionIcon
-          variant={hasVoted ? "filled" : "light"}
+          variant={voted ? 'filled' : 'light'}
           size="lg"
           radius="xl"
           onClick={handleVote}
-          loading={isLoading}
-          color={hasVoted ? "blue" : "gray"}
+          loading={loading}
+          color={voted ? 'red' : 'gray'}
           aria-label="Vote for track"
-          style={{
-            transition: 'all 150ms ease',
-            transform: hovered ? 'scale(1.1)' : 'scale(1)',
-            '&:active': {
-              transform: 'scale(0.95)',
-            },
-          }}
         >
-          <Transition
-            mounted={hasVoted}
-            transition="pop"
-            duration={200}
-          >
-            {(styles) => (
-              <IconThumbUpFilled 
-                style={{ ...styles, width: rem(20), height: rem(20) }} 
-                stroke={1.5} 
-              />
-            )}
-          </Transition>
-          <Transition
-            mounted={!hasVoted}
-            transition="pop"
-            duration={200}
-          >
-            {(styles) => (
-              <IconThumbUp 
-                style={{ ...styles, width: rem(20), height: rem(20), position: 'absolute' }} 
-                stroke={1.5} 
-              />
-            )}
-          </Transition>
+          <IconThumbUp size={20} />
         </ActionIcon>
       </Tooltip>
       <Badge 
         size="lg" 
         variant="light" 
-        color={hasVoted ? "blue" : "gray"}
+        color={voted ? 'red' : 'gray'}
         radius="xl"
         px="md"
-        style={{
-          transition: 'all 150ms ease',
-          transform: hovered ? 'scale(1.05)' : 'scale(1)',
-        }}
       >
         {votes.toLocaleString()}
       </Badge>

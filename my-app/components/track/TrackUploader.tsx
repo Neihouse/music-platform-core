@@ -1,40 +1,56 @@
 "use client"
 
 import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { 
   Stack,
   TextInput,
   Select,
   Button,
-  Alert,
   Paper,
   Text,
   Group,
-  rem
+  rem,
+  Progress,
+  Image,
+  ActionIcon,
+  Box
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { Dropzone } from '@mantine/dropzone'
+import { Dropzone, FileWithPath } from '@mantine/dropzone'
 import { 
   IconUpload,
   IconX,
-  IconAlertCircle,
-  IconCheck,
-  IconMusic 
+  IconMusic,
+  IconPhoto,
+  IconTrash
 } from '@tabler/icons-react'
+import { notifications } from '@mantine/notifications'
+import { getUser } from '@/utils/auth'
+
+const GENRES = [
+  { value: 'electronic', label: 'Electronic' },
+  { value: 'rock', label: 'Rock' },
+  { value: 'pop', label: 'Pop' },
+  { value: 'jazz', label: 'Jazz' },
+  { value: 'hiphop', label: 'Hip Hop' },
+  { value: 'classical', label: 'Classical' },
+  { value: 'ambient', label: 'Ambient' },
+  { value: 'folk', label: 'Folk' },
+  { value: 'rnb', label: 'R&B' },
+  { value: 'metal', label: 'Metal' }
+]
 
 interface FormValues {
   title: string;
   genre: string;
-  file: File | null;
-  coverArt: File | null;
+  file: FileWithPath | null;
+  coverArt: FileWithPath | null;
 }
 
 export function TrackUploader() {
   const [isUploading, setIsUploading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const supabase = createClientComponentClient()
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   const form = useForm<FormValues>({
     initialValues: {
@@ -44,69 +60,95 @@ export function TrackUploader() {
       coverArt: null,
     },
     validate: {
-      title: (value) => !value.trim() ? 'Title is required' : null,
+      title: (value) => {
+        if (!value.trim()) return 'Title is required';
+        if (value.length > 100) return 'Title must be 100 characters or less';
+        return null;
+      },
       genre: (value) => !value ? 'Genre is required' : null,
-      file: (value) => !value ? 'Audio file is required' : null,
+      file: (value) => {
+        if (!value) return 'Audio file is required';
+        if (value.size > 30 * 1024 * 1024) return 'File size must be less than 30MB';
+        return null;
+      },
+      coverArt: (value) => {
+        if (value && value.size > 5 * 1024 * 1024) return 'Cover art must be less than 5MB';
+        return null;
+      },
     },
   })
 
   const handleUpload = async () => {
     if (!form.isValid()) return;
     
-    setIsUploading(true)
-    setError(null)
-    setSuccess(null)
-
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('User not found')
-
-      if (!form.values.file) return;
-
-      // Upload track file
-      const trackFileName = `${user.id}/${Date.now()}-${form.values.file.name}`
-      const { error: uploadError } = await supabase.storage
-        .from('tracks')
-        .upload(trackFileName, form.values.file as File)
-
-      if (uploadError) throw uploadError
-
-      // Upload cover art if provided
-      let coverArtUrl = null
-      if (form.values.coverArt) {
-        const coverArtFileName = `${user.id}/${Date.now()}-${form.values.coverArt.name}`
-        const { error: coverArtUploadError } = await supabase.storage
-          .from('cover-art')
-          .upload(coverArtFileName, form.values.coverArt)
-
-        if (coverArtUploadError) throw coverArtUploadError
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('cover-art')
-          .getPublicUrl(coverArtFileName)
-
-        coverArtUrl = publicUrl
+      const user = getUser()
+      if (!user) {
+        notifications.show({
+          title: 'Error',
+          message: 'Please log in to upload tracks',
+          color: 'red'
+        })
+        return
       }
 
-      // Insert track data into the database
-      const { error: insertError } = await supabase
-        .from('tracks')
-        .insert({
-          title: form.values.title,
-          genre: form.values.genre,
-          artist_id: user.id,
-          file_path: trackFileName,
-          cover_art_url: coverArtUrl
-        })
+      setIsUploading(true)
+      setUploadProgress(0)
 
-      if (insertError) throw insertError
+      // Simulate file upload progress
+      const duration = 3000 // 3 seconds
+      const interval = 100 // Update every 100ms
+      const steps = duration / interval
+      let progress = 0
 
-      setSuccess('Track uploaded successfully!')
-      form.reset()
+      const progressInterval = setInterval(() => {
+        progress += (100 / steps)
+        setUploadProgress(Math.min(progress, 99))
+      }, interval)
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, duration))
+
+      clearInterval(progressInterval)
+      setUploadProgress(100)
+
+      notifications.show({
+        title: 'Success',
+        message: 'Track uploaded successfully!',
+        color: 'green'
+      })
+
+      // Reset form after a brief delay
+      setTimeout(() => {
+        form.reset()
+        setPreviewUrl(null)
+        setUploadProgress(0)
+      }, 1000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload track')
+      notifications.show({
+        title: 'Error',
+        message: err instanceof Error ? err.message : 'Failed to upload track',
+        color: 'red'
+      })
     } finally {
       setIsUploading(false)
+    }
+  }
+
+  const handleCoverArtDrop = (files: FileWithPath[]) => {
+    const file = files[0]
+    form.setFieldValue('coverArt', file)
+
+    // Create preview URL
+    const url = URL.createObjectURL(file)
+    setPreviewUrl(url)
+  }
+
+  const handleRemoveCoverArt = () => {
+    form.setFieldValue('coverArt', null)
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl)
+      setPreviewUrl(null)
     }
   }
 
@@ -117,69 +159,147 @@ export function TrackUploader() {
           label="Track Title"
           placeholder="Enter track title"
           required
+          size="md"
           {...form.getInputProps('title')}
         />
 
         <Select
           label="Genre"
           placeholder="Select genre"
-          data={[
-            { value: 'rock', label: 'Rock' },
-            { value: 'pop', label: 'Pop' },
-            { value: 'jazz', label: 'Jazz' },
-            // Add more genres...
-          ]}
+          data={GENRES}
           required
+          size="md"
+          searchable
           {...form.getInputProps('genre')}
         />
 
-        <Dropzone
-          onDrop={(files) => form.setFieldValue('file', files[0])}
-          maxSize={30 * 1024 ** 2}
-          accept={{
-            'audio/*': ['.mp3', '.wav']
-          }}
-          multiple={false}
-        >
-          <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
-            <Dropzone.Accept>
-              <IconUpload
-                style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-blue-6)' }}
-                stroke={1.5}
-              />
-            </Dropzone.Accept>
-            <Dropzone.Reject>
-              <IconX
-                style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-red-6)' }}
-                stroke={1.5}
-              />
-            </Dropzone.Reject>
-            <Dropzone.Idle>
-              <IconMusic
-                style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-dimmed)' }}
-                stroke={1.5}
-              />
-            </Dropzone.Idle>
+        <Box>
+          <Text fw={500} size="sm" mb={8}>
+            Audio File
+          </Text>
+          <Dropzone
+            onDrop={(files) => form.setFieldValue('file', files[0])}
+            maxSize={30 * 1024 ** 2}
+            accept={{
+              'audio/*': ['.mp3', '.wav']
+            }}
+            multiple={false}
+          >
+            <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
+              <Dropzone.Accept>
+                <IconUpload
+                  style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-blue-6)' }}
+                  stroke={1.5}
+                />
+              </Dropzone.Accept>
+              <Dropzone.Reject>
+                <IconX
+                  style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-red-6)' }}
+                  stroke={1.5}
+                />
+              </Dropzone.Reject>
+              <Dropzone.Idle>
+                <IconMusic
+                  style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-dimmed)' }}
+                  stroke={1.5}
+                />
+              </Dropzone.Idle>
 
-            <Stack gap="xs" align="center">
-              <Text size="xl">Drop audio file here or click to browse</Text>
-              <Text size="sm" c="dimmed">
-                MP3 or WAV file, up to 30MB
-              </Text>
-            </Stack>
-          </Group>
-        </Dropzone>
+              <Stack gap="xs" align="center">
+                <Text size="xl" inline>
+                  {form.values.file 
+                    ? form.values.file.name
+                    : 'Drop audio file here or click to browse'
+                  }
+                </Text>
+                <Text size="sm" c="dimmed">
+                  MP3 or WAV file, up to 30MB
+                </Text>
+              </Stack>
+            </Group>
+          </Dropzone>
+        </Box>
 
-        {error && (
-          <Alert color="red" title="Error" variant="filled" icon={<IconAlertCircle size={16} />}>
-            {error}
-          </Alert>
-        )}
+        <Box>
+          <Text fw={500} size="sm" mb={8}>
+            Cover Art (Optional)
+          </Text>
+          {previewUrl ? (
+            <Paper p="xs" radius="md" withBorder>
+              <Group wrap="nowrap" align="center">
+                <Image
+                  src={previewUrl}
+                  alt="Cover art preview"
+                  w={100}
+                  h={100}
+                  radius="md"
+                  fallbackSrc="https://placehold.co/100x100?text=No+Image"
+                />
+                <Stack gap={4} style={{ flex: 1 }}>
+                  <Text size="sm" lineClamp={1}>
+                    {form.values.coverArt?.name}
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    {form.values.coverArt && (form.values.coverArt.size / (1024 * 1024)).toFixed(2)} MB
+                  </Text>
+                </Stack>
+                <ActionIcon
+                  variant="light"
+                  color="red"
+                  onClick={handleRemoveCoverArt}
+                >
+                  <IconTrash size={16} />
+                </ActionIcon>
+              </Group>
+            </Paper>
+          ) : (
+            <Dropzone
+              onDrop={handleCoverArtDrop}
+              maxSize={5 * 1024 ** 2}
+              accept={{
+                'image/*': ['.png', '.jpg', '.jpeg', '.webp']
+              }}
+              multiple={false}
+            >
+              <Group justify="center" gap="xl" mih={150} style={{ pointerEvents: 'none' }}>
+                <Dropzone.Accept>
+                  <IconUpload
+                    style={{ width: rem(40), height: rem(40), color: 'var(--mantine-color-blue-6)' }}
+                    stroke={1.5}
+                  />
+                </Dropzone.Accept>
+                <Dropzone.Reject>
+                  <IconX
+                    style={{ width: rem(40), height: rem(40), color: 'var(--mantine-color-red-6)' }}
+                    stroke={1.5}
+                  />
+                </Dropzone.Reject>
+                <Dropzone.Idle>
+                  <IconPhoto
+                    style={{ width: rem(40), height: rem(40), color: 'var(--mantine-color-dimmed)' }}
+                    stroke={1.5}
+                  />
+                </Dropzone.Idle>
 
-        {success && (
-          <Alert color="green" title="Success" variant="filled" icon={<IconCheck size={16} />}>
-            {success}
-          </Alert>
+                <Stack gap="xs" align="center">
+                  <Text size="lg">Drop cover art here or click to browse</Text>
+                  <Text size="sm" c="dimmed">
+                    PNG, JPG, or WEBP file, up to 5MB
+                  </Text>
+                </Stack>
+              </Group>
+            </Dropzone>
+          )}
+        </Box>
+
+        {uploadProgress > 0 && (
+          <Progress 
+            value={uploadProgress} 
+            size="xl" 
+            radius="xl"
+            striped
+            animated={uploadProgress < 100}
+          />
         )}
 
         <Button
@@ -187,6 +307,7 @@ export function TrackUploader() {
           loading={isUploading}
           leftSection={<IconUpload size={16} />}
           disabled={!form.isValid()}
+          size="md"
         >
           {isUploading ? 'Uploading...' : 'Upload Track'}
         </Button>

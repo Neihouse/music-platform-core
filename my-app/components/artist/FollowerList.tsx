@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { 
   Stack, 
   Text, 
@@ -17,20 +16,48 @@ import {
   rem
 } from '@mantine/core'
 import { IconAlertCircle, IconUserPlus, IconUserMinus } from '@tabler/icons-react'
+import { getUser } from '@/utils/auth'
+import { notifications } from '@mantine/notifications'
 
-interface DatabaseResponse {
-  follower: {
-    id: string;
-    username: string;
-    avatar_url: string | null;
-  };
-}
+// Mock data for development
+const MOCK_FOLLOWERS = [
+  {
+    id: '1',
+    username: 'MusicLover123',
+    avatar_url: 'https://picsum.photos/200/200?random=1',
+    isFollowing: false
+  },
+  {
+    id: '2',
+    username: 'BeatMaster',
+    avatar_url: 'https://picsum.photos/200/200?random=2',
+    isFollowing: true
+  },
+  {
+    id: '3',
+    username: 'RhythmQueen',
+    avatar_url: 'https://picsum.photos/200/200?random=3',
+    isFollowing: false
+  },
+  {
+    id: '4',
+    username: 'SoundExplorer',
+    avatar_url: 'https://picsum.photos/200/200?random=4',
+    isFollowing: true
+  },
+  {
+    id: '5',
+    username: 'MelodyMaker',
+    avatar_url: 'https://picsum.photos/200/200?random=5',
+    isFollowing: false
+  }
+];
 
 interface Follower {
   id: string;
   username: string;
   avatar_url: string | null;
-  isFollowing?: boolean;
+  isFollowing: boolean;
 }
 
 interface FollowerListProps {
@@ -41,7 +68,6 @@ export function FollowerList({ artistId }: FollowerListProps) {
   const [followers, setFollowers] = useState<Follower[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClientComponentClient()
 
   useEffect(() => {
     fetchFollowers()
@@ -49,41 +75,16 @@ export function FollowerList({ artistId }: FollowerListProps) {
 
   const fetchFollowers = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-
-      const { data, error } = await supabase
-        .from('followers')
-        .select(`
-          follower:users!followers_follower_id_fkey (
-            id,
-            username,
-            avatar_url
-          )
-        `)
-        .eq('artist_id', artistId)
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-
-      // If user is logged in, check which followers they're following
-      let followingData: string[] = []
-      if (user) {
-        const { data: following } = await supabase
-          .from('followers')
-          .select('artist_id')
-          .eq('follower_id', user.id)
-
-        followingData = following?.map(f => f.artist_id) || []
+      const user = getUser()
+      if (!user) {
+        setError('Please log in to view followers')
+        return
       }
 
-      const transformedFollowers: Follower[] = (data as unknown as DatabaseResponse[]).map(item => ({
-        id: item.follower.id,
-        username: item.follower.username,
-        avatar_url: item.follower.avatar_url,
-        isFollowing: followingData.includes(item.follower.id)
-      }))
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      setFollowers(transformedFollowers)
+      setFollowers(MOCK_FOLLOWERS)
     } catch (err) {
       setError('Failed to fetch followers')
       console.error('Error fetching followers:', err)
@@ -94,14 +95,18 @@ export function FollowerList({ artistId }: FollowerListProps) {
 
   const handleFollow = async (followerId: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = getUser()
+      if (!user) {
+        notifications.show({
+          title: 'Error',
+          message: 'Please log in to follow users',
+          color: 'red'
+        })
+        return
+      }
 
-      const { error } = await supabase
-        .from('followers')
-        .insert({ follower_id: user.id, artist_id: followerId })
-
-      if (error) throw error
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500))
 
       setFollowers(current =>
         current.map(follower =>
@@ -110,22 +115,36 @@ export function FollowerList({ artistId }: FollowerListProps) {
             : follower
         )
       )
+
+      notifications.show({
+        title: 'Success',
+        message: 'User followed successfully',
+        color: 'green'
+      })
     } catch (err) {
       console.error('Error following user:', err)
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to follow user',
+        color: 'red'
+      })
     }
   }
 
   const handleUnfollow = async (followerId: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const user = getUser()
+      if (!user) {
+        notifications.show({
+          title: 'Error',
+          message: 'Please log in to unfollow users',
+          color: 'red'
+        })
+        return
+      }
 
-      const { error } = await supabase
-        .from('followers')
-        .delete()
-        .match({ follower_id: user.id, artist_id: followerId })
-
-      if (error) throw error
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500))
 
       setFollowers(current =>
         current.map(follower =>
@@ -134,8 +153,19 @@ export function FollowerList({ artistId }: FollowerListProps) {
             : follower
         )
       )
+
+      notifications.show({
+        title: 'Success',
+        message: 'User unfollowed successfully',
+        color: 'green'
+      })
     } catch (err) {
       console.error('Error unfollowing user:', err)
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to unfollow user',
+        color: 'red'
+      })
     }
   }
 

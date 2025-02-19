@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { 
   TextInput, 
   Button, 
@@ -12,32 +11,39 @@ import {
   Text,
   Container,
   Transition,
-  rem
+  rem,
+  PasswordInput
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { 
   IconAlertCircle, 
   IconCheck, 
   IconMail,
-  IconArrowLeft 
+  IconArrowLeft,
+  IconLock
 } from '@tabler/icons-react'
 import { useDisclosure } from '@mantine/hooks'
+import { notifications } from '@mantine/notifications'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface FormValues {
   email: string
+  newPassword?: string
+  confirmPassword?: string
 }
 
 export function PasswordResetForm() {
-  const [message, setMessage] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, { toggle }] = useDisclosure(true)
-  const supabase = createClientComponentClient()
+  const [showResetForm, setShowResetForm] = useState(false)
 
   const form = useForm({
     initialValues: {
       email: '',
+      newPassword: '',
+      confirmPassword: '',
     },
     validate: {
       email: (value) => {
@@ -45,29 +51,64 @@ export function PasswordResetForm() {
         if (!/^\S+@\S+$/.test(value)) return 'Invalid email address';
         return null;
       },
+      newPassword: (value) => {
+        if (showResetForm) {
+          if (!value) return 'New password is required';
+          if (value.length < 8) return 'Password must be at least 8 characters';
+        }
+        return null;
+      },
+      confirmPassword: (value, values) => {
+        if (showResetForm) {
+          if (!value) return 'Please confirm your password';
+          if (value !== values.newPassword) return 'Passwords do not match';
+        }
+        return null;
+      },
     },
   })
 
   const handleSubmit = async (values: FormValues) => {
     setIsLoading(true)
-    setError(null)
-    setMessage(null)
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      })
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      if (error) throw error
-
-      setMessage('Check your email for the password reset link')
-      form.reset()
-      toggle() // Start exit animation
-      setTimeout(() => {
-        // You could redirect here if needed
-      }, 500)
+      if (!showResetForm) {
+        // Send reset link
+        notifications.show({
+          title: 'Success',
+          message: 'Check your email for the password reset link',
+          color: 'green',
+          icon: <IconCheck size={rem(16)} />
+        })
+        form.reset()
+        toggle()
+        setTimeout(() => {
+          router.push('/login')
+        }, 2000)
+      } else {
+        // Reset password
+        notifications.show({
+          title: 'Success',
+          message: 'Your password has been reset successfully',
+          color: 'green',
+          icon: <IconCheck size={rem(16)} />
+        })
+        form.reset()
+        toggle()
+        setTimeout(() => {
+          router.push('/login')
+        }, 2000)
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset link')
+      notifications.show({
+        title: 'Error',
+        message: err instanceof Error ? err.message : 'Failed to process request',
+        color: 'red',
+        icon: <IconAlertCircle size={rem(16)} />
+      })
     } finally {
       setIsLoading(false)
     }
@@ -80,44 +121,48 @@ export function PasswordResetForm() {
           <Paper radius="md" p="xl" withBorder>
             <Stack gap="md">
               <Title order={2} ta="center" mt="md">
-                Reset Password
+                {showResetForm ? 'Set New Password' : 'Reset Password'}
               </Title>
               <Text c="dimmed" size="sm" ta="center" mb="lg">
-                Enter your email address and we&apos;ll send you a link to reset your password
+                {showResetForm 
+                  ? 'Enter your new password below'
+                  : 'Enter your email address and we\'ll send you a link to reset your password'
+                }
               </Text>
 
               <form onSubmit={form.onSubmit(handleSubmit)}>
                 <Stack gap="md">
-                  <TextInput
-                    required
-                    label="Email"
-                    placeholder="your@email.com"
-                    radius="md"
-                    size="md"
-                    leftSection={<IconMail size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />}
-                    {...form.getInputProps('email')}
-                  />
-
-                  {error && (
-                    <Alert 
-                      color="red" 
-                      title="Error" 
-                      variant="filled" 
-                      icon={<IconAlertCircle size={rem(16)} />}
-                    >
-                      {error}
-                    </Alert>
-                  )}
-
-                  {message && (
-                    <Alert 
-                      color="green" 
-                      title="Success" 
-                      variant="filled"
-                      icon={<IconCheck size={rem(16)} />}
-                    >
-                      {message}
-                    </Alert>
+                  {!showResetForm ? (
+                    <TextInput
+                      required
+                      label="Email"
+                      placeholder="your@email.com"
+                      radius="md"
+                      size="md"
+                      leftSection={<IconMail size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />}
+                      {...form.getInputProps('email')}
+                    />
+                  ) : (
+                    <>
+                      <PasswordInput
+                        required
+                        label="New Password"
+                        placeholder="Enter your new password"
+                        radius="md"
+                        size="md"
+                        leftSection={<IconLock size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />}
+                        {...form.getInputProps('newPassword')}
+                      />
+                      <PasswordInput
+                        required
+                        label="Confirm Password"
+                        placeholder="Confirm your new password"
+                        radius="md"
+                        size="md"
+                        leftSection={<IconLock size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />}
+                        {...form.getInputProps('confirmPassword')}
+                      />
+                    </>
                   )}
 
                   <Button 
@@ -127,21 +172,26 @@ export function PasswordResetForm() {
                     radius="md"
                     size="md"
                   >
-                    {isLoading ? 'Sending link...' : 'Send Reset Link'}
+                    {isLoading 
+                      ? (showResetForm ? 'Resetting Password...' : 'Sending Link...') 
+                      : (showResetForm ? 'Reset Password' : 'Send Reset Link')
+                    }
                   </Button>
 
-                  <Button
-                    component={Link}
-                    href="/login"
-                    variant="subtle"
-                    color="gray"
-                    fullWidth
-                    leftSection={<IconArrowLeft size={16} />}
-                    radius="md"
-                    size="md"
-                  >
-                    Back to Login
-                  </Button>
+                  {!showResetForm && (
+                    <Button
+                      component={Link}
+                      href="/login"
+                      variant="subtle"
+                      color="gray"
+                      fullWidth
+                      leftSection={<IconArrowLeft size={16} />}
+                      radius="md"
+                      size="md"
+                    >
+                      Back to Login
+                    </Button>
+                  )}
                 </Stack>
               </form>
             </Stack>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import { 
   Card, 
@@ -25,10 +24,36 @@ import {
   IconGripVertical, 
   IconAlertCircle,
   IconMusic,
-  IconX
+  IconX,
+  IconPlayerPlay,
+  IconTrash
 } from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
+import { getUser } from '@/utils/auth'
+import { notifications } from '@mantine/notifications'
+
+// Mock data for development
+const MOCK_PLAYLISTS = [
+  {
+    id: '1',
+    name: 'Summer Vibes 2024',
+    tracks: [
+      { id: '1', title: 'Sunny Day', artist: 'Beach Boys' },
+      { id: '2', title: 'Ocean Waves', artist: 'Chill Masters' },
+      { id: '3', title: 'Tropical Breeze', artist: 'Island Crew' }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Workout Mix',
+    tracks: [
+      { id: '4', title: 'Power Up', artist: 'Energy Squad' },
+      { id: '5', title: 'Run Fast', artist: 'Fitness Beats' },
+      { id: '6', title: 'No Pain No Gain', artist: 'Gym Heroes' }
+    ]
+  }
+];
 
 interface Track {
   id: string
@@ -42,20 +67,6 @@ interface Playlist {
   tracks: Track[]
 }
 
-interface DatabaseTrack {
-  id: string
-  title: string
-  artist: {
-    username: string
-  }[]
-}
-
-interface DatabasePlaylist {
-  id: string
-  name: string
-  tracks: DatabaseTrack[]
-}
-
 interface PlaylistFormValues {
   name: string
 }
@@ -65,7 +76,6 @@ export function PlaylistCreator() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [formOpened, { open: openForm, close: closeForm }] = useDisclosure(false)
-  const supabase = createClientComponentClient()
 
   const form = useForm<PlaylistFormValues>({
     initialValues: {
@@ -86,28 +96,16 @@ export function PlaylistCreator() {
 
   const fetchPlaylists = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('User not found')
+      const user = getUser()
+      if (!user) {
+        setError('Please log in to view your playlists')
+        return
+      }
 
-      const { data, error } = await supabase
-        .from('playlists')
-        .select('id, name, tracks(id, title, artist:users(username))')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      if (error) throw error
-
-      const transformedPlaylists: Playlist[] = (data as DatabasePlaylist[]).map(playlist => ({
-        id: playlist.id,
-        name: playlist.name,
-        tracks: playlist.tracks.map(track => ({
-          id: track.id,
-          title: track.title,
-          artist: track.artist[0]?.username || 'Unknown Artist'
-        }))
-      }))
-
-      setPlaylists(transformedPlaylists)
+      setPlaylists(MOCK_PLAYLISTS)
     } catch (err) {
       setError('Failed to fetch playlists')
       console.error('Error fetching playlists:', err)
@@ -118,22 +116,40 @@ export function PlaylistCreator() {
 
   const createPlaylist = async (values: PlaylistFormValues) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('User not found')
+      const user = getUser()
+      if (!user) {
+        notifications.show({
+          title: 'Error',
+          message: 'Please log in to create playlists',
+          color: 'red'
+        })
+        return
+      }
 
-      const { data, error } = await supabase
-        .from('playlists')
-        .insert({ name: values.name, user_id: user.id })
-        .select()
-        .single()
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500))
 
-      if (error) throw error
+      const newPlaylist: Playlist = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: values.name,
+        tracks: []
+      }
 
-      setPlaylists([...playlists, { ...data, tracks: [] }])
+      setPlaylists([newPlaylist, ...playlists])
       form.reset()
       closeForm()
+
+      notifications.show({
+        title: 'Success',
+        message: 'Playlist created successfully',
+        color: 'green'
+      })
     } catch (err) {
-      setError('Failed to create playlist')
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to create playlist',
+        color: 'red'
+      })
       console.error('Error creating playlist:', err)
     }
   }
@@ -141,25 +157,64 @@ export function PlaylistCreator() {
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return
 
-    const { source, destination } = result
-    const playlistIndex = playlists.findIndex(p => p.id === source.droppableId)
-    const updatedPlaylists = [...playlists]
-    const [reorderedTrack] = updatedPlaylists[playlistIndex].tracks.splice(source.index, 1)
-    updatedPlaylists[playlistIndex].tracks.splice(destination.index, 0, reorderedTrack)
-
-    setPlaylists(updatedPlaylists)
-
     try {
-      const { error } = await supabase
-        .from('playlist_tracks')
-        .update({ position: destination.index })
-        .eq('playlist_id', source.droppableId)
-        .eq('track_id', reorderedTrack.id)
+      const { source, destination } = result
+      const playlistIndex = playlists.findIndex(p => p.id === source.droppableId)
+      const updatedPlaylists = [...playlists]
+      const [reorderedTrack] = updatedPlaylists[playlistIndex].tracks.splice(source.index, 1)
+      updatedPlaylists[playlistIndex].tracks.splice(destination.index, 0, reorderedTrack)
 
-      if (error) throw error
+      setPlaylists(updatedPlaylists)
+
+      notifications.show({
+        title: 'Success',
+        message: 'Track order updated',
+        color: 'green'
+      })
     } catch (err) {
-      setError('Failed to update track order')
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to update track order',
+        color: 'red'
+      })
       console.error('Error updating track order:', err)
+    }
+  }
+
+  const handlePlay = (trackId: string) => {
+    notifications.show({
+      title: 'Playing',
+      message: 'Track started playing',
+      color: 'blue'
+    })
+  }
+
+  const handleRemoveTrack = (playlistId: string, trackId: string) => {
+    try {
+      const updatedPlaylists = playlists.map(playlist => {
+        if (playlist.id === playlistId) {
+          return {
+            ...playlist,
+            tracks: playlist.tracks.filter(track => track.id !== trackId)
+          }
+        }
+        return playlist
+      })
+
+      setPlaylists(updatedPlaylists)
+
+      notifications.show({
+        title: 'Success',
+        message: 'Track removed from playlist',
+        color: 'green'
+      })
+    } catch (err) {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to remove track',
+        color: 'red'
+      })
+      console.error('Error removing track:', err)
     }
   }
 
@@ -247,96 +302,107 @@ export function PlaylistCreator() {
               </Paper>
             )}
           </Transition>
+
+          <DragDropContext onDragEnd={onDragEnd}>
+            {playlists.length > 0 ? (
+              <Stack gap="md">
+                {playlists.map((playlist) => (
+                  <Paper 
+                    key={playlist.id} 
+                    shadow="sm" 
+                    p="md" 
+                    radius="md" 
+                    withBorder
+                  >
+                    <Stack gap="sm">
+                      <Title order={4}>{playlist.name}</Title>
+                      <Droppable droppableId={playlist.id}>
+                        {(provided) => (
+                          <Box
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                          >
+                            {playlist.tracks.length > 0 ? (
+                              <Stack gap={4}>
+                                {playlist.tracks.map((track, index) => (
+                                  <Draggable
+                                    key={track.id}
+                                    draggableId={track.id}
+                                    index={index}
+                                  >
+                                    {(provided) => (
+                                      <Paper
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        shadow="xs"
+                                        p="sm"
+                                        radius="md"
+                                      >
+                                        <Group justify="space-between" wrap="nowrap">
+                                          <Group gap="sm" wrap="nowrap">
+                                            <ActionIcon
+                                              {...provided.dragHandleProps}
+                                              variant="subtle"
+                                              color="gray"
+                                            >
+                                              <IconGripVertical size={16} />
+                                            </ActionIcon>
+                                            <Stack gap={2}>
+                                              <Text fw={500} size="sm">
+                                                {track.title}
+                                              </Text>
+                                              <Text size="xs" c="dimmed">
+                                                {track.artist}
+                                              </Text>
+                                            </Stack>
+                                          </Group>
+                                          <Group gap="xs">
+                                            <ActionIcon
+                                              variant="light"
+                                              color="blue"
+                                              onClick={() => handlePlay(track.id)}
+                                            >
+                                              <IconPlayerPlay size={16} />
+                                            </ActionIcon>
+                                            <ActionIcon
+                                              variant="light"
+                                              color="red"
+                                              onClick={() => handleRemoveTrack(playlist.id, track.id)}
+                                            >
+                                              <IconTrash size={16} />
+                                            </ActionIcon>
+                                          </Group>
+                                        </Group>
+                                      </Paper>
+                                    )}
+                                  </Draggable>
+                                ))}
+                              </Stack>
+                            ) : (
+                              <Text c="dimmed" ta="center" py="xl">
+                                No tracks in this playlist
+                              </Text>
+                            )}
+                            {provided.placeholder}
+                          </Box>
+                        )}
+                      </Droppable>
+                    </Stack>
+                  </Paper>
+                ))}
+              </Stack>
+            ) : (
+              <Alert 
+                color="gray" 
+                variant="light"
+                icon={<IconMusic size={rem(16)} />}
+              >
+                You haven&apos;t created any playlists yet
+              </Alert>
+            )}
+          </DragDropContext>
         </Stack>
       </Card>
-
-      <DragDropContext onDragEnd={onDragEnd}>
-        {playlists.map(playlist => (
-          <Card key={playlist.id} shadow="sm" padding="lg" radius="md" withBorder>
-            <Stack gap="md">
-              <Title order={3}>{playlist.name}</Title>
-              <Droppable droppableId={playlist.id}>
-                {(provided) => (
-                  <Box 
-                    {...provided.droppableProps} 
-                    ref={provided.innerRef}
-                  >
-                    <Stack gap="xs">
-                      {playlist.tracks.map((track, index) => (
-                        <Draggable key={track.id} draggableId={track.id} index={index}>
-                          {(provided) => (
-                            <Paper
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              withBorder
-                              p="md"
-                              radius="md"
-                              style={(theme) => ({
-                                backgroundColor: theme.white,
-                                transition: 'transform 150ms ease, box-shadow 150ms ease',
-                                '&:hover': {
-                                  transform: 'translateY(-2px)',
-                                  boxShadow: theme.shadows.sm,
-                                },
-                                ...provided.draggableProps.style,
-                              })}
-                            >
-                              <Group gap="sm" wrap="nowrap">
-                                <Box 
-                                  {...provided.dragHandleProps}
-                                  style={{ cursor: 'grab' }}
-                                >
-                                  <IconGripVertical 
-                                    size={16} 
-                                    style={{ color: 'var(--mantine-color-gray-5)' }} 
-                                  />
-                                </Box>
-                                <IconMusic 
-                                  size={16} 
-                                  style={{ color: 'var(--mantine-color-blue-5)' }} 
-                                />
-                                <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-                                  <Text size="sm" fw={500} lineClamp={1}>
-                                    {track.title}
-                                  </Text>
-                                  <Text size="xs" c="dimmed" lineClamp={1}>
-                                    {track.artist}
-                                  </Text>
-                                </Stack>
-                              </Group>
-                            </Paper>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                      {playlist.tracks.length === 0 && (
-                        <Paper 
-                          p="xl" 
-                          radius="md" 
-                          style={(theme) => ({
-                            backgroundColor: theme.colors.gray[0],
-                            border: `2px dashed ${theme.colors.gray[3]}`,
-                          })}
-                        >
-                          <Stack align="center" gap="xs">
-                            <IconMusic 
-                              size={24} 
-                              style={{ color: 'var(--mantine-color-gray-5)' }} 
-                            />
-                            <Text c="dimmed" ta="center">
-                              Drag and drop tracks here
-                            </Text>
-                          </Stack>
-                        </Paper>
-                      )}
-                    </Stack>
-                  </Box>
-                )}
-              </Droppable>
-            </Stack>
-          </Card>
-        ))}
-      </DragDropContext>
     </Stack>
   )
 }

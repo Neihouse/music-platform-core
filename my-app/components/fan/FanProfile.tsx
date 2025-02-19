@@ -21,8 +21,50 @@ import {
   IconMessageCircle2,
   IconHeadphones
 } from '@tabler/icons-react';
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useEffect, useState } from "react";
+import { getUser } from "@/utils/auth";
+import { notifications } from '@mantine/notifications';
+
+// Mock data for development
+const MOCK_DATA = {
+  fanDetails: {
+    username: "MusicLover123",
+    avatar_url: "https://picsum.photos/200/200?random=1",
+    total_votes: 342,
+    total_comments: 156,
+    total_plays: 2789,
+    joined_date: "Jan 15, 2024"
+  },
+  likedTracks: [
+    {
+      id: 1,
+      title: "Summer Vibes",
+      artist: "DJ Cool",
+      plays: 5234,
+      likes: 423,
+      genre: "Electronic",
+      duration: "3:45"
+    },
+    {
+      id: 2,
+      title: "Night Drive",
+      artist: "The Cruisers",
+      plays: 3456,
+      likes: 234,
+      genre: "Rock",
+      duration: "4:12"
+    },
+    {
+      id: 3,
+      title: "Mountain High",
+      artist: "Nature Sounds",
+      plays: 2789,
+      likes: 186,
+      genre: "Ambient",
+      duration: "5:10"
+    }
+  ]
+};
 
 interface FanProfileProps {
   userId: string;
@@ -45,16 +87,6 @@ interface Track {
   likes?: number;
   genre?: string;
   duration?: string;
-}
-
-interface DatabaseTrack {
-  id: string;
-  title: string;
-  artist: { username: string }[];
-  plays: number;
-  likes: number;
-  genre: string;
-  duration: string;
 }
 
 interface StatBadgeProps {
@@ -91,91 +123,57 @@ export function FanProfile({ userId }: FanProfileProps) {
   const [likedTracks, setLikedTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
-    fetchFanDetails();
-    fetchLikedTracks();
+    fetchFanData();
   }, [userId]);
 
-  const fetchFanDetails = async () => {
+  const fetchFanData = async () => {
     try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("username, avatar_url, total_votes, total_comments, total_plays, created_at")
-        .eq("id", userId)
-        .single()
-
-      if (error) throw error
-
-      if (data) {
-        setFanDetails({
-          username: data.username,
-          avatar_url: data.avatar_url,
-          total_votes: data.total_votes,
-          total_comments: data.total_comments,
-          total_plays: data.total_plays,
-          joined_date: new Date(data.created_at).toLocaleDateString()
-        })
+      const user = getUser();
+      if (!user) {
+        setError("Please log in to view fan profiles");
+        return;
       }
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      setFanDetails(MOCK_DATA.fanDetails);
+      setLikedTracks(MOCK_DATA.likedTracks);
     } catch (err) {
-      setError("Failed to fetch fan details")
-      console.error("Error fetching fan details:", err)
-    }
-  }
-
-  const fetchLikedTracks = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("likes")
-        .select(`
-          track_id,
-          tracks (
-            id,
-            title,
-            artist:users(username),
-            plays,
-            likes,
-            genre,
-            duration
-          )
-        `)
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(10)
-
-      if (error) throw error
-
-      if (data) {
-        const tracks = data.map((item) => {
-          const track = item.tracks as unknown as DatabaseTrack
-          return {
-            id: parseInt(track.id),
-            title: track.title,
-            artist: track.artist[0]?.username || 'Unknown Artist',
-            plays: track.plays,
-            likes: track.likes,
-            genre: track.genre,
-            duration: track.duration
-          }
-        })
-
-        setLikedTracks(tracks)
-      }
-    } catch (err) {
-      setError("Failed to fetch liked tracks")
-      console.error("Error fetching liked tracks:", err)
+      setError("Failed to fetch fan data");
+      console.error("Error fetching fan data:", err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleLike = (id: number) => {
-    console.log('Liked track:', id);
+    const updatedTracks = likedTracks.map(track => {
+      if (track.id === id) {
+        return {
+          ...track,
+          likes: (track.likes || 0) + 1
+        };
+      }
+      return track;
+    });
+    setLikedTracks(updatedTracks);
+    
+    notifications.show({
+      title: 'Success',
+      message: 'Track liked successfully',
+      color: 'green'
+    });
   };
 
   const handlePlay = (id: number) => {
-    console.log('Playing track:', id);
+    notifications.show({
+      title: 'Playing',
+      message: 'Track started playing',
+      color: 'blue'
+    });
   };
 
   if (isLoading) {
@@ -266,21 +264,17 @@ export function FanProfile({ userId }: FanProfileProps) {
 
         <Paper shadow="sm" p="xl" radius="md" withBorder>
           <Stack gap="lg">
-            <Title order={2}>Recently Liked Tracks</Title>
+            <Title order={3}>Recently Liked Tracks</Title>
             {likedTracks.length > 0 ? (
               <TrackList 
-                tracks={likedTracks} 
+                tracks={likedTracks}
                 onPlay={handlePlay}
                 onLike={handleLike}
               />
             ) : (
-              <Alert 
-                color="gray" 
-                variant="light"
-                title="No tracks found"
-              >
-                This fan hasn&apos;t liked any tracks yet.
-              </Alert>
+              <Text c="dimmed" ta="center" py="xl">
+                No liked tracks yet
+              </Text>
             )}
           </Stack>
         </Paper>

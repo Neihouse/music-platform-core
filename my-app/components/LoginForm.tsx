@@ -2,201 +2,156 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { 
+  TextInput, 
   Button, 
-  Stack, 
-  Alert, 
-  TextInput,
+  Group, 
+  Box, 
   PasswordInput,
-  Paper,
+  Stack,
   Title,
   Text,
-  Group,
-  Anchor,
+  Paper,
   Divider,
-  rem,
   Container,
-  Transition
+  rem
 } from '@mantine/core'
-import { useForm, zodResolver } from '@mantine/form'
+import { useForm } from '@mantine/form'
+import { notifications } from '@mantine/notifications'
+import { login } from '@/utils/auth'
 import { 
-  IconAlertCircle, 
   IconMail, 
   IconLock,
-  IconCheck
+  IconBrandGoogle,
+  IconBrandGithub
 } from '@tabler/icons-react'
 import Link from 'next/link'
-import { useDisclosure } from '@mantine/hooks'
-import { z } from 'zod'
 
-const schema = z.object({
-  email: z.string()
-    .min(1, 'Email is required')
-    .email('Invalid email address'),
-  password: z.string()
-    .min(1, 'Password is required')
-    .min(6, 'Password must be at least 6 characters'),
-})
-
-type FormValues = z.infer<typeof schema>
+interface LoginFormValues {
+  email: string
+  password: string
+}
 
 export function LoginForm() {
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [mounted, { toggle }] = useDisclosure(true)
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const [loading, setLoading] = useState(false)
 
   const form = useForm({
     initialValues: {
       email: '',
       password: '',
     },
-    validate: zodResolver(schema),
+    validate: {
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      password: (value) => (value.length < 6 ? 'Password must be at least 6 characters' : null),
+    },
   })
 
-  const handleSubmit = async (values: FormValues) => {
-    setIsLoading(true)
-    setError(null)
-    setSuccess(false)
-
+  const handleSubmit = async (values: LoginFormValues) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
+      setLoading(true)
+      
+      const { user } = await login(values.email, values.password)
+      
+      notifications.show({
+        title: 'Success',
+        message: 'Logged in successfully',
+        color: 'green',
       })
-
-      if (error) throw error
-
-      setSuccess(true)
-      toggle() // Start exit animation
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 500)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign in')
+      
+      router.push('/dashboard')
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to log in'
+      notifications.show({
+        title: 'Error',
+        message: errorMessage,
+        color: 'red',
+      })
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
+  const handleSocialLogin = (provider: string) => {
+    notifications.show({
+      title: 'Info',
+      message: `${provider} login is not available in demo mode`,
+      color: 'blue',
+    })
+  }
+
   return (
-    <Transition mounted={mounted} transition="fade" duration={400}>
-      {(styles) => (
-        <Container size="xs" style={styles}>
-          <Paper radius="md" p="xl" withBorder>
-            <Stack gap="md">
-              <Title order={2} ta="center" mt="md">
-                Welcome back
-              </Title>
-              <Text c="dimmed" size="sm" ta="center" mb="lg">
-                Sign in to your account to continue
+    <Container size="xs">
+      <Paper radius="md" p="xl" withBorder>
+        <Title order={2} ta="center" mt="md" mb={50}>
+          Welcome back to MusicApp
+        </Title>
+
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack gap="md">
+            <TextInput
+              required
+              label="Email"
+              placeholder="your@email.com"
+              radius="md"
+              size="md"
+              leftSection={<IconMail size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />}
+              {...form.getInputProps('email')}
+            />
+            
+            <PasswordInput
+              required
+              label="Password"
+              placeholder="Your password"
+              radius="md"
+              size="md"
+              leftSection={<IconLock size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />}
+              {...form.getInputProps('password')}
+            />
+
+            <Group justify="space-between" mt="md">
+              <Text component={Link} href="/signup" size="sm">
+                Don&apos;t have an account? Sign up
               </Text>
+              <Text component={Link} href="/reset-password" size="sm">
+                Forgot password?
+              </Text>
+            </Group>
 
-              <form onSubmit={form.onSubmit(handleSubmit)}>
-                <Stack gap="md">
-                  <TextInput
-                    required
-                    label="Email"
-                    placeholder="your@email.com"
-                    radius="md"
-                    size="md"
-                    leftSection={<IconMail size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />}
-                    {...form.getInputProps('email')}
-                  />
-                  
-                  <PasswordInput
-                    required
-                    label="Password"
-                    placeholder="Your password"
-                    radius="md"
-                    size="md"
-                    leftSection={<IconLock size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />}
-                    {...form.getInputProps('password')}
-                  />
+            <Button 
+              type="submit" 
+              loading={loading}
+              fullWidth
+              radius="md"
+              size="md"
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </Stack>
+        </form>
 
-                  {error && (
-                    <Alert 
-                      color="red" 
-                      title="Error" 
-                      variant="filled" 
-                      icon={<IconAlertCircle size={rem(16)} />}
-                    >
-                      {error}
-                    </Alert>
-                  )}
+        <Divider label="Or continue with" labelPosition="center" my="lg" />
 
-                  {success && (
-                    <Alert 
-                      color="green" 
-                      title="Success" 
-                      variant="filled"
-                      icon={<IconCheck size={rem(16)} />}
-                    >
-                      Signed in successfully! Redirecting...
-                    </Alert>
-                  )}
-
-                  <Button 
-                    type="submit" 
-                    loading={isLoading}
-                    fullWidth
-                    radius="md"
-                    size="md"
-                  >
-                    {isLoading ? 'Signing in...' : 'Sign in'}
-                  </Button>
-
-                  <Divider 
-                    label="or" 
-                    labelPosition="center"
-                    my="sm"
-                  />
-
-                  <Group justify="space-between" gap="xs">
-                    <Anchor 
-                      component={Link}
-                      href="/forgot-password"
-                      size="sm"
-                      c="dimmed"
-                      style={(theme) => ({
-                        transition: 'color 150ms ease',
-                        '&:hover': {
-                          color: theme.colors.blue[5],
-                        },
-                      })}
-                    >
-                      Forgot your password?
-                    </Anchor>
-                    <Group gap={5} justify="flex-end">
-                      <Text size="sm" c="dimmed">
-                        Don&apos;t have an account?
-                      </Text>
-                      <Anchor 
-                        component={Link}
-                        href="/signup"
-                        size="sm"
-                        fw={500}
-                        style={(theme) => ({
-                          transition: 'color 150ms ease',
-                          '&:hover': {
-                            color: theme.colors.blue[5],
-                          },
-                        })}
-                      >
-                        Sign up
-                      </Anchor>
-                    </Group>
-                  </Group>
-                </Stack>
-              </form>
-            </Stack>
-          </Paper>
-        </Container>
-      )}
-    </Transition>
+        <Group grow mb="md" mt="md">
+          <Button
+            variant="default"
+            radius="md"
+            leftSection={<IconBrandGoogle size={rem(18)} />}
+            onClick={() => handleSocialLogin('Google')}
+          >
+            Google
+          </Button>
+          <Button
+            variant="default"
+            radius="md"
+            leftSection={<IconBrandGithub size={rem(18)} />}
+            onClick={() => handleSocialLogin('GitHub')}
+          >
+            GitHub
+          </Button>
+        </Group>
+      </Paper>
+    </Container>
   )
 }
 

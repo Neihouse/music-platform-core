@@ -1,7 +1,6 @@
 "use client";
 
 import { 
-  AppShell,
   Container, 
   Group, 
   Text, 
@@ -10,7 +9,11 @@ import {
   rem,
   Divider,
   SimpleGrid,
-  Box
+  Box,
+  Paper,
+  useMantineTheme,
+  Anchor,
+  ThemeIcon
 } from '@mantine/core'
 import { 
   IconBrandGithub, 
@@ -90,108 +93,47 @@ const FEATURES = [
 
 export function Footer() {
   const year = new Date().getFullYear()
+  const theme = useMantineTheme()
 
   return (
-    <AppShell.Footer py="xl">
-      <Container size="xl">
-        <Stack gap="xl">
-          {/* Logo and Social Links */}
-          <Group justify="space-between" wrap="nowrap">
-            <Box>
-              <Text 
-                component={Link} 
-                href="/"
-                size="xl" 
-                fw={700}
-                style={{
-                  color: 'var(--mantine-color-text)',
-                  textDecoration: 'none',
-                }}
+    <Paper 
+      component="footer"
+      py="md"
+      withBorder
+      radius={0}
+      h="100%"
+      style={{ 
+        display: 'flex',
+        alignItems: 'center',
+        borderLeft: 0,
+        borderRight: 0,
+        borderBottom: 0
+      }}
+    >
+      <Container size="xl" style={{ width: '100%' }}>
+        <Group justify="space-between" wrap="nowrap">
+          <Text size="sm" c="dimmed">
+            © {year} MusicApp. All rights reserved.
+          </Text>
+          <Group gap="md" wrap="nowrap">
+            {SOCIAL_LINKS.map((link) => (
+              <ActionIcon
+                key={link.href}
+                component="a"
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="subtle"
+                size="sm"
+                radius="xl"
+                aria-label={link.label}
               >
-                MusicApp
-              </Text>
-              <Text size="sm" c="dimmed" mt="xs" maw={300}>
-                Connect with artists and discover new music. Share your sound with the world.
-              </Text>
-            </Box>
-
-            <Group gap="md" wrap="nowrap">
-              {SOCIAL_LINKS.map((link) => (
-                <ActionIcon
-                  key={link.href}
-                  component="a"
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  variant="subtle"
-                  size="lg"
-                  radius="xl"
-                  aria-label={link.label}
-                >
-                  <link.icon size={18} stroke={1.5} />
-                </ActionIcon>
-              ))}
-            </Group>
-          </Group>
-
-          <Divider />
-
-          {/* Features */}
-          <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="lg">
-            {FEATURES.map((feature) => (
-              <Group key={feature.label} gap="xs" wrap="nowrap">
-                <feature.icon 
-                  size={24} 
-                  style={{ color: 'var(--mantine-color-blue-6)' }} 
-                />
-                <Text size="sm" fw={500}>
-                  {feature.label}
-                </Text>
-              </Group>
+                <link.icon size={16} stroke={1.5} />
+              </ActionIcon>
             ))}
-          </SimpleGrid>
-
-          <Divider />
-
-          {/* Navigation Links */}
-          <SimpleGrid cols={{ base: 1, xs: 2, sm: 4 }} spacing="xl">
-            {Object.entries(FOOTER_DATA).map(([key, section]) => (
-              <Stack key={key} gap="md">
-                <Text fw={500}>{section.title}</Text>
-                <Stack gap="xs">
-                  {section.links.map((link) => (
-                    <Text
-                      key={link.href}
-                      component={Link}
-                      href={link.href}
-                      size="sm"
-                      style={{
-                        color: 'var(--mantine-color-dimmed)',
-                        textDecoration: 'none',
-                        transition: 'color 150ms ease',
-                        '&:hover': {
-                          color: 'var(--mantine-color-text)',
-                        },
-                      }}
-                    >
-                      {link.label}
-                    </Text>
-                  ))}
-                </Stack>
-              </Stack>
-            ))}
-          </SimpleGrid>
-
-          <Divider />
-
-          {/* Copyright */}
-          <Group justify="center" gap="xs">
-            <Text size="sm" c="dimmed">
-              Made with <IconHeart size={rem(14)} style={{ color: 'var(--mantine-color-red-6)' }} /> © {year} MusicApp
-            </Text>
           </Group>
-        </Stack>
+        </Group>
       </Container>
-    </AppShell.Footer>
+    </Paper>
   )
 }

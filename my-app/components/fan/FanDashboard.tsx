@@ -19,14 +19,76 @@ import {
   IconMessageCircle2,
   IconChartBar
 } from '@tabler/icons-react';
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useEffect, useState } from "react";
+import { getUser } from "@/utils/auth";
+import { notifications } from '@mantine/notifications';
 
-interface FanStats {
-  totalVotes: number;
-  totalComments: number;
-  totalPlays: number;
-}
+// Mock data for development
+const MOCK_DATA = {
+  stats: {
+    totalVotes: 127,
+    totalComments: 45,
+    totalPlays: 892
+  },
+  likedTracks: [
+    {
+      id: 1,
+      title: "Summer Vibes",
+      artist: "DJ Cool",
+      plays: 1234,
+      likes: 89,
+      genre: "Electronic",
+      duration: "3:45"
+    },
+    {
+      id: 2,
+      title: "Night Drive",
+      artist: "The Cruisers",
+      plays: 856,
+      likes: 67,
+      genre: "Rock",
+      duration: "4:20"
+    },
+    {
+      id: 3,
+      title: "Mountain High",
+      artist: "Nature Sounds",
+      plays: 2341,
+      likes: 156,
+      genre: "Ambient",
+      duration: "5:10"
+    }
+  ],
+  recommendedTracks: [
+    {
+      id: 4,
+      title: "Urban Dreams",
+      artist: "City Beats",
+      plays: 3456,
+      likes: 234,
+      genre: "Hip Hop",
+      duration: "3:55"
+    },
+    {
+      id: 5,
+      title: "Ocean Waves",
+      artist: "Chill Masters",
+      plays: 2789,
+      likes: 189,
+      genre: "Lo-fi",
+      duration: "4:15"
+    },
+    {
+      id: 6,
+      title: "Desert Wind",
+      artist: "World Sounds",
+      plays: 1567,
+      likes: 98,
+      genre: "World",
+      duration: "6:30"
+    }
+  ]
+};
 
 interface Track {
   id: number;
@@ -38,19 +100,10 @@ interface Track {
   duration?: string;
 }
 
-interface DatabaseTrack {
-  id: string;
-  title: string;
-  artist: { username: string }[];
-  plays: number;
-  likes: number;
-  genre: string;
-  duration: string;
-}
-
-interface LikedTrackData {
-  track_id: string;
-  tracks: DatabaseTrack;
+interface FanStats {
+  totalVotes: number;
+  totalComments: number;
+  totalPlays: number;
 }
 
 interface StatCardProps {
@@ -90,7 +143,6 @@ export function FanDashboard() {
   const [recentlyLiked, setRecentlyLiked] = useState<Track[]>([]);
   const [recommendations, setRecommendations] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     fetchFanData();
@@ -98,87 +150,29 @@ export function FanDashboard() {
 
   const fetchFanData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      const user = getUser();
+      if (!user) {
+        notifications.show({
+          title: 'Error',
+          message: 'Please log in to view your dashboard',
+          color: 'red'
+        });
+        return;
+      }
 
-      // Fetch fan stats
-      const { data: statsData, error: statsError } = await supabase
-        .from("fan_stats")
-        .select("total_votes, total_comments, total_plays")
-        .eq("user_id", user.id)
-        .single();
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      if (statsError) throw statsError;
-
-      setStats({
-        totalVotes: statsData.total_votes,
-        totalComments: statsData.total_comments,
-        totalPlays: statsData.total_plays
-      });
-
-      // Fetch recently liked tracks
-      const { data: likedData, error: likedError } = await supabase
-        .from("likes")
-        .select(`
-          track_id,
-          tracks (
-            id,
-            title,
-            artist:users(username),
-            plays,
-            likes,
-            genre,
-            duration
-          )
-        `)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-      if (likedError) throw likedError;
-
-      const transformedLikedTracks = (likedData as LikedTrackData[]).map(item => ({
-        id: parseInt(item.tracks.id),
-        title: item.tracks.title,
-        artist: item.tracks.artist[0]?.username || 'Unknown Artist',
-        plays: item.tracks.plays,
-        likes: item.tracks.likes,
-        genre: item.tracks.genre,
-        duration: item.tracks.duration
-      }));
-
-      setRecentlyLiked(transformedLikedTracks);
-
-      // Fetch recommended tracks
-      const { data: recommendedData, error: recommendedError } = await supabase
-        .from("tracks")
-        .select(`
-          id,
-          title,
-          artist:users(username),
-          plays,
-          likes,
-          genre,
-          duration
-        `)
-        .order("plays", { ascending: false })
-        .limit(5);
-
-      if (recommendedError) throw recommendedError;
-
-      const transformedRecommendations = (recommendedData as DatabaseTrack[]).map(track => ({
-        id: parseInt(track.id),
-        title: track.title,
-        artist: track.artist[0]?.username || 'Unknown Artist',
-        plays: track.plays,
-        likes: track.likes,
-        genre: track.genre,
-        duration: track.duration
-      }));
-
-      setRecommendations(transformedRecommendations);
+      setStats(MOCK_DATA.stats);
+      setRecentlyLiked(MOCK_DATA.likedTracks);
+      setRecommendations(MOCK_DATA.recommendedTracks);
     } catch (err) {
       console.error('Error fetching fan data:', err);
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to load dashboard data',
+        color: 'red'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -199,11 +193,19 @@ export function FanDashboard() {
   }
 
   const handleLike = (id: number) => {
-    console.log('Liked track:', id);
+    notifications.show({
+      title: 'Success',
+      message: 'Track like status updated',
+      color: 'green'
+    });
   };
 
   const handlePlay = (id: number) => {
-    console.log('Playing track:', id);
+    notifications.show({
+      title: 'Playing',
+      message: 'Track started playing',
+      color: 'blue'
+    });
   };
 
   return (
