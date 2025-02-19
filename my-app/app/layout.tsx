@@ -8,7 +8,6 @@ import {
   createTheme, 
   AppShell,
   ColorSchemeScript,
-  MantineColorScheme,
   Burger,
   Group,
   Drawer,
@@ -18,9 +17,10 @@ import '@mantine/core/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Notifications } from '@mantine/notifications';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { NavLinks } from '@/components/NavLinks';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -101,28 +101,53 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [colorScheme] = useState<MantineColorScheme>('light');
+  const [mounted, setMounted] = useState(false);
   const [opened, { toggle, close }] = useDisclosure(false);
   const isMobile = useMediaQuery('(max-width: 48em)');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <html lang="en">
+        <head>
+          <ColorSchemeScript defaultColorScheme="auto" />
+        </head>
+        <body>
+          <MantineProvider theme={theme}>
+            <div style={{ visibility: 'hidden' }}>{children}</div>
+          </MantineProvider>
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="en">
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
-        <MantineProvider theme={theme} defaultColorScheme={colorScheme}>
+        <MantineProvider theme={theme}>
           <Notifications />
           <ErrorBoundary>
             <AppShell
               header={{ height: { base: 60, md: 70 } }}
-              footer={{ height: { base: 60, md: 70 } }}
+              footer={{ height: 60 }}
               padding={{ base: 'md', md: 'lg' }}
               navbar={{
                 width: { base: 0, md: 250 },
                 breakpoint: 'md',
                 collapsed: { mobile: !opened }
               }}
+              styles={(theme) => ({
+                footer: {
+                  background: theme.colors.dark[8]
+                }
+              })}
             >
               <AppShell.Header>
                 <Group h="100%" px="md" justify="space-between">
@@ -142,7 +167,7 @@ export default function RootLayout({
 
               <AppShell.Navbar py="md" px={4}>
                 <ScrollArea h="100%" type="hover">
-                  {/* Navigation content will go here */}
+                  <NavLinks />
                 </ScrollArea>
               </AppShell.Navbar>
 
@@ -164,7 +189,7 @@ export default function RootLayout({
                 hiddenFrom="md"
                 zIndex={1000}
               >
-                {/* Mobile navigation content will go here */}
+                <NavLinks onLinkClick={close} />
               </Drawer>
             )}
           </ErrorBoundary>
