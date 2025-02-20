@@ -1,3 +1,4 @@
+"use client";
 import { TrackUpload } from "@/components/track-upload";
 import * as React from "react";
 
