@@ -1,69 +1,54 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
-
-// Add paths that should be protected by authentication
-const protectedPaths = [
-  '/dashboard',
-  '/profile',
-  '/upload',
-  '/favorites',
-  '/playlists',
-];
-
-// Add paths that should be accessible only to non-authenticated users
-const authPaths = ['/login', '/signup'];
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
 
-  // Check if the path should be protected
-  const isProtectedPath = protectedPaths.some(path => 
-    pathname.startsWith(path)
-  );
-
-  // Check if the path is for non-authenticated users
-  const isAuthPath = authPaths.some(path => 
-    pathname.startsWith(path)
-  );
-
-  const token = request.cookies.get('token')?.value;
-
-  try {
-    if (token) {
-      // Verify the token
-      const secret = new TextEncoder().encode(
-        process.env.JWT_SECRET || 'your-secret-key'
-      );
-      await jwtVerify(token, secret);
-
-      // If user is authenticated and tries to access auth pages, redirect to dashboard
-      if (isAuthPath) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-      }
-    } else {
-      // If no token and trying to access protected route, redirect to login
-      if (isProtectedPath) {
-        const response = NextResponse.redirect(new URL('/login', request.url));
-        response.cookies.set({
-          name: 'redirectTo',
-          value: pathname,
-          maxAge: 60 * 60, // 1 hour
-        });
-        return response;
-      }
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name: string, options: CookieOptions) {
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+        },
+      },
     }
+  )
 
-    return NextResponse.next();
-  } catch (error) {
-    // If token is invalid and trying to access protected route, redirect to login
-    if (isProtectedPath) {
-      const response = NextResponse.redirect(new URL('/login', request.url));
-      response.cookies.delete('token');
-      return response;
-    }
-    return NextResponse.next();
+  const { data: { session } } = await supabase.auth.getSession()
+
+  // Protect routes that require authentication
+  const protectedRoutes = ['/dashboard', '/upload', '/my-tracks']
+  if (protectedRoutes.includes(request.nextUrl.pathname) && !session) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
+
+  // Redirect logged in users away from auth pages
+  const authRoutes = ['/login', '/signup']
+  if (authRoutes.includes(request.nextUrl.pathname) && session) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  return response
 }
 
 export const config = {
