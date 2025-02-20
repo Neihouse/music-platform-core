@@ -60,7 +60,6 @@ export function MetadataInput({ onCreate }: IMetadataInputProps) {
   async function createTrack({ title }: { title: string }) {
     try {
       const resp = await clientSupabase.from("tracks").upsert({
-        id: 1,
         title,
       });
 
