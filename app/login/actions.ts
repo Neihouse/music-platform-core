@@ -30,7 +30,7 @@ export async function login({ email, password }: LoginData) {
   redirect("/");
 }
 
-export async function signup({ email, password }: LoginData) {
+export async function signup({ email, password, name }: LoginData) {
   const supabase = await createClient();
 
   // type-casting here for convenience
@@ -39,6 +39,11 @@ export async function signup({ email, password }: LoginData) {
   const { error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        name,
+      },
+    },
   });
 
   if (error) {
