@@ -18,7 +18,7 @@ import {
 import "@mantine/core/styles.css";
 import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
-import { getUser } from "@/db/server/users";
+import { getUser } from "@/db/queries/users";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -95,9 +95,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUser();
-
-  console.log("User: ", user);
+  const userResponse = await getUser();
 
   return (
     <html lang="en">
@@ -132,7 +130,7 @@ export default async function RootLayout({
                       size="sm"
                     />
                   )} */}
-                  <Header />
+                  <Header user={userResponse.data.user} />
                 </Group>
               </Group>
             </AppShellHeader>

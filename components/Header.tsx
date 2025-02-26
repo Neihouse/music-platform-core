@@ -29,17 +29,15 @@ import {
   IconSearch,
   IconMusic,
   IconSettings,
-  IconPlayerPlay,
   IconBell,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { notifications } from "@mantine/notifications";
+import { useState } from "react";
 import { useClickOutside, useDisclosure } from "@mantine/hooks";
 import { User } from "@supabase/auth-js";
 
 interface HeaderProps {
-  user: User;
+  user: User | null;
 }
 
 export function Header({ user }: HeaderProps) {
