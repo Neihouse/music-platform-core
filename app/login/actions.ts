@@ -5,11 +5,11 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
 
-interface LoginData {
+export interface LoginData {
   email: string;
   name: string;
   password: string;
-  terms: string;
+  terms: boolean;
 }
 export async function login({ email, password }: LoginData) {
   const supabase = await createClient();
@@ -17,14 +17,20 @@ export async function login({ email, password }: LoginData) {
   // type-casting here for convenience
   // in practice, you should validate your inputs
 
-  const { error } = await supabase.auth.signInWithPassword({
+  console.log("LOgging IN");
+
+  const { error, data } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
+    console.log("ERROR: ", error);
+
     redirect("/error");
   }
+
+  console.log("DATA: ", data);
 
   revalidatePath("/", "layout");
   redirect("/");
@@ -36,7 +42,7 @@ export async function signup({ email, password, name }: LoginData) {
   // type-casting here for convenience
   // in practice, you should validate your inputs
 
-  const { error } = await supabase.auth.signUp({
+  const { error, data } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -45,6 +51,8 @@ export async function signup({ email, password, name }: LoginData) {
       },
     },
   });
+
+  console.log("data, error: ", data, error);
 
   if (error) {
     redirect("/error");

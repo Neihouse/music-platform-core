@@ -14,12 +14,11 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { upperFirst, useToggle } from "@mantine/hooks";
-import { GoogleButton } from "./GoogleButton";
-import { login, signup } from "@/app/login/actions";
+import { login, LoginData, signup } from "@/app/login/actions";
 
 export function Login(props: PaperProps) {
   const [type, toggle] = useToggle(["login", "register"]);
-  const form = useForm({
+  const form = useForm<LoginData>({
     initialValues: {
       email: "",
       name: "",
@@ -39,7 +38,7 @@ export function Login(props: PaperProps) {
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
       <Text size="lg" fw={500}>
-        Welcome to Mantine, {type} with
+        Welcome to Music Band, {type} with
       </Text>
 
       {/* TODO: Implement Google OAuth
