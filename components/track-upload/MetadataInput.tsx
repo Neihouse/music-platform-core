@@ -1,5 +1,5 @@
 "use client";
-import { clientSupabase } from "@/db/client";
+import { createClient } from "@/utils/supabase/client";
 import { Button, Group, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import * as React from "react";
@@ -59,7 +59,7 @@ export function MetadataInput({ onCreate }: IMetadataInputProps) {
 
   async function createTrack({ title }: { title: string }) {
     try {
-      const resp = await clientSupabase.from("tracks").upsert({
+      const resp = await createClient().from("tracks").upsert({
         title,
       });
 

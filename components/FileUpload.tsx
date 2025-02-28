@@ -1,5 +1,5 @@
 "use client";
-import { clientSupabase } from "@/db/client";
+import { createClient } from "@/utils/supabase/client";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
@@ -32,8 +32,8 @@ export function FileUpload({ bucket, filePath }: IFileUploadProps) {
     try {
       setUploadState("pending");
 
-      const { error, data } = await clientSupabase.storage
-        .from(bucket)
+      const { error, data } = await createClient()
+        .storage.from(bucket)
         .upload(filePath, files[0]);
 
       if (error) {
