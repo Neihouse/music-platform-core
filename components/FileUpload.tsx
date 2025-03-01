@@ -43,7 +43,10 @@ export function FileUpload({ bucket, filePath }: IFileUploadProps) {
       }
 
       setUploadState("success");
-      console.log("SUCCESS: ", data.fullPath);
+      notifications.show({
+        message: "Sucessfully uploaded track",
+        color: "green",
+      });
     } catch (error) {
       handleError(error as string);
     }

@@ -71,12 +71,15 @@ export function MetadataInput({ onCreate }: IMetadataInputProps) {
       if (error) {
         notifications.show({
           message: error.message,
+          color: "red",
         });
         throw new Error(error.message);
       }
 
-      console.log(error, data[0]);
-
+      notifications.show({
+        message: `${title} metadata created!`,
+        color: "green",
+      });
       onCreate(data[0]);
     } catch (error) {
       console.error(error);
