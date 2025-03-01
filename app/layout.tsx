@@ -14,6 +14,7 @@ import {
   AppShellNavbar,
   AppShellFooter,
   AppShellMain,
+  mantineHtmlProps,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dropzone/styles.css";
@@ -98,7 +99,7 @@ export default async function RootLayout({
   const userResponse = await getUser();
 
   return (
-    <html lang="en">
+    <html lang="en" {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
