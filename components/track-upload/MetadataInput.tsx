@@ -64,7 +64,7 @@ export function MetadataInput({ onCreate }: IMetadataInputProps) {
         .from("tracks")
         .insert({
           title,
-          featured: false,
+          featured: true,
         })
         .select();
 
