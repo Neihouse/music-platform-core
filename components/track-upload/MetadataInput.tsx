@@ -2,6 +2,7 @@
 import { createClient } from "@/utils/supabase/client";
 import { Button, Group, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
 import * as React from "react";
 
 export interface IMetadataInputProps {
@@ -59,12 +60,24 @@ export function MetadataInput({ onCreate }: IMetadataInputProps) {
 
   async function createTrack({ title }: { title: string }) {
     try {
-      const resp = await createClient().from("tracks").upsert({
-        title,
-      });
+      const { error, data } = await createClient()
+        .from("tracks")
+        .insert({
+          title,
+          featured: false,
+        })
+        .select();
 
-      console.log("Response: ", resp);
-      onCreate(resp);
+      if (error) {
+        notifications.show({
+          message: error.message,
+        });
+        throw new Error(error.message);
+      }
+
+      console.log(error, data[0]);
+
+      onCreate(data[0]);
     } catch (error) {
       console.error(error);
     }

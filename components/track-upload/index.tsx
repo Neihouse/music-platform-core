@@ -8,15 +8,17 @@ export interface ITrackUploadProps {}
 export function TrackUpload(props: ITrackUploadProps) {
   const [trackMetadata, setTrackMetadata] = useState<{
     title: string;
-    id: number;
+    id: string;
   }>();
+
+  console.log(trackMetadata);
 
   return (
     <div>
       <MetadataInput onCreate={(trackMeta) => setTrackMetadata(trackMeta)} />
 
-      {trackMetadata && (
-        <FileUpload filePath={trackMetadata.id.toString()} bucket="tracks" />
+      {!!trackMetadata && (
+        <FileUpload filePath={trackMetadata.id} bucket="tracks" />
       )}
     </div>
   );
