@@ -119,7 +119,7 @@ export function Header({ user }: HeaderProps) {
               <Tooltip label="Upload your tracks">
                 <Button
                   component={Link}
-                  href="/upload"
+                  href="/track-upload"
                   variant="subtle"
                   leftSection={<IconUpload size={16} />}
                 >
@@ -150,13 +150,7 @@ export function Header({ user }: HeaderProps) {
               }
               size="lg"
               aria-label="Toggle color scheme"
-            >
-              {colorScheme === "dark" ? (
-                <IconSun size={20} />
-              ) : (
-                <IconMoonStars size={20} />
-              )}
-            </ActionIcon>
+            ></ActionIcon>
           </Tooltip>
 
           {user ? (
