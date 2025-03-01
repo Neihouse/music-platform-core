@@ -52,8 +52,6 @@ export async function signup({ email, password, name }: LoginData) {
     },
   });
 
-  console.log("data, error: ", data, error);
-
   if (error) {
     redirect("/error");
   }

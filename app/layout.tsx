@@ -14,11 +14,13 @@ import {
   AppShellNavbar,
   AppShellFooter,
   AppShellMain,
+  mantineHtmlProps,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
 import { getUser } from "@/db/queries/users";
+import { Notifications } from "@mantine/notifications";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -98,12 +100,13 @@ export default async function RootLayout({
   const userResponse = await getUser();
 
   return (
-    <html lang="en">
+    <html lang="en" {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
         <MantineProvider theme={theme}>
+          <Notifications />
           <AppShell
             header={{ height: { base: 60, md: 70 } }}
             footer={{ height: 60 }}
