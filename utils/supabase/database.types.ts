@@ -193,7 +193,7 @@ export type Database = {
           created_at: string
           featured: boolean
           id: string
-          length: number
+          length: string
           sample_rate: number | null
           size: number
           thumbs: number
@@ -207,7 +207,7 @@ export type Database = {
           created_at?: string
           featured?: boolean
           id?: string
-          length: number
+          length: string
           sample_rate?: number | null
           size: number
           thumbs?: number
@@ -221,7 +221,7 @@ export type Database = {
           created_at?: string
           featured?: boolean
           id?: string
-          length?: number
+          length?: string
           sample_rate?: number | null
           size?: number
           thumbs?: number
