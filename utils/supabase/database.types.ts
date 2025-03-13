@@ -211,7 +211,7 @@ export type Database = {
           sample_rate?: number | null
           size: number
           thumbs?: number
-          title?: string
+          title: string
         }
         Update: {
           bitrate?: number | null
