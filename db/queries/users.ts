@@ -10,7 +10,6 @@ export async function getAuthUser() {
   } = await client.auth.getUser();
 
   if (error) throw error;
-  if (!user) throw new Error("No auth user found");
 
   return user;
 }
@@ -18,14 +17,14 @@ export async function getAuthUser() {
 export async function getUser() {
   const authUser = await getAuthUser();
 
+  if (!authUser) throw new Error("User not logged in");
   const client = await createClient();
   const { data, error } = await client
     .from("users")
     .select()
     .limit(1)
-    .eq("id", authUser.id);
+    .eq("id", authUser.id)
+    .single();
 
-  if (!data?.length) throw new Error("User profile not found");
-
-  return data[0];
+  return data;
 }

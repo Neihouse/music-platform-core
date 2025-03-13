@@ -6,9 +6,7 @@ import {
   createTheme,
   AppShell,
   ColorSchemeScript,
-  Burger,
   Group,
-  Drawer,
   ScrollArea,
   AppShellHeader,
   AppShellNavbar,
@@ -19,7 +17,7 @@ import {
 import "@mantine/core/styles.css";
 import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
-import { getUser } from "@/db/queries/users";
+import { getAuthUser } from "@/db/queries/users";
 import { Notifications } from "@mantine/notifications";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -97,7 +95,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const userResponse = await getUser();
+  const authUser = await getAuthUser();
 
   return (
     <html lang="en" {...mantineHtmlProps}>
@@ -133,7 +131,7 @@ export default async function RootLayout({
                       size="sm"
                     />
                   )} */}
-                  <Header user={userResponse.data.user} />
+                  <Header user={authUser} />
                 </Group>
               </Group>
             </AppShellHeader>
