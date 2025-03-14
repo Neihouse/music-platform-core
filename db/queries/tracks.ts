@@ -35,8 +35,6 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
       .select()
       .single();
 
-    console.log("Track: ", track);
-
     return track;
   } catch (error) {
     console.log("Error inserting track metadata");
