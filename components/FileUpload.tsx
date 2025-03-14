@@ -64,27 +64,17 @@ export function FileUpload({ bucket }: IFileUploadProps) {
   );
 
   async function onDrop(files: FileWithPath[]) {
-    /**
-     *  TODO: switch to Resumable Uploads in order to support
-     *  upload progress
-     *
-     *  https://supabase.com/docs/guides/storage/uploads/resumable-uploads
-     */
-
     try {
       setUploadState("pending");
 
-      for await (const file of files) {
-        const metadata = await parseBuffer(await file.bytes());
+      const newFilesWithMetadata = await Promise.all(
+        files.map(async (file) => {
+          const metadata = await parseBuffer(await file.bytes());
+          return { file, metadata };
+        })
+      );
 
-        setFilesWithMetadata((filesWithMetadata) => [
-          ...filesWithMetadata,
-          {
-            metadata,
-            file,
-          },
-        ]);
-      }
+      setFilesWithMetadata((prev) => [...prev, ...newFilesWithMetadata]);
       setUploadState("initial");
     } catch (error) {
       handleError(error as string);
