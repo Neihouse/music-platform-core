@@ -88,35 +88,37 @@ export function FileUpload({ bucket }: IFileUploadProps) {
 
   async function uploadFiles(filesWithMetadata: FileWithMetadata[]) {
     setUploadState("pending");
-    for await (const file of filesWithMetadata) {
-      const {
-        metadata: { common, format },
-        file: { size, name },
-      } = file;
-      const title = common.title || name;
+    try {
+      for await (const file of filesWithMetadata) {
+        const {
+          metadata: { common, format },
+          file: { size, name },
+        } = file;
+        const title = common.title || name;
 
-      common.title = title;
+        common.title = title;
 
-      const track = await createTrack(file.metadata, file.file.size);
+        const track = await createTrack(file.metadata, file.file.size);
 
-      if (!track?.data?.id) throw new Error("No ID to upload to");
+        if (!track?.data?.id) throw new Error("No ID to upload to");
 
-      const { error, data } = await createClient()
-        .storage.from(bucket)
-        .upload(track?.data?.id, file.file);
+        const { error, data } = await createClient()
+          .storage.from(bucket)
+          .upload(track?.data?.id, file.file);
 
-      if (error) {
-        console.log("full supabase error: ", error);
+        if (error) {
+          console.log("full supabase error: ", error);
 
-        setUploadState("error");
-        notifications.show({
-          message: `${error.message}`,
-          color: "red",
-        });
-        throw new Error(error.message);
+          throw new Error(error.message);
+        }
       }
+    } catch (error: any) {
+      setUploadState("error");
+      notifications.show({
+        message: `${error.message}`,
+        color: "red",
+      });
     }
-
     setUploadState("success");
     notifications.show({
       message: "Sucessfully uploaded track",
