@@ -10,16 +10,24 @@ import {
 } from "@mantine/core";
 import * as React from "react";
 import { FileWithMetadata } from "../FileUpload";
-import { IconClock, IconTrash, IconVolume2 } from "@tabler/icons-react";
-import { formatDuration } from "@/lib/formatting";
+import {
+  IconClock,
+  IconEdit,
+  IconTrash,
+  IconVolume2,
+} from "@tabler/icons-react";
+import { formatDuration, formatSize } from "@/lib/formatting";
+import { ToggleEditText } from "../ToggleEditText";
 
 export interface IMetadataDisplayProps {
   fileWithMetadata: FileWithMetadata;
   onDelete: () => void;
+  onUpdate: (key: string, value: string) => void;
 }
 
 export function MetadataDisplay({
   onDelete,
+  onUpdate,
   fileWithMetadata: {
     metadata: { common, format, quality },
     file,
@@ -28,8 +36,12 @@ export function MetadataDisplay({
   return (
     <Card>
       <Group justify="space-between">
-        <Title>{common.title || file.name}</Title>
-        <ActionIcon onClick={onDelete}>
+        <ToggleEditText
+          variant="title"
+          text={common.title || file.name}
+          onEdit={(text) => onUpdate("title", text)}
+        />
+        <ActionIcon variant="subtle" onClick={onDelete}>
           <IconTrash />
         </ActionIcon>
       </Group>
@@ -37,7 +49,7 @@ export function MetadataDisplay({
       <Space m={4} />
       <Group>
         <Stack justify="center">
-          <Text fs="italic">{file.size}</Text>
+          <Text fs="italic">{formatSize(file.size)}</Text>
           <Text ta="center">Size</Text>
         </Stack>
         <Stack align="center">
@@ -62,7 +74,7 @@ export function MetadataDisplay({
         </Stack>
       </Group>
       <Space m={8} />
-      {quality.warnings && (
+      {!!quality.warnings.length && (
         <>
           <Divider />
           <Space m={8} />

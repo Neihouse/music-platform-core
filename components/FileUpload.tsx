@@ -25,6 +25,7 @@ export function FileUpload({ bucket }: IFileUploadProps) {
   const [filesWithMetadata, setFilesWithMetadata] = useState<
     FileWithMetadata[]
   >([]);
+  console.log(filesWithMetadata);
 
   return (
     <>
@@ -36,6 +37,9 @@ export function FileUpload({ bucket }: IFileUploadProps) {
             }
             key={fM.file.name + i}
             fileWithMetadata={fM}
+            onUpdate={(key: string, value: string) =>
+              updateFileMetadata(fM, key, value)
+            }
           />
         ))}
       </Stack>
@@ -103,7 +107,7 @@ export function FileUpload({ bucket }: IFileUploadProps) {
 
         if (!track?.data?.id) throw new Error("No ID to upload to");
 
-        const { error, data } = await createClient()
+        const { error } = await createClient()
           .storage.from(bucket)
           .upload(track?.data?.id, file.file);
 
@@ -112,11 +116,7 @@ export function FileUpload({ bucket }: IFileUploadProps) {
         }
       }
     } catch (error: any) {
-      setUploadState("error");
-      notifications.show({
-        message: `${error}`,
-        color: "red",
-      });
+      handleError(error);
     }
 
     setUploadState("success");
@@ -128,9 +128,32 @@ export function FileUpload({ bucket }: IFileUploadProps) {
     setFilesWithMetadata([]);
   }
 
-  function handleError(error: string) {
-    console.log("UPLOAD ERROR: ", error);
+  function updateFileMetadata(
+    file: FileWithMetadata,
+    key: string,
+    value: string
+  ) {
+    try {
+      const selectedFile = filesWithMetadata.find((f) => f === file);
 
+      if (!selectedFile) {
+        throw new Error("No file found");
+      }
+
+      if (key === "title") {
+        selectedFile.metadata.common.title = value;
+      }
+
+      setFilesWithMetadata((filesWithMetadata) => [
+        ...filesWithMetadata.filter((f) => f.file.name !== file.file.name),
+        selectedFile,
+      ]);
+    } catch (error: any) {
+      handleError(error.message || error);
+    }
+  }
+
+  function handleError(error: string) {
     setUploadState("error");
     notifications.show({
       title: "Upload Error",
