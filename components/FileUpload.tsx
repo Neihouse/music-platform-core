@@ -72,7 +72,7 @@ export function FileUpload({ bucket }: IFileUploadProps) {
       for await (const file of files) {
         const metadata = await parseBuffer(await file.bytes());
 
-        setFilesWithMetadata([
+        setFilesWithMetadata((filesWithMetadata) => [
           ...filesWithMetadata,
           {
             metadata,
