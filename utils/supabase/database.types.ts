@@ -86,23 +86,23 @@ export type Database = {
       }
       artists_groups: {
         Row: {
-          artist_id: string | null
+          artist_id: string
           created_at: string
-          group_id: string | null
+          group_id: string
           id: string
           member_since: string | null
         }
         Insert: {
-          artist_id?: string | null
+          artist_id: string
           created_at?: string
-          group_id?: string | null
+          group_id: string
           id?: string
           member_since?: string | null
         }
         Update: {
-          artist_id?: string | null
+          artist_id?: string
           created_at?: string
-          group_id?: string | null
+          group_id?: string
           id?: string
           member_since?: string | null
         }
@@ -130,6 +130,42 @@ export type Database = {
           },
         ]
       }
+      artists_users: {
+        Row: {
+          artist_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          artist_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          artist_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artists_users_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_users_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           created_at: string | null
@@ -148,7 +184,52 @@ export type Database = {
         }
         Relationships: []
       }
-      tacks_albums: {
+      tracks: {
+        Row: {
+          bitrate: number | null
+          channels: number | null
+          codec: string
+          container: string | null
+          created_at: string
+          featured: boolean
+          id: string
+          length: string
+          sample_rate: number | null
+          size: number
+          thumbs: number
+          title: string
+        }
+        Insert: {
+          bitrate?: number | null
+          channels?: number | null
+          codec: string
+          container?: string | null
+          created_at?: string
+          featured?: boolean
+          id?: string
+          length: string
+          sample_rate?: number | null
+          size: number
+          thumbs?: number
+          title: string
+        }
+        Update: {
+          bitrate?: number | null
+          channels?: number | null
+          codec?: string
+          container?: string | null
+          created_at?: string
+          featured?: boolean
+          id?: string
+          length?: string
+          sample_rate?: number | null
+          size?: number
+          thumbs?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      tracks_albums: {
         Row: {
           album_id: string | null
           created_at: string
@@ -184,30 +265,24 @@ export type Database = {
           },
         ]
       }
-      tracks: {
+      users: {
         Row: {
           created_at: string
-          featured: boolean
+          description: string
           id: string
-          length: number | null
-          thumbs: number
-          title: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
-          featured: boolean
-          id?: string
-          length?: number | null
-          thumbs?: number
-          title?: string | null
+          description?: string
+          id: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
-          featured?: boolean
+          description?: string
           id?: string
-          length?: number | null
-          thumbs?: number
-          title?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
