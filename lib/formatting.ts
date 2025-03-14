@@ -5,3 +5,12 @@ export function formatDuration(seconds: number) {
   const formattedSeconds = String(remainingSeconds).padStart(2, "0");
   return `${formattedMinutes}:${formattedSeconds}`;
 }
+
+export function formatSize(size: number) {
+  var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+  return (
+    +(size / Math.pow(1024, i)).toFixed(2) * 1 +
+    " " +
+    ["B", "kB", "MB", "GB", "TB"][i]
+  );
+}
