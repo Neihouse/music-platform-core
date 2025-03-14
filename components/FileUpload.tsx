@@ -25,10 +25,6 @@ export function FileUpload({ bucket }: IFileUploadProps) {
   const [filesWithMetadata, setFilesWithMetadata] = useState<
     FileWithMetadata[]
   >([]);
-  // TODO: enable user to clear error. may need to use a different solution
-  // than `notifications`
-
-  console.log(filesWithMetadata);
 
   return (
     <>
@@ -53,7 +49,12 @@ export function FileUpload({ bucket }: IFileUploadProps) {
         hidden={!filesWithMetadata.length}
         position={{ bottom: 100, right: 80 }}
       >
-        <Button onClick={() => uploadFiles(filesWithMetadata)}>Upload</Button>
+        <Button
+          disabled={uploadState === "pending"}
+          onClick={() => uploadFiles(filesWithMetadata)}
+        >
+          Upload
+        </Button>
       </Affix>
     </>
   );
@@ -91,14 +92,14 @@ export function FileUpload({ bucket }: IFileUploadProps) {
     try {
       for await (const file of filesWithMetadata) {
         const {
-          metadata: { common, format },
+          metadata: { common },
           file: { size, name },
         } = file;
         const title = common.title || name;
 
         common.title = title;
 
-        const track = await createTrack(file.metadata, file.file.size);
+        const track = await createTrack(file.metadata, size);
 
         if (!track?.data?.id) throw new Error("No ID to upload to");
 
@@ -107,18 +108,17 @@ export function FileUpload({ bucket }: IFileUploadProps) {
           .upload(track?.data?.id, file.file);
 
         if (error) {
-          console.log("full supabase error: ", error);
-
           throw new Error(error.message);
         }
       }
     } catch (error: any) {
       setUploadState("error");
       notifications.show({
-        message: `${error.message}`,
+        message: `${error}`,
         color: "red",
       });
     }
+
     setUploadState("success");
     notifications.show({
       message: "Sucessfully uploaded track",
