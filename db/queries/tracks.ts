@@ -40,3 +40,9 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
     console.log("Error inserting track metadata");
   }
 }
+
+export async function getRecentlyUploadedTracks() {
+  const supabase = await createClient();
+
+  const newTracks = await supabase.from("tracks").select().order("created_at");
+}
