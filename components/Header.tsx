@@ -35,6 +35,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useClickOutside, useDisclosure } from "@mantine/hooks";
 import { User } from "@supabase/auth-js";
+import { signOut } from "@/db/queries/users";
 
 interface HeaderProps {
   user: User | null;
@@ -262,7 +263,7 @@ export function Header({ user }: HeaderProps) {
                   <Menu.Divider />
                   <Menu.Item
                     leftSection={<IconLogout size={14} />}
-                    // onClick={handleLogout}
+                    onClick={signOut}
                     color="red"
                   >
                     Logout

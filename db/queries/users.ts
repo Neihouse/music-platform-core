@@ -6,3 +6,13 @@ export async function getUser() {
 
   return client.auth.getUser();
 }
+
+export async function signOut() {
+  const client = await createClient();
+
+  try {
+    await client.auth.signOut();
+  } catch (error) {
+    console.log("Error signing out: ", error);
+  }
+}
