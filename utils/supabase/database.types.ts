@@ -194,6 +194,7 @@ export type Database = {
           featured: boolean
           id: string
           length: string
+          plays: number | null
           sample_rate: number | null
           size: number
           thumbs: number
@@ -208,6 +209,7 @@ export type Database = {
           featured?: boolean
           id?: string
           length: string
+          plays?: number | null
           sample_rate?: number | null
           size: number
           thumbs?: number
@@ -222,6 +224,7 @@ export type Database = {
           featured?: boolean
           id?: string
           length?: string
+          plays?: number | null
           sample_rate?: number | null
           size?: number
           thumbs?: number
