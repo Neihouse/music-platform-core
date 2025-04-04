@@ -194,7 +194,8 @@ export type Database = {
           featured: boolean
           id: string
           length: string
-          plays: number | null
+          likes: number
+          plays: number
           sample_rate: number | null
           size: number
           thumbs: number
@@ -209,7 +210,8 @@ export type Database = {
           featured?: boolean
           id?: string
           length: string
-          plays?: number | null
+          likes?: number
+          plays?: number
           sample_rate?: number | null
           size: number
           thumbs?: number
@@ -224,7 +226,8 @@ export type Database = {
           featured?: boolean
           id?: string
           length?: string
-          plays?: number | null
+          likes?: number
+          plays?: number
           sample_rate?: number | null
           size?: number
           thumbs?: number
@@ -294,7 +297,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_likes: {
+        Args: {
+          row_id: string
+        }
+        Returns: undefined
+      }
+      increment_plays: {
+        Args: {
+          row_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
