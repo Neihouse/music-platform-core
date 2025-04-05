@@ -1,11 +1,11 @@
-import { Login } from "@/components/auth/Login";
+import { Signup } from "@/components/auth/Signup";
 import { Container, Box } from "@mantine/core";
 
 export default function LoginPage() {
   return (
     <Container size="xs" py="xl">
       <Box maw={400} mx="auto">
-        <Login />
+        <Signup />
       </Box>
     </Container>
   );
