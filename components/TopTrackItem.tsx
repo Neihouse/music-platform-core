@@ -3,13 +3,13 @@ import { UnstyledButton, MantineTheme, Group, Box, Text } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
 
 export interface ITopTrackItem {
-  track: Track;
-  artist: Artist;
+  track: Pick<Track, "title">;
+  artists: Artist[];
 }
 
 export function TopTrackItem({
   track: { title: trackTitle },
-  artist: { title: artistTitle },
+  artists: { title: artistTitle },
 }: ITopTrackItem) {
   return (
     <UnstyledButton
@@ -27,7 +27,6 @@ export function TopTrackItem({
       <Group wrap="nowrap">
         <IconPlayerPlay size={16} color="var(--mantine-color-blue-5)" />
         <Box>
-          d
           <Text size="sm" fw={500}>
             {trackTitle}
           </Text>

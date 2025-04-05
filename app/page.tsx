@@ -1,5 +1,5 @@
-"use client";
-
+import { TopTrackItem } from "@/components/TopTrackItem";
+import { createClient } from "@/utils/supabase/server";
 import {
   Container,
   Grid,
@@ -13,13 +13,29 @@ import {
 } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
 
-export default function HomePage() {
+export interface IHomePage {}
+
+export default async function HomePage({}: IHomePage) {
+  const supabase = await createClient();
   const featuredTrack = {
     id: 1,
     title: "Summer Breeze",
     artist: "Chill Vibes",
     description: "Listen to our top pick",
   };
+
+  const { data: topTracks, error } = await supabase
+    .from("tracks")
+    .select(
+      `
+      id,
+      title,
+      artist_ (
+        id,
+        title
+      )`
+    )
+    .limit(5);
 
   return (
     <Container size="lg" py={rem(48)}>
@@ -68,11 +84,14 @@ export default function HomePage() {
           <Stack gap="md">
             <Title order={2}>Top Tracks</Title>
             <Card padding="md" radius="md" withBorder>
-              <Stack gap="xs">
-                {/* {topTracks.map((track) => (
-                  <TopTrackItem key={track.id} {...track} />
-                ))} */}
-              </Stack>
+              // TODO: Add error state
+              {(topTracks || []).map((track) => (
+                <TopTrackItem
+                  key={track.id}
+                  track={track}
+                  artists={track.artists}
+                />
+              ))}
             </Card>
           </Stack>
         </Grid.Col>
