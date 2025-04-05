@@ -7,14 +7,10 @@ export interface ISwitchActionProps {
 }
 
 export function SwitchAction({ action }: ISwitchActionProps) {
-  console.log("SwitchAction", action);
-
   return (
     <div>
       <Group justify="space-between" mt="xl">
         <Anchor
-          //   component="button"
-          //   type="button"
           c="dimmed"
           href={action === "login" ? "/signup" : "/login"}
           size="xs"
