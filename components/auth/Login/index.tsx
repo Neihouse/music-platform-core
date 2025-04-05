@@ -13,11 +13,10 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { upperFirst, useToggle } from "@mantine/hooks";
 import { login, LoginData, signup } from "@/app/login/actions";
+import { SwitchAction } from "../SwitchAction";
 
 export function Login(props: PaperProps) {
-  const [type, toggle] = useToggle(["login", "register"]);
   const form = useForm<LoginData>({
     initialValues: {
       email: "",
@@ -38,7 +37,7 @@ export function Login(props: PaperProps) {
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
       <Text size="lg" fw={500}>
-        Welcome to Music Band, {type} with
+        Welcome to Music Band, login with
       </Text>
 
       {/* TODO: Implement Google OAuth
@@ -52,23 +51,9 @@ export function Login(props: PaperProps) {
 
       <form
         encType="multipart/form-data"
-        onSubmit={form.onSubmit((values) =>
-          type === "login" ? login(values) : signup(values)
-        )}
+        onSubmit={form.onSubmit((values) => login(values))}
       >
         <Stack>
-          {type === "register" && (
-            <TextInput
-              label="Name"
-              placeholder="Your name"
-              value={form.values.name}
-              onChange={(event) =>
-                form.setFieldValue("name", event.currentTarget.value)
-              }
-              radius="md"
-            />
-          )}
-
           <TextInput
             required
             label="Email"
@@ -95,34 +80,8 @@ export function Login(props: PaperProps) {
             }
             radius="md"
           />
-
-          {type === "register" && (
-            <Checkbox
-              label="I accept terms and conditions"
-              checked={form.values.terms}
-              onChange={(event) =>
-                form.setFieldValue("terms", event.currentTarget.checked)
-              }
-            />
-          )}
         </Stack>
-
-        <Group justify="space-between" mt="xl">
-          <Anchor
-            component="button"
-            type="button"
-            c="dimmed"
-            onClick={() => toggle()}
-            size="xs"
-          >
-            {type === "register"
-              ? "Already have an account? Login"
-              : "Don't have an account? Register"}
-          </Anchor>
-          <Button type="submit" radius="xl">
-            {upperFirst(type)}
-          </Button>
-        </Group>
+        <SwitchAction action="login" />
       </form>
     </Paper>
   );
