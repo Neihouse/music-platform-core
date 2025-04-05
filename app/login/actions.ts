@@ -17,20 +17,16 @@ export async function login({ email, password }: LoginData) {
   // type-casting here for convenience
   // in practice, you should validate your inputs
 
-  console.log("LOgging IN");
-
   const { error, data } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
-    console.log("ERROR: ", error);
+    console.error("ERROR: ", error);
 
     redirect("/error");
   }
-
-  console.log("DATA: ", data);
 
   revalidatePath("/", "layout");
   redirect("/");
