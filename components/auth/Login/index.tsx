@@ -17,7 +17,7 @@ export function Login(props: PaperProps) {
 
     validate: {
       email: (val: string) => validateEmail(val),
-      password: (val: string) => (!!val.length ? null : "Password is required"),
+      password: (val: string) => (!val.length ? "Password is required" : null),
     },
   });
 
