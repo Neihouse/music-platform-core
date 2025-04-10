@@ -9,282 +9,224 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      albums: {
+      administrative_area: {
         Row: {
           created_at: string
           id: string
-          name: string | null
+          name: string
         }
         Insert: {
           created_at?: string
           id?: string
-          name?: string | null
+          name: string
         }
         Update: {
           created_at?: string
           id?: string
-          name?: string | null
+          name?: string
         }
         Relationships: []
-      }
-      albums_groups: {
-        Row: {
-          album_id: string | null
-          created_at: string
-          group_id: string | null
-          id: string
-        }
-        Insert: {
-          album_id?: string | null
-          created_at?: string
-          group_id?: string | null
-          id?: string
-        }
-        Update: {
-          album_id?: string | null
-          created_at?: string
-          group_id?: string | null
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "albums_groups_album_id_fkey"
-            columns: ["album_id"]
-            isOneToOne: false
-            referencedRelation: "albums"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "albums_groups_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       artists: {
         Row: {
+          administrative_area: string
           created_at: string
           id: string
-          title: string
-          updated_at: string | null
+          locality: string
+          name: string
         }
         Insert: {
+          administrative_area: string
           created_at?: string
           id?: string
-          title?: string
-          updated_at?: string | null
+          locality: string
+          name: string
         }
         Update: {
+          administrative_area?: string
           created_at?: string
           id?: string
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      artists_groups: {
-        Row: {
-          artist_id: string
-          created_at: string
-          group_id: string
-          id: string
-          member_since: string | null
-        }
-        Insert: {
-          artist_id: string
-          created_at?: string
-          group_id: string
-          id?: string
-          member_since?: string | null
-        }
-        Update: {
-          artist_id?: string
-          created_at?: string
-          group_id?: string
-          id?: string
-          member_since?: string | null
+          locality?: string
+          name?: string
         }
         Relationships: [
           {
-            foreignKeyName: "artists_groups_artist_id_fkey"
-            columns: ["artist_id"]
+            foreignKeyName: "artists_administrative_area_fkey"
+            columns: ["administrative_area"]
             isOneToOne: false
-            referencedRelation: "artists"
+            referencedRelation: "administrative_area"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "artists_groups_group_id_fkey"
-            columns: ["group_id"]
+            foreignKeyName: "artists_locality_fkey"
+            columns: ["locality"]
             isOneToOne: false
-            referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artists_groups_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "artists"
+            referencedRelation: "localities"
             referencedColumns: ["id"]
           },
         ]
       }
-      artists_users: {
+      artists_tracks: {
         Row: {
-          artist_id: string
+          artist: string
           created_at: string
           id: string
-          user_id: string
+          track: string
         }
         Insert: {
-          artist_id: string
+          artist: string
           created_at?: string
           id?: string
-          user_id: string
+          track: string
         }
         Update: {
-          artist_id?: string
+          artist?: string
           created_at?: string
           id?: string
-          user_id?: string
+          track?: string
         }
         Relationships: [
           {
-            foreignKeyName: "artists_users_artist_id_fkey"
-            columns: ["artist_id"]
+            foreignKeyName: "artists_tracks_artist_fkey"
+            columns: ["artist"]
             isOneToOne: false
             referencedRelation: "artists"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "artists_users_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      groups: {
-        Row: {
-          created_at: string | null
-          id: string
-          name: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          name?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          name?: string | null
-        }
-        Relationships: []
-      }
-      tracks: {
-        Row: {
-          bitrate: number | null
-          channels: number | null
-          codec: string
-          container: string | null
-          created_at: string
-          featured: boolean
-          id: string
-          length: string
-          sample_rate: number | null
-          size: number
-          thumbs: number
-          title: string
-        }
-        Insert: {
-          bitrate?: number | null
-          channels?: number | null
-          codec: string
-          container?: string | null
-          created_at?: string
-          featured?: boolean
-          id?: string
-          length: string
-          sample_rate?: number | null
-          size: number
-          thumbs?: number
-          title: string
-        }
-        Update: {
-          bitrate?: number | null
-          channels?: number | null
-          codec?: string
-          container?: string | null
-          created_at?: string
-          featured?: boolean
-          id?: string
-          length?: string
-          sample_rate?: number | null
-          size?: number
-          thumbs?: number
-          title?: string
-        }
-        Relationships: []
-      }
-      tracks_albums: {
-        Row: {
-          album_id: string | null
-          created_at: string
-          id: string
-          track_id: string | null
-        }
-        Insert: {
-          album_id?: string | null
-          created_at?: string
-          id?: string
-          track_id?: string | null
-        }
-        Update: {
-          album_id?: string | null
-          created_at?: string
-          id?: string
-          track_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tacks_albums_album_id_fkey"
-            columns: ["album_id"]
-            isOneToOne: false
-            referencedRelation: "albums"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tacks_albums_track_id_fkey"
-            columns: ["track_id"]
+            foreignKeyName: "artists_tracks_tracks_fkey"
+            columns: ["track"]
             isOneToOne: false
             referencedRelation: "tracks"
             referencedColumns: ["id"]
           },
         ]
       }
-      users: {
+      countries: {
         Row: {
           created_at: string
-          description: string
-          id: string
-          updated_at: string | null
+          id: number
+          name: string
         }
         Insert: {
           created_at?: string
-          description?: string
-          id: string
-          updated_at?: string | null
+          id?: number
+          name?: string
         }
         Update: {
           created_at?: string
-          description?: string
-          id?: string
-          updated_at?: string | null
+          id?: number
+          name?: string
         }
         Relationships: []
+      }
+      localities: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      tracks: {
+        Row: {
+          bitrate: number | null
+          channels: number
+          codec: string
+          container: string | null
+          created_at: string
+          featured: boolean
+          id: string
+          length: number
+          likes: number
+          plays: number
+          sample_rate: number | null
+          size: number | null
+          title: string
+        }
+        Insert: {
+          bitrate?: number | null
+          channels: number
+          codec: string
+          container?: string | null
+          created_at?: string
+          featured?: boolean
+          id?: string
+          length: number
+          likes?: number
+          plays?: number
+          sample_rate?: number | null
+          size?: number | null
+          title: string
+        }
+        Update: {
+          bitrate?: number | null
+          channels?: number
+          codec?: string
+          container?: string | null
+          created_at?: string
+          featured?: boolean
+          id?: string
+          length?: number
+          likes?: number
+          plays?: number
+          sample_rate?: number | null
+          size?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
+      venues: {
+        Row: {
+          address: string
+          administrative_area: string
+          created_at: string
+          id: number
+          locality: string
+          name: string
+        }
+        Insert: {
+          address: string
+          administrative_area: string
+          created_at?: string
+          id?: number
+          locality: string
+          name: string
+        }
+        Update: {
+          address?: string
+          administrative_area?: string
+          created_at?: string
+          id?: number
+          locality?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venues_administrative_area_fkey"
+            columns: ["administrative_area"]
+            isOneToOne: false
+            referencedRelation: "administrative_area"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venues_locality_fkey"
+            columns: ["locality"]
+            isOneToOne: false
+            referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -302,27 +244,29 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -330,20 +274,22 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -351,20 +297,22 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -372,21 +320,23 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
@@ -395,6 +345,12 @@ export type CompositeTypes<
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
