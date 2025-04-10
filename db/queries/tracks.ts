@@ -20,13 +20,16 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
 
   try {
     // TODO: Validation functions!!!!
+    if (!duration) {
+      throw new Error("Duration is required");
+    }
     const track = await supabase
       .from("tracks")
       .insert({
         codec: codec!,
-        channels: numberOfChannels,
+        channels: numberOfChannels!,
         sample_rate: sampleRate,
-        length: formatDuration(duration!),
+        length: duration,
         size,
         container,
         bitrate,
