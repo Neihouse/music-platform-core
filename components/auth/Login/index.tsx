@@ -1,43 +1,30 @@
 "use client";
-import {
-  Anchor,
-  Button,
-  Checkbox,
-  Divider,
-  Group,
-  Paper,
-  PaperProps,
-  PasswordInput,
-  Stack,
-  Text,
-  TextInput,
-} from "@mantine/core";
+import { Divider, Paper, PaperProps, Stack, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { login, LoginData, signup } from "@/app/login/actions";
+import { useState } from "react";
+import { login, LoginData } from "@/app/login/actions";
 import { SwitchAction } from "../SwitchAction";
+import { EmailAndPasswordInputs } from "../EmailAndPasswordInputs";
+import { validateEmail } from "../validation";
 
 export function Login(props: PaperProps) {
+  const [error, setError] = useState<string | null>(null);
   const form = useForm<LoginData>({
     initialValues: {
       email: "",
-      name: "",
       password: "",
-      terms: true,
     },
 
     validate: {
-      email: (val: string) => (/^\S+@\S+$/.test(val) ? null : "Invalid email"),
-      password: (val: string) =>
-        val.length <= 6
-          ? "Password should include at least 6 characters"
-          : null,
+      email: (val: string) => validateEmail(val),
+      password: (val: string) => (!!val.length ? null : "Password is required"),
     },
   });
 
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
       <Text size="lg" fw={500}>
-        Welcome to Music Band, login with
+        Welcome to Music Band
       </Text>
 
       {/* TODO: Implement Google OAuth
@@ -51,38 +38,38 @@ export function Login(props: PaperProps) {
 
       <form
         encType="multipart/form-data"
-        onSubmit={form.onSubmit((values) => login(values))}
+        onSubmit={form.onSubmit((values) => handleLogin(values))}
       >
         <Stack>
-          <TextInput
-            required
-            label="Email"
-            placeholder="hello@mantine.dev"
-            value={form.values.email}
-            onChange={(event) =>
-              form.setFieldValue("email", event.currentTarget.value)
-            }
-            error={form.errors.email && "Invalid email"}
-            radius="md"
-          />
-
-          <PasswordInput
-            required
-            label="Password"
-            placeholder="Your password"
-            value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue("password", event.currentTarget.value)
-            }
-            error={
-              form.errors.password &&
-              "Password should include at least 6 characters"
-            }
-            radius="md"
+          <EmailAndPasswordInputs
+            errors={form.errors}
+            values={form.values}
+            setFieldValue={(field: string, value: string) => {
+              setError(null);
+              form.setFieldValue(field, value);
+            }}
           />
         </Stack>
+        {error && (
+          <Text color="red" size="sm" mt="sm">
+            {error}
+          </Text>
+        )}
         <SwitchAction action="login" />
       </form>
     </Paper>
   );
+
+  async function handleLogin(values: LoginData) {
+    const error = await login(values);
+
+    if (error) {
+      if (`${error}`.includes("Invalid login credentials")) {
+        setError("Invalid email or password");
+      }
+      return null;
+    }
+
+    setError(null);
+  }
 }

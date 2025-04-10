@@ -1,44 +1,36 @@
 "use client";
 import {
-  Anchor,
-  Button,
-  Checkbox,
   Divider,
-  Group,
   Paper,
   PaperProps,
-  PasswordInput,
   Stack,
   Text,
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { upperFirst, useToggle } from "@mantine/hooks";
-import { login, LoginData, signup } from "@/app/login/actions";
+import { signup, SignupData } from "@/app/login/actions";
 import { SwitchAction } from "../SwitchAction";
+import { EmailAndPasswordInputs } from "../EmailAndPasswordInputs";
+import { validateEmail, validatePassword } from "../validation";
 
 export function Signup(props: PaperProps) {
-  const form = useForm<LoginData>({
+  const form = useForm<SignupData>({
     initialValues: {
       email: "",
       name: "",
       password: "",
-      terms: true,
     },
 
     validate: {
-      email: (val: string) => (/^\S+@\S+$/.test(val) ? null : "Invalid email"),
-      password: (val: string) =>
-        val.length <= 6
-          ? "Password should include at least 6 characters"
-          : null,
+      email: validateEmail,
+      password: validatePassword,
     },
   });
 
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
       <Text size="lg" fw={500}>
-        Welcome to Music Band, register with
+        Welcome to Music Band
       </Text>
 
       {/* TODO: Implement Google OAuth
@@ -64,30 +56,10 @@ export function Signup(props: PaperProps) {
             }
             radius="md"
           />
-          <TextInput
-            required
-            label="Email"
-            placeholder="hello@mantine.dev"
-            value={form.values.email}
-            onChange={(event) =>
-              form.setFieldValue("email", event.currentTarget.value)
-            }
-            error={form.errors.email && "Invalid email"}
-            radius="md"
-          />
-          <PasswordInput
-            required
-            label="Password"
-            placeholder="Your password"
-            value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue("password", event.currentTarget.value)
-            }
-            error={
-              form.errors.password &&
-              "Password should include at least 6 characters"
-            }
-            radius="md"
+          <EmailAndPasswordInputs
+            errors={form.errors}
+            values={form.values}
+            setFieldValue={form.setFieldValue}
           />
           {/* TODO: Write terms and conditions */}
           {/* <Checkbox
