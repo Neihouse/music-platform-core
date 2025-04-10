@@ -7,32 +7,33 @@ import { createClient } from "@/utils/supabase/server";
 
 export interface LoginData {
   email: string;
+  password: string;
+}
+
+export interface SignupData {
+  email: string;
   name: string;
   password: string;
-  terms: boolean;
 }
+
 export async function login({ email, password }: LoginData) {
+  // TODO: convert to use API route for correct http response codes
   const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-
-  const { error, data } = await supabase.auth.signInWithPassword({
+  const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
-    console.error("ERROR: ", error);
-
-    redirect("/error");
+    return error;
   }
 
   revalidatePath("/", "layout");
   redirect("/");
 }
 
-export async function signup({ email, password, name }: LoginData) {
+export async function signup({ email, password, name }: SignupData) {
   const supabase = await createClient();
 
   // type-casting here for convenience
