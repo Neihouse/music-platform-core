@@ -10,6 +10,7 @@ import {
   Stack,
   Card,
   rem,
+  GridCol,
 } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
 
@@ -30,17 +31,20 @@ export default async function HomePage({}: IHomePage) {
       `
       id,
       title,
-      artist_ (
+      artist_tracks (
         id,
         title
       )`
     )
     .limit(5);
 
+  console.log("topTracks", topTracks);
+  console.log("error", error);
+
   return (
     <Container size="lg" py={rem(48)}>
       <Grid gutter={rem(32)}>
-        <Grid.Col span={{ base: 12, md: 6 }}>
+        <GridCol span={{ base: 12, md: 6 }}>
           <Stack gap="md">
             <Title order={2}>Featured Track</Title>
             <Card padding="xl" radius="md" withBorder>
@@ -78,23 +82,19 @@ export default async function HomePage({}: IHomePage) {
               </Stack>
             </Card>
           </Stack>
-        </Grid.Col>
+        </GridCol>
 
-        <Grid.Col span={{ base: 12, md: 6 }}>
+        <GridCol span={{ base: 12, md: 6 }}>
           <Stack gap="md">
             <Title order={2}>Top Tracks</Title>
             <Card padding="md" radius="md" withBorder>
               // TODO: Add error state
               {(topTracks || []).map((track) => (
-                <TopTrackItem
-                  key={track.id}
-                  track={track}
-                  artists={track.artists}
-                />
+                <TopTrackItem key={track.id} track={track} artists={track} />
               ))}
             </Card>
           </Stack>
-        </Grid.Col>
+        </GridCol>
       </Grid>
     </Container>
   );
