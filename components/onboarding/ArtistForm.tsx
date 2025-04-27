@@ -14,11 +14,12 @@ import { useForm } from "@mantine/form";
 import { createArtist } from "@/app/onboarding/artist/actions";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
-import { redirect } from "next/dist/server/api-utils";
+import { useRouter } from "next/navigation";
 
 export interface IArtistFormProps {}
 
 export function ArtistForm(props: IArtistFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const form = useForm({
     initialValues: {
@@ -75,6 +76,7 @@ export function ArtistForm(props: IArtistFormProps) {
     try {
       const artist = await createArtist(name, bio);
       console.log("Artist created:", artist);
+      router.push("/onboarding");
     } catch (error) {
       notifications.show({
         title: "Error",
