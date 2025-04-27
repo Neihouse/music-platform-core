@@ -38,7 +38,7 @@ export type Database = {
         }
         Insert: {
           administrative_area?: string | null
-          bio: string
+          bio?: string
           created_at?: string
           id?: string
           locality?: string | null
