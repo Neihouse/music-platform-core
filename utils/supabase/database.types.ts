@@ -35,6 +35,7 @@ export type Database = {
           id: string
           locality: string | null
           name: string
+          user_id: string
         }
         Insert: {
           administrative_area?: string | null
@@ -43,6 +44,7 @@ export type Database = {
           id?: string
           locality?: string | null
           name: string
+          user_id: string
         }
         Update: {
           administrative_area?: string | null
@@ -51,6 +53,7 @@ export type Database = {
           id?: string
           locality?: string | null
           name?: string
+          user_id?: string
         }
         Relationships: [
           {
