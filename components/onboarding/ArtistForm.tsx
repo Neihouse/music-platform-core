@@ -27,7 +27,7 @@ export function ArtistForm(props: IArtistFormProps) {
       bio: "",
     },
     validate: {
-      name: (value) => (!!value.length ? null : "Name is required"),
+      name: (value: string) => (!!value.length ? null : "Name is required"),
     },
   });
 
