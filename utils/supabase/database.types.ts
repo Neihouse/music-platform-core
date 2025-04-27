@@ -29,25 +29,31 @@ export type Database = {
       }
       artists: {
         Row: {
-          administrative_area: string
+          administrative_area: string | null
+          bio: string
           created_at: string
           id: string
-          locality: string
+          locality: string | null
           name: string
+          user_id: string
         }
         Insert: {
-          administrative_area: string
+          administrative_area?: string | null
+          bio?: string
           created_at?: string
           id?: string
-          locality: string
+          locality?: string | null
           name: string
+          user_id: string
         }
         Update: {
-          administrative_area?: string
+          administrative_area?: string | null
+          bio?: string
           created_at?: string
           id?: string
-          locality?: string
+          locality?: string | null
           name?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -120,6 +126,35 @@ export type Database = {
         }
         Relationships: []
       }
+      likes: {
+        Row: {
+          created_at: string
+          id: string
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       localities: {
         Row: {
           created_at: string
@@ -137,6 +172,67 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      plays: {
+        Row: {
+          created_at: string
+          id: string
+          track: string
+          user: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          track: string
+          user: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          track?: string
+          user?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plays_track_fkey"
+            columns: ["track"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      "pre-registered-users": {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          locality: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          locality: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          locality?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre-registered-users_locality_fkey"
+            columns: ["locality"]
+            isOneToOne: false
+            referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tracks: {
         Row: {
@@ -188,37 +284,21 @@ export type Database = {
       }
       venues: {
         Row: {
-          address: string
-          administrative_area: string
           created_at: string
-          id: number
+          id: string
           locality: string
-          name: string
         }
         Insert: {
-          address: string
-          administrative_area: string
           created_at?: string
-          id?: number
+          id?: string
           locality: string
-          name: string
         }
         Update: {
-          address?: string
-          administrative_area?: string
           created_at?: string
-          id?: number
+          id?: string
           locality?: string
-          name?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "venues_administrative_area_fkey"
-            columns: ["administrative_area"]
-            isOneToOne: false
-            referencedRelation: "administrative_area"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "venues_locality_fkey"
             columns: ["locality"]
