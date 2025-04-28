@@ -1,6 +1,6 @@
 import { TopTrackItem } from "@/components/TopTrackItem";
 import { getTracks } from "@/db/queries/tracks";
-import { Artist } from "@/utils/supabase/global.types";
+import { Artist, Track } from "@/utils/supabase/global.types";
 import { createClient } from "@/utils/supabase/server";
 import {
   Container,
@@ -78,7 +78,8 @@ export default async function HomePage({}: IHomePage) {
               {(topTracks || []).map((track) => (
                 <TopTrackItem
                   key={track.id}
-                  track={track}
+                  track={track as Track}
+                  plays={track.plays}
                   artists={track.artists as Artist[]}
                 />
               ))}

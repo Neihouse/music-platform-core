@@ -1,17 +1,24 @@
 "use client";
+
+import PlaybackContext from "@/lib/PlayerContext";
 import { Artist, Track } from "@/utils/supabase/global.types";
 import { UnstyledButton, MantineTheme, Group, Box, Text } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
+import { useContext } from "react";
 
 export interface ITopTrackItem {
-  track: Pick<Track, "title">;
+  track: Track;
   artists: Artist[];
+  plays: number;
 }
 
 export function TopTrackItem({
-  track: { title: trackTitle },
+  track: { title: trackTitle, id: trackId },
   artists,
+  plays,
 }: ITopTrackItem) {
+  const { setTrackId } = useContext(PlaybackContext);
+  console.log("setTrackId: ", setTrackId);
   return (
     <UnstyledButton
       w="100%"
@@ -24,6 +31,7 @@ export function TopTrackItem({
         },
         transition: "background-color 150ms ease",
       })}
+      onClick={() => setTrackId(trackId)}
     >
       <Group wrap="nowrap">
         <IconPlayerPlay size={16} color="var(--mantine-color-blue-5)" />
@@ -31,9 +39,14 @@ export function TopTrackItem({
           <Text size="sm" fw={500}>
             {trackTitle}
           </Text>
-          <Text size="sm" c="dimmed">
-            {artists.map((artist) => artist.name).join(", ")}
-          </Text>
+          <Group>
+            <Text size="xs" c="dimmed">
+              {plays} plays
+            </Text>
+            <Text size="sm" c="dimmed">
+              {artists.map((artist) => artist.name).join(", ")}
+            </Text>
+          </Group>
         </Box>
       </Group>
     </UnstyledButton>
