@@ -50,3 +50,85 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
     throw new Error("Error inserting track");
   }
 }
+
+export async function getTrackPlayURL(trackId: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("tracks").getPublicUrl(trackId);
+
+  const { data, error } = await supabase.rpc("increment_plays", {
+    row_id: trackId,
+  });
+
+  console.log("Play increment result, error: ", data, error);
+
+  return publicUrl;
+}
+
+export async function getTracks(includeArtists = false) {
+  const supabase = await createClient();
+
+  const { data: topTracks, error } = await supabase
+    .from("tracks")
+    .select(
+      `
+      id,
+      title,
+      artists_tracks (
+        id,
+        artist_id,
+        artists (
+          id,
+          name
+        )
+      )`
+    )
+    .limit(5);
+
+  if (error) {
+    console.log("error getting tracks");
+  }
+
+  const tracksWithArtists = topTracks?.map((track) => {
+    const artists = track.artists_tracks.map((artistTrack) => {
+      return artistTrack.artists;
+    });
+
+    return {
+      ...track,
+      artists: artists.flat(),
+    };
+  });
+
+  return tracksWithArtists;
+}
+
+export async function getTopTracks() {
+  const supabase = await createClient();
+  const now = new Date();
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const timestamptzString = oneWeekAgo.toISOString();
+
+  console.log("One week ago: ", timestamptzString);
+  const { data, error } = await supabase
+    .from("tracks")
+    .select()
+    .gte("created_at", timestamptzString)
+    .order("plays", {
+      ascending: false,
+    });
+
+  if (error) {
+    console.error("Error getting top tracks: ", error);
+  }
+
+  if (!data || !data.length) {
+    throw new Error("No data");
+  }
+
+  console.log("getTopTracks data: ", data);
+
+  return data;
+}
