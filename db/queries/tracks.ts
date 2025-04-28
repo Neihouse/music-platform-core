@@ -52,22 +52,33 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
 }
 
 export async function getTrackPlayURL(trackId: string) {
+  if (!trackId) {
+    throw new Error("Track ID is required");
+  }
   const supabase = await createClient();
+  const user = await supabase.auth.getUser();
+
+  if (!user || !user.data.user) {
+    throw new Error("User not authenticated");
+  }
 
   const {
     data: { publicUrl },
   } = supabase.storage.from("tracks").getPublicUrl(trackId);
 
-  const { data, error } = await supabase.rpc("increment_plays", {
-    row_id: trackId,
+  const { data, error } = await supabase.from("track_plays").insert({
+    track: trackId,
+    user: user.data.user.id,
   });
 
-  console.log("Play increment result, error: ", data, error);
+  if (error) {
+    throw new Error(error.message);
+  }
 
   return publicUrl;
 }
 
-export async function getTracks(includeArtists = false) {
+export async function getTracks() {
   const supabase = await createClient();
 
   const { data: topTracks, error } = await supabase
@@ -76,6 +87,7 @@ export async function getTracks(includeArtists = false) {
       `
       id,
       title,
+      play_count:track_plays!inner(count),
       artists_tracks (
         id,
         artist_id,
@@ -83,12 +95,13 @@ export async function getTracks(includeArtists = false) {
           id,
           name
         )
-      )`
+      )
+      `
     )
     .limit(5);
 
   if (error) {
-    console.log("error getting tracks");
+    console.log("error getting tracks: ", error);
   }
 
   const tracksWithArtists = topTracks?.map((track) => {
@@ -98,6 +111,7 @@ export async function getTracks(includeArtists = false) {
 
     return {
       ...track,
+      plays: track.play_count[0].count,
       artists: artists.flat(),
     };
   });
@@ -111,7 +125,6 @@ export async function getTopTracks() {
   const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const timestamptzString = oneWeekAgo.toISOString();
 
-  console.log("One week ago: ", timestamptzString);
   const { data, error } = await supabase
     .from("tracks")
     .select()
@@ -127,8 +140,6 @@ export async function getTopTracks() {
   if (!data || !data.length) {
     throw new Error("No data");
   }
-
-  console.log("getTopTracks data: ", data);
 
   return data;
 }
