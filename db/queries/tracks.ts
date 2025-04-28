@@ -1,10 +1,12 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
 import { IAudioMetadata } from "music-metadata";
+import { getArtist } from "./artists";
+import { createArtistTrack } from "./artists_tracks";
 
 export async function createTrack(metadata: IAudioMetadata, size: number) {
   const supabase = await createClient();
-
+  const artist = await getArtist();
   const {
     common: { title },
     format: {
@@ -22,7 +24,7 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
     if (!duration) {
       throw new Error("Duration is required");
     }
-    const track = await supabase
+    const { data: track, error } = await supabase
       .from("tracks")
       .insert({
         codec: codec!,
@@ -36,6 +38,15 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
       })
       .select()
       .single();
+
+    if (error) {
+      console.log(error);
+
+      throw new Error(error);
+    }
+
+    await createArtistTrack(artist.id, track.id);
+    console.log("Track created:", track);
 
     return track;
   } catch (error) {

@@ -95,18 +95,18 @@ export function FileUpload({ bucket }: IFileUploadProps) {
 
         const track = await createTrack(file.metadata, size);
 
-        if (!track?.data?.id) throw new Error("No ID to upload to");
+        if (!track) throw new Error("No ID to upload to");
 
         const { error } = await createClient()
           .storage.from(bucket)
-          .upload(track?.data?.id, file.file);
+          .upload(track.id, file.file);
 
         if (error) {
           throw new Error(error.message);
         }
       }
     } catch (error: any) {
-      handleError(error);
+      return handleError(error);
     }
 
     setUploadState("success");
@@ -147,7 +147,7 @@ export function FileUpload({ bucket }: IFileUploadProps) {
     setUploadState("error");
     notifications.show({
       title: "Upload Error",
-      message: error,
+      message: `${error}`,
       color: "red",
     });
   }
