@@ -15,8 +15,7 @@ export async function getArtist() {
     .single();
 
   if (error) {
-    console.log(error);
-    throw new Error(error as any);
+    throw new Error(error.message);
   }
 
   return artist;

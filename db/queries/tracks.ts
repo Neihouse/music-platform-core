@@ -40,16 +40,13 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
       .single();
 
     if (error) {
-      console.log(error);
-
-      throw new Error(error as any);
+      throw new Error(error.message);
     }
 
     await createArtistTrack(artist.id, track.id);
-    console.log("Track created:", track);
 
     return track;
   } catch (error) {
-    console.log("Error inserting track metadata");
+    throw new Error("Error inserting track");
   }
 }
