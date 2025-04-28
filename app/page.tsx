@@ -78,7 +78,7 @@ export default async function HomePage({}: IHomePage) {
               {(topTracks || []).map((track) => (
                 <TopTrackItem
                   key={track.id}
-                  track={track as Track}
+                  track={track}
                   plays={track.plays}
                   artists={track.artists as Artist[]}
                 />

@@ -85,8 +85,7 @@ export async function getTracks() {
     .from("tracks")
     .select(
       `
-      id,
-      title,
+      *,
       play_count:track_plays!inner(count),
       artists_tracks (
         id,
