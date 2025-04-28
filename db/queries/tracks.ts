@@ -70,13 +70,39 @@ export async function getTrackPlayURL(trackId: string) {
 export async function getTracks(includeArtists = false) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase.from("tracks").select(`*`).limit(5);
+  const { data: topTracks, error } = await supabase
+    .from("tracks")
+    .select(
+      `
+      id,
+      title,
+      artists_tracks (
+        id,
+        artist_id,
+        artists (
+          id,
+          name
+        )
+      )`
+    )
+    .limit(5);
 
   if (error) {
     console.log("error getting tracks");
   }
 
-  return data;
+  const tracksWithArtists = topTracks?.map((track) => {
+    const artists = track.artists_tracks.map((artistTrack) => {
+      return artistTrack.artists;
+    });
+
+    return {
+      ...track,
+      artists: artists.flat(),
+    };
+  });
+
+  return tracksWithArtists;
 }
 
 export async function getTopTracks() {

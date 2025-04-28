@@ -1,3 +1,4 @@
+"use client";
 import { Artist, Track } from "@/utils/supabase/global.types";
 import { UnstyledButton, MantineTheme, Group, Box, Text } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
@@ -9,7 +10,7 @@ export interface ITopTrackItem {
 
 export function TopTrackItem({
   track: { title: trackTitle },
-  artists: { title: artistTitle },
+  artists,
 }: ITopTrackItem) {
   return (
     <UnstyledButton
@@ -31,7 +32,7 @@ export function TopTrackItem({
             {trackTitle}
           </Text>
           <Text size="sm" c="dimmed">
-            {artistTitle}
+            {artists.map((artist) => artist.name).join(", ")}
           </Text>
         </Box>
       </Group>

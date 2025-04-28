@@ -1,4 +1,6 @@
 import { TopTrackItem } from "@/components/TopTrackItem";
+import { getTracks } from "@/db/queries/tracks";
+import { Artist } from "@/utils/supabase/global.types";
 import { createClient } from "@/utils/supabase/server";
 import {
   Container,
@@ -17,29 +19,13 @@ import { IconPlayerPlay } from "@tabler/icons-react";
 export interface IHomePage {}
 
 export default async function HomePage({}: IHomePage) {
-  const supabase = await createClient();
   const featuredTrack = {
     id: 1,
     title: "Summer Breeze",
     artist: "Chill Vibes",
     description: "Listen to our top pick",
   };
-
-  const { data: topTracks, error } = await supabase
-    .from("tracks")
-    .select(
-      `
-      id,
-      title,
-      artist_tracks (
-        id,
-        title
-      )`
-    )
-    .limit(5);
-
-  console.log("topTracks", topTracks);
-  console.log("error", error);
+  const topTracks = await getTracks();
 
   return (
     <Container size="lg" py={rem(48)}>
@@ -87,10 +73,14 @@ export default async function HomePage({}: IHomePage) {
         <GridCol span={{ base: 12, md: 6 }}>
           <Stack gap="md">
             <Title order={2}>Top Tracks</Title>
+
             <Card padding="md" radius="md" withBorder>
-              // TODO: Add error state
               {(topTracks || []).map((track) => (
-                <TopTrackItem key={track.id} track={track} artists={track} />
+                <TopTrackItem
+                  key={track.id}
+                  track={track}
+                  artists={track.artists as Artist[]}
+                />
               ))}
             </Card>
           </Stack>
