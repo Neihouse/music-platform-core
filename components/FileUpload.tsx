@@ -3,8 +3,8 @@ import { createClient } from "@/utils/supabase/client";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
-import { IAudioMetadata, parseBuffer } from "music-metadata";
-import { Affix, Anchor, Button, Group, Space, Stack } from "@mantine/core";
+import { IAudioMetadata, parseBlob, parseBuffer } from "music-metadata";
+import { Affix, Button, Group, Space, Stack } from "@mantine/core";
 import { MetadataDisplay } from "./track-upload/MetadataDisplay";
 import { IconUpload } from "@tabler/icons-react";
 import { createTrack } from "@/db/queries/tracks";
@@ -69,7 +69,7 @@ export function FileUpload({ bucket }: IFileUploadProps) {
 
       const newFilesWithMetadata = await Promise.all(
         files.map(async (file) => {
-          const metadata = await parseBuffer(await file.bytes());
+          const metadata = await parseBlob(file);
           return { file, metadata };
         })
       );
