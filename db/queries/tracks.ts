@@ -42,7 +42,7 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
     if (error) {
       console.log(error);
 
-      throw new Error(error);
+      throw new Error(error as any);
     }
 
     await createArtistTrack(artist.id, track.id);

@@ -16,7 +16,7 @@ export async function createArtistTrack(artistId: string, trackId: string) {
 
   if (error) {
     console.log(error);
-    throw new Error(error);
+    throw new Error(error as any);
   }
 
   return data;
