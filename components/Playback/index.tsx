@@ -12,8 +12,10 @@ const PlayerContext = createContext({
 
 export function Playback({ src }: IPlaybackProps) {
   return (
-    <PlayerContext.Provider>
-      <AudioPlayer src={src} />
-    </PlayerContext.Provider>
+    <div></div>
+
+    // <PlayerContext.Provider>
+    //   <AudioPlayer src={src} />
+    // </PlayerContext.Provider>
   );
 }
