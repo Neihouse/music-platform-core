@@ -263,7 +263,8 @@ export function Header({ user }: HeaderProps) {
                   <Menu.Divider />
                   <Menu.Item
                     leftSection={<IconLogout size={14} />}
-                    onClick={signOut}
+                    component={Link}
+                    href="/logout"
                     color="red"
                   >
                     Logout
