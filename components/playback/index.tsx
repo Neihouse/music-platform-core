@@ -9,17 +9,22 @@ export interface IPlaybackProps {
 }
 
 export function Playback({ children }: IPlaybackProps) {
+  const [error, setError] = useState<string | null>(null);
   const [trackId, setTrackId] = useState<string | null>(null);
   const [playUrl, setPlayUrl] = useState<string | undefined>(undefined);
-
-  console.log("Playback URL: ", playUrl);
 
   useEffect(() => {
     if (!trackId) {
       return;
     }
     async function handlePlay(trackId: string) {
-      setPlayUrl(await getTrackPlayURL(trackId));
+      try {
+        setPlayUrl(await getTrackPlayURL(trackId));
+      } catch (error) {
+        console.error("Error fetching play URL:", error);
+
+        setError(`${error}`);
+      }
     }
 
     handlePlay(trackId);
