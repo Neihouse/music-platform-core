@@ -1,10 +1,18 @@
 "use client";
 
-import { Container, Title, Button, Group, Card, Text, Stack } from '@mantine/core';
-import { IconUpload, IconMusic } from '@tabler/icons-react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { getUser } from '@/utils/auth';
+import { getUser } from "@/db/queries/users";
+import {
+  Container,
+  Title,
+  Button,
+  Group,
+  Card,
+  Text,
+  Stack,
+} from "@mantine/core";
+import { IconUpload, IconMusic } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -12,24 +20,30 @@ export default function DashboardPage() {
   useEffect(() => {
     const user = getUser();
     if (!user) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [router]);
 
   return (
     <Container size="lg" py="xl">
-      <Title order={1} mb="xl">Dashboard</Title>
-      
+      <Title order={1} mb="xl">
+        Dashboard
+      </Title>
+
       <Stack gap="xl">
         <Card withBorder shadow="sm" padding="xl" radius="md">
           <Group justify="space-between" align="center">
             <div>
-              <Text fw={500} size="lg" mb={8}>Upload New Track</Text>
-              <Text c="dimmed" size="sm">Share your music with the world</Text>
+              <Text fw={500} size="lg" mb={8}>
+                Upload New Track
+              </Text>
+              <Text c="dimmed" size="sm">
+                Share your music with the world
+              </Text>
             </div>
-            <Button 
+            <Button
               leftSection={<IconUpload size={20} />}
-              onClick={() => router.push('/upload')}
+              onClick={() => router.push("/upload")}
             >
               Upload Track
             </Button>
@@ -39,13 +53,17 @@ export default function DashboardPage() {
         <Card withBorder shadow="sm" padding="xl" radius="md">
           <Group justify="space-between" align="center">
             <div>
-              <Text fw={500} size="lg" mb={8}>My Tracks</Text>
-              <Text c="dimmed" size="sm">Manage your uploaded tracks</Text>
+              <Text fw={500} size="lg" mb={8}>
+                My Tracks
+              </Text>
+              <Text c="dimmed" size="sm">
+                Manage your uploaded tracks
+              </Text>
             </div>
-            <Button 
+            <Button
               variant="light"
               leftSection={<IconMusic size={20} />}
-              onClick={() => router.push('/my-tracks')}
+              onClick={() => router.push("/my-tracks")}
             >
               View Tracks
             </Button>
@@ -54,4 +72,4 @@ export default function DashboardPage() {
       </Stack>
     </Container>
   );
-} 
+}

@@ -3,8 +3,8 @@ import { createClient } from "@/utils/supabase/client";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
-import { IAudioMetadata, parseBuffer } from "music-metadata";
-import { Affix, Anchor, Button, Group, Space, Stack } from "@mantine/core";
+import { IAudioMetadata, parseBlob, parseBuffer } from "music-metadata";
+import { Affix, Button, Group, Space, Stack } from "@mantine/core";
 import { MetadataDisplay } from "./track-upload/MetadataDisplay";
 import { IconUpload } from "@tabler/icons-react";
 import { createTrack } from "@/db/queries/tracks";
@@ -69,7 +69,7 @@ export function FileUpload({ bucket }: IFileUploadProps) {
 
       const newFilesWithMetadata = await Promise.all(
         files.map(async (file) => {
-          const metadata = await parseBuffer(await file.bytes());
+          const metadata = await parseBlob(file);
           return { file, metadata };
         })
       );
@@ -95,18 +95,18 @@ export function FileUpload({ bucket }: IFileUploadProps) {
 
         const track = await createTrack(file.metadata, size);
 
-        if (!track?.data?.id) throw new Error("No ID to upload to");
+        if (!track) throw new Error("No ID to upload to");
 
         const { error } = await createClient()
           .storage.from(bucket)
-          .upload(track?.data?.id, file.file);
+          .upload(track.id, file.file);
 
         if (error) {
           throw new Error(error.message);
         }
       }
     } catch (error: any) {
-      handleError(error);
+      return handleError(error);
     }
 
     setUploadState("success");
@@ -147,7 +147,7 @@ export function FileUpload({ bucket }: IFileUploadProps) {
     setUploadState("error");
     notifications.show({
       title: "Upload Error",
-      message: error,
+      message: `${error}`,
       color: "red",
     });
   }

@@ -18,6 +18,8 @@ import "@mantine/notifications/styles.css";
 import { getUser } from "@/db/queries/users";
 import { Notifications } from "@mantine/notifications";
 import { theme } from "@/lib/theme";
+import { Playback } from "@/components/playback";
+import { Player } from "@/components/playback/Player";
 
 // Metadata needs to be in a separate file for Next.js 14
 // Create a new file app/metadata.ts for this configuration
@@ -36,26 +38,27 @@ export default async function RootLayout({
       </head>
       <body>
         <MantineProvider theme={theme}>
-          <Notifications />
-          <AppShell
-            header={{ height: { base: 60, md: 70 } }}
-            footer={{ height: 60 }}
-            padding={{ base: "md", md: "lg" }}
-            navbar={{
-              width: { base: 0, md: 250 },
-              breakpoint: "md",
-              // collapsed: { mobile: !opened },
-            }}
-            // styles={(theme) => ({
-            //   footer: {
-            //     background: theme.colors.dark[8],
-            //   },
-            // })}
-          >
-            <AppShellHeader>
-              <Group h="100%" px="md" justify="space-between">
-                <Group>
-                  {/* {isMobile && (
+          <Playback>
+            <Notifications />
+            <AppShell
+              header={{ height: { base: 60, md: 70 } }}
+              footer={{ height: 60 }}
+              padding={{ base: "md", md: "lg" }}
+              navbar={{
+                width: { base: 0, md: 250 },
+                breakpoint: "md",
+                collapsed: { desktop: true },
+              }}
+              // styles={(theme) => ({
+              //   footer: {
+              //     background: theme.colors.dark[8],
+              //   },
+              // })}
+            >
+              <AppShellHeader>
+                <Group h="100%" px="md" justify="space-between">
+                  <Group>
+                    {/* {isMobile && (
                     <Burger
                       opened={opened}
                       onClick={toggle}
@@ -63,25 +66,28 @@ export default async function RootLayout({
                       size="sm"
                     />
                   )} */}
-                  <Header user={userResponse.data.user} />
+                    <Header user={userResponse.data.user} />
+                  </Group>
                 </Group>
-              </Group>
-            </AppShellHeader>
+              </AppShellHeader>
 
-            <AppShellNavbar py="md" px={4}>
-              <ScrollArea h="100%" type="hover">
-                {/* <NavLinks /> */}
-              </ScrollArea>
-            </AppShellNavbar>
+              <AppShellNavbar py="md" px={4}>
+                <ScrollArea h="100%" type="hover">
+                  {/* <NavLinks /> */}
+                </ScrollArea>
+              </AppShellNavbar>
 
-            <AppShellMain>{children}</AppShellMain>
+              <AppShellMain>
+                {children}
+                <Player />
+              </AppShellMain>
 
-            <AppShellFooter>
-              <Footer />
-            </AppShellFooter>
-          </AppShell>
+              <AppShellFooter>
+                <Footer />
+              </AppShellFooter>
+            </AppShell>
 
-          {/* {isMobile && (
+            {/* {isMobile && (
             <Drawer
               opened={opened}
               onClose={close}
@@ -93,6 +99,7 @@ export default async function RootLayout({
               <NavLinks onLinkClick={close} />
             </Drawer>
           )} */}
+          </Playback>
         </MantineProvider>
       </body>
     </html>
