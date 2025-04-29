@@ -133,7 +133,7 @@ export async function getTopTracks() {
     });
 
   if (error) {
-    console.error("Error getting top tracks: ", error);
+    throw new Error(error.message);
   }
 
   if (!data || !data.length) {
