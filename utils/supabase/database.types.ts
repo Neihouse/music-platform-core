@@ -96,7 +96,21 @@ export type Database = {
             foreignKeyName: "artists_tracks_artist_id_fkey"
             columns: ["artist_id"]
             isOneToOne: false
+            referencedRelation: "artist_with_tracks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_tracks_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
             referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_tracks_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "simple_view"
             referencedColumns: ["id"]
           },
           {
@@ -307,7 +321,79 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      artist_with_tracks: {
+        Row: {
+          administrative_area: string | null
+          bio: string | null
+          created_at: string | null
+          id: string | null
+          locality: string | null
+          name: string | null
+          tracks: Json[] | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artists_administrative_area_fkey"
+            columns: ["administrative_area"]
+            isOneToOne: false
+            referencedRelation: "administrative_area"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_locality_fkey"
+            columns: ["locality"]
+            isOneToOne: false
+            referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      simple_view: {
+        Row: {
+          administrative_area: string | null
+          bio: string | null
+          created_at: string | null
+          id: string | null
+          locality: string | null
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          administrative_area?: string | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string | null
+          locality?: string | null
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          administrative_area?: string | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string | null
+          locality?: string | null
+          name?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artists_administrative_area_fkey"
+            columns: ["administrative_area"]
+            isOneToOne: false
+            referencedRelation: "administrative_area"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_locality_fkey"
+            columns: ["locality"]
+            isOneToOne: false
+            referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
