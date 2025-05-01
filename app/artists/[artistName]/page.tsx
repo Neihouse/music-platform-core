@@ -1,4 +1,5 @@
 import { getArtistByName } from "@/db/queries/artists";
+import { formatDuration } from "@/lib/formatting";
 import {
   Container,
   Grid,
@@ -20,9 +21,7 @@ export default async function ArtistPage({
   params: Promise<{ artistName: string }>;
 }) {
   const { artistName } = await params;
-  const artist = await getArtistByName(artistName);
-
-  const tracks = artist.artists_tracks;
+  const { name, bio, tracks } = await getArtistByName(artistName);
 
   return (
     <Container>
@@ -33,7 +32,7 @@ export default async function ArtistPage({
           <div style={{ position: "relative", marginBottom: "2rem" }}>
             <Image
               src="https://i1.sndcdn.com/visuals-PzeCi6m2YKysjZ7C-2pyiyA-t2480x520.jpg"
-              alt={`${artist.name} banner`}
+              alt={`${name} banner`}
               style={{
                 width: "100%",
                 height: "200px",
@@ -70,13 +69,13 @@ export default async function ArtistPage({
             >
               <Image
                 src="https://i1.sndcdn.com/avatars-YMlrZVHCf2EwCAsA-kL7awg-t1080x1080.jpg"
-                alt={`${artist.name} avatar`}
+                alt={`${name} avatar`}
                 w={64} // Twice the font size of the title
                 h={64} // Twice the font size of the title
                 radius="xl"
               />
               <div>
-                <Title style={{ color: "white" }}>{artist.name}</Title>
+                <Title style={{ color: "white" }}>{name}</Title>
                 <Group gap="sm">
                   {["house", "rock"].map((genre) => (
                     <Badge key={genre} color="dark">
@@ -93,7 +92,7 @@ export default async function ArtistPage({
             >
               <Stack>
                 <Text size="sm" c="dimmed">
-                  {artist.bio || "No bio available."}
+                  {bio || "No bio available."}
                 </Text>
               </Stack>
             </Group>
@@ -103,13 +102,13 @@ export default async function ArtistPage({
           {/* Tracks Section */}
           <Stack gap="md">
             <Title order={2}>Tracks</Title>
-            {tracks.map((track) => (
-              <Card key={track.track_id.id} withBorder shadow="sm" radius="md">
+            {tracks?.map(({ title, length, id }) => (
+              <Card key={title} withBorder shadow="sm" radius="md">
                 <Group justify="space-between">
                   <Stack>
-                    <Text fw={500}>{track.track_id.title}</Text>
+                    <Text fw={500}>{title || "F"}</Text>
                     <Text size="sm" c="dimmed">
-                      {track.track_id.length} minutes
+                      {formatDuration(length)}
                     </Text>
                   </Stack>
                   {/* <Image
