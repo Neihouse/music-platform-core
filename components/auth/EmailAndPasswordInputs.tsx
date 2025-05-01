@@ -1,4 +1,9 @@
-import { TextInput, PasswordInput } from "@mantine/core";
+import {
+  TextInput,
+  PasswordInput,
+  PasswordInputProps,
+  TextInputProps,
+} from "@mantine/core";
 import * as React from "react";
 
 export interface IEmailAndPasswordInputsProps {
@@ -11,11 +16,16 @@ export interface IEmailAndPasswordInputsProps {
     email?: string;
     password?: string;
   };
+  inputProps: {
+    emailProps: TextInputProps;
+    passwordProps: PasswordInputProps;
+  };
 }
 
 export function EmailAndPasswordInputs({
   values: { email, password },
   setFieldValue,
+  inputProps: { emailProps, passwordProps },
   errors: { email: emailError, password: passwordError },
 }: IEmailAndPasswordInputsProps) {
   return (
@@ -28,6 +38,7 @@ export function EmailAndPasswordInputs({
         onChange={(event) => setFieldValue("email", event.currentTarget.value)}
         error={emailError && "Invalid email"}
         radius="md"
+        {...emailProps}
       />
       <PasswordInput
         required
@@ -39,6 +50,8 @@ export function EmailAndPasswordInputs({
         }
         error={passwordError && passwordError}
         radius="md"
+        mt="md"
+        {...passwordProps}
       />
     </div>
   );
