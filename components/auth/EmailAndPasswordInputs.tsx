@@ -37,7 +37,7 @@ export function EmailAndPasswordInputs({
         onChange={(event) =>
           setFieldValue("password", event.currentTarget.value)
         }
-        error={passwordError && "Password should include at least 6 characters"}
+        error={passwordError && passwordError}
         radius="md"
       />
     </div>
