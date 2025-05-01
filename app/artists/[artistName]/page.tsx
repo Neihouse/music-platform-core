@@ -11,6 +11,7 @@ import {
   Card,
   Skeleton,
   Text,
+  Image,
 } from "@mantine/core";
 
 export default async function ArtistPage({
@@ -29,27 +30,74 @@ export default async function ArtistPage({
         {/* Main Content */}
         <GridCol span={8}>
           {/* Artist Header */}
-          <Group align="center" gap="lg" mb="xl">
-            {/* <Image
-              src={"https://via.placeholder.com/150"}
-              alt={`${artist.name} avatar`}
-              width={150}
-              height={150}
-              radius="xl"
-            /> */}
-            <Stack>
-              <Title>{artist.name}</Title>
-              <Text size="sm" c="dimmed">
-                {artist.bio || "No bio available."}
-              </Text>
-              <Group gap="sm">
-                {["house", "rock"].map((genre) => (
-                  <Badge key={genre}>{genre}</Badge>
-                ))}
-              </Group>
-            </Stack>
-          </Group>
-
+          <div style={{ position: "relative", marginBottom: "2rem" }}>
+            <Image
+              src="https://i1.sndcdn.com/visuals-PzeCi6m2YKysjZ7C-2pyiyA-t2480x520.jpg"
+              alt={`${artist.name} banner`}
+              style={{
+                width: "100%",
+                height: "200px",
+                objectFit: "cover",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                zIndex: 0,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "200px",
+                background:
+                  "linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0))", // Darker gradient
+                zIndex: 0,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "1rem",
+                left: "1rem",
+                zIndex: 1,
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                gap: "1rem",
+              }}
+            >
+              <Image
+                src="https://i1.sndcdn.com/avatars-YMlrZVHCf2EwCAsA-kL7awg-t1080x1080.jpg"
+                alt={`${artist.name} avatar`}
+                w={64} // Twice the font size of the title
+                h={64} // Twice the font size of the title
+                radius="xl"
+              />
+              <div>
+                <Title style={{ color: "white" }}>{artist.name}</Title>
+                <Group gap="sm">
+                  {["house", "rock"].map((genre) => (
+                    <Badge key={genre} color="dark">
+                      {genre}
+                    </Badge>
+                  ))}
+                </Group>
+              </div>
+            </div>
+            <Group
+              align="center"
+              gap="lg"
+              style={{ position: "relative", zIndex: 1, paddingTop: "150px" }}
+            >
+              <Stack>
+                <Text size="sm" c="dimmed">
+                  {artist.bio || "No bio available."}
+                </Text>
+              </Stack>
+            </Group>
+          </div>
           <Divider my="lg" />
 
           {/* Tracks Section */}
