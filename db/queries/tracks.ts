@@ -30,7 +30,7 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
         codec: codec!,
         channels: numberOfChannels!,
         sample_rate: sampleRate,
-        length: duration,
+        duration,
         size,
         container,
         bitrate,
