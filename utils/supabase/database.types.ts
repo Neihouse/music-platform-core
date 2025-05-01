@@ -27,6 +27,24 @@ export type Database = {
         }
         Relationships: []
       }
+      albums: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
       artists: {
         Row: {
           administrative_area: string | null
@@ -219,6 +237,110 @@ export type Database = {
           },
         ]
       }
+      promoters: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      promoters_artists: {
+        Row: {
+          artist_id: string
+          created_at: string
+          id: string
+          promoter_id: string
+        }
+        Insert: {
+          artist_id: string
+          created_at?: string
+          id?: string
+          promoter_id: string
+        }
+        Update: {
+          artist_id?: string
+          created_at?: string
+          id?: string
+          promoter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promoters_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_with_tracks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promoters_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promoters_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "simple_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promoters_artists_promoter_id_fkey"
+            columns: ["promoter_id"]
+            isOneToOne: false
+            referencedRelation: "promoters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promoters_venues: {
+        Row: {
+          created_at: string
+          id: string
+          promoter_id: string
+          venue_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          promoter_id: string
+          venue_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          promoter_id?: string
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promoters_venues_promoter_id_fkey"
+            columns: ["promoter_id"]
+            isOneToOne: false
+            referencedRelation: "promoters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promoters_venues_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       track_plays: {
         Row: {
           created_at: string
@@ -250,48 +372,59 @@ export type Database = {
       }
       tracks: {
         Row: {
+          album_id: string | null
           bitrate: number | null
           channels: number
           codec: string
           container: string | null
           created_at: string
+          duration: number
           featured: boolean
           id: string
-          length: number
           likes: number
           sample_rate: number | null
           size: number | null
           title: string
         }
         Insert: {
+          album_id?: string | null
           bitrate?: number | null
           channels: number
           codec: string
           container?: string | null
           created_at?: string
+          duration: number
           featured?: boolean
           id?: string
-          length: number
           likes?: number
           sample_rate?: number | null
           size?: number | null
           title: string
         }
         Update: {
+          album_id?: string | null
           bitrate?: number | null
           channels?: number
           codec?: string
           container?: string | null
           created_at?: string
+          duration?: number
           featured?: boolean
           id?: string
-          length?: number
           likes?: number
           sample_rate?: number | null
           size?: number | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tracks_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       venues: {
         Row: {
