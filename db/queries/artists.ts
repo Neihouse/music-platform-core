@@ -20,3 +20,25 @@ export async function getArtist() {
 
   return artist;
 }
+
+export async function getArtistByName(artistName: string) {
+  const supabase = await createClient();
+  const { data: artist, error } = await supabase
+    .from("artists")
+    .select(
+      `*,
+      artists_tracks (
+        track_id (
+          *
+        )
+      )`
+    )
+    .ilike("name", artistName)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return artist;
+}
