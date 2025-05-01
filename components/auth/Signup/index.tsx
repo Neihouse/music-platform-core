@@ -6,6 +6,8 @@ import {
   Stack,
   Text,
   TextInput,
+  Tooltip,
+  ActionIcon,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { signup, SignupData } from "@/app/login/actions";
@@ -48,9 +50,32 @@ export function Signup(props: PaperProps) {
       >
         <Stack>
           <TextInput
-            label="Name"
+            label={
+              <div style={{ display: "flex", alignItems: "center" }}>
+                Your name
+                <Tooltip label="You will be able to set your artist name later">
+                  <ActionIcon
+                    size="xs"
+                    variant="outline"
+                    radius="xl"
+                    ml="xs"
+                    style={{
+                      display: "inline-flex",
+                      transform: "translateY(-30%)",
+                      borderColor: "#fff",
+                      color: "#fff",
+                      fontSize: "0.6rem",
+                      backgroundColor: "transparent",
+                    }}
+                  >
+                    ?
+                  </ActionIcon>
+                </Tooltip>
+              </div>
+            }
             placeholder="Your name"
             value={form.values.name}
+            {...form.getInputProps("name")}
             onChange={(event) =>
               form.setFieldValue("name", event.currentTarget.value)
             }
@@ -60,6 +85,10 @@ export function Signup(props: PaperProps) {
             errors={form.errors}
             values={form.values}
             setFieldValue={form.setFieldValue}
+            inputProps={{
+              emailProps: form.getInputProps("email"),
+              passwordProps: form.getInputProps("password"),
+            }}
           />
           {/* TODO: Write terms and conditions */}
           {/* <Checkbox

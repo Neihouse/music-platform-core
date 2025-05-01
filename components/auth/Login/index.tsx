@@ -42,6 +42,10 @@ export function Login(props: PaperProps) {
       >
         <Stack>
           <EmailAndPasswordInputs
+            inputProps={{
+              emailProps: form.getInputProps("email"),
+              passwordProps: form.getInputProps("password"),
+            }}
             errors={form.errors}
             values={form.values}
             setFieldValue={(field: string, value: string) => {

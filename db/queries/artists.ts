@@ -37,6 +37,7 @@ export async function getArtistByName(artistName: string) {
 
   return {
     ...artist,
-    tracks: (artist?.tracks as Pick<Track, "id" | "title" | "length">[]) || [],
+    tracks:
+      (artist?.tracks as Pick<Track, "id" | "title" | "duration">[]) || [],
   };
 }

@@ -102,13 +102,13 @@ export default async function ArtistPage({
           {/* Tracks Section */}
           <Stack gap="md">
             <Title order={2}>Tracks</Title>
-            {tracks?.map(({ title, length, id }) => (
+            {tracks?.map(({ title, duration, id }) => (
               <Card key={title} withBorder shadow="sm" radius="md">
                 <Group justify="space-between">
                   <Stack>
                     <Text fw={500}>{title || "F"}</Text>
                     <Text size="sm" c="dimmed">
-                      {formatDuration(length)}
+                      {formatDuration(duration)}
                     </Text>
                   </Stack>
                   {/* <Image
