@@ -16,7 +16,7 @@ import {
 export default async function ArtistPage({
   params,
 }: {
-  params: { artistName: string };
+  params: Promise<{ artistName: string }>;
 }) {
   const { artistName } = await params;
   const artist = await getArtistByName(artistName);
