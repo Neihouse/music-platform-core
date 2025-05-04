@@ -1,3 +1,5 @@
+import { LocationInput } from "@/components/LocationInput/LocationInput";
+import { PlacesApiProvider } from "@/components/LocationInput/Provider";
 import { createClient } from "@/utils/supabase/server";
 import { Button, Collapse, Group, Stack, Text, Title } from "@mantine/core";
 import Link from "next/link";
@@ -22,6 +24,9 @@ export default async function OnboardingPage({}: IOnboardingPageProps) {
       <Stack>
         <Group>
           <Title>Where are you located?</Title>
+          <PlacesApiProvider>
+            <LocationInput />
+          </PlacesApiProvider>
         </Group>
         <Collapse in={!artist}>
           <Stack>
