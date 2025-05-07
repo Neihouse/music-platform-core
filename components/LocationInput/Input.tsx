@@ -2,11 +2,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import "./LocationInput.css";
-export interface ILocationInputProps {
+
+export interface IInputProps {
   onPlaceSelect?: (place: google.maps.places.PlaceResult) => void;
 }
 
-export function LocationInput({ onPlaceSelect }: ILocationInputProps) {
+export function Input({ onPlaceSelect }: IInputProps) {
   const [placeAutocomplete, setPlaceAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +36,7 @@ export function LocationInput({ onPlaceSelect }: ILocationInputProps) {
 
   return (
     <div className="autocomplete-container">
-      <input ref={inputRef} />
+      <input placeholder="Enter your city" ref={inputRef} />
     </div>
   );
 }
