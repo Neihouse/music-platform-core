@@ -25,7 +25,7 @@ export default async function OnboardingPage({}: IOnboardingPageProps) {
         <Stack>
           <Title>Where are you located?</Title>
           <PlacesApiProvider>
-            <LocationInput onPlaceSelect={} />
+            <LocationInput />
           </PlacesApiProvider>
         </Stack>
         <Collapse in={!artist}>
