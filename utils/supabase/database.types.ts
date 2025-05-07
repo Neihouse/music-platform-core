@@ -158,6 +158,45 @@ export type Database = {
         }
         Relationships: []
       }
+      fans: {
+        Row: {
+          administrative_area_id: string | null
+          created_at: string
+          display_name: string
+          id: string
+          locality_id: string | null
+        }
+        Insert: {
+          administrative_area_id?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          locality_id?: string | null
+        }
+        Update: {
+          administrative_area_id?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          locality_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fans_administrative_area_id_fkey"
+            columns: ["administrative_area_id"]
+            isOneToOne: false
+            referencedRelation: "administrative_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fans_locality_id_fkey"
+            columns: ["locality_id"]
+            isOneToOne: false
+            referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       likes: {
         Row: {
           created_at: string

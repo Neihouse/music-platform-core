@@ -77,10 +77,7 @@ export default async function RootLayout({
                 </ScrollArea>
               </AppShellNavbar>
 
-              <AppShellMain>
-                {children}
-                <Player />
-              </AppShellMain>
+              <AppShellMain>{children}</AppShellMain>
 
               <AppShellFooter>
                 <Footer />
