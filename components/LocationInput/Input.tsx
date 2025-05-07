@@ -14,7 +14,9 @@ export function Input({ onPlaceSelect }: IInputProps) {
   const places = useMapsLibrary("places");
 
   useEffect(() => {
-    if (!places || !inputRef.current) return;
+    if (!places || !inputRef.current) {
+      return;
+    }
 
     const options: google.maps.places.AutocompleteOptions = {
       types: ["(cities)"],
@@ -26,7 +28,9 @@ export function Input({ onPlaceSelect }: IInputProps) {
   }, [places]);
 
   useEffect(() => {
-    if (!placeAutocomplete) return;
+    if (!placeAutocomplete) {
+      return;
+    }
 
     placeAutocomplete.addListener("place_changed", () => {
       console.log("place changed", placeAutocomplete.getPlace());
