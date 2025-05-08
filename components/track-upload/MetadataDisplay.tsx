@@ -9,7 +9,7 @@ import {
   Title,
 } from "@mantine/core";
 import * as React from "react";
-import { FileWithMetadata } from "../FileUpload";
+import { FileWithMetadata } from "./Uploader";
 import {
   IconClock,
   IconEdit,

@@ -1,9 +1,9 @@
 "use server";
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { TypedClient } from "@/utils/supabase/global.types";
 
 export async function createLocality(
-  supabase: SupabaseClient,
+  supabase: TypedClient,
   locality: {
     name: string;
     administrative_area_id: string;
@@ -23,10 +23,7 @@ export async function createLocality(
   return data;
 }
 
-export async function getLocalityByName(
-  supabase: SupabaseClient,
-  name: string
-) {
+export async function getLocalityByName(supabase: TypedClient, name: string) {
   const { data, error } = await supabase
     .from("localities")
     .select()

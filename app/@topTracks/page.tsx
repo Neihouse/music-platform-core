@@ -1,13 +1,11 @@
-import { TopTrackItem } from "@/components/TopTrackItem";
 import { getTracks } from "@/db/queries/tracks";
-import { Artist } from "@/utils/supabase/global.types";
-import { Stack, Title } from "@mantine/core";
+import { createClient } from "@/utils/supabase/server";
 import * as React from "react";
 
 export interface ITopTracksPageProps {}
 
 export default async function TopTracksPage(props: ITopTracksPageProps) {
-  const tracks = await getTracks();
+  const tracks = await getTracks(await createClient());
 
   console.log("tracks: ", tracks);
 

@@ -1,6 +1,5 @@
-"use client";
-
 import { getUser } from "@/db/queries/users";
+import { createClient } from "@/utils/supabase/server";
 import {
   Container,
   Title,
@@ -11,18 +10,14 @@ import {
   Stack,
 } from "@mantine/core";
 import { IconUpload, IconMusic } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function DashboardPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const user = getUser();
-    if (!user) {
-      router.push("/login");
-    }
-  }, [router]);
+export default async function DashboardPage() {
+  const user = await getUser(await createClient());
+  if (!user) {
+    redirect("/login");
+  }
 
   return (
     <Container size="lg" py="xl">
@@ -43,7 +38,8 @@ export default function DashboardPage() {
             </div>
             <Button
               leftSection={<IconUpload size={20} />}
-              onClick={() => router.push("/upload")}
+              component={Link}
+              href="/upload"
             >
               Upload Track
             </Button>
@@ -63,7 +59,8 @@ export default function DashboardPage() {
             <Button
               variant="light"
               leftSection={<IconMusic size={20} />}
-              onClick={() => router.push("/my-tracks")}
+              component={Link}
+              href="/my-tracks"
             >
               View Tracks
             </Button>

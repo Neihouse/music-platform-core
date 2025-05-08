@@ -5,11 +5,12 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { IAudioMetadata, parseBlob, parseBuffer } from "music-metadata";
 import { Affix, Button, Group, Space, Stack } from "@mantine/core";
-import { MetadataDisplay } from "./track-upload/MetadataDisplay";
+import { MetadataDisplay } from "./MetadataDisplay";
 import { IconUpload } from "@tabler/icons-react";
 import { createTrack } from "@/db/queries/tracks";
+import { handleInsertTrack } from "@/app/upload/actions";
 
-export interface IFileUploadProps {
+export interface IUploaderProps {
   bucket: string;
 }
 
@@ -18,7 +19,7 @@ export interface FileWithMetadata {
   file: FileWithPath;
 }
 
-export function FileUpload({ bucket }: IFileUploadProps) {
+export function Uploader({ bucket }: IUploaderProps) {
   const [uploadState, setUploadState] = useState<
     "initial" | "pending" | "error" | "success"
   >();
@@ -83,6 +84,8 @@ export function FileUpload({ bucket }: IFileUploadProps) {
 
   async function uploadFiles(filesWithMetadata: FileWithMetadata[]) {
     setUploadState("pending");
+    const supabase = await createClient();
+
     try {
       for await (const file of filesWithMetadata) {
         const {
@@ -93,12 +96,12 @@ export function FileUpload({ bucket }: IFileUploadProps) {
 
         common.title = title;
 
-        const track = await createTrack(file.metadata, size);
+        const track = await handleInsertTrack(file.metadata, size);
 
         if (!track) throw new Error("No ID to upload to");
 
-        const { error } = await createClient()
-          .storage.from(bucket)
+        const { error } = await supabase.storage
+          .from(bucket)
           .upload(track.id, file.file);
 
         if (error) {

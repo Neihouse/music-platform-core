@@ -1,5 +1,7 @@
+import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "./database.types";
 
+export type TypedClient = SupabaseClient<Database>;
 type Public = Database["public"]["Tables"];
 export type Track = Public["tracks"]["Row"];
 export type Artist = Public["artists"]["Row"];

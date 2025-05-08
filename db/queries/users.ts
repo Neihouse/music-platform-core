@@ -1,17 +1,13 @@
 "use server";
-import { createClient } from "@/utils/supabase/server";
+import { TypedClient } from "@/utils/supabase/global.types";
 
-export async function getUser() {
-  const client = await createClient();
-
-  return client.auth.getUser();
+export async function getUser(supabase: TypedClient) {
+  return supabase.auth.getUser();
 }
 
-export async function signOut() {
-  const client = await createClient();
-
+export async function signOut(supabase: TypedClient) {
   try {
-    await client.auth.signOut();
+    await supabase.auth.signOut();
   } catch (error) {
     console.log("Error signing out: ", error);
   }
