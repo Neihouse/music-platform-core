@@ -120,7 +120,7 @@ export function Header({ user }: HeaderProps) {
               <Tooltip label="Upload your tracks">
                 <Button
                   component={Link}
-                  href="/track-upload"
+                  href="/upload"
                   variant="subtle"
                   leftSection={<IconUpload size={16} />}
                 >
