@@ -55,7 +55,7 @@ export function Login(props: PaperProps) {
           />
         </Stack>
         {error && (
-          <Text color="red" size="sm" mt="sm">
+          <Text c="red" size="sm" mt="sm">
             {error}
           </Text>
         )}

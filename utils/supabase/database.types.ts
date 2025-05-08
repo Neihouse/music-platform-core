@@ -9,7 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      administrative_area: {
+      administrative_areas: {
         Row: {
           created_at: string
           id: string
@@ -78,7 +78,7 @@ export type Database = {
             foreignKeyName: "artists_administrative_area_fkey"
             columns: ["administrative_area"]
             isOneToOne: false
-            referencedRelation: "administrative_area"
+            referencedRelation: "administrative_areas"
             referencedColumns: ["id"]
           },
           {
@@ -86,6 +86,56 @@ export type Database = {
             columns: ["locality"]
             isOneToOne: false
             referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artists_tags: {
+        Row: {
+          artist_id: string
+          created_at: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          artist_id: string
+          created_at?: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          artist_id?: string
+          created_at?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artists_tags_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_with_tracks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_tags_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_tags_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "simple_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
             referencedColumns: ["id"]
           },
         ]
@@ -189,21 +239,32 @@ export type Database = {
       }
       localities: {
         Row: {
+          administrative_area_id: string
           created_at: string
           id: string
           name: string
         }
         Insert: {
+          administrative_area_id: string
           created_at?: string
           id?: string
           name: string
         }
         Update: {
+          administrative_area_id?: string
           created_at?: string
           id?: string
           name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "localities_administrative_area_id_fkey"
+            columns: ["administrative_area_id"]
+            isOneToOne: false
+            referencedRelation: "administrative_areas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       "pre-registered-users": {
         Row: {
@@ -341,6 +402,24 @@ export type Database = {
           },
         ]
       }
+      tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       track_plays: {
         Row: {
           created_at: string
@@ -381,7 +460,6 @@ export type Database = {
           duration: number
           featured: boolean
           id: string
-          likes: number
           sample_rate: number | null
           size: number | null
           title: string
@@ -396,7 +474,6 @@ export type Database = {
           duration: number
           featured?: boolean
           id?: string
-          likes?: number
           sample_rate?: number | null
           size?: number | null
           title: string
@@ -411,7 +488,6 @@ export type Database = {
           duration?: number
           featured?: boolean
           id?: string
-          likes?: number
           sample_rate?: number | null
           size?: number | null
           title?: string
@@ -422,6 +498,42 @@ export type Database = {
             columns: ["album_id"]
             isOneToOne: false
             referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracks_tags: {
+        Row: {
+          created_at: string
+          id: string
+          tag_id: string
+          track_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag_id: string
+          track_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag_id?: string
+          track_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracks_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracks_tags_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
             referencedColumns: ["id"]
           },
         ]
@@ -470,7 +582,7 @@ export type Database = {
             foreignKeyName: "artists_administrative_area_fkey"
             columns: ["administrative_area"]
             isOneToOne: false
-            referencedRelation: "administrative_area"
+            referencedRelation: "administrative_areas"
             referencedColumns: ["id"]
           },
           {
@@ -515,7 +627,7 @@ export type Database = {
             foreignKeyName: "artists_administrative_area_fkey"
             columns: ["administrative_area"]
             isOneToOne: false
-            referencedRelation: "administrative_area"
+            referencedRelation: "administrative_areas"
             referencedColumns: ["id"]
           },
           {
