@@ -60,7 +60,7 @@ export default async function OnboardingPage({}: IOnboardingPageProps) {
       title: "Promoter",
       icon: IconTicket,
       description: "Promote events and artists",
-      href: "/fan/create",
+      href: "/promoter/create",
       color: "orange",
     },
     {
