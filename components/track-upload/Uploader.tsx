@@ -8,6 +8,7 @@ import { Affix, Button, Group, Space, Stack } from "@mantine/core";
 import { MetadataDisplay } from "./MetadataDisplay";
 import { IconUpload } from "@tabler/icons-react";
 import { createTrack } from "@/db/queries/tracks";
+import { handleInsertTrack } from "@/app/upload/actions";
 
 export interface IUploaderProps {
   bucket: string;
@@ -95,7 +96,7 @@ export function Uploader({ bucket }: IUploaderProps) {
 
         common.title = title;
 
-        const track = await createTrack(supabase, file.metadata, size);
+        const track = await handleInsertTrack(supabase, file.metadata, size);
 
         if (!track) throw new Error("No ID to upload to");
 
