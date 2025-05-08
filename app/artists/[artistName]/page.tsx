@@ -1,5 +1,6 @@
 import { getArtistByName } from "@/db/queries/artists";
 import { formatDuration } from "@/lib/formatting";
+import { createClient } from "@/utils/supabase/server";
 import {
   Container,
   Grid,
@@ -21,7 +22,10 @@ export default async function ArtistPage({
   params: Promise<{ artistName: string }>;
 }) {
   const { artistName } = await params;
-  const { name, bio, tracks } = await getArtistByName(artistName);
+  const { name, bio, tracks } = await getArtistByName(
+    await createClient(),
+    artistName
+  );
 
   return (
     <Container>

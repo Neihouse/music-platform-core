@@ -1,10 +1,12 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { TypedClient } from "@/utils/supabase/global.types";
 
-export async function createArtistTrack(artistId: string, trackId: string) {
-  const supabase = await createClient();
-
+export async function createArtistTrack(
+  supabase: TypedClient,
+  artistId: string,
+  trackId: string
+) {
   const { data, error } = await supabase
     .from("artists_tracks")
     .insert({

@@ -20,6 +20,7 @@ import { Notifications } from "@mantine/notifications";
 import { theme } from "@/lib/theme";
 import { Playback } from "@/components/playback";
 import { Player } from "@/components/playback/Player";
+import { createClient } from "@/utils/supabase/server";
 
 // Metadata needs to be in a separate file for Next.js 14
 // Create a new file app/metadata.ts for this configuration
@@ -29,7 +30,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const userResponse = await getUser();
+  const userResponse = await getUser(await createClient());
 
   return (
     <html lang="en" {...mantineHtmlProps}>

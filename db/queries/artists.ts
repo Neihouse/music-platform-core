@@ -1,10 +1,7 @@
 "use server";
-import { Track } from "@/utils/supabase/global.types";
-import { createClient } from "@/utils/supabase/server";
+import { Track, TypedClient } from "@/utils/supabase/global.types";
 
-export async function getArtist() {
-  const supabase = await createClient();
-
+export async function getArtist(supabase: TypedClient) {
   const { data: user } = await supabase.auth.getUser();
   if (!user || !user.user) {
     throw new Error("User not authenticated");
@@ -13,18 +10,19 @@ export async function getArtist() {
     .from("artists")
     .select("*")
     .eq("user_id", user.user.id)
-    .single();
+    .maybeSingle();
 
-  if (error) {
-    throw new Error(error.message);
+  if (!artist || error) {
+    throw new Error(error?.message || "Artist not found");
   }
 
   return artist;
 }
 
-export async function getArtistByName(artistName: string) {
-  const supabase = await createClient();
-
+export async function getArtistByName(
+  supabase: TypedClient,
+  artistName: string
+) {
   const { data: artist, error } = await supabase
     .from("artist_with_tracks")
     .select(`*`)

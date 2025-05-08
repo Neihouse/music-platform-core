@@ -1,12 +1,15 @@
-"use server";
-import { createClient } from "@/utils/supabase/server";
 import { IAudioMetadata } from "music-metadata";
 import { getArtist } from "./artists";
 import { createArtistTrack } from "./artists_tracks";
+import { TypedClient } from "@/utils/supabase/global.types";
 
-export async function createTrack(metadata: IAudioMetadata, size: number) {
-  const supabase = await createClient();
-  const artist = await getArtist();
+export async function createTrack(
+  supabase: TypedClient,
+  metadata: IAudioMetadata,
+  size: number
+) {
+  const artist = await getArtist(supabase);
+
   const {
     common: { title },
     format: {
@@ -43,19 +46,18 @@ export async function createTrack(metadata: IAudioMetadata, size: number) {
       throw new Error(error.message);
     }
 
-    await createArtistTrack(artist.id, track.id);
+    await createArtistTrack(supabase, artist.id, track.id);
 
     return track;
   } catch (error) {
-    throw new Error("Error inserting track");
+    throw new Error("Error inserting track: " + error);
   }
 }
 
-export async function getTrackPlayURL(trackId: string) {
+export async function getTrackPlayURL(supabase: TypedClient, trackId: string) {
   if (!trackId) {
     throw new Error("Track ID is required");
   }
-  const supabase = await createClient();
   const user = await supabase.auth.getUser();
 
   if (!user || !user.data.user) {
@@ -78,9 +80,7 @@ export async function getTrackPlayURL(trackId: string) {
   return publicUrl;
 }
 
-export async function getTracks() {
-  const supabase = await createClient();
-
+export async function getTracks(supabase: TypedClient) {
   const { data: topTracks, error } = await supabase
     .from("tracks")
     .select(
@@ -118,8 +118,7 @@ export async function getTracks() {
   return tracksWithArtists;
 }
 
-export async function getTopTracks() {
-  const supabase = await createClient();
+export async function getTopTracks(supabase: TypedClient) {
   const now = new Date();
   const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const timestamptzString = oneWeekAgo.toISOString();

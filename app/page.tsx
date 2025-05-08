@@ -1,6 +1,6 @@
 import { TopTrackItem } from "@/components/TopTrackItem";
 import { getTracks } from "@/db/queries/tracks";
-import { Artist, Track } from "@/utils/supabase/global.types";
+import { Artist } from "@/utils/supabase/global.types";
 import { createClient } from "@/utils/supabase/server";
 import {
   Container,
@@ -25,7 +25,7 @@ export default async function HomePage({}: IHomePage) {
     artist: "Chill Vibes",
     description: "Listen to our top pick",
   };
-  const topTracks = await getTracks();
+  const topTracks = await getTracks(await createClient());
 
   return (
     <Container size="lg" py={rem(48)}>
