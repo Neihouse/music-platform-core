@@ -1,4 +1,3 @@
-"use server";
 import { IAudioMetadata } from "music-metadata";
 import { getArtist } from "./artists";
 import { createArtistTrack } from "./artists_tracks";

@@ -82,8 +82,9 @@ export function Uploader({ bucket }: IUploaderProps) {
   }
 
   async function uploadFiles(filesWithMetadata: FileWithMetadata[]) {
-    "use server";
     setUploadState("pending");
+    const supabase = await createClient();
+
     try {
       for await (const file of filesWithMetadata) {
         const {
@@ -94,16 +95,12 @@ export function Uploader({ bucket }: IUploaderProps) {
 
         common.title = title;
 
-        const track = await createTrack(
-          await createClient(),
-          file.metadata,
-          size
-        );
+        const track = await createTrack(supabase, file.metadata, size);
 
         if (!track) throw new Error("No ID to upload to");
 
-        const { error } = await createClient()
-          .storage.from(bucket)
+        const { error } = await supabase.storage
+          .from(bucket)
           .upload(track.id, file.file);
 
         if (error) {
