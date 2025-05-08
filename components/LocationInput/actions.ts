@@ -6,44 +6,37 @@ import {
 import { createLocality, getLocalityByName } from "@/db/queries/localities";
 import { createClient } from "@/utils/supabase/server";
 
-export async function submitLocation(location: google.maps.places.PlaceResult) {
+export async function submitLocation(
+  administrative_area_level_1: string,
+  locality: string
+) {
   const supabase = await createClient();
 
-  const localityName = location.address_components?.find((component) =>
-    component.types.includes("locality")
-  )?.long_name;
-
-  if (!localityName) {
-    throw new Error("Locality name not found in address components");
+  if (!locality) {
+    throw new Error("Locality name required");
   }
-
-  const administrative_area_level_1 = location.address_components?.find(
-    (component) => component.types.includes("administrative_area_level_1")
-  )?.long_name;
 
   if (!administrative_area_level_1) {
-    throw new Error(
-      "Administrative area level 1 name not found in address components"
-    );
+    throw new Error("Administrative area level 1 required.");
   }
 
-  const administrative_area = await getAdministrativeAreaByName(
+  const existingAdministrative_area = await getAdministrativeAreaByName(
     supabase,
     administrative_area_level_1
   );
 
-  if (!administrative_area) {
+  if (!existingAdministrative_area) {
     await createAdministrativeArea(supabase, {
       name: administrative_area_level_1,
     });
   }
 
   // Check if the locality already exists
-  const locality = await getLocalityByName(supabase, localityName);
+  const existingLocality = await getLocalityByName(supabase, locality);
 
-  if (!locality) {
+  if (!existingLocality) {
     await createLocality(supabase, {
-      name: localityName,
+      name: locality,
       administrative_area_id: administrative_area.id,
     });
   }
