@@ -45,7 +45,7 @@ export async function createTrack(
       throw new Error(error.message);
     }
 
-    await createArtistTrack(artist.id, track.id);
+    await createArtistTrack(supabase, artist.id, track.id);
 
     return track;
   } catch (error) {
