@@ -107,7 +107,7 @@ export default async function ArtistPage({
           <Stack gap="md">
             <Title order={2}>Tracks</Title>
             {tracks?.map(({ title, duration, id }) => (
-              <Card key={title} withBorder shadow="sm" radius="md">
+              <Card key={id} withBorder shadow="sm" radius="md">
                 <Group justify="space-between">
                   <Stack>
                     <Text fw={500}>{title || "F"}</Text>
