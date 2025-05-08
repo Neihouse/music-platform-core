@@ -3,14 +3,13 @@
 import { Input } from "./Input";
 import { PlacesApiProvider } from "./PlacesApiProvider";
 
-export function LocationInput() {
+interface ILocationInputProps {
+  onPlaceSelect?: (place: google.maps.places.PlaceResult) => void;
+}
+export function LocationInput({ onPlaceSelect }: ILocationInputProps) {
   return (
     <PlacesApiProvider>
-      <Input onPlaceSelect={(place) => {}} />
+      <Input onPlaceSelect={onPlaceSelect} />
     </PlacesApiProvider>
   );
-
-  async function handlePlaceSelect(place: google.maps.places.PlaceResult) {
-    console.log("Selected place:", place);
-  }
 }
