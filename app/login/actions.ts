@@ -54,5 +54,5 @@ export async function signup({ email, password, name }: SignupData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/onboarding");
 }
