@@ -1,3 +1,4 @@
+"use server";
 import { createTrack } from "@/db/queries/tracks";
 import { createClient } from "@/utils/supabase/server";
 import { IAudioMetadata } from "music-metadata";
