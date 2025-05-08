@@ -9,6 +9,7 @@ export async function createTrack(
   size: number
 ) {
   const artist = await getArtist(supabase);
+
   const {
     common: { title },
     format: {
@@ -42,6 +43,7 @@ export async function createTrack(
       .single();
 
     if (error) {
+      console.error("Error inserting track: ", error);
       throw new Error(error.message);
     }
 
@@ -49,7 +51,7 @@ export async function createTrack(
 
     return track;
   } catch (error) {
-    throw new Error("Error inserting track");
+    throw new Error("Error inserting track: " + error);
   }
 }
 

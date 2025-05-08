@@ -96,7 +96,7 @@ export function Uploader({ bucket }: IUploaderProps) {
 
         common.title = title;
 
-        const track = await handleInsertTrack(supabase, file.metadata, size);
+        const track = await handleInsertTrack(file.metadata, size);
 
         if (!track) throw new Error("No ID to upload to");
 

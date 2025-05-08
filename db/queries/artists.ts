@@ -10,10 +10,11 @@ export async function getArtist(supabase: TypedClient) {
     .from("artists")
     .select("*")
     .eq("user_id", user.user.id)
-    .single();
+    .maybeSingle();
 
-  if (error) {
-    throw new Error(error.message);
+  if (!artist || error) {
+    console.error("Error fetching artist: ", error);
+    throw new Error(error?.message || "Artist not found");
   }
 
   return artist;
