@@ -18,7 +18,7 @@ export async function createFan(displayName: string, preferredGenres: string) {
   // In a real application, you would create a fans table
   // For now, we'll use a generic approach by storing user preferences
   const { data: fan, error } = await supabase
-    .from("users_profiles")
+    .from("fans")
     .upsert({
       user_id: user.user.id,
       display_name: displayName,
