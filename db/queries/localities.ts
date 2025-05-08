@@ -2,17 +2,34 @@
 
 import { TypedClient } from "@/utils/supabase/global.types";
 
+export async function getOrCreateLocality(
+  supabase: TypedClient,
+  locality: string,
+  administrative_area_id: string
+) {
+  // Check if the locality already exists
+  const existingLocality = await getLocalityByName(supabase, locality);
+
+  if (existingLocality) {
+    return existingLocality;
+  }
+
+  // If it doesn't exist, create it
+  return createLocality(supabase, locality, administrative_area_id);
+}
+
 export async function createLocality(
   supabase: TypedClient,
-  locality: {
-    name: string;
-    administrative_area_id: string;
-  }
+  locality: string,
+  administrative_area_id: string
 ) {
   // Insert the data into the localities table
   const { data, error } = await supabase
     .from("localities")
-    .insert(locality)
+    .insert({
+      name: locality,
+      administrative_area_id: administrative_area_id,
+    })
     .select()
     .single();
 
@@ -28,7 +45,11 @@ export async function getLocalityByName(supabase: TypedClient, name: string) {
     .from("localities")
     .select()
     .eq("name", name)
-    .single();
+    .maybeSingle();
+
+  if (!error && !data) {
+    return null;
+  }
 
   if (error) {
     throw new Error(`Failed to fetch locality: ${error.message}`);

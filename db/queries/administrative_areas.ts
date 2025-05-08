@@ -1,15 +1,32 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import { AdministrativeArea, TypedClient } from "@/utils/supabase/global.types";
+
+export async function getOrCreateAdministrativeArea(
+  supabase: TypedClient,
+  administrativeArea: string
+): Promise<AdministrativeArea> {
+  const existingAdministrativeArea = await getAdministrativeAreaByName(
+    supabase,
+    administrativeArea
+  );
+
+  if (existingAdministrativeArea) {
+    return existingAdministrativeArea;
+  }
+
+  // If it doesn't exist, create it
+  return createAdministrativeArea(supabase, administrativeArea);
+}
 
 export async function createAdministrativeArea(
-  supabase: SupabaseClient,
-  administrativeArea: {
-    name: string;
-  }
-) {
+  supabase: TypedClient,
+  administrativeArea: string
+): Promise<AdministrativeArea> {
   // Insert the data into the administrative_areas table
   const { data, error } = await supabase
     .from("administrative_areas")
-    .insert(administrativeArea)
+    .insert({
+      name: administrativeArea,
+    })
     .select()
     .single();
 
@@ -21,14 +38,18 @@ export async function createAdministrativeArea(
 }
 
 export async function getAdministrativeAreaByName(
-  supabase: SupabaseClient,
+  supabase: TypedClient,
   name: string
-) {
+): Promise<AdministrativeArea | null> {
   const { data, error } = await supabase
     .from("administrative_areas")
     .select()
     .eq("name", name)
-    .single();
+    .maybeSingle();
+
+  if (!error && !data) {
+    return null;
+  }
 
   if (error) {
     throw new Error(`Failed to fetch administrative area: ${error.message}`);
