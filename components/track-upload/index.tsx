@@ -1,11 +1,11 @@
-import { FileUpload } from "../FileUpload";
+import { TrackUpload: } from "./Uploader";
 
 export interface ITrackUploadProps {}
 
 export function TrackUpload(props: ITrackUploadProps) {
   return (
     <div>
-      <FileUpload bucket="tracks" />
+      <Upload bucket="tracks" />
     </div>
   );
 }
