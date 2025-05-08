@@ -33,7 +33,6 @@ export function Input({ onPlaceSelect }: IInputProps) {
     }
 
     placeAutocomplete.addListener("place_changed", () => {
-      console.log("place changed", placeAutocomplete.getPlace());
       onPlaceSelect && onPlaceSelect(placeAutocomplete.getPlace());
     });
   }, [onPlaceSelect, placeAutocomplete]);
