@@ -43,7 +43,6 @@ export async function createTrack(
       .single();
 
     if (error) {
-      console.error("Error inserting track: ", error);
       throw new Error(error.message);
     }
 

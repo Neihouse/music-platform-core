@@ -13,7 +13,6 @@ export async function getArtist(supabase: TypedClient) {
     .maybeSingle();
 
   if (!artist || error) {
-    console.error("Error fetching artist: ", error);
     throw new Error(error?.message || "Artist not found");
   }
 
