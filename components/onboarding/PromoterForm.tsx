@@ -53,7 +53,7 @@ export function PromoterForm(props: IPromoterFormProps) {
             )
           )}
         >
-          <Stack spacing="md">
+          <Stack gap="md">
             <Container>
               <Title order={2} mb="md">
                 Promoter Profile

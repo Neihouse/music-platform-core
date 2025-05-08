@@ -61,7 +61,7 @@ export function VenueForm(props: IVenueFormProps) {
             )
           )}
         >
-          <Stack spacing="md">
+          <Stack gap="md">
             <Container>
               <Title order={2} mb="md">
                 Venue Information

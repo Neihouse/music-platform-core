@@ -41,7 +41,7 @@ export function FanForm(props: IFanFormProps) {
             submitFan(values.displayName, values.preferredGenres)
           )}
         >
-          <Stack spacing="md">
+          <Stack gap="md">
             <Container>
               <Title order={2} mb="md">
                 Fan Profile

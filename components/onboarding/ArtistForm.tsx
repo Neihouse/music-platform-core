@@ -34,7 +34,8 @@ export function ArtistForm(props: IArtistFormProps) {
       bio: "",
     },
     validate: {
-      name: (value) => (value.trim().length > 0 ? null : "Name is required"),
+      name: (value: string) =>
+        value.trim().length > 0 ? null : "Name is required",
     },
   });
 
@@ -52,7 +53,7 @@ export function ArtistForm(props: IArtistFormProps) {
         style={{ width: "100%", maxWidth: "600px", position: "relative" }}
       >
         <LoadingOverlay visible={loading} />
-        <Stack spacing="xl">
+        <Stack gap="xl">
           <Title order={2}>Create Artist Profile</Title>
           <Container p={0}>
             <Title order={4}>Artist Name</Title>
