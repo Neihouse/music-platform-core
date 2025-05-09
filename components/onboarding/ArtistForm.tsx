@@ -17,8 +17,8 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
+import { ArtistArtUpload } from "../ArtistArtUpload";
 import { createArtist } from "@/app/artists/create/actions";
-import { getAdministrativeAreaByName } from "@/db/queries/administrative_areas";
 
 export interface IArtistFormProps {}
 
@@ -26,6 +26,7 @@ export function ArtistForm(props: IArtistFormProps) {
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
+  const [bannerImageUrl, setBannerImageUrl] = useState<string>("");
   const router = useRouter();
 
   const form = useForm({
@@ -73,6 +74,10 @@ export function ArtistForm(props: IArtistFormProps) {
           </Container>
 
           <Container p={0}>
+            <ArtistArtUpload onBannerUploaded={() => handleBannerUploaded} />
+          </Container>
+
+          <Container p={0}>
             <Title order={4}>Location</Title>
             <Text size="sm" c="dimmed" mb="xs">
               Where are you based? This helps fans find local artists.
@@ -92,6 +97,11 @@ export function ArtistForm(props: IArtistFormProps) {
       </form>
     </Group>
   );
+
+  async function handleBannerUploaded(url: string) {
+    setBannerImageUrl(url);
+    console.log("Banner image uploaded:", url);
+  }
 
   async function submitArtist(
     name: string,
