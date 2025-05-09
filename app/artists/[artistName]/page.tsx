@@ -15,6 +15,7 @@ import {
   Text,
   Image,
 } from "@mantine/core";
+import { notFound } from "next/navigation";
 
 export default async function ArtistPage({
   params,
@@ -22,10 +23,12 @@ export default async function ArtistPage({
   params: Promise<{ artistName: string }>;
 }) {
   const { artistName } = await params;
-  const { name, bio, tracks } = await getArtistByName(
-    await createClient(),
-    artistName
-  );
+
+  const artist = await getArtistByName(await createClient(), artistName);
+
+  if (!artist) {
+    notFound();
+  }
 
   return (
     <Container>
@@ -36,7 +39,7 @@ export default async function ArtistPage({
           <div style={{ position: "relative", marginBottom: "2rem" }}>
             <Image
               src="https://i1.sndcdn.com/visuals-PzeCi6m2YKysjZ7C-2pyiyA-t2480x520.jpg"
-              alt={`${name} banner`}
+              alt={`${artist.name} banner`}
               style={{
                 width: "100%",
                 height: "200px",
