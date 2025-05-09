@@ -1,8 +1,5 @@
 "use server";
 import { TypedClient } from "@/utils/supabase/global.types";
-import { getArtist } from "./artists";
-import { getPromoter } from "./promoters";
-import { getVenue } from "./venues";
 
 export async function getUserEntities(supabase: TypedClient) {
   const { data: user } = await supabase.auth.getUser();
@@ -10,8 +7,7 @@ export async function getUserEntities(supabase: TypedClient) {
     throw new Error("User not authenticated");
   }
 
-  // Get all potential entities
-  // Use Promise.allSettled to handle the case where user might not have all entities
+  // TODO: Create a Supabase View to get all user entities in one query
   const [artistResult, promoterResult, venueResult, fanResult] =
     await Promise.allSettled([
       // Get artist if exists, returns null if not found

@@ -32,7 +32,6 @@ export function VenueForm(props: IVenueFormProps) {
       description: "",
       address: "",
       capacity: 0,
-      hasParking: false,
       contactEmail: "",
       contactPhone: "",
       venueImages: null,
@@ -55,7 +54,6 @@ export function VenueForm(props: IVenueFormProps) {
               values.description,
               values.address,
               values.capacity,
-              values.hasParking,
               values.contactEmail,
               values.contactPhone
             )
@@ -107,12 +105,6 @@ export function VenueForm(props: IVenueFormProps) {
                 mb="md"
               />
 
-              <Switch
-                label="Parking Available"
-                {...form.getInputProps("hasParking", { type: "checkbox" })}
-                mb="md"
-              />
-
               <TextInput
                 label="Contact Email"
                 error={form.errors.contactEmail}
@@ -154,7 +146,6 @@ export function VenueForm(props: IVenueFormProps) {
     description: string,
     address: string,
     capacity: number,
-    hasParking: boolean,
     contactEmail: string,
     contactPhone: string
   ) {
@@ -165,7 +156,6 @@ export function VenueForm(props: IVenueFormProps) {
       description,
       address,
       capacity,
-      hasParking,
       contactEmail,
       contactPhone
     );
@@ -175,12 +165,11 @@ export function VenueForm(props: IVenueFormProps) {
         description,
         address,
         capacity,
-        hasParking,
         contactEmail,
         contactPhone
       );
       console.log("Venue created:", venue);
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       notifications.show({
         title: "Error",

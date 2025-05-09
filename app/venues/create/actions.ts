@@ -7,7 +7,6 @@ export async function createVenue(
   description: string,
   address: string,
   capacity: number,
-  hasParking: boolean,
   contactEmail: string,
   contactPhone: string
 ) {
@@ -23,34 +22,24 @@ export async function createVenue(
     throw new Error("Venue name is required");
   }
 
-  // In a real implementation, we would first get or create a locality
-  // and then use that locality ID to create the venue
-
   // For now, we'll use a simplified approach
   const { data: venue, error } = await supabase
     .from("venues")
     .insert({
-      // Locality is required, but we would determine this from the LocationInput
-      // For now, use a placeholder value that would be updated in production
-      locality: "placeholder-locality-id",
+      name: venueName,
+      description: description,
+      address: address,
+      capacity: capacity,
+      contact_email: contactEmail,
+      contact_phone: contactPhone,
+      administrative_area: "",
+      locality: "",
     })
     .select()
     .single();
 
   if (error) {
-    console.error("Database error:", error);
-    // Return a mock response for demonstration purposes
-    return {
-      id: "mock-venue-id",
-      name: venueName,
-      description: description,
-      address: address,
-      capacity: capacity,
-      has_parking: hasParking,
-      contact_email: contactEmail,
-      contact_phone: contactPhone,
-      user_id: user.user.id,
-    };
+    throw new Error(error.message);
   }
 
   // In a complete implementation, we would also store additional details
