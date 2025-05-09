@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6b5b95" />
+      <stop offset="100%" stop-color="#45364e" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="url(#bg-gradient)" filter="url(#shadow)" />
+  
+  <!-- Abstract artist silhouette -->
+  <path d="M100 55 C85 55, 75 70, 75 85 C75 100, 85 115, 100 115 C115 115, 125 100, 125 85 C125 70, 115 55, 100 55" 
+        fill="#2d2139" stroke="#8b7eb5" stroke-width="2" />
+  
+  <!-- Undefined face -->
+  <g opacity="0.7">
+    <!-- Question mark for missing identity -->
+    <text x="100" y="90" font-family="Arial" font-size="35" font-weight="bold" fill="#d1c7e2" text-anchor="middle">?</text>
+  </g>
+  
+  <!-- Abstract music notes -->
+  <g fill="#d1c7e2" opacity="0.8">
+    <path d="M60 130 L60 150 C60 155, 55 160, 50 160 C45 160, 40 155, 40 150 C40 145, 45 140, 50 140 C52 140, 54 141, 56 142 L56 120 L60 130" />
+    <path d="M80 120 L80 145 C80 150, 75 155, 70 155 C65 155, 60 150, 60 145 C60 140, 65 135, 70 135 C72 135, 74 136, 76 137 L76 115 L80 120" />
+    <path d="M140 115 L140 135 C140 140, 135 145, 130 145 C125 145, 120 140, 120 135 C120 130, 125 125, 130 125 C132 125, 134 126, 136 127 L136 110 L140 115" />
+  </g>
+  
+  <!-- Broken sound wave lines -->
+  <g stroke="#d1c7e2" stroke-width="1.5" stroke-linecap="round">
+    <path d="M30 100 Q 40 90, 50 100 Q 60 110, 70 100" stroke-dasharray="1,1" />
+    <path d="M130 100 Q 140 90, 150 100 Q 160 110, 170 100" stroke-dasharray="1,1" />
+  </g>
+  
+  <!-- 404 text -->
+  <text x="100" y="175" font-family="Arial" font-size="12" font-weight="bold" fill="white" text-anchor="middle">ARTIST NOT FOUND</text>
+</svg>

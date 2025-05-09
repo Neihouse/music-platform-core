@@ -27,10 +27,14 @@ export async function getArtistByName(
     .from("artist_with_tracks")
     .select(`*`)
     .ilike("name", artistName)
-    .single();
+    .maybeSingle();
 
-  if (error || !artist) {
+  if (error) {
     throw new Error(error.message);
+  }
+
+  if (!artist) {
+    return null;
   }
 
   return {

@@ -17,7 +17,7 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
-import { createArtist } from "@/app/artist/create/actions";
+import { createArtist } from "@/app/artists/create/actions";
 import { getAdministrativeAreaByName } from "@/db/queries/administrative_areas";
 
 export interface IArtistFormProps {}
