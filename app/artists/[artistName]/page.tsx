@@ -29,7 +29,7 @@ export default async function ArtistPage({
   if (!artist) {
     notFound();
   }
-
+  const { name, bio, tracks } = artist;
   return (
     <Container>
       <Grid gutter="lg">
