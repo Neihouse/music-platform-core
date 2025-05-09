@@ -12,7 +12,7 @@ import {
   FileInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { createPromoter } from "@/app/promoter/create/actions";
+import { createPromoter } from "@/app/promoters/create/actions";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
