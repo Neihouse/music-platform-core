@@ -599,25 +599,40 @@ export type Database = {
         Row: {
           address: string
           administrative_area: string
+          capacity: number | null
+          contact_email: string
+          contact_phone: string
           created_at: string
+          description: string | null
           id: string
           locality: string
+          name: string
           user_id: string
         }
         Insert: {
           address: string
           administrative_area: string
+          capacity?: number | null
+          contact_email: string
+          contact_phone: string
           created_at?: string
+          description?: string | null
           id?: string
           locality: string
+          name: string
           user_id?: string
         }
         Update: {
           address?: string
           administrative_area?: string
+          capacity?: number | null
+          contact_email?: string
+          contact_phone?: string
           created_at?: string
+          description?: string | null
           id?: string
           locality?: string
+          name?: string
           user_id?: string
         }
         Relationships: [
