@@ -11,7 +11,7 @@ import {
   Paper,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { createFan } from "@/app/fan/create/actions";
+import { createFan } from "@/app/fans/create/actions";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";

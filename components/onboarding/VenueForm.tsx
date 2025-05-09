@@ -14,7 +14,7 @@ import {
   Switch,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { createVenue } from "@/app/venue/create/actions";
+import { createVenue } from "@/app/venues/create/actions";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
