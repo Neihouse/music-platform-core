@@ -30,7 +30,7 @@ export default async function ProfilePage() {
   const userEntities = await getUserEntities(supabase);
 
   return (
-    <Container size="lg" py="xl">
+    <Container>
       <Title order={1} mb="xl">
         Your Profile
       </Title>
@@ -133,14 +133,7 @@ export default async function ProfilePage() {
                 >
                   View Profile
                 </Button>
-                <Button
-                  component={Link}
-                  href="/upload"
-                  variant="outline"
-                  color="blue"
-                >
-                  Upload Track
-                </Button>
+
               </Group>
             </Card>
           </GridCol>
