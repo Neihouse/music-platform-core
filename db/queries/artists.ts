@@ -1,5 +1,35 @@
 "use server";
-import { Track, TypedClient } from "@/utils/supabase/global.types";
+import { Artist, Track, TypedClient } from "@/utils/supabase/global.types";
+
+export async function createArtist(
+  supabase: TypedClient,
+  {
+    name,
+    bio,
+    locality_id,
+    administrative_area_id,
+    user_id,
+    country_id,
+  }: Artist,
+) {
+  const { data: artist, error } = await supabase
+    .from("artists")
+    .insert({
+      name,
+      bio,
+      administrative_area_id,
+      locality_id,
+      country_id,
+      user_id,
+    })
+    .select()
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
 
 export async function getArtist(supabase: TypedClient) {
   const { data: user } = await supabase.auth.getUser();
@@ -25,7 +55,7 @@ export async function getArtist(supabase: TypedClient) {
 
 export async function getArtistByName(
   supabase: TypedClient,
-  artistName: string
+  artistName: string,
 ) {
   const { data: artist, error } = await supabase
     .from("artist_view")

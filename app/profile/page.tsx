@@ -125,7 +125,7 @@ export default async function ProfilePage() {
                 <Button
                   component={Link}
                   href={`/artists/${encodeURIComponent(
-                    userEntities.artist.name.toLowerCase()
+                    userEntities.artist.name.toLowerCase(),
                   )}`}
                   variant="light"
                   color="blue"
@@ -133,7 +133,6 @@ export default async function ProfilePage() {
                 >
                   View Profile
                 </Button>
-
               </Group>
             </Card>
           </GridCol>

@@ -6,7 +6,7 @@ export async function createPromoter(
   companyName: string,
   description: string,
   contactEmail: string,
-  contactPhone: string
+  contactPhone: string,
 ) {
   const supabase = await createClient();
 

@@ -6,7 +6,7 @@ export async function getOrCreateLocality(
   supabase: TypedClient,
   locality: string,
   administrative_area_id: string,
-  country_id: string
+  country_id: string,
 ) {
   // Check if the locality already exists
   const existingLocality = await getLocalityByName(supabase, locality);
@@ -23,7 +23,7 @@ export async function createLocality(
   supabase: TypedClient,
   locality: string,
   administrative_area_id: string,
-  country_id: string
+  country_id: string,
 ) {
   // Insert the data into the localities table
   const { data, error } = await supabase

@@ -21,7 +21,7 @@ export async function getPromoter(supabase: TypedClient) {
 
 export async function getPromoterById(
   supabase: TypedClient,
-  promoterId: string
+  promoterId: string,
 ) {
   const { data: promoter, error } = await supabase
     .from("promoters")
@@ -38,7 +38,7 @@ export async function getPromoterById(
 
 export async function getPromoterByName(
   supabase: TypedClient,
-  promoterName: string
+  promoterName: string,
 ) {
   const { data: promoter, error } = await supabase
     .from("promoters")

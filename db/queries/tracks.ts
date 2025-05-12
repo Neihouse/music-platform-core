@@ -6,7 +6,7 @@ import { TypedClient } from "@/utils/supabase/global.types";
 export async function createTrack(
   supabase: TypedClient,
   metadata: IAudioMetadata,
-  size: number
+  size: number,
 ) {
   const artist = await getArtist(supabase);
 
@@ -95,7 +95,7 @@ export async function getTracks(supabase: TypedClient) {
           name
         )
       )
-      `
+      `,
     )
     .limit(5);
 

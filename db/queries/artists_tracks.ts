@@ -5,7 +5,7 @@ import { TypedClient } from "@/utils/supabase/global.types";
 export async function createArtistTrack(
   supabase: TypedClient,
   artistId: string,
-  trackId: string
+  trackId: string,
 ) {
   const { data, error } = await supabase
     .from("artists_tracks")

@@ -72,7 +72,7 @@ export function Uploader({ bucket }: IUploaderProps) {
         files.map(async (file) => {
           const metadata = await parseBlob(file);
           return { file, metadata };
-        })
+        }),
       );
 
       setFilesWithMetadata((prev) => [...prev, ...newFilesWithMetadata]);
@@ -124,7 +124,7 @@ export function Uploader({ bucket }: IUploaderProps) {
   function updateFileMetadata(
     file: FileWithMetadata,
     key: string,
-    value: string
+    value: string,
   ) {
     try {
       const selectedFile = filesWithMetadata.find((f) => f === file);

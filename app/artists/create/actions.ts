@@ -22,7 +22,7 @@ export async function createArtist(
 
   const { locality, administrativeArea, country } = await submitPlace(
     supabase,
-    place
+    place,
   );
 
   const { data: artist, error } = await supabase

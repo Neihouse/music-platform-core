@@ -49,8 +49,8 @@ export function PromoterForm(props: IPromoterFormProps) {
               values.companyName,
               values.description,
               values.contactEmail,
-              values.contactPhone
-            )
+              values.contactPhone,
+            ),
           )}
         >
           <Stack gap="md">
@@ -121,7 +121,7 @@ export function PromoterForm(props: IPromoterFormProps) {
     companyName: string,
     description: string,
     contactEmail: string,
-    contactPhone: string
+    contactPhone: string,
   ) {
     setLoading(true);
     console.log(
@@ -129,14 +129,14 @@ export function PromoterForm(props: IPromoterFormProps) {
       companyName,
       description,
       contactEmail,
-      contactPhone
+      contactPhone,
     );
     try {
       const promoter = await createPromoter(
         companyName,
         description,
         contactEmail,
-        contactPhone
+        contactPhone,
       );
       console.log("Promoter profile created:", promoter);
       router.push("/dashboard");

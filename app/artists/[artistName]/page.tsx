@@ -34,7 +34,7 @@ export default async function ArtistPage({
     notFound();
   }
 
-  const userIsArtist = user?.id === artist.user_id
+  const userIsArtist = user?.id === artist.user_id;
 
   const { name, bio, tracks } = artist;
   return (
@@ -90,8 +90,8 @@ export default async function ArtistPage({
               />
               <div>
                 <Group>
-                <Title style={{ color: "white" }}>{name}</Title>
-                {userIsArtist && <IconEdit  />}
+                  <Title style={{ color: "white" }}>{name}</Title>
+                  {userIsArtist && <IconEdit />}
                 </Group>
                 <Group gap="sm">
                   {["house", "rock"].map((genre) => (
@@ -102,39 +102,37 @@ export default async function ArtistPage({
                 </Group>
               </div>
             </div>
-           
           </div>
-                  
+
           {/* Tracks Section */}
           <Stack gap="md">
             {!tracks.length ? (
               <Center mt={50}>
-              <Text c="dimmed" size="sm">
-                <em>
-                No tracks yet
-                </em>
-              </Text>
+                <Text c="dimmed" size="sm">
+                  <em>No tracks yet</em>
+                </Text>
               </Center>
-            )
-            : tracks?.map(({ title, duration, id }) => (
-              <Card key={id} withBorder shadow="sm" radius="md">
-                <Group justify="space-between">
-                  <Stack>
-                    <Text fw={500}>{title || "F"}</Text>
-                    <Text size="sm" c="dimmed">
-                      {formatDuration(duration)}
-                    </Text>
-                  </Stack>
-                  <Image
-                    src={"https://via.placeholder.com/100"}
-                    alt={`${title} cover`}
-                    width={100}
-                    height={100}
-                    radius="sm"
-                  />
-                </Group>
-              </Card>
-            ))}
+            ) : (
+              tracks?.map(({ title, duration, id }) => (
+                <Card key={id} withBorder shadow="sm" radius="md">
+                  <Group justify="space-between">
+                    <Stack>
+                      <Text fw={500}>{title || "F"}</Text>
+                      <Text size="sm" c="dimmed">
+                        {formatDuration(duration)}
+                      </Text>
+                    </Stack>
+                    <Image
+                      src={"https://via.placeholder.com/100"}
+                      alt={`${title} cover`}
+                      width={100}
+                      height={100}
+                      radius="sm"
+                    />
+                  </Group>
+                </Card>
+              ))
+            )}
           </Stack>
         </GridCol>
 
@@ -163,5 +161,4 @@ export default async function ArtistPage({
       </Grid>
     </Container>
   );
-
 }
