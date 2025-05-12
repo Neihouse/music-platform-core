@@ -42,7 +42,7 @@ import {
 import { Artist } from "@/utils/supabase/global.types";
 
 export interface IArtistFormProps {
-  artist?: Artist
+  artist: Artist | null
 }
 
 export function ArtistForm({ artist }: IArtistFormProps) {
@@ -301,8 +301,7 @@ export function ArtistForm({ artist }: IArtistFormProps) {
       const artist = await createArtist(
         form.values.name,
         form.values.bio,
-        administrativeArea,
-        locality
+        selectedPlace
 
       );
 
