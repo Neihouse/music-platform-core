@@ -277,28 +277,15 @@ export function ArtistForm({ artist }: IArtistFormProps) {
 
     try {
       // Extract location information
-      const administrativeArea = selectedPlace?.address_components?.find(
-        (component) => component.types.includes("administrative_area_level_1")
-      )?.long_name;
 
-      const locality = selectedPlace?.address_components?.find((component) =>
-        component.types.includes("locality")
-      )?.long_name;
-
-      const country = selectedPlace?.address_components?.find((component) =>
-        component.types.includes("country")
-      )?.long_name;
-
-      if (!administrativeArea || !locality) {
-        throw new Error(
-          "Administrative area and locality are required for location."
-        );
+      if (!selectedPlace?.address_components) {
+        throw new Error("No address components found");
       }
 
       const artist = await submitArtist(
         form.values.name,
         form.values.bio,
-        selectedPlace
+        selectedPlace.address_components
 
       );
 

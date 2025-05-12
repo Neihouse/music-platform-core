@@ -7,7 +7,7 @@ import { createArtist } from "@/db/queries/artists";
 export async function submitArtist(
   name: string,
   bio: string,
-  place: google.maps.places.PlaceResult,
+  addressComponents: google.maps.GeocoderAddressComponent[],
 ) {
   const supabase = await createClient();
 
@@ -23,7 +23,7 @@ export async function submitArtist(
 
   const { locality, administrativeArea, country } = await submitPlace(
     supabase,
-    place,
+    addressComponents,
   );
 
   const artist = await createArtist(supabase,
