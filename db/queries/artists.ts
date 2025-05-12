@@ -78,3 +78,39 @@ export async function getArtistByName(
       (artist?.tracks as Pick<Track, "id" | "title" | "duration">[]) || [],
   };
 }
+
+export async function updateArtist(
+  supabase: TypedClient,
+  {
+    name,
+    bio,
+    locality_id,
+    administrative_area_id,
+    user_id,
+    country_id,
+  }: Database["public"]["Tables"]["artists"]["Update"],
+  artistId: string
+) {
+  console.log("updating artist", artistId);
+  const { data: artist, error } = await supabase
+    .from("artists")
+    .update({
+      name,
+      bio,
+      administrative_area_id,
+      locality_id,
+      country_id,
+      user_id,
+    })
+    .eq("id", artistId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return artist;
+}
+
+
