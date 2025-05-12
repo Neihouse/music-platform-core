@@ -3,15 +3,15 @@
 import { getOrCreateAdministrativeArea } from "@/db/queries/administrative_areas";
 import { getOrCreateCountry } from "@/db/queries/countries";
 import { getOrCreateLocality } from "@/db/queries/localities";
-import { createClient } from "@/utils/supabase/server";
+import { TypedClient } from "@/utils/supabase/global.types";
 
 export async function submitPlace(
+    supabase: TypedClient,
     { address_components }: google.maps.places.PlaceResult,
 ) {
     if (!address_components) {
         throw new Error("No address components found");
     }
-    const supabase = await createClient();
 
     // Extract location information
     const administrativeArea = address_components?.find(
@@ -48,4 +48,10 @@ export async function submitPlace(
         administrativeAreaData.id,
         countryData.id
     );
+
+    return {
+        country: countryData,
+        administrativeArea: administrativeAreaData,
+        locality: localityData,
+    }
 }
