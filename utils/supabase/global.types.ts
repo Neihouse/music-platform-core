@@ -7,3 +7,4 @@ export type Track = Public["tracks"]["Row"];
 export type Artist = Public["artists"]["Row"];
 export type Locality = Public["localities"]["Row"];
 export type AdministrativeArea = Public["administrative_areas"]["Row"];
+export type Country = Public["countries"]["Row"];
