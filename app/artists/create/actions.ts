@@ -1,14 +1,12 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { getOrCreateAdministrativeArea } from "@/db/queries/administrative_areas";
-import { getOrCreateLocality } from "@/db/queries/localities";
+import { submitPlace } from "@/components/LocationInput/actions";
 
 export async function createArtist(
   name: string,
   bio: string,
-  administrativeArea: string,
-  locality: string
+  place: google.maps.places.PlaceResult,
 ) {
   const supabase = await createClient();
 
@@ -22,15 +20,9 @@ export async function createArtist(
     throw new Error("Name is required");
   }
 
-  const administrativeAreaData = await getOrCreateAdministrativeArea(
+  const { locality, administrativeArea, country } = await submitPlace(
     supabase,
-    administrativeArea
-  );
-
-  const localityData = await getOrCreateLocality(
-    supabase,
-    locality,
-    administrativeAreaData.id
+    place
   );
 
   const { data: artist, error } = await supabase
@@ -38,8 +30,9 @@ export async function createArtist(
     .insert({
       name,
       bio,
-      administrative_area: administrativeAreaData.id || null,
-      locality: localityData.id || null,
+      administrative_area: administrativeArea.id,
+      locality: locality.id,
+      country: country.id,
       user_id: user.user.id,
     })
     .select()
