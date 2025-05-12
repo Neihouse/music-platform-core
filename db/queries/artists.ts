@@ -12,7 +12,11 @@ export async function getArtist(supabase: TypedClient) {
     .eq("user_id", user.user.id)
     .maybeSingle();
 
-  if (!artist || error) {
+  if (!artist && !error) {
+    return null;
+  }
+
+  if (error) {
     throw new Error(error?.message || "Artist not found");
   }
 
@@ -29,12 +33,12 @@ export async function getArtistByName(
     .ilike("name", artistName)
     .maybeSingle();
 
-  if (error) {
-    throw new Error(error.message);
+  if (!artist && !error) {
+    return null;
   }
 
-  if (!artist) {
-    return null;
+  if (error) {
+    throw new Error(error.message);
   }
 
   return {

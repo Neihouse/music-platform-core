@@ -15,7 +15,7 @@ export async function getOrCreateAdministrativeArea(
   }
 
   // If it doesn't exist, create it
-  return createAdministrativeArea(supabase, administrativeArea);
+  return createAdministrativeArea(supabase, administrativeArea, countryId);
 }
 
 export async function createAdministrativeArea(
