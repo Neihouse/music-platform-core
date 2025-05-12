@@ -51,9 +51,9 @@ export default async function RootLayout({
               </AppShellHeader>
 
               <AppShellMain>
-                <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem 1rem' }}>
+                <Container size={1200} px="1rem" py="1.5rem">
                   {children}
-                </div>
+                </Container>
               </AppShellMain>
 
               <AppShellFooter>
