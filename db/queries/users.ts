@@ -7,8 +7,8 @@ export async function getUser(supabase: TypedClient) {
     error,
   } = await supabase.auth.getUser();
 
-  if (!error && !user) {
-    return null; // User is not authenticated
+  if (!user) {
+    return null;
   }
 
   if (error) {
