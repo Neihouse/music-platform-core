@@ -1,5 +1,6 @@
 "use server";
-import { Artist, Track, TypedClient } from "@/utils/supabase/global.types";
+import { Track, TypedClient } from "@/utils/supabase/global.types";
+import { Database } from "@/utils/supabase/database.types";
 
 export async function createArtist(
   supabase: TypedClient,
@@ -10,7 +11,7 @@ export async function createArtist(
     administrative_area_id,
     user_id,
     country_id,
-  }: Artist,
+  }: Database["public"]["Tables"]["artists"]["Insert"],
 ) {
   const { data: artist, error } = await supabase
     .from("artists")
@@ -28,7 +29,7 @@ export async function createArtist(
     throw new Error(error.message);
   }
 
-  return data;
+  return artist;
 }
 
 export async function getArtist(supabase: TypedClient) {

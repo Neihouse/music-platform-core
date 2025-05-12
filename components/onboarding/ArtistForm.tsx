@@ -29,7 +29,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
 import { ArtistArtUpload } from "../ArtistArtUpload/index";
-import { createArtist } from "@/app/artists/create/actions";
+import { submitArtist } from "@/app/artists/create/actions";
 import {
   IconCheck,
   IconMusic,
@@ -295,7 +295,7 @@ export function ArtistForm({ artist }: IArtistFormProps) {
         );
       }
 
-      const artist = await createArtist(
+      const artist = await submitArtist(
         form.values.name,
         form.values.bio,
         selectedPlace

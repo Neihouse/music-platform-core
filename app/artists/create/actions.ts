@@ -2,8 +2,9 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { submitPlace } from "@/components/LocationInput/actions";
+import { createArtist } from "@/db/queries/artists";
 
-export async function createArtist(
+export async function submitArtist(
   name: string,
   bio: string,
   place: google.maps.places.PlaceResult,
@@ -25,22 +26,16 @@ export async function createArtist(
     place,
   );
 
-  const { data: artist, error } = await supabase
-    .from("artists")
-    .insert({
+  const artist = await createArtist(supabase,
+    {
       name,
       bio,
-      administrative_area: administrativeArea.id,
-      locality: locality.id,
-      country: country.id,
+      locality_id: locality.id,
+      administrative_area_id: administrativeArea.id,
       user_id: user.user.id,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(error.message);
-  }
+      country_id: country.id,
+    },
+  )
 
   return artist;
 }
