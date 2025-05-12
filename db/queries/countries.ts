@@ -55,7 +55,7 @@ export async function getCountryByName(supabase: TypedClient, name: string) {
     return data;
 }
 
-export async function getCountryById(supabase: TypedClient, id: number) {
+export async function getCountryById(supabase: TypedClient, id: string) {
     const { data, error } = await supabase
         .from("countries")
         .select()
