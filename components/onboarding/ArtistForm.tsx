@@ -42,7 +42,7 @@ import {
 import { Artist } from "@/utils/supabase/global.types";
 
 export interface IArtistFormProps {
-  artist: Artist | null;
+  artist: Artist | null
 }
 
 export function ArtistForm({ artist }: IArtistFormProps) {
@@ -92,7 +92,7 @@ export function ArtistForm({ artist }: IArtistFormProps) {
       // Finish the process
       if (createdArtistId) {
         router.push(
-          `/artists/${encodeURIComponent(form.values.name.toLowerCase())}`,
+          `/artists/${encodeURIComponent(form.values.name.toLowerCase())}`
         );
       }
     }
@@ -104,7 +104,12 @@ export function ArtistForm({ artist }: IArtistFormProps) {
         <div style={{ position: "relative" }}>
           <LoadingOverlay visible={loading} />
 
-          <Flex gap="md" justify="center" align="center" direction="column">
+          <Flex
+            gap="md"
+            justify="center"
+            align="center"
+            direction="column"
+          >
             <Title
               order={2}
               ta="center"
@@ -186,14 +191,11 @@ export function ArtistForm({ artist }: IArtistFormProps) {
                     {selectedPlace ? (
                       <Pill
                         w="min-content"
-                        size="xl"
-                        withRemoveButton
-                        color="green"
+                        size="xl" withRemoveButton color="green"
                         onRemove={() => setSelectedPlace(null)}
                       >
                         {selectedPlace.formatted_address}
-                      </Pill>
-                    ) : (
+                      </Pill>) : (
                       <LocationInput onPlaceSelect={handlePlaceSelect} />
                     )}
                   </Card>
@@ -277,27 +279,28 @@ export function ArtistForm({ artist }: IArtistFormProps) {
     try {
       // Extract location information
       const administrativeArea = selectedPlace?.address_components?.find(
-        (component) => component.types.includes("administrative_area_level_1"),
+        (component) => component.types.includes("administrative_area_level_1")
       )?.long_name;
 
       const locality = selectedPlace?.address_components?.find((component) =>
-        component.types.includes("locality"),
+        component.types.includes("locality")
       )?.long_name;
 
       const country = selectedPlace?.address_components?.find((component) =>
-        component.types.includes("country"),
+        component.types.includes("country")
       )?.long_name;
 
       if (!administrativeArea || !locality) {
         throw new Error(
-          "Administrative area and locality are required for location.",
+          "Administrative area and locality are required for location."
         );
       }
 
       const artist = await createArtist(
         form.values.name,
         form.values.bio,
-        selectedPlace,
+        selectedPlace
+
       );
 
       setCreatedArtistId(artist.id);
