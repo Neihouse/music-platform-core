@@ -1,12 +1,13 @@
 "use server";
 
+import { submitPlace } from "@/components/LocationInput/actions";
+import { createPromoter } from "@/db/queries/promoters";
+import { TablesInsert } from "@/utils/supabase/database.types";
 import { createClient } from "@/utils/supabase/server";
 
-export async function createPromoter(
-  companyName: string,
-  description: string,
-  contactEmail: string,
-  contactPhone: string,
+export async function submitPromoter(
+  promoter: Omit<TablesInsert<"promoters">, "administrative_area_id" | "locality_id">,
+  addressComponents: google.maps.GeocoderAddressComponent[],
 ) {
   const supabase = await createClient();
 
@@ -16,35 +17,20 @@ export async function createPromoter(
     throw new Error("User not authenticated");
   }
 
-  if (!companyName) {
-    throw new Error("Company name is required");
-  }
+  const { locality, administrativeArea, country } = await submitPlace(
+    supabase,
+    addressComponents)
 
-  // Insert into promoters table
-  const { data: promoter, error } = await supabase
-    .from("promoters")
-    .insert({
-      title: companyName,
-      // Additional fields would be added to the schema as needed
-    })
-    .select()
-    .single();
 
-  if (error) {
-    console.error("Database error:", error);
-    // For now, return a mock response
-    return {
-      id: "mock-id",
-      title: companyName,
-      description: description,
-      contact_email: contactEmail,
-      contact_phone: contactPhone,
+  const newPromoter = await createPromoter(
+    supabase,
+    {
+      ...promoter,
       user_id: user.user.id,
-    };
-  }
+      locality_id: locality.id,
+      administrative_area_id: administrativeArea.id,
+      country_id: country.id,
+    })
 
-  // In a complete implementation, we would also store the additional details
-  // like description, contact info, etc. in a related table
-
-  return promoter;
+  return newPromoter;
 }
