@@ -24,7 +24,7 @@ export async function getArtistByName(
   artistName: string
 ) {
   const { data: artist, error } = await supabase
-    .from("artist_with_tracks")
+    .from("artist_view")
     .select(`*`)
     .ilike("name", artistName)
     .maybeSingle();

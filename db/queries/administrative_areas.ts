@@ -2,7 +2,8 @@ import { AdministrativeArea, TypedClient } from "@/utils/supabase/global.types";
 
 export async function getOrCreateAdministrativeArea(
   supabase: TypedClient,
-  administrativeArea: string
+  administrativeArea: string,
+  countryId: string
 ): Promise<AdministrativeArea> {
   const existingAdministrativeArea = await getAdministrativeAreaByName(
     supabase,
@@ -19,13 +20,15 @@ export async function getOrCreateAdministrativeArea(
 
 export async function createAdministrativeArea(
   supabase: TypedClient,
-  administrativeArea: string
+  administrativeArea: string,
+  countryId: string
 ): Promise<AdministrativeArea> {
   // Insert the data into the administrative_areas table
   const { data, error } = await supabase
     .from("administrative_areas")
     .insert({
       name: administrativeArea,
+      country_id: countryId,
     })
     .select()
     .single();

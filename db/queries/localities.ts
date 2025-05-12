@@ -5,7 +5,8 @@ import { TypedClient } from "@/utils/supabase/global.types";
 export async function getOrCreateLocality(
   supabase: TypedClient,
   locality: string,
-  administrative_area_id: string
+  administrative_area_id: string,
+  country_id: string
 ) {
   // Check if the locality already exists
   const existingLocality = await getLocalityByName(supabase, locality);
@@ -15,13 +16,14 @@ export async function getOrCreateLocality(
   }
 
   // If it doesn't exist, create it
-  return createLocality(supabase, locality, administrative_area_id);
+  return createLocality(supabase, locality, administrative_area_id, country_id);
 }
 
 export async function createLocality(
   supabase: TypedClient,
   locality: string,
-  administrative_area_id: string
+  administrative_area_id: string,
+  country_id: string
 ) {
   // Insert the data into the localities table
   const { data, error } = await supabase
@@ -29,6 +31,7 @@ export async function createLocality(
     .insert({
       name: locality,
       administrative_area_id: administrative_area_id,
+      country_id: country_id,
     })
     .select()
     .single();
