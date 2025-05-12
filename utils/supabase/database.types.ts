@@ -60,6 +60,7 @@ export type Database = {
         Row: {
           administrative_area_id: string | null
           bio: string
+          country_id: string | null
           created_at: string
           id: string
           locality_id: string | null
@@ -69,6 +70,7 @@ export type Database = {
         Insert: {
           administrative_area_id?: string | null
           bio?: string
+          country_id?: string | null
           created_at?: string
           id?: string
           locality_id?: string | null
@@ -78,6 +80,7 @@ export type Database = {
         Update: {
           administrative_area_id?: string | null
           bio?: string
+          country_id?: string | null
           created_at?: string
           id?: string
           locality_id?: string | null
@@ -90,6 +93,13 @@ export type Database = {
             columns: ["administrative_area_id"]
             isOneToOne: false
             referencedRelation: "administrative_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
             referencedColumns: ["id"]
           },
           {
