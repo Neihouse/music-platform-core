@@ -16,12 +16,12 @@ import {
   GridCol,
   Box,
   Card,
-  rem,
-  Image,
   Flex,
   useMantineTheme,
   Stepper,
   Center,
+  em,
+  Pill,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
@@ -37,17 +37,20 @@ import {
   IconArrowRight,
   IconPhoto,
   IconUpload,
+  IconX,
 } from "@tabler/icons-react";
+import { Artist } from "@/utils/supabase/global.types";
 
-export interface IArtistFormProps {}
+export interface IArtistFormProps {
+  artist?: Artist
+}
 
-export function ArtistForm(props: IArtistFormProps) {
+export function ArtistForm({ artist }: IArtistFormProps) {
   const theme = useMantineTheme();
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
-  const [bannerImageUrl, setBannerImageUrl] = useState<string>("");
-  const [avatarImageUrl, setAvatarImageUrl] = useState<string>("");
+
   const [createdArtistId, setCreatedArtistId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState(0);
 
@@ -55,8 +58,8 @@ export function ArtistForm(props: IArtistFormProps) {
 
   const form = useForm({
     initialValues: {
-      name: "",
-      bio: "",
+      name: artist?.name || "",
+      bio: artist?.bio || "",
     },
     validate: {
       name: (value: string) =>
@@ -69,15 +72,7 @@ export function ArtistForm(props: IArtistFormProps) {
     console.log("Selected place:", place);
   };
 
-  const handleBannerUploaded = (url: string) => {
-    setBannerImageUrl(url);
-    console.log("Banner image uploaded:", url);
-  };
 
-  const handleAvatarUploaded = (url: string) => {
-    setAvatarImageUrl(url);
-    console.log("Avatar image uploaded:", url);
-  };
 
   const handleNextStep = () => {
     // Validate form for step 1
@@ -106,7 +101,7 @@ export function ArtistForm(props: IArtistFormProps) {
   };
 
   return (
-    <Container size="lg" py="xl">
+    <Container>
       <Paper shadow="md" p={{ base: "md", sm: "xl" }} radius="md" withBorder>
         <div style={{ position: "relative" }}>
           <LoadingOverlay visible={loading} />
@@ -116,7 +111,6 @@ export function ArtistForm(props: IArtistFormProps) {
             justify="center"
             align="center"
             direction="column"
-            mb="xl"
           >
             <Title
               order={2}
@@ -196,11 +190,15 @@ export function ArtistForm(props: IArtistFormProps) {
                     <Text size="sm" c="dimmed" mb="md">
                       Where are you based? This helps fans find local artists.
                     </Text>
-                    <LocationInput onPlaceSelect={handlePlaceSelect} />
-                    {selectedPlace && (
-                      <Text size="sm" mt="md" c="dimmed" fw={500}>
-                        Selected: {selectedPlace.formatted_address}
-                      </Text>
+                    {selectedPlace ? (
+                      <Pill
+                        w="min-content"
+                        size="xl" withRemoveButton color="green"
+                        onRemove={() => setSelectedPlace(null)}
+                      >
+                        {selectedPlace.formatted_address}
+                      </Pill>) : (
+                      <LocationInput onPlaceSelect={handlePlaceSelect} />
                     )}
                   </Card>
                 </GridCol>
@@ -230,8 +228,6 @@ export function ArtistForm(props: IArtistFormProps) {
                       </Text>
                       <ArtistArtUpload
                         artistId={createdArtistId || undefined}
-                        onBannerUploaded={handleBannerUploaded}
-                        onAvatarUploaded={handleAvatarUploaded}
                       />
                     </Card>
                   </Stack>
@@ -249,7 +245,7 @@ export function ArtistForm(props: IArtistFormProps) {
                 disabled={loading}
                 size="lg"
                 radius="md"
-                rightSection={<IconArrowRight size={rem(18)} />}
+                rightSection={<IconArrowRight size={em(18)} />}
                 gradient={{ from: "blue", to: "cyan", deg: 90 }}
                 variant="gradient"
               >
@@ -261,7 +257,7 @@ export function ArtistForm(props: IArtistFormProps) {
                 disabled={loading}
                 size="lg"
                 radius="md"
-                leftSection={<IconCheck size={rem(18)} />}
+                leftSection={<IconCheck size={em(18)} />}
                 gradient={{ from: "green", to: "teal", deg: 90 }}
                 variant="gradient"
               >
@@ -292,6 +288,10 @@ export function ArtistForm(props: IArtistFormProps) {
         component.types.includes("locality")
       )?.long_name;
 
+      const country = selectedPlace?.address_components?.find((component) =>
+        component.types.includes("country")
+      )?.long_name;
+
       if (!administrativeArea || !locality) {
         throw new Error(
           "Administrative area and locality are required for location."
@@ -303,9 +303,9 @@ export function ArtistForm(props: IArtistFormProps) {
         form.values.bio,
         administrativeArea,
         locality
+
       );
 
-      console.log("Artist created:", artist);
       setCreatedArtistId(artist.id);
 
       // Move to next step
