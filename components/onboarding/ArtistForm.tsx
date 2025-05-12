@@ -36,13 +36,12 @@ import {
   IconInfoCircle,
   IconArrowRight,
   IconPhoto,
-  IconUpload,
-  IconX,
+
 } from "@tabler/icons-react";
 import { Artist } from "@/utils/supabase/global.types";
 
 export interface IArtistFormProps {
-  artist: Artist | null
+  artist?: Artist
 }
 
 export function ArtistForm({ artist }: IArtistFormProps) {

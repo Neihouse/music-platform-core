@@ -13,7 +13,7 @@ export default async function ArtistCreatePage({ }: IArtistCreatePageProps) {
 
   return (
     <div>
-      <ArtistForm artist={artist} />
+      <ArtistForm artist={artist || undefined} />
     </div>
   );
 }
