@@ -10,6 +10,10 @@ export async function createTrack(
 ) {
   const artist = await getArtist(supabase);
 
+  if (!artist) {
+    throw new Error("Artist not found");
+  }
+
   const {
     common: { title },
     format: {

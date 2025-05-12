@@ -12,14 +12,14 @@ import {
   FileInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { createPromoter } from "@/app/promoters/create/actions";
+import { submitPromoter } from "@/app/promoters/create/actions";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "@/components/LocationInput";
 import { IconUpload } from "@tabler/icons-react";
 
-export interface IPromoterFormProps {}
+export interface IPromoterFormProps { }
 
 export function PromoterForm(props: IPromoterFormProps) {
   const router = useRouter();
@@ -132,7 +132,7 @@ export function PromoterForm(props: IPromoterFormProps) {
       contactPhone,
     );
     try {
-      const promoter = await createPromoter(
+      const promoter = await submitPromoter(
         companyName,
         description,
         contactEmail,
