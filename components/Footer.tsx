@@ -1,31 +1,22 @@
 "use client";
 
-import { 
-  Container, 
-  Group, 
-  Text, 
-  Stack,
+import {
+  Container,
+  Group,
+  Text,
   ActionIcon,
-  rem,
-  Divider,
-  SimpleGrid,
-  Box,
   Paper,
-  useMantineTheme,
-  Anchor,
-  ThemeIcon
+  useMantineTheme
 } from '@mantine/core'
-import { 
-  IconBrandGithub, 
+import {
+  IconBrandGithub,
   IconBrandTwitter,
   IconBrandInstagram,
-  IconHeart,
   IconHeadphones,
   IconMicrophone,
   IconMusic,
   IconPlaylist
 } from '@tabler/icons-react'
-import Link from 'next/link'
 
 const FOOTER_DATA = {
   discover: {
@@ -67,18 +58,18 @@ const FOOTER_DATA = {
 }
 
 const SOCIAL_LINKS = [
-  { 
-    icon: IconBrandGithub, 
+  {
+    icon: IconBrandGithub,
     href: 'https://github.com/your-org/music-platform',
     label: 'GitHub'
   },
-  { 
-    icon: IconBrandTwitter, 
+  {
+    icon: IconBrandTwitter,
     href: 'https://twitter.com/your-handle',
     label: 'Twitter'
   },
-  { 
-    icon: IconBrandInstagram, 
+  {
+    icon: IconBrandInstagram,
     href: 'https://instagram.com/your-handle',
     label: 'Instagram'
   },
@@ -96,18 +87,18 @@ export function Footer() {
   const theme = useMantineTheme()
 
   return (
-    <Paper 
+    <Paper
       component="footer"
-      py="md"
+      py="xs"
       withBorder
       radius={0}
       h="100%"
-      style={{ 
+      style={{
         display: 'flex',
         alignItems: 'center',
         borderLeft: 0,
         borderRight: 0,
-        borderBottom: 0
+        borderBottom: 0,
       }}
     >
       <Container size="xl" style={{ width: '100%' }}>
