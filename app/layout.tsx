@@ -10,6 +10,7 @@ import {
   AppShellFooter,
   AppShellMain,
   mantineHtmlProps,
+  Container,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dropzone/styles.css";
