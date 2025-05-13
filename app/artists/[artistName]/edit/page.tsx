@@ -14,7 +14,6 @@ export default async function ArtistEditPage({
     const user = await getUser(supabase);
     const artist = await getArtist(supabase);
 
-
     const userIsArtist = user?.id === artist?.user_id;
 
     if (!userIsArtist || !artist) {

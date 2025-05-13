@@ -38,10 +38,10 @@ import {
   IconPhoto,
 
 } from "@tabler/icons-react";
-import { Artist } from "@/utils/supabase/global.types";
+import { ArtistWithLocation } from "@/db/queries/artists";
 
 export interface IArtistFormProps {
-  artist?: Artist
+  artist?: ArtistWithLocation
 }
 
 export function ArtistForm({ artist }: IArtistFormProps) {
@@ -54,6 +54,9 @@ export function ArtistForm({ artist }: IArtistFormProps) {
   const [activeStep, setActiveStep] = useState(0);
 
   const router = useRouter();
+  console.log("Artist:", artist);
+
+  const formattedAddress = artist ? `${artist.locality}, ${artist.administrative_area}, ${artist.country}` : selectedPlace?.formatted_address
 
   const form = useForm({
     initialValues: {
@@ -187,13 +190,13 @@ export function ArtistForm({ artist }: IArtistFormProps) {
                     <Text size="sm" c="dimmed" mb="md">
                       Where are you based? This helps fans find local artists.
                     </Text>
-                    {selectedPlace ? (
+                    {formattedAddress ? (
                       <Pill
                         w="min-content"
                         size="xl" withRemoveButton color="green"
                         onRemove={() => setSelectedPlace(null)}
                       >
-                        {selectedPlace.formatted_address}
+                        {formattedAddress}
                       </Pill>) : (
                       <LocationInput onPlaceSelect={handlePlaceSelect} />
                     )}
