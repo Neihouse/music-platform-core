@@ -73,24 +73,40 @@ export async function getArtistByName(
   supabase: TypedClient,
   artistName: string,
 ) {
+  // First, get the artist's basic info
   const { data: artist, error } = await supabase
     .from("artist_view")
     .select(`*`)
     .ilike("name", artistName)
     .maybeSingle();
 
-  if (!artist && !error) {
-    return null;
-  }
 
   if (error) {
     throw new Error(error.message);
   }
 
+  if (!artist) {
+    return null;
+  }
+
+  // Next, get the artist's tags
+  const { data: tagRelations, error: tagsError } = await supabase
+    .from("artists_tags")
+    .select("tag_id, tags(*)")
+    .eq("artist_id", artist.id || '');
+
+  if (tagsError) {
+    console.error("Error fetching artist tags:", tagsError);
+  }
+
+  // Extract tags from the relations
+  const tags = tagRelations?.map(item => item.tags) || [];
+
   return {
     ...artist,
     tracks:
       (artist?.tracks as Pick<Track, "id" | "title" | "duration">[]) || [],
+    tags: tags,
   };
 }
 
