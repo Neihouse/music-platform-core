@@ -4,8 +4,6 @@ import {
   MantineProvider,
   AppShell,
   ColorSchemeScript,
-  Group,
-  ScrollArea,
   AppShellHeader,
   AppShellFooter,
   AppShellMain,
@@ -19,7 +17,6 @@ import { getUser } from "@/db/queries/users";
 import { Notifications } from "@mantine/notifications";
 import { theme } from "@/lib/theme";
 import { Playback } from "@/components/playback";
-import { Player } from "@/components/playback/Player";
 import { createClient } from "@/utils/supabase/server";
 
 // Metadata needs to be in a separate file for Next.js 14
