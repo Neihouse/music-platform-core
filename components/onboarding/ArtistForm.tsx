@@ -44,17 +44,16 @@ export interface IArtistFormProps {
   artist?: ArtistWithLocation
 }
 
-export function ArtistForm({ artist }: IArtistFormProps) {
+export function ArtistForm({ artist: _artist }: IArtistFormProps) {
   const theme = useMantineTheme();
+  const [artist, setArtist] = useState<ArtistWithLocation | null>(_artist || null);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
 
-  const [createdArtistId, setCreatedArtistId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState(0);
 
   const router = useRouter();
-
 
   const form = useForm({
     initialValues: {
@@ -90,13 +89,14 @@ export function ArtistForm({ artist }: IArtistFormProps) {
       submitArtistBasics();
     } else if (activeStep === 1) {
       // Finish the process
-      if (createdArtistId) {
+      if (artist?.id) {
         router.push(
           `/artists/${encodeURIComponent(form.values.name.toLowerCase())}`
         );
       }
     }
   };
+
 
   return (
     <Container>
@@ -192,7 +192,7 @@ export function ArtistForm({ artist }: IArtistFormProps) {
                       <Pill
                         w="min-content"
                         size="xl" withRemoveButton color="green"
-                        onRemove={() => setSelectedPlace(null)}
+                        onRemove={handleDeleteLocation}
                       >
                         {artist.formattedAddress}
                       </Pill>) : (
@@ -225,7 +225,7 @@ export function ArtistForm({ artist }: IArtistFormProps) {
                         your artist profile page.
                       </Text>
                       <ArtistArtUpload
-                        artistId={createdArtistId || undefined}
+                        artistId={artist?.id}
                       />
                     </Card>
                   </Stack>
@@ -271,10 +271,11 @@ export function ArtistForm({ artist }: IArtistFormProps) {
   async function handleDeleteLocation() {
     setSelectedPlace(null);
     if (artist) {
-      await onDeleteArtistLocation(artist.id);
+      setArtist(await onDeleteArtistLocation(artist.id))
     }
 
   }
+
   async function submitArtistBasics() {
     setLoading(true);
     console.log("Submitting artist basics:", {
@@ -297,7 +298,7 @@ export function ArtistForm({ artist }: IArtistFormProps) {
 
       );
 
-      setCreatedArtistId(artist.id);
+      setArtist(artist);
 
       // Move to next step
       setActiveStep(1);

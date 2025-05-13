@@ -107,7 +107,7 @@ export async function updateArtist(
   artistId: string
 ) {
   console.log("updating artist", artistId);
-  const { data: artist, error } = await supabase
+  const { data, error } = await supabase
     .from("artists")
     .update({
       name,
@@ -118,14 +118,15 @@ export async function updateArtist(
       user_id,
     })
     .eq("id", artistId)
-    .select()
-    .single();
+
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return artist;
+
+
+  return await getArtist(supabase);
 }
 
 export async function deleteArtistLocation(
