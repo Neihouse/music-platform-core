@@ -9,3 +9,4 @@ export type Locality = Public["localities"]["Row"];
 export type AdministrativeArea = Public["administrative_areas"]["Row"];
 export type Country = Public["countries"]["Row"];
 export type Promoter = Public["promoters"]["Row"];
+export type Tag = Public["tags"]["Row"];
