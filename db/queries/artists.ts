@@ -36,6 +36,7 @@ export type ArtistWithLocation = Artist & {
   locality?: string;
   administrative_area?: string | null;
   country?: string | null;
+  formattedAddress?: string;
 };
 
 export async function getArtist(supabase: TypedClient) {
@@ -58,12 +59,14 @@ export async function getArtist(supabase: TypedClient) {
     throw new Error(error?.message || "Artist not found");
   }
 
+  const formattedAddress = !!artist?.localities?.name ? `${artist?.localities?.name}, ${artist?.administrative_areas?.name}, ${artist?.countries?.name}` : undefined
   return {
     ...artist,
     locality: artist?.localities?.name,
     administrative_area: artist?.administrative_areas?.name,
     country: artist?.countries?.name,
-  }
+    formattedAddress: formattedAddress,
+  } as ArtistWithLocation;
 }
 
 export async function getArtistByName(

@@ -56,7 +56,6 @@ export function ArtistForm({ artist }: IArtistFormProps) {
   const router = useRouter();
   console.log("Artist:", artist);
 
-  const formattedAddress = artist ? `${artist.locality}, ${artist.administrative_area}, ${artist.country}` : selectedPlace?.formatted_address
 
   const form = useForm({
     initialValues: {
@@ -190,13 +189,13 @@ export function ArtistForm({ artist }: IArtistFormProps) {
                     <Text size="sm" c="dimmed" mb="md">
                       Where are you based? This helps fans find local artists.
                     </Text>
-                    {formattedAddress ? (
+                    {artist?.formattedAddress ? (
                       <Pill
                         w="min-content"
                         size="xl" withRemoveButton color="green"
                         onRemove={() => setSelectedPlace(null)}
                       >
-                        {formattedAddress}
+                        {artist.formattedAddress}
                       </Pill>) : (
                       <LocationInput onPlaceSelect={handlePlaceSelect} />
                     )}
