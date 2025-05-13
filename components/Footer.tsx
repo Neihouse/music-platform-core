@@ -4,28 +4,19 @@ import {
   Container,
   Group,
   Text,
-  Stack,
   ActionIcon,
-  rem,
-  Divider,
-  SimpleGrid,
-  Box,
   Paper,
-  useMantineTheme,
-  Anchor,
-  ThemeIcon,
-} from "@mantine/core";
+  useMantineTheme
+} from '@mantine/core'
 import {
   IconBrandGithub,
   IconBrandTwitter,
   IconBrandInstagram,
-  IconHeart,
   IconHeadphones,
   IconMicrophone,
   IconMusic,
-  IconPlaylist,
-} from "@tabler/icons-react";
-import Link from "next/link";
+  IconPlaylist
+} from '@tabler/icons-react'
 
 const FOOTER_DATA = {
   discover: {
@@ -69,18 +60,18 @@ const FOOTER_DATA = {
 const SOCIAL_LINKS = [
   {
     icon: IconBrandGithub,
-    href: "https://github.com/your-org/music-platform",
-    label: "GitHub",
+    href: 'https://github.com/your-org/music-platform',
+    label: 'GitHub'
   },
   {
     icon: IconBrandTwitter,
-    href: "https://twitter.com/your-handle",
-    label: "Twitter",
+    href: 'https://twitter.com/your-handle',
+    label: 'Twitter'
   },
   {
     icon: IconBrandInstagram,
-    href: "https://instagram.com/your-handle",
-    label: "Instagram",
+    href: 'https://instagram.com/your-handle',
+    label: 'Instagram'
   },
 ];
 
@@ -98,13 +89,13 @@ export function Footer() {
   return (
     <Paper
       component="footer"
-      py="md"
+      py="xs"
       withBorder
       radius={0}
       h="100%"
       style={{
-        display: "flex",
-        alignItems: "center",
+        display: 'flex',
+        alignItems: 'center',
         borderLeft: 0,
         borderRight: 0,
         borderBottom: 0,

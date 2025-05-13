@@ -7,10 +7,10 @@ import {
   Group,
   ScrollArea,
   AppShellHeader,
-  AppShellNavbar,
   AppShellFooter,
   AppShellMain,
   mantineHtmlProps,
+  Container,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dropzone/styles.css";
@@ -42,61 +42,25 @@ export default async function RootLayout({
           <Playback>
             <Notifications />
             <AppShell
-              header={{ height: { base: 60, md: 70 } }}
-              footer={{ height: 60 }}
-              padding={{ base: "md", md: "lg" }}
-              navbar={{
-                width: { base: 0, md: 250 },
-                breakpoint: "md",
-                collapsed: { desktop: true },
-              }}
-              // styles={(theme) => ({
-              //   footer: {
-              //     background: theme.colors.dark[8],
-              //   },
-              // })}
+              header={{ height: 60 }}
+              footer={{ height: 50 }}
+              padding="0"
+
             >
               <AppShellHeader>
-                <Group h="100%" px="md" justify="space-between">
-                  <Group>
-                    {/* {isMobile && (
-                    <Burger
-                      opened={opened}
-                      onClick={toggle}
-                      hiddenFrom="md"
-                      size="sm"
-                    />
-                  )} */}
-                    <Header user={user} />
-                  </Group>
-                </Group>
+                <Header user={userResponse.data.user} />
               </AppShellHeader>
 
-              <AppShellNavbar py="md" px={4}>
-                <ScrollArea h="100%" type="hover">
-                  {/* <NavLinks /> */}
-                </ScrollArea>
-              </AppShellNavbar>
-
-              <AppShellMain>{children}</AppShellMain>
+              <AppShellMain>
+                <Container size={1200} px="1rem" py="1.5rem">
+                  {children}
+                </Container>
+              </AppShellMain>
 
               <AppShellFooter>
                 <Footer />
               </AppShellFooter>
             </AppShell>
-
-            {/* {isMobile && (
-            <Drawer
-              opened={opened}
-              onClose={close}
-              size="100%"
-              padding="md"
-              hiddenFrom="md"
-              zIndex={1000}
-            >
-              <NavLinks onLinkClick={close} />
-            </Drawer>
-          )} */}
           </Playback>
         </MantineProvider>
       </body>
