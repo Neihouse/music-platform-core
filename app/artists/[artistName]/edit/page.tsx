@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 export default async function ArtistEditPage({
     params,
 }: {
-    params: { artistName: string };
+    params: Promise<{ artistName: string }>;
 }) {
     const supabase = await createClient();
     const user = await getUser(supabase);
