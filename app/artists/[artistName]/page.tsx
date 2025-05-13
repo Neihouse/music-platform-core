@@ -16,8 +16,10 @@ import {
   Text,
   Image,
   Center,
+  Button,
 } from "@mantine/core";
 import { IconEdit } from "@tabler/icons-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export default async function ArtistPage({
@@ -91,7 +93,7 @@ export default async function ArtistPage({
               <div>
                 <Group>
                   <Title style={{ color: "white" }}>{name}</Title>
-                  {userIsArtist && <IconEdit />}
+                  {userIsArtist && <Button component={Link} href={`/artists/${name}/edit`}><IconEdit size={16} /></Button>}
                 </Group>
                 <Group gap="sm">
                   {["house", "rock"].map((genre) => (

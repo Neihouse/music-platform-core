@@ -114,7 +114,7 @@ export function ArtistForm({ artist }: IArtistFormProps) {
               ta="center"
               style={{ color: theme.colors.blue[7] }}
             >
-              Create Your Artist Profile
+              {!!artist ? "Edit" : "Create"} Your Artist Profile
             </Title>
             <Text c="dimmed" size="sm" ta="center" maw={600}>
               Complete your artist profile to start sharing your music with fans
