@@ -29,7 +29,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
 import { ArtistArtUpload } from "../ArtistArtUpload/index";
-import { submitArtist } from "@/app/artists/create/actions";
+import { onDeleteArtistLocation, submitArtist } from "@/app/artists/[artistName]/actions";
 import {
   IconCheck,
   IconMusic,
@@ -54,7 +54,6 @@ export function ArtistForm({ artist }: IArtistFormProps) {
   const [activeStep, setActiveStep] = useState(0);
 
   const router = useRouter();
-  console.log("Artist:", artist);
 
 
   const form = useForm({
@@ -269,6 +268,13 @@ export function ArtistForm({ artist }: IArtistFormProps) {
     </Container>
   );
 
+  async function handleDeleteLocation() {
+    setSelectedPlace(null);
+    if (artist) {
+      await onDeleteArtistLocation(artist.id);
+    }
+
+  }
   async function submitArtistBasics() {
     setLoading(true);
     console.log("Submitting artist basics:", {
