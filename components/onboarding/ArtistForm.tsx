@@ -16,12 +16,12 @@ import {
   GridCol,
   Box,
   Card,
-  rem,
-  Image,
   Flex,
   useMantineTheme,
   Stepper,
   Center,
+  em,
+  Pill,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
@@ -29,34 +29,36 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
 import { ArtistArtUpload } from "../ArtistArtUpload/index";
-import { createArtist } from "@/app/artists/create/actions";
+import { onDeleteArtistLocation, submitArtist } from "@/app/artists/[artistName]/actions";
 import {
   IconCheck,
   IconMusic,
   IconInfoCircle,
   IconArrowRight,
   IconPhoto,
-  IconUpload,
+
 } from "@tabler/icons-react";
+import { ArtistWithLocation } from "@/db/queries/artists";
 
-export interface IArtistFormProps {}
+export interface IArtistFormProps {
+  artist?: ArtistWithLocation
+}
 
-export function ArtistForm(props: IArtistFormProps) {
+export function ArtistForm({ artist: _artist }: IArtistFormProps) {
   const theme = useMantineTheme();
+  const [artist, setArtist] = useState<ArtistWithLocation | null>(_artist || null);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
-  const [bannerImageUrl, setBannerImageUrl] = useState<string>("");
-  const [avatarImageUrl, setAvatarImageUrl] = useState<string>("");
-  const [createdArtistId, setCreatedArtistId] = useState<string | null>(null);
+
   const [activeStep, setActiveStep] = useState(0);
 
   const router = useRouter();
 
   const form = useForm({
     initialValues: {
-      name: "",
-      bio: "",
+      name: artist?.name || "",
+      bio: artist?.bio || "",
     },
     validate: {
       name: (value: string) =>
@@ -67,16 +69,6 @@ export function ArtistForm(props: IArtistFormProps) {
   const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
     setSelectedPlace(place);
     console.log("Selected place:", place);
-  };
-
-  const handleBannerUploaded = (url: string) => {
-    setBannerImageUrl(url);
-    console.log("Banner image uploaded:", url);
-  };
-
-  const handleAvatarUploaded = (url: string) => {
-    setAvatarImageUrl(url);
-    console.log("Avatar image uploaded:", url);
   };
 
   const handleNextStep = () => {
@@ -97,7 +89,7 @@ export function ArtistForm(props: IArtistFormProps) {
       submitArtistBasics();
     } else if (activeStep === 1) {
       // Finish the process
-      if (createdArtistId) {
+      if (artist?.id) {
         router.push(
           `/artists/${encodeURIComponent(form.values.name.toLowerCase())}`
         );
@@ -105,8 +97,9 @@ export function ArtistForm(props: IArtistFormProps) {
     }
   };
 
+
   return (
-    <Container size="lg" py="xl">
+    <Container>
       <Paper shadow="md" p={{ base: "md", sm: "xl" }} radius="md" withBorder>
         <div style={{ position: "relative" }}>
           <LoadingOverlay visible={loading} />
@@ -116,14 +109,13 @@ export function ArtistForm(props: IArtistFormProps) {
             justify="center"
             align="center"
             direction="column"
-            mb="xl"
           >
             <Title
               order={2}
               ta="center"
               style={{ color: theme.colors.blue[7] }}
             >
-              Create Your Artist Profile
+              {!!artist ? "Edit" : "Create"} Your Artist Profile
             </Title>
             <Text c="dimmed" size="sm" ta="center" maw={600}>
               Complete your artist profile to start sharing your music with fans
@@ -196,11 +188,15 @@ export function ArtistForm(props: IArtistFormProps) {
                     <Text size="sm" c="dimmed" mb="md">
                       Where are you based? This helps fans find local artists.
                     </Text>
-                    <LocationInput onPlaceSelect={handlePlaceSelect} />
-                    {selectedPlace && (
-                      <Text size="sm" mt="md" c="dimmed" fw={500}>
-                        Selected: {selectedPlace.formatted_address}
-                      </Text>
+                    {artist?.formattedAddress ? (
+                      <Pill
+                        w="min-content"
+                        size="xl" withRemoveButton color="green"
+                        onRemove={handleDeleteLocation}
+                      >
+                        {artist.formattedAddress}
+                      </Pill>) : (
+                      <LocationInput onPlaceSelect={handlePlaceSelect} />
                     )}
                   </Card>
                 </GridCol>
@@ -229,9 +225,7 @@ export function ArtistForm(props: IArtistFormProps) {
                         your artist profile page.
                       </Text>
                       <ArtistArtUpload
-                        artistId={createdArtistId || undefined}
-                        onBannerUploaded={handleBannerUploaded}
-                        onAvatarUploaded={handleAvatarUploaded}
+                        artistId={artist?.id}
                       />
                     </Card>
                   </Stack>
@@ -249,7 +243,7 @@ export function ArtistForm(props: IArtistFormProps) {
                 disabled={loading}
                 size="lg"
                 radius="md"
-                rightSection={<IconArrowRight size={rem(18)} />}
+                rightSection={<IconArrowRight size={em(18)} />}
                 gradient={{ from: "blue", to: "cyan", deg: 90 }}
                 variant="gradient"
               >
@@ -261,7 +255,7 @@ export function ArtistForm(props: IArtistFormProps) {
                 disabled={loading}
                 size="lg"
                 radius="md"
-                leftSection={<IconCheck size={rem(18)} />}
+                leftSection={<IconCheck size={em(18)} />}
                 gradient={{ from: "green", to: "teal", deg: 90 }}
                 variant="gradient"
               >
@@ -274,6 +268,14 @@ export function ArtistForm(props: IArtistFormProps) {
     </Container>
   );
 
+  async function handleDeleteLocation() {
+    setSelectedPlace(null);
+    if (artist) {
+      setArtist(await onDeleteArtistLocation(artist.id))
+    }
+
+  }
+
   async function submitArtistBasics() {
     setLoading(true);
     console.log("Submitting artist basics:", {
@@ -284,29 +286,19 @@ export function ArtistForm(props: IArtistFormProps) {
 
     try {
       // Extract location information
-      const administrativeArea = selectedPlace?.address_components?.find(
-        (component) => component.types.includes("administrative_area_level_1")
-      )?.long_name;
 
-      const locality = selectedPlace?.address_components?.find((component) =>
-        component.types.includes("locality")
-      )?.long_name;
-
-      if (!administrativeArea || !locality) {
-        throw new Error(
-          "Administrative area and locality are required for location."
-        );
+      if (!selectedPlace?.address_components) {
+        throw new Error("No address components found");
       }
 
-      const artist = await createArtist(
+      const artist = await submitArtist(
         form.values.name,
         form.values.bio,
-        administrativeArea,
-        locality
+        selectedPlace.address_components
+
       );
 
-      console.log("Artist created:", artist);
-      setCreatedArtistId(artist.id);
+      setArtist(artist);
 
       // Move to next step
       setActiveStep(1);

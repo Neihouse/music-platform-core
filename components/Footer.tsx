@@ -20,42 +20,42 @@ import {
 
 const FOOTER_DATA = {
   discover: {
-    title: 'Discover',
+    title: "Discover",
     links: [
-      { label: 'Featured Artists', href: '/artists' },
-      { label: 'New Releases', href: '/new-releases' },
-      { label: 'Popular Tracks', href: '/popular' },
-      { label: 'Genres', href: '/genres' },
+      { label: "Featured Artists", href: "/artists" },
+      { label: "New Releases", href: "/new-releases" },
+      { label: "Popular Tracks", href: "/popular" },
+      { label: "Genres", href: "/genres" },
     ],
   },
   artists: {
-    title: 'For Artists',
+    title: "For Artists",
     links: [
-      { label: 'Upload Music', href: '/upload' },
-      { label: 'Artist Dashboard', href: '/dashboard' },
-      { label: 'Analytics', href: '/analytics' },
-      { label: 'Promotion Tools', href: '/promote' },
+      { label: "Upload Music", href: "/upload" },
+      { label: "Artist Dashboard", href: "/dashboard" },
+      { label: "Analytics", href: "/analytics" },
+      { label: "Promotion Tools", href: "/promote" },
     ],
   },
   fans: {
-    title: 'For Fans',
+    title: "For Fans",
     links: [
-      { label: 'Create Playlist', href: '/playlists/create' },
-      { label: 'My Library', href: '/library' },
-      { label: 'Following', href: '/following' },
-      { label: 'Liked Tracks', href: '/likes' },
+      { label: "Create Playlist", href: "/playlists/create" },
+      { label: "My Library", href: "/library" },
+      { label: "Following", href: "/following" },
+      { label: "Liked Tracks", href: "/likes" },
     ],
   },
   company: {
-    title: 'Company',
+    title: "Company",
     links: [
-      { label: 'About', href: '/about' },
-      { label: 'Contact', href: '/contact' },
-      { label: 'Terms', href: '/terms-of-service' },
-      { label: 'Privacy', href: '/privacy-policy' },
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" },
+      { label: "Terms", href: "/terms-of-service" },
+      { label: "Privacy", href: "/privacy-policy" },
     ],
   },
-}
+};
 
 const SOCIAL_LINKS = [
   {
@@ -73,18 +73,18 @@ const SOCIAL_LINKS = [
     href: 'https://instagram.com/your-handle',
     label: 'Instagram'
   },
-]
+];
 
 const FEATURES = [
-  { icon: IconHeadphones, label: 'High Quality Audio' },
-  { icon: IconMicrophone, label: 'Artist Tools' },
-  { icon: IconMusic, label: 'Unlimited Uploads' },
-  { icon: IconPlaylist, label: 'Smart Playlists' },
-]
+  { icon: IconHeadphones, label: "High Quality Audio" },
+  { icon: IconMicrophone, label: "Artist Tools" },
+  { icon: IconMusic, label: "Unlimited Uploads" },
+  { icon: IconPlaylist, label: "Smart Playlists" },
+];
 
 export function Footer() {
-  const year = new Date().getFullYear()
-  const theme = useMantineTheme()
+  const year = new Date().getFullYear();
+  const theme = useMantineTheme();
 
   return (
     <Paper
@@ -101,7 +101,7 @@ export function Footer() {
         borderBottom: 0,
       }}
     >
-      <Container size="xl" style={{ width: '100%' }}>
+      <Container size="xl" style={{ width: "100%" }}>
         <Group justify="space-between" wrap="nowrap">
           <Text size="sm" c="dimmed">
             © {year} MusicApp. All rights reserved.
@@ -126,5 +126,5 @@ export function Footer() {
         </Group>
       </Container>
     </Paper>
-  )
+  );
 }

@@ -30,7 +30,7 @@ export default async function ProfilePage() {
   const userEntities = await getUserEntities(supabase);
 
   return (
-    <Container size="lg" py="xl">
+    <Container>
       <Title order={1} mb="xl">
         Your Profile
       </Title>
@@ -125,21 +125,13 @@ export default async function ProfilePage() {
                 <Button
                   component={Link}
                   href={`/artists/${encodeURIComponent(
-                    userEntities.artist.name.toLowerCase()
+                    userEntities.artist.name.toLowerCase(),
                   )}`}
                   variant="light"
                   color="blue"
                   rightSection={<IconArrowRight size={14} />}
                 >
                   View Profile
-                </Button>
-                <Button
-                  component={Link}
-                  href="/upload"
-                  variant="outline"
-                  color="blue"
-                >
-                  Upload Track
                 </Button>
               </Group>
             </Card>

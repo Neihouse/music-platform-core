@@ -11,21 +11,32 @@ export type Database = {
     Tables: {
       administrative_areas: {
         Row: {
+          country_id: string
           created_at: string
           id: string
           name: string
         }
         Insert: {
+          country_id: string
           created_at?: string
           id?: string
           name: string
         }
         Update: {
+          country_id?: string
           created_at?: string
           id?: string
           name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "administrative_areas_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       albums: {
         Row: {
@@ -47,43 +58,53 @@ export type Database = {
       }
       artists: {
         Row: {
-          administrative_area: string | null
+          administrative_area_id: string | null
           bio: string
+          country_id: string | null
           created_at: string
           id: string
-          locality: string | null
+          locality_id: string | null
           name: string
           user_id: string
         }
         Insert: {
-          administrative_area?: string | null
+          administrative_area_id?: string | null
           bio?: string
+          country_id?: string | null
           created_at?: string
           id?: string
-          locality?: string | null
+          locality_id?: string | null
           name: string
           user_id?: string
         }
         Update: {
-          administrative_area?: string | null
+          administrative_area_id?: string | null
           bio?: string
+          country_id?: string | null
           created_at?: string
           id?: string
-          locality?: string | null
+          locality_id?: string | null
           name?: string
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "artists_administrative_area_fkey"
-            columns: ["administrative_area"]
+            columns: ["administrative_area_id"]
             isOneToOne: false
             referencedRelation: "administrative_areas"
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "artists_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "artists_locality_fkey"
-            columns: ["locality"]
+            columns: ["locality_id"]
             isOneToOne: false
             referencedRelation: "localities"
             referencedColumns: ["id"]
@@ -114,7 +135,7 @@ export type Database = {
             foreignKeyName: "artists_tags_artist_id_fkey"
             columns: ["artist_id"]
             isOneToOne: false
-            referencedRelation: "artist_with_tracks"
+            referencedRelation: "artist_view"
             referencedColumns: ["id"]
           },
           {
@@ -157,7 +178,7 @@ export type Database = {
             foreignKeyName: "artists_tracks_artist_id_fkey"
             columns: ["artist_id"]
             isOneToOne: false
-            referencedRelation: "artist_with_tracks"
+            referencedRelation: "artist_view"
             referencedColumns: ["id"]
           },
           {
@@ -179,17 +200,17 @@ export type Database = {
       countries: {
         Row: {
           created_at: string
-          id: number
+          id: string
           name: string
         }
         Insert: {
           created_at?: string
-          id?: number
-          name?: string
+          id?: string
+          name: string
         }
         Update: {
           created_at?: string
-          id?: number
+          id?: string
           name?: string
         }
         Relationships: []
@@ -265,18 +286,21 @@ export type Database = {
       localities: {
         Row: {
           administrative_area_id: string
+          country_id: string
           created_at: string
           id: string
           name: string
         }
         Insert: {
           administrative_area_id: string
+          country_id: string
           created_at?: string
           id?: string
           name: string
         }
         Update: {
           administrative_area_id?: string
+          country_id?: string
           created_at?: string
           id?: string
           name?: string
@@ -287,6 +311,13 @@ export type Database = {
             columns: ["administrative_area_id"]
             isOneToOne: false
             referencedRelation: "administrative_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "localities_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
             referencedColumns: ["id"]
           },
         ]
@@ -325,24 +356,55 @@ export type Database = {
       }
       promoters: {
         Row: {
+          administrative_area_id: string
+          country_id: string
           created_at: string
           id: string
+          locality_id: string
           title: string
           user_id: string
         }
         Insert: {
+          administrative_area_id: string
+          country_id: string
           created_at?: string
           id?: string
+          locality_id: string
           title: string
           user_id?: string
         }
         Update: {
+          administrative_area_id?: string
+          country_id?: string
           created_at?: string
           id?: string
+          locality_id?: string
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "promoters_administrative_area_id_fkey"
+            columns: ["administrative_area_id"]
+            isOneToOne: false
+            referencedRelation: "administrative_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promoters_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promoters_locality_id_fkey"
+            columns: ["locality_id"]
+            isOneToOne: false
+            referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       promoters_artists: {
         Row: {
@@ -368,7 +430,7 @@ export type Database = {
             foreignKeyName: "promoters_artists_artist_id_fkey"
             columns: ["artist_id"]
             isOneToOne: false
-            referencedRelation: "artist_with_tracks"
+            referencedRelation: "artist_view"
             referencedColumns: ["id"]
           },
           {
@@ -690,7 +752,7 @@ export type Database = {
       }
     }
     Views: {
-      artist_with_tracks: {
+      artist_view: {
         Row: {
           administrative_area: string | null
           bio: string | null
@@ -699,6 +761,7 @@ export type Database = {
           locality: string | null
           name: string | null
           tracks: Json[] | null
+          user_id: string | null
         }
         Relationships: [
           {

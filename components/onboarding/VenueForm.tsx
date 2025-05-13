@@ -55,8 +55,8 @@ export function VenueForm(props: IVenueFormProps) {
               values.address,
               values.capacity,
               values.contactEmail,
-              values.contactPhone
-            )
+              values.contactPhone,
+            ),
           )}
         >
           <Stack gap="md">
@@ -147,7 +147,7 @@ export function VenueForm(props: IVenueFormProps) {
     address: string,
     capacity: number,
     contactEmail: string,
-    contactPhone: string
+    contactPhone: string,
   ) {
     setLoading(true);
     console.log(
@@ -157,7 +157,7 @@ export function VenueForm(props: IVenueFormProps) {
       address,
       capacity,
       contactEmail,
-      contactPhone
+      contactPhone,
     );
     try {
       const venue = await createVenue(
@@ -166,7 +166,7 @@ export function VenueForm(props: IVenueFormProps) {
         address,
         capacity,
         contactEmail,
-        contactPhone
+        contactPhone,
       );
       console.log("Venue created:", venue);
       router.push("/");

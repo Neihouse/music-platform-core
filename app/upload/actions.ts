@@ -5,7 +5,7 @@ import { IAudioMetadata } from "music-metadata";
 
 export async function handleInsertTrack(
   metadata: IAudioMetadata,
-  size: number
+  size: number,
 ) {
   const supabase = await createClient();
 

@@ -12,14 +12,14 @@ import {
   FileInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { createPromoter } from "@/app/promoters/create/actions";
+import { submitPromoter } from "@/app/promoters/create/actions";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "@/components/LocationInput";
 import { IconUpload } from "@tabler/icons-react";
 
-export interface IPromoterFormProps {}
+export interface IPromoterFormProps { }
 
 export function PromoterForm(props: IPromoterFormProps) {
   const router = useRouter();
@@ -49,8 +49,8 @@ export function PromoterForm(props: IPromoterFormProps) {
               values.companyName,
               values.description,
               values.contactEmail,
-              values.contactPhone
-            )
+              values.contactPhone,
+            ),
           )}
         >
           <Stack gap="md">
@@ -121,7 +121,7 @@ export function PromoterForm(props: IPromoterFormProps) {
     companyName: string,
     description: string,
     contactEmail: string,
-    contactPhone: string
+    contactPhone: string,
   ) {
     setLoading(true);
     console.log(
@@ -129,14 +129,14 @@ export function PromoterForm(props: IPromoterFormProps) {
       companyName,
       description,
       contactEmail,
-      contactPhone
+      contactPhone,
     );
     try {
-      const promoter = await createPromoter(
+      const promoter = await submitPromoter(
         companyName,
         description,
         contactEmail,
-        contactPhone
+        contactPhone,
       );
       console.log("Promoter profile created:", promoter);
       router.push("/dashboard");

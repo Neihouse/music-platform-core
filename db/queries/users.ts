@@ -2,7 +2,20 @@
 import { TypedClient } from "@/utils/supabase/global.types";
 
 export async function getUser(supabase: TypedClient) {
-  return supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  if (error) {
+    throw new Error(`Error fetching user: ${error.message}`);
+  }
+
+  return user;
 }
 
 export async function signOut(supabase: TypedClient) {

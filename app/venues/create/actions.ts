@@ -8,7 +8,7 @@ export async function createVenue(
   address: string,
   capacity: number,
   contactEmail: string,
-  contactPhone: string
+  contactPhone: string,
 ) {
   const supabase = await createClient();
 

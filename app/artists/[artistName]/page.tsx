@@ -1,4 +1,5 @@
 import { getArtistByName } from "@/db/queries/artists";
+import { getUser } from "@/db/queries/users";
 import { formatDuration } from "@/lib/formatting";
 import { createClient } from "@/utils/supabase/server";
 import {
@@ -14,7 +15,11 @@ import {
   Skeleton,
   Text,
   Image,
+  Center,
+  Button,
 } from "@mantine/core";
+import { IconEdit } from "@tabler/icons-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export default async function ArtistPage({
@@ -23,12 +28,16 @@ export default async function ArtistPage({
   params: Promise<{ artistName: string }>;
 }) {
   const { artistName } = await params;
-
-  const artist = await getArtistByName(await createClient(), artistName);
+  const supabase = await createClient();
+  const user = await getUser(supabase);
+  const artist = await getArtistByName(supabase, artistName);
 
   if (!artist) {
     notFound();
   }
+
+  const userIsArtist = user?.id === artist.user_id;
+
   const { name, bio, tracks } = artist;
   return (
     <Container>
@@ -82,7 +91,10 @@ export default async function ArtistPage({
                 radius="xl"
               />
               <div>
-                <Title style={{ color: "white" }}>{name}</Title>
+                <Group>
+                  <Title style={{ color: "white" }}>{name}</Title>
+                  {userIsArtist && <Button component={Link} href={`/artists/${name}/edit`}><IconEdit size={16} /></Button>}
+                </Group>
                 <Group gap="sm">
                   {["house", "rock"].map((genre) => (
                     <Badge key={genre} color="dark">
@@ -92,47 +104,49 @@ export default async function ArtistPage({
                 </Group>
               </div>
             </div>
-            <Group
-              align="center"
-              gap="lg"
-              style={{ position: "relative", zIndex: 1, paddingTop: "150px" }}
-            >
-              <Stack>
-                <Text size="sm" c="dimmed">
-                  {bio || "No bio available."}
-                </Text>
-              </Stack>
-            </Group>
           </div>
-          <Divider my="lg" />
 
           {/* Tracks Section */}
           <Stack gap="md">
-            <Title order={2}>Tracks</Title>
-            {tracks?.map(({ title, duration, id }) => (
-              <Card key={id} withBorder shadow="sm" radius="md">
-                <Group justify="space-between">
-                  <Stack>
-                    <Text fw={500}>{title || "F"}</Text>
-                    <Text size="sm" c="dimmed">
-                      {formatDuration(duration)}
-                    </Text>
-                  </Stack>
-                  {/* <Image
-                    src={"https://via.placeholder.com/100"}
-                    alt={`${track.track_id.title} cover`}
-                    width={100}
-                    height={100}
-                    radius="sm"
-                  /> */}
-                </Group>
-              </Card>
-            ))}
+            {!tracks.length ? (
+              <Center mt={50}>
+                <Text c="dimmed" size="sm">
+                  <em>No tracks yet</em>
+                </Text>
+              </Center>
+            ) : (
+              tracks?.map(({ title, duration, id }) => (
+                <Card key={id} withBorder shadow="sm" radius="md">
+                  <Group justify="space-between">
+                    <Stack>
+                      <Text fw={500}>{title || "F"}</Text>
+                      <Text size="sm" c="dimmed">
+                        {formatDuration(duration)}
+                      </Text>
+                    </Stack>
+                    <Image
+                      src={"https://via.placeholder.com/100"}
+                      alt={`${title} cover`}
+                      width={100}
+                      height={100}
+                      radius="sm"
+                    />
+                  </Group>
+                </Card>
+              ))
+            )}
           </Stack>
         </GridCol>
 
         {/* Upcoming Events Section */}
         <GridCol span={4}>
+          <Title order={3} mb="md">
+            Bio
+          </Title>
+          <Text size="sm" c="dimmed">
+            {bio || "No bio available."}
+          </Text>
+          <Divider my="md" />
           <Title order={3} mb="md">
             Upcoming Events
           </Title>

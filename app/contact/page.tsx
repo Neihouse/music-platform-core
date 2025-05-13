@@ -1,20 +1,20 @@
 "use client";
 
-import { 
-  Container, 
-  Title, 
-  Text, 
+import {
+  Container,
+  Title,
+  Text,
   Stack,
   TextInput,
   Textarea,
   Button,
   Paper,
   Select,
-  Alert
-} from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { IconSend } from '@tabler/icons-react';
-import { useState } from 'react';
+  Alert,
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { IconSend } from "@tabler/icons-react";
+import { useState } from "react";
 
 interface ContactFormValues {
   name: string;
@@ -28,22 +28,26 @@ export default function ContactPage() {
 
   const form = useForm<ContactFormValues>({
     initialValues: {
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
     },
     validate: {
-      name: (value) => value.trim().length < 2 ? 'Name must be at least 2 characters' : null,
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      subject: (value) => !value ? 'Please select a subject' : null,
-      message: (value) => value.trim().length < 10 ? 'Message must be at least 10 characters' : null,
+      name: (value) =>
+        value.trim().length < 2 ? "Name must be at least 2 characters" : null,
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      subject: (value) => (!value ? "Please select a subject" : null),
+      message: (value) =>
+        value.trim().length < 10
+          ? "Message must be at least 10 characters"
+          : null,
     },
   });
 
   const handleSubmit = (values: ContactFormValues) => {
     // Here you would typically send the form data to your backend
-    console.log('Form submitted:', values);
+    console.log("Form submitted:", values);
     setSubmitted(true);
     form.reset();
   };
@@ -52,17 +56,20 @@ export default function ContactPage() {
     <Container size="sm" py="xl">
       <Stack gap="lg">
         <div>
-          <Title order={1} mb="sm">Contact Us</Title>
+          <Title order={1} mb="sm">
+            Contact Us
+          </Title>
           <Text c="dimmed" size="lg">
-            Get in touch with us for any inquiries or support. We&apos;ll get back to you as soon as possible.
+            Get in touch with us for any inquiries or support. We&apos;ll get
+            back to you as soon as possible.
           </Text>
         </div>
 
         {submitted && (
-          <Alert 
-            title="Message Sent" 
-            color="green" 
-            variant="filled" 
+          <Alert
+            title="Message Sent"
+            color="green"
+            variant="filled"
             mb="md"
             onClose={() => setSubmitted(false)}
             withCloseButton
@@ -78,14 +85,14 @@ export default function ContactPage() {
                 label="Name"
                 placeholder="Your name"
                 required
-                {...form.getInputProps('name')}
+                {...form.getInputProps("name")}
               />
 
               <TextInput
                 label="Email"
                 placeholder="your@email.com"
                 required
-                {...form.getInputProps('email')}
+                {...form.getInputProps("email")}
               />
 
               <Select
@@ -93,12 +100,12 @@ export default function ContactPage() {
                 placeholder="Select a subject"
                 required
                 data={[
-                  { value: 'general', label: 'General Inquiry' },
-                  { value: 'support', label: 'Technical Support' },
-                  { value: 'feedback', label: 'Feedback' },
-                  { value: 'business', label: 'Business Inquiry' },
+                  { value: "general", label: "General Inquiry" },
+                  { value: "support", label: "Technical Support" },
+                  { value: "feedback", label: "Feedback" },
+                  { value: "business", label: "Business Inquiry" },
                 ]}
-                {...form.getInputProps('subject')}
+                {...form.getInputProps("subject")}
               />
 
               <Textarea
@@ -107,10 +114,10 @@ export default function ContactPage() {
                 required
                 minRows={4}
                 autosize
-                {...form.getInputProps('message')}
+                {...form.getInputProps("message")}
               />
 
-              <Button 
+              <Button
                 type="submit"
                 leftSection={<IconSend size={16} />}
                 mt="md"

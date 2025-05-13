@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Music Platform MVP",
@@ -16,5 +16,5 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Music Platform MVP",
     description: "Connect artists and fans through music",
-  }
-}; 
+  },
+};

@@ -30,7 +30,7 @@ export async function login({ email, password }: LoginData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/profile");
 }
 
 export async function signup({ email, password, name }: SignupData) {

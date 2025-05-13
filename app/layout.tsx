@@ -30,7 +30,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const userResponse = await getUser(await createClient());
+  const user = await getUser(await createClient());
 
   return (
     <html lang="en" {...mantineHtmlProps}>
@@ -48,7 +48,7 @@ export default async function RootLayout({
 
             >
               <AppShellHeader>
-                <Header user={userResponse.data.user} />
+                <Header user={user} />
               </AppShellHeader>
 
               <AppShellMain>

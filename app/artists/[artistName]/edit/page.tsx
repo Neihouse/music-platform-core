@@ -1,18 +1,29 @@
-import { getArtist } from "@/db/queries/artists";
+import { ArtistForm } from "@/components/onboarding/ArtistForm";
+import { getArtist, getArtistByName } from "@/db/queries/artists";
+import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
-import * as React from "react";
+import { redirect } from "next/navigation";
 
-export interface IArtistEditPageProps {
-  params: Promise<{ artistName: string }>;
-}
 
-export default async function ArtistEditPage({ params }: IArtistEditPageProps) {
-  const { artistName } = await params;
-  const supabase = await createClient();
-  const artist = await getArtist(supabase);
+export default async function ArtistEditPage({
+    params,
+}: {
+    params: Promise<{ artistName: string }>;
+}) {
+    const supabase = await createClient();
+    const user = await getUser(supabase);
+    const artist = await getArtist(supabase);
 
-  console.log("artist", artist);
-  console.log("artistName", artistName);
+    const userIsArtist = user?.id === artist?.user_id;
 
-  return <div>artist edit page</div>;
+    if (!userIsArtist || !artist) {
+        redirect("/artists");
+    }
+
+    return (
+        <div>
+            <h1>Edit Artist</h1>
+            <ArtistForm artist={artist} />
+        </div>
+    );
 }

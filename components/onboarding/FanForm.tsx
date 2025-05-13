@@ -38,7 +38,7 @@ export function FanForm(props: IFanFormProps) {
       <Paper p="lg" radius="md" shadow="sm">
         <form
           onSubmit={form.onSubmit((values) =>
-            submitFan(values.displayName, values.preferredGenres)
+            submitFan(values.displayName, values.preferredGenres),
           )}
         >
           <Stack gap="md">
