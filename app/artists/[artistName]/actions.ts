@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { submitPlace } from "@/components/LocationInput/actions";
-import { createArtist, getArtist, updateArtist } from "@/db/queries/artists";
+import { createArtist, deleteArtistLocation, getArtist, updateArtist } from "@/db/queries/artists";
 
 export async function submitArtist(
   name: string,
@@ -44,7 +44,7 @@ export async function submitArtist(
     return updatedArtist;
   }
 
-  const artist = await createArtist(supabase,
+  return await createArtist(supabase,
     {
       name,
       bio,
@@ -55,5 +55,22 @@ export async function submitArtist(
     },
   )
 
-  return artist;
+}
+
+
+export async function onDeleteArtistLocation(artistId: string) {
+  const supabase = await createClient();
+
+  const { data: user } = await supabase.auth.getUser();
+
+  if (!user || !user.user) {
+    throw new Error("User not authenticated");
+  }
+
+  if (!artistId) {
+    throw new Error("Artist ID is required");
+  }
+
+  return await deleteArtistLocation(supabase, artistId);
+
 }
