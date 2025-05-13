@@ -128,4 +128,26 @@ export async function updateArtist(
   return artist;
 }
 
+export async function deleteArtistLocation(
+  supabase: TypedClient,
+  artistId: string
+) {
+  const { data: artist, error } = await supabase
+    .from("artists")
+    .update({
+      locality_id: null,
+      administrative_area_id: null,
+      country_id: null,
+    })
+    .eq("id", artistId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return artist;
+}
+
 
