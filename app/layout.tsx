@@ -48,7 +48,7 @@ export default async function RootLayout({
 
             >
               <AppShellHeader>
-                <Header user={userResponse.data.user} />
+                <Header user={user} />
               </AppShellHeader>
 
               <AppShellMain>
