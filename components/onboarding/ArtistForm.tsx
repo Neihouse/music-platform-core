@@ -25,7 +25,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
 import { ArtistArtUpload } from "../ArtistArtUpload/index";
@@ -58,7 +58,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
   const [loadingTags, setLoadingTags] = useState<boolean>(false);
 
   const [activeStep, setActiveStep] = useState(0);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const router = useRouter();
 
