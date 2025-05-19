@@ -9,7 +9,6 @@ import {
 	Group,
 	Stack,
 	Title,
-	Badge,
 	Divider,
 	Card,
 	Skeleton,
@@ -151,30 +150,6 @@ export default async function ArtistPage({
 					</Text>
 					<Divider my="md" />
 
-					<Title order={3} mb="md">
-						Genres & Tags
-					</Title>
-					<TagDisplay
-						tags={artist.tags || []}
-						color="blue"
-						size="lg"
-						variant="light"
-						emptyMessage="No genres or tags available."
-						radius="md"
-					/>
-
-					{artist.tags && artist.tags.length > 0 && userIsArtist && (
-						<Button
-							component={Link}
-							href={`/artists/${artist.name}/edit`}
-							variant="subtle"
-							size="xs"
-							mt="xs"
-							leftSection={<IconEdit size={14} />}
-						>
-							Edit tags
-						</Button>
-					)}
 
 					<Divider my="md" />
 					<Title order={3} mb="md">
