@@ -23,9 +23,9 @@ export async function createTag(
 
 export async function addTagToEntity(
     supabase: TypedClient,
+    entityType: "artist" | "track" | "promoter",
     tag: string,
     entityId: string,
-    entityType: "artist" | "track" | "promoter",
 ) {
 
     try {
@@ -52,9 +52,9 @@ export async function addTagToEntity(
 
 export async function removeTagFromEntity(
     supabase: TypedClient,
+    entityType: "artist" | "track" | "promoter",
     tag: string,
     entityId: string,
-    entityType: "artist" | "track" | "promoter",
 ) {
     const { error } = await supabase
         .from(`${entityType}s_tags`)
@@ -67,4 +67,21 @@ export async function removeTagFromEntity(
     }
 
     return true;
+}
+
+export async function getTagsForEntity(
+    supabase: TypedClient,
+    entityId: string,
+    entityType: "artist" | "track" | "promoter",
+): Promise<string[]> {
+    const { data, error } = await supabase
+        .from(`${entityType}s_tags`)
+        .select('tag')
+        .eq(`${entityType}_id`, entityId);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data.map(item => item.tag);
 }
