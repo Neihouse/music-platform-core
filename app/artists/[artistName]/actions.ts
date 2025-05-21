@@ -1,13 +1,13 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { submitPlace } from "@/components/LocationInput/actions";
 import { createArtist, deleteArtistLocation, getArtist, updateArtist } from "@/db/queries/artists";
+import { StoredLocality } from "@/utils/supabase/global.types";
 
 export async function submitArtist(
   name: string,
   bio: string,
-  addressComponents: google.maps.GeocoderAddressComponent[],
+  { locality, country, administrativeArea }: StoredLocality,
 ) {
   const supabase = await createClient();
 
@@ -21,10 +21,7 @@ export async function submitArtist(
     throw new Error("Name is required");
   }
 
-  const { locality, administrativeArea, country } = await submitPlace(
-    supabase,
-    addressComponents,
-  );
+
 
   const existingArtist = await getArtist(supabase);
 

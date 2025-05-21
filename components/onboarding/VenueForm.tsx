@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { LocationInput } from "@/components/LocationInput";
 import { IconUpload } from "@tabler/icons-react";
 
-export interface IVenueFormProps {}
+export interface IVenueFormProps { }
 
 export function VenueForm(props: IVenueFormProps) {
   const router = useRouter();
@@ -94,7 +94,6 @@ export function VenueForm(props: IVenueFormProps) {
               <Title order={4} mb="sm">
                 Location
               </Title>
-              <LocationInput />
 
               <NumberInput
                 label="Capacity"

@@ -3,11 +3,12 @@
 import { submitPlace } from "@/components/LocationInput/actions";
 import { createPromoter } from "@/db/queries/promoters";
 import { TablesInsert } from "@/utils/supabase/database.types";
+import { StoredLocality } from "@/utils/supabase/global.types";
 import { createClient } from "@/utils/supabase/server";
 
 export async function submitPromoter(
   promoter: Omit<TablesInsert<"promoters">, "administrative_area_id" | "locality_id">,
-  addressComponents: google.maps.GeocoderAddressComponent[],
+  storedLocality: StoredLocality
 ) {
   const supabase = await createClient();
 
@@ -17,9 +18,7 @@ export async function submitPromoter(
     throw new Error("User not authenticated");
   }
 
-  const { locality, administrativeArea, country } = await submitPlace(
-    supabase,
-    addressComponents)
+
 
 
   const newPromoter = await createPromoter(
@@ -27,9 +26,9 @@ export async function submitPromoter(
     {
       ...promoter,
       user_id: user.user.id,
-      locality_id: locality.id,
-      administrative_area_id: administrativeArea.id,
-      country_id: country.id,
+      locality_id: storedLocality.locality.id,
+      administrative_area_id: storedLocality.administrativeArea.id,
+      country_id: storedLocality.country.id,
     })
 
   return newPromoter;

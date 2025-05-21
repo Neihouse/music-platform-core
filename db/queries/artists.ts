@@ -1,5 +1,5 @@
 "use server";
-import { Artist, Track, TypedClient } from "@/utils/supabase/global.types";
+import { Artist, StoredLocality, Track, TypedClient } from "@/utils/supabase/global.types";
 import { Database } from "@/utils/supabase/database.types";
 
 export async function createArtist(
@@ -33,13 +33,10 @@ export async function createArtist(
 }
 
 export type ArtistWithLocation = Artist & {
-  locality?: string;
-  administrative_area?: string | null;
-  country?: string | null;
-  formattedAddress?: string;
+  storedLocality?: StoredLocality;
 };
 
-export async function getArtist(supabase: TypedClient) {
+export async function getArtist(supabase: TypedClient): Promise<ArtistWithLocation | null> {
   const { data: user } = await supabase.auth.getUser();
   if (!user || !user.user) {
     throw new Error("User not authenticated");
@@ -47,7 +44,7 @@ export async function getArtist(supabase: TypedClient) {
 
   const { data: artist, error } = await supabase
     .from("artists")
-    .select("*, localities (name), administrative_areas(name), countries(name)")
+    .select("*, localities (*), administrative_areas(*), countries(*)")
     .eq("user_id", user.user.id)
     .maybeSingle();
 
@@ -59,13 +56,19 @@ export async function getArtist(supabase: TypedClient) {
     throw new Error(error?.message || "Artist not found");
   }
 
-  const formattedAddress = !!artist?.localities?.name ? `${artist?.localities?.name}, ${artist?.administrative_areas?.name}, ${artist?.countries?.name}` : undefined
+  let storedLocality: StoredLocality | undefined = undefined;
+
+  if (artist?.administrative_areas && artist?.localities && artist?.countries) {
+    storedLocality = {
+      locality: artist?.localities!,
+      administrativeArea: artist?.administrative_areas!,
+      country: artist?.countries!,
+    }
+  }
+
   return {
     ...artist,
-    locality: artist?.localities?.name,
-    administrative_area: artist?.administrative_areas?.name,
-    country: artist?.countries?.name,
-    formattedAddress: formattedAddress,
+    storedLocality,
   } as ArtistWithLocation;
 }
 
