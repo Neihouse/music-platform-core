@@ -12,7 +12,6 @@ import {
   FileInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { submitPromoter } from "@/app/promoters/create/actions";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -105,7 +104,7 @@ export function PromoterForm(props: IPromoterFormProps) {
               <Title order={4} mb="sm">
                 Operating Location
               </Title>
-              <LocationInput />
+
             </Container>
 
             <Button disabled={loading} type="submit" mt="md">
