@@ -1,6 +1,7 @@
 "use server";
 import { Artist, Track, TypedClient } from "@/utils/supabase/global.types";
 import { Database } from "@/utils/supabase/database.types";
+import { getTagsForEntity } from "./tags";
 
 export async function createArtist(
   supabase: TypedClient,
@@ -85,28 +86,22 @@ export async function getArtistByName(
     throw new Error(error.message);
   }
 
-  if (!artist) {
+  if (!artist?.id) {
     return null;
   }
 
-  // Next, get the artist's tags
-  const { data: tagRelations, error: tagsError } = await supabase
-    .from("artists_tags")
-    .select("tag_id, tags(*)")
-    .eq("artist_id", artist.id || '');
 
-  if (tagsError) {
-    console.error("Error fetching artist tags:", tagsError);
-  }
-
-  // Extract tags from the relations
-  const tags = tagRelations?.map(item => item.tags) || [];
+  const tags = await getTagsForEntity(
+    supabase,
+    "artist",
+    artist.id,
+  );
 
   return {
     ...artist,
     tracks:
       (artist?.tracks as Pick<Track, "id" | "title" | "duration">[]) || [],
-    tags: tags,
+    tags: tags || [],
   };
 }
 
