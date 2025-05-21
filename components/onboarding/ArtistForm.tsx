@@ -39,10 +39,7 @@ import {
   IconTag,
 } from "@tabler/icons-react";
 import { ArtistWithLocation } from "@/db/queries/artists";
-import TagGrid from "../Tags/TagGrid";
-import { addTagToEntity, getTagsForEntity, removeTagFromEntity } from "@/db/queries/tags";
 import { Tag } from "@/utils/supabase/global.types";
-import { createClient } from "@/utils/supabase/client";
 
 export interface IArtistFormProps {
   artist?: ArtistWithLocation
@@ -54,38 +51,31 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] =
     useState<google.maps.places.PlaceResult | null>(null);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [loadingTags, setLoadingTags] = useState<boolean>(false);
+  const [tags, setTags] = useState<string[]>([]);
 
   const [activeStep, setActiveStep] = useState(0);
-  const supabase = useMemo(() => createClient(), []);
 
   const router = useRouter();
 
-  // Fetch tags when artist is set
-  useEffect(() => {
-    if (artist?.id) {
-      fetchArtistTags(artist.id);
-    }
-  }, [artist?.id]);
+
 
   // Function to fetch tags for an artist
-  const fetchArtistTags = async (artistId: string) => {
-    setLoadingTags(true);
-    try {
-      const artistTags = await getTagsForEntity(supabase, 'artists', artistId);
-      setTags(artistTags);
-    } catch (error) {
-      console.error("Error fetching artist tags:", error);
-      notifications.show({
-        title: "Error",
-        message: "Failed to load artist tags",
-        color: "red",
-      });
-    } finally {
-      setLoadingTags(false);
-    }
-  };
+  // const fetchArtistTags = async (artistId: string) => {
+  //   setLoadingTags(true);
+  //   try {
+  //     const artistTags = await getTagsForEntity(supabase, artistId, "artist");
+  //     setTags(artistTags);
+  //   } catch (error) {
+  //     console.error("Error fetching artist tags:", error);
+  //     notifications.show({
+  //       title: "Error",
+  //       message: "Failed to load artist tags",
+  //       color: "red",
+  //     });
+  //   } finally {
+  //     setLoadingTags(false);
+  //   }
+  // };
 
   // Handle tag selection
   const handleTagSelected = async (tag: Tag) => {
@@ -93,8 +83,10 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
 
     try {
       setLoadingTags(true);
-      await addTagToEntity(supabase, 'artists', artist.id, tag.id);
-      setTags((prevTags) => [...prevTags, tag]);
+
+      await addTagToEntity(supabase, "artist", artist.id, tag.name);
+      setTags((prevTags) => [...prevTags, tag.name]);
+
       notifications.show({
         title: "Success",
         message: `Added tag: ${tag.name}`,
@@ -118,8 +110,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
 
     try {
       setLoadingTags(true);
-      await removeTagFromEntity(supabase, 'artists', artist.id, tag.id);
-      setTags((prevTags) => prevTags.filter((t) => t.id !== tag.id));
+      setTags((prevTags) => prevTags.filter((t) => t !== tag.name));
       notifications.show({
         title: "Success",
         message: `Removed tag: ${tag.name}`,
@@ -419,7 +410,6 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
     });
 
     try {
-      // Extract location information
 
       if (!selectedPlace?.address_components) {
         throw new Error("No address components found");
