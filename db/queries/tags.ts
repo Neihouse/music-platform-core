@@ -1,3 +1,4 @@
+"use server";
 import { TypedClient } from "@/utils/supabase/global.types";
 
 export async function createTag(
@@ -44,6 +45,7 @@ export async function addTagToEntity(
         .single();
 
     if (error) {
+        console.log("Error adding tag to entity", error);
         throw new Error(error.message);
     }
 
@@ -71,12 +73,12 @@ export async function removeTagFromEntity(
 
 export async function getTagsForEntity(
     supabase: TypedClient,
-    entityId: string,
     entityType: "artist" | "track" | "promoter",
+    entityId: string,
 ): Promise<string[]> {
     const { data, error } = await supabase
         .from(`${entityType}s_tags`)
-        .select('tag')
+        .select('*')
         .eq(`${entityType}_id`, entityId);
 
     if (error) {
@@ -84,4 +86,21 @@ export async function getTagsForEntity(
     }
 
     return data.map(item => item.tag);
+}
+
+
+export async function searchTags(
+    supabase: TypedClient,
+    query: string
+) {
+    const { data, error } = await supabase
+        .from("tags")
+        .select("*")
+        .ilike("name", `%${query}%`);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
 }
