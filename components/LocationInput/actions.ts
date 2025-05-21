@@ -3,12 +3,12 @@
 import { getOrCreateAdministrativeArea } from "@/db/queries/administrative_areas";
 import { getOrCreateCountry } from "@/db/queries/countries";
 import { getOrCreateLocality } from "@/db/queries/localities";
-import { TypedClient } from "@/utils/supabase/global.types";
+import { createClient } from "@/utils/supabase/server";
+import { StoredLocality } from "@/utils/supabase/global.types";
 
 export async function submitPlace(
-  supabase: TypedClient,
   addressComponents: google.maps.GeocoderAddressComponent[],
-) {
+): Promise<StoredLocality> {
   if (!addressComponents) {
     throw new Error("No address components found");
   }
@@ -31,6 +31,9 @@ export async function submitPlace(
       "Administrative area, locality, and country are required for location.",
     );
   }
+
+  const supabase = await createClient();
+
   const countryData = await getOrCreateCountry(supabase, country);
 
   const administrativeAreaData = await getOrCreateAdministrativeArea(
