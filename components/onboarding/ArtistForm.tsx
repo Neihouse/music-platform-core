@@ -21,7 +21,6 @@ import {
   Stepper,
   Center,
   em,
-  Pill,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
@@ -39,6 +38,7 @@ import {
 
 } from "@tabler/icons-react";
 import { ArtistWithLocation } from "@/db/queries/artists";
+import { StoredLocality } from "@/utils/supabase/global.types";
 
 export interface IArtistFormProps {
   artist?: ArtistWithLocation
@@ -49,7 +49,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
   const [artist, setArtist] = useState<ArtistWithLocation | null>(_artist || null);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] =
-    useState<google.maps.places.PlaceResult | null>(null);
+    useState<StoredLocality | undefined>(_artist?.storedLocality || undefined);
 
   const [activeStep, setActiveStep] = useState(0);
 
@@ -66,10 +66,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
     },
   });
 
-  const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
-    setSelectedPlace(place);
-    console.log("Selected place:", place);
-  };
+
 
   const handleNextStep = () => {
     // Validate form for step 1
@@ -188,16 +185,11 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
                     <Text size="sm" c="dimmed" mb="md">
                       Where are you based? This helps fans find local artists.
                     </Text>
-                    {artist?.formattedAddress ? (
-                      <Pill
-                        w="min-content"
-                        size="xl" withRemoveButton color="green"
-                        onRemove={handleDeleteLocation}
-                      >
-                        {artist.formattedAddress}
-                      </Pill>) : (
-                      <LocationInput onPlaceSelect={handlePlaceSelect} />
-                    )}
+                    <LocationInput
+                      onPlaceSelect={setSelectedPlace}
+                      onRemovePlace={handleDeleteLocation}
+                      storedLocality={selectedPlace}
+                    />
                   </Card>
                 </GridCol>
               </Grid>
@@ -269,7 +261,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
   );
 
   async function handleDeleteLocation() {
-    setSelectedPlace(null);
+    setSelectedPlace(undefined);
     if (artist) {
       setArtist(await onDeleteArtistLocation(artist.id))
     }
@@ -285,22 +277,19 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
     });
 
     try {
-      // Extract location information
-
-      if (!selectedPlace?.address_components) {
+      if (!selectedPlace) {
         throw new Error("No address components found");
       }
 
-      const artist = await submitArtist(
-        form.values.name,
-        form.values.bio,
-        selectedPlace.address_components
+      setArtist(
+        await submitArtist(
+          form.values.name,
+          form.values.bio,
+          selectedPlace,
+        )
+      )
 
-      );
 
-      setArtist(artist);
-
-      // Move to next step
       setActiveStep(1);
 
       notifications.show({
