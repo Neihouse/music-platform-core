@@ -7,7 +7,7 @@ interface TagDisplayProps {
 	/**
 	 * Array of tag objects to display
 	 */
-	tags: Tag[];
+	tags: string[];
 
 	/**
 	 * Optional color for the badges
@@ -77,13 +77,13 @@ export default function TagDisplay({
 			<Group gap="xs" wrap="wrap">
 				{tags.map((tag) => (
 					<Badge
-						key={tag.id}
+						key={tag}
 						color={color}
 						variant={variant}
 						size={size}
 						radius={radius}
 					>
-						{tag.name}
+						{tag}
 					</Badge>
 				))}
 			</Group>
