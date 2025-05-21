@@ -1,6 +1,7 @@
 "use server";
 import { Artist, StoredLocality, Track, TypedClient } from "@/utils/supabase/global.types";
 import { Database } from "@/utils/supabase/database.types";
+import { getTagsForEntity } from "./tags";
 
 export async function createArtist(
   supabase: TypedClient,
@@ -76,24 +77,34 @@ export async function getArtistByName(
   supabase: TypedClient,
   artistName: string,
 ) {
+  // First, get the artist's basic info
   const { data: artist, error } = await supabase
     .from("artist_view")
     .select(`*`)
     .ilike("name", artistName)
     .maybeSingle();
 
-  if (!artist && !error) {
-    return null;
-  }
 
   if (error) {
     throw new Error(error.message);
   }
 
+  if (!artist?.id) {
+    return null;
+  }
+
+
+  const tags = await getTagsForEntity(
+    supabase,
+    "artist",
+    artist.id,
+  );
+
   return {
     ...artist,
     tracks:
       (artist?.tracks as Pick<Track, "id" | "title" | "duration">[]) || [],
+    tags: tags || [],
   };
 }
 

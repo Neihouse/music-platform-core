@@ -115,20 +115,17 @@ export type Database = {
         Row: {
           artist_id: string
           created_at: string
-          id: string
-          tag_id: string
+          tag: string
         }
         Insert: {
           artist_id: string
           created_at?: string
-          id?: string
-          tag_id: string
+          tag: string
         }
         Update: {
           artist_id?: string
           created_at?: string
-          id?: string
-          tag_id?: string
+          tag?: string
         }
         Relationships: [
           {
@@ -146,11 +143,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "artists_tags_tag_id_fkey"
-            columns: ["tag_id"]
+            foreignKeyName: "artists_tags_tag_fkey"
+            columns: ["tag"]
             isOneToOne: false
             referencedRelation: "tags"
-            referencedColumns: ["id"]
+            referencedColumns: ["name"]
           },
         ]
       }
@@ -361,6 +358,7 @@ export type Database = {
           created_at: string
           id: string
           locality_id: string
+          phone: string | null
           title: string
           user_id: string
         }
@@ -370,6 +368,7 @@ export type Database = {
           created_at?: string
           id?: string
           locality_id: string
+          phone?: string | null
           title: string
           user_id?: string
         }
@@ -379,6 +378,7 @@ export type Database = {
           created_at?: string
           id?: string
           locality_id?: string
+          phone?: string | null
           title?: string
           user_id?: string
         }
@@ -452,21 +452,18 @@ export type Database = {
       promoters_tags: {
         Row: {
           created_at: string
-          id: number
           promoter_id: string
-          tag_id: string
+          tag: string
         }
         Insert: {
           created_at?: string
-          id?: number
           promoter_id: string
-          tag_id: string
+          tag: string
         }
         Update: {
           created_at?: string
-          id?: number
           promoter_id?: string
-          tag_id?: string
+          tag?: string
         }
         Relationships: [
           {
@@ -477,11 +474,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "promoters_tags_tag_id_fkey"
-            columns: ["tag_id"]
+            foreignKeyName: "promoters_tags_tag_fkey"
+            columns: ["tag"]
             isOneToOne: false
             referencedRelation: "tags"
-            referencedColumns: ["id"]
+            referencedColumns: ["name"]
           },
         ]
       }
@@ -524,17 +521,14 @@ export type Database = {
       tags: {
         Row: {
           created_at: string
-          id: string
           name: string
         }
         Insert: {
           created_at?: string
-          id?: string
           name: string
         }
         Update: {
           created_at?: string
-          id?: string
           name?: string
         }
         Relationships: []
@@ -624,29 +618,26 @@ export type Database = {
       tracks_tags: {
         Row: {
           created_at: string
-          id: string
-          tag_id: string
-          track_id: string
+          tag: string
+          track_id: string | null
         }
         Insert: {
           created_at?: string
-          id?: string
-          tag_id: string
-          track_id: string
+          tag: string
+          track_id?: string | null
         }
         Update: {
           created_at?: string
-          id?: string
-          tag_id?: string
-          track_id?: string
+          tag?: string
+          track_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "tracks_tags_tag_id_fkey"
-            columns: ["tag_id"]
-            isOneToOne: false
+            foreignKeyName: "tracks_tags_tag_fkey"
+            columns: ["tag"]
+            isOneToOne: true
             referencedRelation: "tags"
-            referencedColumns: ["id"]
+            referencedColumns: ["name"]
           },
           {
             foreignKeyName: "tracks_tags_track_id_fkey"
@@ -710,42 +701,6 @@ export type Database = {
             columns: ["locality"]
             isOneToOne: false
             referencedRelation: "localities"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      venues_tags: {
-        Row: {
-          created_at: string
-          id: number
-          tag_id: string
-          venue_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          tag_id: string
-          venue_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          tag_id?: string
-          venue_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "venues_tags_tag_id_fkey"
-            columns: ["tag_id"]
-            isOneToOne: false
-            referencedRelation: "tags"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "venues_tags_venue_id_fkey"
-            columns: ["venue_id"]
-            isOneToOne: false
-            referencedRelation: "venues"
             referencedColumns: ["id"]
           },
         ]
