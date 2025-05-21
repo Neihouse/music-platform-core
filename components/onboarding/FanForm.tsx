@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "@/components/LocationInput";
 
-export interface IFanFormProps {}
+export interface IFanFormProps { }
 
 export function FanForm(props: IFanFormProps) {
   const router = useRouter();
@@ -74,7 +74,6 @@ export function FanForm(props: IFanFormProps) {
               <Title order={4} mb="sm">
                 Your Location
               </Title>
-              <LocationInput />
             </Container>
 
             <Button disabled={loading} type="submit" mt="md">
