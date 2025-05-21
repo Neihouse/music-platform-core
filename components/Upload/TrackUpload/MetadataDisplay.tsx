@@ -17,7 +17,8 @@ import {
   IconVolume2,
 } from "@tabler/icons-react";
 import { formatDuration, formatSize } from "@/lib/formatting";
-import { ToggleEditText } from "../ToggleEditText";
+import { ToggleEditText } from "@/components/ToggleEditText";
+
 
 export interface IMetadataDisplayProps {
   fileWithMetadata: FileWithMetadata;
