@@ -4,10 +4,22 @@ import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { IAudioMetadata, parseBlob, parseBuffer } from "music-metadata";
-import { Affix, Button, Group, Space, Stack } from "@mantine/core";
+import {
+	Affix,
+	Button,
+	Card,
+	Group,
+	Space,
+	Stack,
+	Paper,
+	ThemeIcon,
+	Text,
+	Badge
+} from "@mantine/core";
 import { MetadataDisplay } from "./MetadataDisplay";
 import { IconUpload } from "@tabler/icons-react";
 import { handleInsertTrack } from "@/app/upload/actions";
+import { ArtUpload } from "./ArtUpload";
 
 export interface IUploaderProps {
 	bucket: string;
@@ -30,24 +42,65 @@ export function Uploader({ bucket }: IUploaderProps) {
 		<>
 			<Stack>
 				{filesWithMetadata.map((fM, i) => (
-					<MetadataDisplay
-						onDelete={() =>
-							setFilesWithMetadata(filesWithMetadata.filter((f) => f !== fM))
-						}
+					<Card
 						key={fM.file.name + i}
-						fileWithMetadata={fM}
-						onUpdate={(key: string, value: string) =>
-							updateFileMetadata(fM, key, value)
-						}
-					/>
+						withBorder
+						shadow="sm"
+						radius="lg"
+						p="md"
+						style={{
+							backgroundColor: 'var(--mantine-color-body)',
+							borderColor: 'var(--mantine-color-blue-2)',
+							transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+						}}
+						className="hover:shadow-md"
+					>
+						<Group align="flex-start" gap="xl">
+							<ArtUpload />
+							<MetadataDisplay
+								onDelete={() =>
+									setFilesWithMetadata(filesWithMetadata.filter((f) => f !== fM))
+								}
+								fileWithMetadata={fM}
+								onUpdate={(key: string, value: string) =>
+									updateFileMetadata(fM, key, value)
+								}
+							/>
+						</Group>
+					</Card>
 				))}
 			</Stack>
-			<Space my={8} />
-			<Dropzone loading={uploadState === "pending"} onDrop={onDrop}>
-				<Group align="center" justify="center">
-					<IconUpload size={150} />
-				</Group>
-			</Dropzone>
+			<Space my={16} />
+			<Paper shadow="sm" p="xl" withBorder radius="lg" style={{ borderStyle: 'dashed', borderWidth: '2px', borderColor: 'var(--mantine-color-blue-4)' }}>
+				<Dropzone
+					loading={uploadState === "pending"}
+					onDrop={onDrop}
+					style={{
+						border: 'none',
+						backgroundColor: 'transparent',
+						minHeight: '200px',
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'center',
+						alignItems: 'center'
+					}}
+				>
+					<Stack align="center" justify="center" gap="md">
+						<ThemeIcon size={70} radius={35} color="blue" variant="light">
+							<IconUpload size={40} />
+						</ThemeIcon>
+						<Text size="lg" fw={500} ta="center">
+							Drop your audio files here
+						</Text>
+						<Text size="sm" c="dimmed" ta="center">
+							Drag and drop your audio files or click to browse
+						</Text>
+						<Badge variant="light" color="blue" size="lg">
+							MP3, WAV, FLAC, and more
+						</Badge>
+					</Stack>
+				</Dropzone>
+			</Paper>
 			<Affix
 				hidden={!filesWithMetadata.length}
 				position={{ bottom: 100, right: 80 }}
@@ -55,8 +108,15 @@ export function Uploader({ bucket }: IUploaderProps) {
 				<Button
 					disabled={uploadState === "pending"}
 					onClick={() => uploadFiles(filesWithMetadata)}
+					size="lg"
+					radius="xl"
+					leftSection={<IconUpload size={20} />}
+					variant="gradient"
+					gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
+					px={30}
+					style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
 				>
-					Upload
+					Upload Tracks
 				</Button>
 			</Affix>
 		</>
