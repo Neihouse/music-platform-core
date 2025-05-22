@@ -77,16 +77,6 @@ export default function UploadTrackPage() {
 
 					<TrackUpload />
 
-					<Group justify="center" mt="xl">
-						<Button
-							leftSection={<IconUpload size={18} />}
-							size="lg"
-							variant="gradient"
-							gradient={{ from: 'violet.6', to: 'indigo.6', deg: 90 }}
-						>
-							Select Tracks to Upload
-						</Button>
-					</Group>
 				</Box>
 			</Paper>
 		</Container>
