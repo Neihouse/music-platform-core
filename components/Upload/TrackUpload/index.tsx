@@ -1,8 +1,8 @@
 import { Uploader } from "./Uploader";
 
-export interface ITrackUploadProps {}
+export interface ITrackUploadProps { }
 
-export function TrackUpload({}: ITrackUploadProps) {
+export function TrackUpload({ }: ITrackUploadProps) {
   return (
     <div>
       <Uploader bucket="tracks" />
