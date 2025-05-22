@@ -172,7 +172,7 @@ export function Uploader({ bucket }: IUploaderProps) {
 
 		setUploadState("success");
 		notifications.show({
-			message: "Sucessfully uploaded track",
+			message: "Successfully uploaded track",
 			color: "green",
 		});
 
