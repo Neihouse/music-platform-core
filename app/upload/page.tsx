@@ -9,7 +9,6 @@ import {
   Paper,
   Grid,
   GridCol,
-  useMantineTheme,
   ThemeIcon,
   rem,
   Box,
