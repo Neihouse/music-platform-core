@@ -4,15 +4,21 @@ import { ActionIcon, Box, Image, Paper, ThemeIcon, Transition } from "@mantine/c
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { IconPhotoPlus, IconX } from "@tabler/icons-react";
 import { useState } from "react";
+import { useMediaQuery } from "@mantine/hooks";
 
 
 interface IArtUploadProps {
   onFileChange?: (file: FileWithPath | null) => void;
+  isMobile?: boolean;
 }
 
-export function ArtUpload({ onFileChange }: IArtUploadProps = {}) {
+export function ArtUpload({ onFileChange, isMobile: propIsMobile }: IArtUploadProps = {}) {
   const [file, setFile] = useState<FileWithPath | null>(null);
   const [hovered, setHovered] = useState(false);
+  const autoIsMobile = useMediaQuery("(max-width: 48em)");
+  const isMobile = propIsMobile !== undefined ? propIsMobile : autoIsMobile;
+
+  const imageSize = isMobile ? 120 : 140;
 
 
 
@@ -41,12 +47,12 @@ export function ArtUpload({ onFileChange }: IArtUploadProps = {}) {
           <Image
             src={URL.createObjectURL(file)}
             alt="Track Art"
-            width={140}
-            height={140}
+            width={imageSize}
+            height={imageSize}
             radius="md"
             style={{ objectFit: 'cover' }}
           />
-          <Transition mounted={hovered} transition="fade" duration={200}>
+          <Transition mounted={hovered || !!isMobile} transition="fade" duration={200}>
             {(styles) => (
               <Box
                 style={{
@@ -67,11 +73,11 @@ export function ArtUpload({ onFileChange }: IArtUploadProps = {}) {
                   color="red"
                   variant="filled"
                   radius="xl"
-                  size="lg"
+                  size={isMobile ? "md" : "lg"}
                   onClick={() => setFile(null)}
                   aria-label="Remove image"
                 >
-                  <IconX size={18} />
+                  <IconX size={isMobile ? 16 : 18} />
                 </ActionIcon>
               </Box>
             )}
@@ -85,8 +91,8 @@ export function ArtUpload({ onFileChange }: IArtUploadProps = {}) {
         shadow="sm"
         radius="md"
         style={{
-          width: 140,
-          height: 140
+          width: imageSize,
+          height: imageSize
         }}
       >
         <Dropzone
@@ -107,18 +113,18 @@ export function ArtUpload({ onFileChange }: IArtUploadProps = {}) {
           }}
         >
           <Dropzone.Accept>
-            <ThemeIcon color="blue" size={50} radius={25} variant="light">
-              <IconPhotoPlus size={26} />
+            <ThemeIcon color="blue" size={isMobile ? 40 : 50} radius={isMobile ? 20 : 25} variant="light">
+              <IconPhotoPlus size={isMobile ? 22 : 26} />
             </ThemeIcon>
           </Dropzone.Accept>
           <Dropzone.Reject>
-            <ThemeIcon color="red" size={50} radius={25} variant="light">
-              <IconX size={26} />
+            <ThemeIcon color="red" size={isMobile ? 40 : 50} radius={isMobile ? 20 : 25} variant="light">
+              <IconX size={isMobile ? 22 : 26} />
             </ThemeIcon>
           </Dropzone.Reject>
           <Dropzone.Idle>
-            <ThemeIcon color="blue" size={50} radius={25} variant="light">
-              <IconPhotoPlus size={26} />
+            <ThemeIcon color="blue" size={isMobile ? 40 : 50} radius={isMobile ? 20 : 25} variant="light">
+              <IconPhotoPlus size={isMobile ? 22 : 26} />
             </ThemeIcon>
           </Dropzone.Idle>
         </Dropzone>

@@ -22,16 +22,21 @@ import {
 	IconFileMusic
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { useMediaQuery } from "@mantine/hooks";
 
 export default function UploadTrackPage() {
+	const isMobile = useMediaQuery("(max-width: 48em)");
+
 	return (
-		<Container size="lg" py="xl">
-			<Group mb={rem(40)} align="center">
+		<Container size="lg" py={isMobile ? "md" : "xl"}>
+			<Group mb={isMobile ? rem(30) : rem(40)} align="center" wrap="nowrap" style={{ overflow: 'auto' }}>
 				<Button
 					component={Link}
 					href="/upload"
 					variant="subtle"
 					leftSection={<IconArrowLeft size={16} />}
+					size={isMobile ? "sm" : "md"}
+					px={isMobile ? "xs" : "md"}
 				>
 					Back to upload options
 				</Button>
@@ -39,15 +44,15 @@ export default function UploadTrackPage() {
 				<Divider orientation="vertical" />
 
 				<Group gap="xs">
-					<ThemeIcon size="lg" radius="md" color="violet" variant="light">
-						<IconMusic size={18} />
+					<ThemeIcon size={isMobile ? "md" : "lg"} radius="md" color="violet" variant="light">
+						<IconMusic size={isMobile ? 16 : 18} />
 					</ThemeIcon>
-					<Title order={2}>Upload Tracks</Title>
+					<Title order={isMobile ? 3 : 2}>Upload Tracks</Title>
 				</Group>
 			</Group>
 
 			<Paper
-				p="xl"
+				p={isMobile ? "md" : "xl"}
 				radius="md"
 				withBorder
 				style={{
@@ -65,13 +70,13 @@ export default function UploadTrackPage() {
 						zIndex: 0,
 					}}
 				>
-					<ThemeIcon size={220} radius={110} color="violet.4">
-						<IconMusic size={140} stroke={1} />
+					<ThemeIcon size={isMobile ? 180 : 220} radius={isMobile ? 90 : 110} color="violet.4">
+						<IconMusic size={isMobile ? 110 : 140} stroke={1} />
 					</ThemeIcon>
 				</Box>
 
 				<Box style={{ position: 'relative', zIndex: 1 }}>
-					<Text size="lg" mb="xl">
+					<Text size={isMobile ? "md" : "lg"} mb={isMobile ? "md" : "xl"}>
 						Upload individual tracks with custom artwork and metadata.
 					</Text>
 

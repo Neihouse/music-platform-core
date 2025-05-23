@@ -23,6 +23,7 @@ import { ArtUpload } from "./ArtUpload";
 
 export interface IUploaderProps {
 	bucket: string;
+	isMobile?: boolean;
 }
 
 export interface FileWithMetadata {
@@ -30,7 +31,7 @@ export interface FileWithMetadata {
 	file: FileWithPath;
 }
 
-export function Uploader({ bucket }: IUploaderProps) {
+export function Uploader({ bucket, isMobile = false }: IUploaderProps) {
 	const [uploadState, setUploadState] = useState<
 		"initial" | "pending" | "error" | "success"
 	>();
@@ -47,7 +48,7 @@ export function Uploader({ bucket }: IUploaderProps) {
 						withBorder
 						shadow="sm"
 						radius="lg"
-						p="md"
+						p={isMobile ? "xs" : "md"}
 						style={{
 							backgroundColor: 'var(--mantine-color-body)',
 							borderColor: 'var(--mantine-color-blue-2)',
@@ -55,9 +56,10 @@ export function Uploader({ bucket }: IUploaderProps) {
 						}}
 						className="hover:shadow-md"
 					>
-						<Group align="flex-start" gap="xl">
-							<ArtUpload />
+						<Group align="flex-start" gap={isMobile ? "md" : "xl"} wrap={isMobile ? "wrap" : "nowrap"}>
+							<ArtUpload isMobile={isMobile} />
 							<MetadataDisplay
+								isMobile={isMobile}
 								onDelete={() =>
 									setFilesWithMetadata(filesWithMetadata.filter((f) => f !== fM))
 								}
@@ -70,15 +72,15 @@ export function Uploader({ bucket }: IUploaderProps) {
 					</Card>
 				))}
 			</Stack>
-			<Space my={16} />
-			<Paper shadow="sm" p="xl" withBorder radius="lg" style={{ borderStyle: 'dashed', borderWidth: '2px', borderColor: 'var(--mantine-color-blue-4)' }}>
+			<Space my={isMobile ? 12 : 16} />
+			<Paper shadow="sm" p={isMobile ? "md" : "xl"} withBorder radius="lg" style={{ borderStyle: 'dashed', borderWidth: '2px', borderColor: 'var(--mantine-color-blue-4)' }}>
 				<Dropzone
 					loading={uploadState === "pending"}
 					onDrop={onDrop}
 					style={{
 						border: 'none',
 						backgroundColor: 'transparent',
-						minHeight: '200px',
+						minHeight: isMobile ? '150px' : '200px',
 						display: 'flex',
 						flexDirection: 'column',
 						justifyContent: 'center',
@@ -86,16 +88,16 @@ export function Uploader({ bucket }: IUploaderProps) {
 					}}
 				>
 					<Stack align="center" justify="center" gap="md">
-						<ThemeIcon size={70} radius={35} color="blue" variant="light">
-							<IconUpload size={40} />
+						<ThemeIcon size={isMobile ? 50 : 70} radius={isMobile ? 25 : 35} color="blue" variant="light">
+							<IconUpload size={isMobile ? 30 : 40} />
 						</ThemeIcon>
-						<Text size="lg" fw={500} ta="center">
+						<Text size={isMobile ? "md" : "lg"} fw={500} ta="center">
 							Drop your audio files here
 						</Text>
 						<Text size="sm" c="dimmed" ta="center">
 							Drag and drop your audio files or click to browse
 						</Text>
-						<Badge variant="light" color="blue" size="lg">
+						<Badge variant="light" color="blue" size={isMobile ? "md" : "lg"}>
 							MP3, WAV, FLAC, and more
 						</Badge>
 					</Stack>
@@ -103,17 +105,17 @@ export function Uploader({ bucket }: IUploaderProps) {
 			</Paper>
 			<Affix
 				hidden={!filesWithMetadata.length}
-				position={{ bottom: 100, right: 80 }}
+				position={{ bottom: isMobile ? 20 : 100, right: isMobile ? 20 : 80 }}
 			>
 				<Button
 					disabled={uploadState === "pending"}
 					onClick={() => uploadFiles(filesWithMetadata)}
-					size="lg"
+					size={isMobile ? "md" : "lg"}
 					radius="xl"
-					leftSection={<IconUpload size={20} />}
+					leftSection={<IconUpload size={isMobile ? 16 : 20} />}
 					variant="gradient"
 					gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
-					px={30}
+					px={isMobile ? 20 : 30}
 					style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
 				>
 					Upload Tracks

@@ -31,19 +31,21 @@ export interface IMetadataDisplayProps {
   fileWithMetadata: FileWithMetadata;
   onDelete: () => void;
   onUpdate: (key: string, value: string) => void;
+  isMobile?: boolean;
 }
 
 export function MetadataDisplay({
   onDelete,
   onUpdate,
+  isMobile = false,
   fileWithMetadata: {
     metadata: { common, format, quality },
     file,
   },
 }: IMetadataDisplayProps) {
   return (
-    <Box flex={1}>
-      <Group justify="space-between" mb="md">
+    <Box flex={1} w={isMobile ? "100%" : "auto"}>
+      <Group justify="space-between" mb={isMobile ? "xs" : "md"}>
         <ToggleEditText
           variant="title"
           text={common.title || file.name}
@@ -54,15 +56,15 @@ export function MetadataDisplay({
           variant="light"
           radius="xl"
           onClick={onDelete}
-          size="lg"
+          size={isMobile ? "md" : "lg"}
         >
-          <IconTrash size={18} />
+          <IconTrash size={isMobile ? 16 : 18} />
         </ActionIcon>
       </Group>
-      <Divider mb="md" />
+      <Divider mb={isMobile ? "xs" : "md"} />
 
       <Grid>
-        <GridCol span={6}>
+        <GridCol span={isMobile ? 12 : 6}>
           <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
             <Group gap="xs" align="center">
               <IconFileInfo size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
@@ -72,7 +74,7 @@ export function MetadataDisplay({
           </Paper>
         </GridCol>
 
-        <GridCol span={6}>
+        <GridCol span={isMobile ? 12 : 6}>
           <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
             <Group gap="xs" align="center">
               <IconClock size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
@@ -82,7 +84,7 @@ export function MetadataDisplay({
           </Paper>
         </GridCol>
 
-        <GridCol span={6}>
+        <GridCol span={isMobile ? 12 : 6}>
           <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
             <Group gap="xs" align="center">
               <IconCodeDots size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
@@ -92,7 +94,7 @@ export function MetadataDisplay({
           </Paper>
         </GridCol>
 
-        <GridCol span={6}>
+        <GridCol span={isMobile ? 12 : 6}>
           <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
             <Group gap="xs" align="center">
               <IconVolume2 size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
@@ -102,7 +104,7 @@ export function MetadataDisplay({
           </Paper>
         </GridCol>
 
-        <GridCol span={6}>
+        <GridCol span={isMobile ? 12 : 6}>
           <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
             <Group gap="xs" align="center">
               <IconRuler size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
@@ -112,7 +114,7 @@ export function MetadataDisplay({
           </Paper>
         </GridCol>
 
-        <GridCol span={6}>
+        <GridCol span={isMobile ? 12 : 6}>
           <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
             <Group gap="xs" align="center">
               <IconWaveSine size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
