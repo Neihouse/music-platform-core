@@ -105,29 +105,9 @@ export function MetadataDisplay({
         <GridCol span={6}>
           <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
             <Group gap="xs" align="center">
-              <IconWaveSine size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
-              <Text size="sm" fw={500} c="dimmed">Bitrate:</Text>
-              <Badge variant="light" color="blue" radius="sm">{format.bitrate}</Badge>
-            </Group>
-          </Paper>
-        </GridCol>
-
-        <GridCol span={6}>
-          <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
-            <Group gap="xs" align="center">
               <IconRuler size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
               <Text size="sm" fw={500} c="dimmed">Sample Rate:</Text>
               <Badge variant="light" color="blue" radius="sm">{format.sampleRate}</Badge>
-            </Group>
-          </Paper>
-        </GridCol>
-
-        <GridCol span={6}>
-          <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
-            <Group gap="xs" align="center">
-              <IconVolume2 size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
-              <Text size="sm" fw={500} c="dimmed">Channels:</Text>
-              <Badge variant="light" color="blue" radius="sm">{format.numberOfChannels}</Badge>
             </Group>
           </Paper>
         </GridCol>
@@ -142,15 +122,6 @@ export function MetadataDisplay({
           </Paper>
         </GridCol>
 
-        <GridCol span={6}>
-          <Paper p="xs" radius="md" withBorder style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
-            <Group gap="xs" align="center">
-              <IconRuler size={18} stroke={1.5} color="var(--mantine-color-blue-6)" />
-              <Text size="sm" fw={500} c="dimmed">Sample Rate:</Text>
-              <Badge variant="light" color="blue" radius="sm">{format.sampleRate}</Badge>
-            </Group>
-          </Paper>
-        </GridCol>
       </Grid>
 
       {!!quality.warnings.length && (
