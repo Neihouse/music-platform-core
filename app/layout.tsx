@@ -57,7 +57,8 @@ export default async function RootLayout({
                 </Container>
               </AppShellMain>
 
-              <AppShellFooter>
+              <AppShellFooter h={100}>
+                <Player />
                 <Footer />
               </AppShellFooter>
             </AppShell>

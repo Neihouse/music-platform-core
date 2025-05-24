@@ -27,7 +27,7 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
-import { ArtistArtUpload } from "../ArtistArtUpload/index";
+import { ArtistArtUpload } from "../Upload/ArtistArtUpload/index";
 import { onDeleteArtistLocation, submitArtist } from "@/app/artists/[artistName]/actions";
 import {
   IconCheck,
