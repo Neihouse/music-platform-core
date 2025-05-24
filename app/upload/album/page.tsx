@@ -8,7 +8,6 @@ import {
 	Text,
 	Paper,
 	Group,
-	ThemeIcon,
 	Box,
 	rem,
 	Button,
@@ -16,9 +15,7 @@ import {
 } from "@mantine/core";
 import {
 	IconDisc,
-	IconArrowLeft,
-	IconUpload,
-	IconMusic
+	IconArrowLeft
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useMediaQuery } from "@mantine/hooks";
