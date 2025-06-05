@@ -8,6 +8,7 @@ import { EmailAndPasswordInputs } from "../EmailAndPasswordInputs";
 import { validateEmail } from "../validation";
 
 export function Login(props: PaperProps) {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const form = useForm<LoginData>({
     initialValues: {
@@ -59,21 +60,24 @@ export function Login(props: PaperProps) {
             {error}
           </Text>
         )}
-        <SwitchAction action="login" />
+        <SwitchAction loading={loading} action="login" />
       </form>
     </Paper>
   );
 
   async function handleLogin(values: LoginData) {
+    setLoading(true);
     const error = await login(values);
 
     if (error) {
       if (`${error}`.includes("Invalid login credentials")) {
         setError("Invalid email or password");
       }
+      setLoading(false);
       return null;
     }
 
     setError(null);
+    setLoading(false);
   }
 }
