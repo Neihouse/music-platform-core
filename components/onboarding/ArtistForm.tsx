@@ -24,7 +24,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
 import { ArtistArtUpload } from "../Upload/ArtistArtUpload/index";
@@ -35,7 +35,7 @@ import {
   IconInfoCircle,
   IconArrowRight,
   IconPhoto,
-
+  IconTag,
 } from "@tabler/icons-react";
 import { ArtistWithLocation } from "@/db/queries/artists";
 import { StoredLocality } from "@/utils/supabase/global.types";
@@ -55,6 +55,77 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
 
   const router = useRouter();
 
+
+
+  // Function to fetch tags for an artist
+  // const fetchArtistTags = async (artistId: string) => {
+  //   setLoadingTags(true);
+  //   try {
+  //     const artistTags = await getTagsForEntity(supabase, artistId, "artist");
+  //     setTags(artistTags);
+  //   } catch (error) {
+  //     console.error("Error fetching artist tags:", error);
+  //     notifications.show({
+  //       title: "Error",
+  //       message: "Failed to load artist tags",
+  //       color: "red",
+  //     });
+  //   } finally {
+  //     setLoadingTags(false);
+  //   }
+  // };
+
+  // Handle tag selection
+  const handleTagSelected = async (tag: Tag) => {
+    if (!artist?.id) return;
+
+    try {
+      setLoadingTags(true);
+
+      await addTagToEntity(supabase, "artist", artist.id, tag.name);
+      setTags((prevTags) => [...prevTags, tag.name]);
+
+      notifications.show({
+        title: "Success",
+        message: `Added tag: ${tag.name}`,
+        color: "green",
+      });
+    } catch (error) {
+      console.error("Error adding tag:", error);
+      notifications.show({
+        title: "Error",
+        message: `Failed to add tag: ${tag.name}`,
+        color: "red",
+      });
+    } finally {
+      setLoadingTags(false);
+    }
+  };
+
+  // Handle tag removal
+  const handleTagRemove = async (tag: Tag) => {
+    if (!artist?.id) return;
+
+    try {
+      setLoadingTags(true);
+      setTags((prevTags) => prevTags.filter((t) => t !== tag.name));
+      notifications.show({
+        title: "Success",
+        message: `Removed tag: ${tag.name}`,
+        color: "blue",
+      });
+    } catch (error) {
+      console.error("Error removing tag:", error);
+      notifications.show({
+        title: "Error",
+        message: `Failed to remove tag: ${tag.name}`,
+        color: "red",
+      });
+    } finally {
+      setLoadingTags(false);
+    }
+  };
+
   const form = useForm({
     initialValues: {
       name: artist?.name || "",
@@ -73,7 +144,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
     if (activeStep === 0) {
       form.validate();
       if (!form.isValid()) return;
-      if (!selectedPlace) {
+      if (!selectedPlace && !artist?.formattedAddress) {
         notifications.show({
           title: "Location Required",
           message: "Please select a location for your artist profile",
@@ -85,6 +156,9 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
       // Save the artist profile
       submitArtistBasics();
     } else if (activeStep === 1) {
+      // Move to artwork step
+      setActiveStep(2);
+    } else if (activeStep === 2) {
       // Finish the process
       if (artist?.id) {
         router.push(
@@ -196,6 +270,43 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
             </Stepper.Step>
 
             <Stepper.Step
+              label="Genre Tags"
+              description="Add genres and tags"
+              icon={<IconTag size={18} />}
+            >
+              <Center>
+                <Box maw={800} w="100%">
+                  <Stack gap="xl">
+                    <Card withBorder p="md" radius="md" shadow="sm">
+                      <Title
+                        order={4}
+                        mb="lg"
+                        style={{ color: theme.colors.blue[7] }}
+                      >
+                        Artist Genres & Tags
+                      </Title>
+                      <Text size="sm" c="dimmed" mb="xl">
+                        Add genres and tags to help fans discover your music. Tags help categorize your music and make it more discoverable.
+                      </Text>
+                      {artist?.id ? (
+                        <TagGrid
+                          tags={tags}
+                          onTagSelected={handleTagSelected}
+                          onTagRemove={handleTagRemove}
+                          entityType="artists"
+                          label="Genres & Tags"
+                          placeholder="Search or add genres/tags"
+                        />
+                      ) : (
+                        <Text c="dimmed">Save your artist profile first to add tags.</Text>
+                      )}
+                    </Card>
+                  </Stack>
+                </Box>
+              </Center>
+            </Stepper.Step>
+
+            <Stepper.Step
               label="Artist Artwork"
               description="Profile pictures"
               icon={<IconPhoto size={18} />}
@@ -230,6 +341,18 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
 
           <Group justify="center" mt="xl">
             {activeStep === 0 ? (
+              <Button
+                onClick={handleNextStep}
+                disabled={loading}
+                size="lg"
+                radius="md"
+                rightSection={<IconArrowRight size={em(18)} />}
+                gradient={{ from: "blue", to: "cyan", deg: 90 }}
+                variant="gradient"
+              >
+                Continue to Tags
+              </Button>
+            ) : activeStep === 1 ? (
               <Button
                 onClick={handleNextStep}
                 disabled={loading}
@@ -294,7 +417,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
 
       notifications.show({
         title: "Success",
-        message: "Artist profile created! Now you can add your artwork.",
+        message: "Artist profile created! Now you can add genre tags.",
         color: "green",
       });
     } catch (error) {
