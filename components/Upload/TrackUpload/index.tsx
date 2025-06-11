@@ -1,68 +1,102 @@
-"use client";
-import { createClient } from "@/utils/supabase/client";
+import { useMediaQuery } from "@mantine/hooks";
+import { Affix, Badge, Button, Paper, Space, Stack, ThemeIcon, Text } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
-import { notifications } from "@mantine/notifications";
+import { IAudioMetadata, parseBlob } from "music-metadata";
 import { useState } from "react";
-import { IAudioMetadata, parseBlob, parseBuffer } from "music-metadata";
-import { Affix, Button, Group, Space, Stack } from "@mantine/core";
+import { handleInsertTrack } from "@/app/upload/actions";
+import { notifications } from "@mantine/notifications";
 import { MetadataDisplay } from "./MetadataDisplay";
 import { IconUpload } from "@tabler/icons-react";
-import { createTrack } from "@/db/queries/tracks";
-import { handleInsertTrack } from "@/app/upload/actions";
+import { createClient } from "@/utils/supabase/client";
 
-export interface IUploaderProps {
-  bucket: string;
-}
+export interface ITrackUploadProps { }
 
 export interface FileWithMetadata {
   metadata: IAudioMetadata;
   file: FileWithPath;
+  imageFile?: File; // Add imageFile property
 }
 
-export function Uploader({ bucket }: IUploaderProps) {
+export function TrackUpload({ }: ITrackUploadProps) {
+  const isMobile = useMediaQuery("(max-width: 48em)");
   const [uploadState, setUploadState] = useState<
     "initial" | "pending" | "error" | "success"
   >();
   const [filesWithMetadata, setFilesWithMetadata] = useState<
     FileWithMetadata[]
   >([]);
-  console.log(filesWithMetadata);
 
   return (
     <>
       <Stack>
         {filesWithMetadata.map((fM, i) => (
           <MetadataDisplay
+            key={i}
+            isMobile={isMobile}
             onDelete={() =>
               setFilesWithMetadata(filesWithMetadata.filter((f) => f !== fM))
             }
-            key={fM.file.name + i}
             fileWithMetadata={fM}
+            onImageDrop={(files: File[]) => handleImageDrop(fM, files[0])}
             onUpdate={(key: string, value: string) =>
               updateFileMetadata(fM, key, value)
             }
           />
+
         ))}
       </Stack>
-      <Space my={8} />
-      <Dropzone loading={uploadState === "pending"} onDrop={onDrop}>
-        <Group align="center" justify="center">
-          <IconUpload size={150} />
-        </Group>
-      </Dropzone>
+      <Space my={isMobile ? 12 : 16} />
+      <Paper shadow="sm" p={isMobile ? "md" : "xl"} withBorder radius="lg" style={{ borderStyle: 'dashed', borderWidth: '2px', borderColor: 'var(--mantine-color-blue-4)' }}>
+        <Dropzone
+          loading={uploadState === "pending"}
+          onDrop={onDrop}
+          style={{
+            border: 'none',
+            backgroundColor: 'transparent',
+            minHeight: isMobile ? '150px' : '200px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
+          <Stack align="center" justify="center" gap="md">
+            <ThemeIcon size={isMobile ? 50 : 70} radius={isMobile ? 25 : 35} color="blue" variant="light">
+              <IconUpload size={isMobile ? 30 : 40} />
+            </ThemeIcon>
+            <Text size={isMobile ? "md" : "lg"} fw={500} ta="center">
+              Drop your audio files here
+            </Text>
+            <Text size="sm" c="dimmed" ta="center">
+              Drag and drop your audio files or click to browse
+            </Text>
+            <Badge variant="light" color="blue" size={isMobile ? "md" : "lg"}>
+              MP3, WAV, FLAC, and more
+            </Badge>
+          </Stack>
+        </Dropzone>
+      </Paper>
       <Affix
         hidden={!filesWithMetadata.length}
-        position={{ bottom: 100, right: 80 }}
+        position={{ bottom: isMobile ? 20 : 100, right: isMobile ? 20 : 80 }}
       >
         <Button
           disabled={uploadState === "pending"}
           onClick={() => uploadFiles(filesWithMetadata)}
+          size={isMobile ? "md" : "lg"}
+          radius="xl"
+          leftSection={<IconUpload size={isMobile ? 16 : 20} />}
+          variant="gradient"
+          gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
+          px={isMobile ? 20 : 30}
+          style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
         >
-          Upload
+          Upload Tracks
         </Button>
       </Affix>
     </>
   );
+
 
   async function onDrop(files: FileWithPath[]) {
     try {
@@ -82,6 +116,16 @@ export function Uploader({ bucket }: IUploaderProps) {
     }
   }
 
+  function handleImageDrop(fileWithMetadata: FileWithMetadata, imageFile: File) {
+    setFilesWithMetadata((prev) =>
+      prev.map((f) =>
+        f === fileWithMetadata ? { ...f, imageFile } : f
+      )
+    );
+  }
+
+
+  
   async function uploadFiles(filesWithMetadata: FileWithMetadata[]) {
     setUploadState("pending");
     const supabase = await createClient();
@@ -91,33 +135,36 @@ export function Uploader({ bucket }: IUploaderProps) {
         const {
           metadata: { common },
           file: { size, name },
+          imageFile,
         } = file;
         const title = common.title || name;
-
         common.title = title;
-
         const track = await handleInsertTrack(file.metadata, size);
-
         if (!track) throw new Error("No ID to upload to");
-
         const { error } = await supabase.storage
-          .from(bucket)
+          .from("tracks")
           .upload(track.id, file.file);
-
         if (error) {
           throw new Error(error.message);
+        }
+        // Upload image if present
+        if (imageFile) {
+          const { error: imageError } = await supabase.storage
+            .from("images/tracks")
+            .upload(track.id, imageFile);
+          if (imageError) {
+            throw new Error(imageError.message);
+          }
         }
       }
     } catch (error: any) {
       return handleError(error);
     }
-
     setUploadState("success");
     notifications.show({
-      message: "Sucessfully uploaded track",
+      message: "Successfully uploaded track",
       color: "green",
     });
-
     setFilesWithMetadata([]);
   }
 
@@ -154,4 +201,6 @@ export function Uploader({ bucket }: IUploaderProps) {
       color: "red",
     });
   }
+
 }
+

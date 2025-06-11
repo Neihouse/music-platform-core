@@ -3,6 +3,7 @@ import { createTrack } from "@/db/queries/tracks";
 import { createClient } from "@/utils/supabase/server";
 import { IAudioMetadata } from "music-metadata";
 
+
 export async function handleInsertTrack(
   metadata: IAudioMetadata,
   size: number,
@@ -11,3 +12,4 @@ export async function handleInsertTrack(
 
   return await createTrack(supabase, metadata, size);
 }
+

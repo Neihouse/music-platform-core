@@ -18,7 +18,6 @@ export function TopTrackItem({
   plays,
 }: ITopTrackItem) {
   const { setTrackId } = useContext(PlaybackContext);
-  console.log("setTrackId: ", setTrackId);
   return (
     <UnstyledButton
       w="100%"
