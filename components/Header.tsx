@@ -148,7 +148,7 @@ export function Header({ user }: HeaderProps) {
             <Menu position="bottom-end" shadow="sm" width={200}>
               <Menu.Target>
                 <Avatar
-                  sx={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer" }}
                   alt={user.email || "User avatar"}
                   radius="xl"
                   size="sm"
