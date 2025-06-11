@@ -108,16 +108,17 @@ export default async function UploadTrackPage({ }: IUploadTrackPageProps) {
               </Group>
 
               <Button
-                component={Link}
-                href="/upload/album"
+                // component={Link}
+                // href="/upload/album"
                 size="lg"
                 leftSection={<IconUpload size={18} />}
                 variant="gradient"
                 gradient={{ from: 'blue.6', to: 'cyan.6', deg: 90 }}
                 radius="md"
                 mt="auto"
+                disabled
               >
-                Upload Album
+               Coming Soon
               </Button>
             </Stack>
           </Paper>
