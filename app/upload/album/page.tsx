@@ -1,7 +1,6 @@
 
 "use client";
 
-import { AlbumUpload } from "@/components/Upload/AlbumUpload";
 import {
 	Container,
 	Title,
@@ -75,7 +74,6 @@ export default function UploadAlbumPage() {
 
 					<Divider mb="xl" />
 
-					<AlbumUpload />
 
 				</Box>
 			</Paper>
