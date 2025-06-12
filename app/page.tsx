@@ -1,6 +1,6 @@
 import HeroSection from "@/components/HomePage/HeroSection";
 import GenreHighlights from "@/components/HomePage/GenreHighlights";
-import { TopTrackItem } from "@/components/TopTrackItem";
+import { TopTrackItem } from "@/components/Tracks/TopTrackItem";
 import { getTracks } from "@/db/queries/tracks";
 import { Artist } from "@/utils/supabase/global.types";
 import { createClient } from "@/utils/supabase/server";

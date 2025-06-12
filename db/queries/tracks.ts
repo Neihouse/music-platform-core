@@ -145,3 +145,163 @@ export async function getTopTracks(supabase: TypedClient) {
 
   return data;
 }
+
+export async function deleteTrack(supabase: TypedClient, trackId: string) {
+  if (!trackId) {
+    throw new Error("Track ID is required");
+  }
+
+  const user = await supabase.auth.getUser();
+  if (!user || !user.data.user) {
+    throw new Error("User not authenticated");
+  }
+
+  const userId = user.data.user.id;
+
+  // Check if the user owns this track (through artist ownership)
+  const { data: trackOwnership, error: ownershipError } = await supabase
+    .from("tracks")
+    .select(`
+      id,
+      artists_tracks (
+        artist_id,
+        artists (
+          user_id
+        )
+      )
+    `)
+    .eq("id", trackId)
+    .single();
+
+  if (ownershipError) {
+    throw new Error("Error checking track ownership: " + ownershipError.message);
+  }
+
+  // Verify the user owns this track through artist ownership
+  const userOwnsTrack = trackOwnership?.artists_tracks?.some(
+    (artistTrack: any) => artistTrack.artists?.user_id === userId
+  );
+
+  if (!userOwnsTrack) {
+    throw new Error("You don't have permission to delete this track");
+  }
+
+  // Delete the track (this will cascade to delete related records)
+  const { error: deleteError } = await supabase
+    .from("tracks")
+    .delete()
+    .eq("id", trackId);
+
+  if (deleteError) {
+    throw new Error("Error deleting track: " + deleteError.message);
+  }
+
+  // Also delete the track file from storage
+  const { error: storageError } = await supabase.storage
+    .from("tracks")
+    .remove([trackId]);
+
+  if (storageError) {
+    console.warn("Warning: Could not delete track file from storage:", storageError.message);
+  }
+
+  // Also delete the track image from storage if it exists
+  const { error: imageError } = await supabase.storage
+    .from("images")
+    .remove([`tracks/${trackId}`]);
+
+  if (imageError) {
+    console.warn("Warning: Could not delete track image from storage:", imageError.message);
+  }
+
+  return { success: true };
+}
+
+export async function checkTrackOwnership(supabase: TypedClient, trackId: string): Promise<boolean> {
+  if (!trackId) {
+    return false;
+  }
+
+  const user = await supabase.auth.getUser();
+  if (!user || !user.data.user) {
+    return false;
+  }
+
+  const userId = user.data.user.id;
+
+  try {
+    const { data: trackOwnership, error } = await supabase
+      .from("tracks")
+      .select(`
+        id,
+        artists_tracks (
+          artist_id,
+          artists (
+            user_id
+          )
+        )
+      `)
+      .eq("id", trackId)
+      .single();
+
+    if (error || !trackOwnership) {
+      return false;
+    }
+
+    // Check if the user owns this track through artist ownership
+    const userOwnsTrack = trackOwnership.artists_tracks?.some(
+      (artistTrack: any) => artistTrack.artists?.user_id === userId
+    );
+
+    return Boolean(userOwnsTrack);
+  } catch {
+    return false;
+  }
+}
+
+export async function getTrackWithPlayCount(supabase: TypedClient, trackId: string) {
+  const { data, error } = await supabase
+    .from("tracks")
+    .select(`
+      *,
+      play_count:track_plays(count)
+    `)
+    .eq("id", trackId)
+    .single();
+
+  if (error) {
+    throw new Error("Error fetching track: " + error.message);
+  }
+
+  return {
+    ...data,
+    plays: data.play_count?.length ? data.play_count[0].count : 0
+  };
+}
+
+export async function getArtistTracksWithPlayCounts(supabase: TypedClient, artistId: string) {
+  const { data, error } = await supabase
+    .from("artists_tracks")
+    .select(`
+      track_id,
+      tracks (
+        *,
+        play_count:track_plays(count)
+      )
+    `)
+    .eq("artist_id", artistId);
+
+  if (error) {
+    throw new Error("Error fetching artist tracks: " + error.message);
+  }
+
+  return data?.map(item => {
+    const track = item.tracks as any;
+    if (!track) return null;
+    
+    return {
+      ...track,
+      plays: track.play_count?.length ? track.play_count[0].count || 0 : 0
+    };
+  }).filter(Boolean) || [];
+}

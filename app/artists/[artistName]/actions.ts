@@ -73,7 +73,6 @@ export async function onDeleteArtistLocation(artistId: string) {
 }
 
 export async function updateExternalLinks(externalLinks: string[]) {
-  console.log("Updating external links:", externalLinks);
   const supabase = await createClient();
   const { data: user } = await supabase.auth.getUser();
 

@@ -1,5 +1,6 @@
 import { getArtistByName } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
+import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
 import { formatDuration } from "@/lib/formatting";
 import { createClient } from "@/utils/supabase/server";
 import {
@@ -21,6 +22,7 @@ import {
 import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TrackList } from "@/components/Tracks/TrackList";
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 
 export default async function ArtistPage({
@@ -38,15 +40,18 @@ export default async function ArtistPage({
   }
 
   const userIsArtist = user?.id === artist.user_id;
+  
+  // Get tracks with play counts instead of using the basic track data
+  const tracksWithPlayCounts = artist.id ? await getArtistTracksWithPlayCounts(supabase, artist.id) : [];
 
   const { name, bio, tracks, external_links } = artist;
   return (
     <Container>
       <Grid gutter="lg">
         {/* Main Content */}
-        <GridCol span={8}>
+        <GridCol span={{ base: 12, md: 8 }}>
           {/* Artist Header */}
-          <div style={{ position: "relative", marginBottom: "2rem" }}>
+          <div style={{ position: "relative", height: "200px", marginBottom: "2rem" }}>
             <Image
               src="https://i1.sndcdn.com/visuals-PzeCi6m2YKysjZ7C-2pyiyA-t2480x520.jpg"
               alt={`${artist.name} banner`}
@@ -108,39 +113,25 @@ export default async function ArtistPage({
           </div>
 
           {/* Tracks Section */}
-          <Stack gap="md">
-            {!tracks.length ? (
-              <Center mt={50}>
-                <Text c="dimmed" size="sm">
-                  <em>No tracks yet</em>
-                </Text>
-              </Center>
-            ) : (
-              tracks?.map(({ title, duration, id }) => (
-                <Card key={id} withBorder shadow="sm" radius="md">
-                  <Group justify="space-between">
-                    <Stack>
-                      <Text fw={500}>{title || "F"}</Text>
-                      <Text size="sm" c="dimmed">
-                        {formatDuration(duration)}
-                      </Text>
-                    </Stack>
-                    <Image
-                      src={"https://via.placeholder.com/100"}
-                      alt={`${title} cover`}
-                      width={100}
-                      height={100}
-                      radius="sm"
-                    />
-                  </Group>
-                </Card>
-              ))
-            )}
-          </Stack>
+          <TrackList
+            tracks={tracksWithPlayCounts}
+            artist={{
+              id: artist.id!,
+              name: artist.name!,
+              bio: artist.bio!,
+              created_at: artist.created_at!,
+              user_id: artist.user_id!,
+              administrative_area_id: artist.administrative_area || null,
+              locality_id: artist.locality || null,
+              country_id: null,
+              external_links: artist.external_links || [],
+            }}
+            canDelete={userIsArtist}
+          />
         </GridCol>
 
         {/* Upcoming Events Section */}
-        <GridCol span={4}>
+        <GridCol span={{ base: 12, md: 4 }}>
           <Title order={3} mb="md">
             Bio
           </Title>
