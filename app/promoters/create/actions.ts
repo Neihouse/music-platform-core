@@ -26,9 +26,7 @@ export async function submitPromoter(
     {
       ...promoter,
       user_id: user.user.id,
-      locality_id: storedLocality.locality.id,
-      administrative_area_id: storedLocality.administrativeArea.id,
-      country_id: storedLocality.country.id,
+  
     })
 
   return newPromoter;
