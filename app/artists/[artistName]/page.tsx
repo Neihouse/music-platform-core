@@ -23,6 +23,7 @@ import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TrackList } from "@/components/Tracks/TrackList";
+import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 
 export default async function ArtistPage({
   params,
@@ -43,7 +44,7 @@ export default async function ArtistPage({
   // Get tracks with play counts instead of using the basic track data
   const tracksWithPlayCounts = artist.id ? await getArtistTracksWithPlayCounts(supabase, artist.id) : [];
 
-  const { name, bio } = artist;
+  const { name, bio, tracks, external_links } = artist;
   return (
     <Container>
       <Grid gutter="lg">
@@ -122,7 +123,8 @@ export default async function ArtistPage({
               user_id: artist.user_id!,
               administrative_area_id: artist.administrative_area || null,
               locality_id: artist.locality || null,
-              country_id: null
+              country_id: null,
+              external_links: artist.external_links || [],
             }}
             canDelete={userIsArtist}
           />
@@ -136,6 +138,15 @@ export default async function ArtistPage({
           <Text size="sm" c="dimmed">
             {bio || "No bio available."}
           </Text>
+          
+          {/* External Links Section */}
+          {external_links && external_links.length > 0 && (
+            <>
+              <Divider my="md" />
+              <ExternalLinksDisplay links={external_links} />
+            </>
+          )}
+          
           <Divider my="md" />
           <Title order={3} mb="md">
             Upcoming Events

@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { createArtist, deleteArtistLocation, getArtist, updateArtist } from "@/db/queries/artists";
+import { createArtist, deleteArtistLocation, getArtist, updateArtist, updateArtistExternalLinks } from "@/db/queries/artists";
 import { StoredLocality } from "@/utils/supabase/global.types";
 
 export async function submitArtist(
@@ -70,4 +70,20 @@ export async function onDeleteArtistLocation(artistId: string) {
 
   return await deleteArtistLocation(supabase, artistId);
 
+}
+
+export async function updateExternalLinks(externalLinks: string[]) {
+  const supabase = await createClient();
+  const { data: user } = await supabase.auth.getUser();
+
+  if (!user || !user.user) {
+    throw new Error("User not authenticated");
+  }
+
+  const artist = await getArtist(supabase);
+  if (!artist) {
+    throw new Error("Artist not found");
+  }
+
+  await updateArtistExternalLinks(supabase, artist.id, externalLinks);
 }
