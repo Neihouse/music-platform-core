@@ -2,6 +2,7 @@ import { getArtistByName } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
 import { formatDuration } from "@/lib/formatting";
+import { getArtistAvatarUrlServer, getArtistBannerUrlServer, DEFAULT_AVATAR_URL, DEFAULT_BANNER_URL } from "@/lib/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import {
   Container,
@@ -44,6 +45,10 @@ export default async function ArtistPage({
   // Get tracks with play counts instead of using the basic track data
   const tracksWithPlayCounts = artist.id ? await getArtistTracksWithPlayCounts(supabase, artist.id) : [];
 
+  // Get dynamic image URLs
+  const avatarUrl = artist.id ? await getArtistAvatarUrlServer(artist.id) : null;
+  const bannerUrl = artist.id ? await getArtistBannerUrlServer(artist.id) : null;
+
   const { name, bio, tracks, external_links } = artist;
   return (
     <Container>
@@ -53,7 +58,7 @@ export default async function ArtistPage({
           {/* Artist Header */}
           <div style={{ position: "relative", height: "200px", marginBottom: "2rem" }}>
             <Image
-              src="https://i1.sndcdn.com/visuals-PzeCi6m2YKysjZ7C-2pyiyA-t2480x520.jpg"
+              src={bannerUrl || DEFAULT_BANNER_URL}
               alt={`${artist.name} banner`}
               style={{
                 width: "100%",
@@ -90,7 +95,7 @@ export default async function ArtistPage({
               }}
             >
               <Image
-                src="https://i1.sndcdn.com/avatars-YMlrZVHCf2EwCAsA-kL7awg-t1080x1080.jpg"
+                src={avatarUrl || DEFAULT_AVATAR_URL}
                 alt={`${name} avatar`}
                 w={64} // Twice the font size of the title
                 h={64} // Twice the font size of the title

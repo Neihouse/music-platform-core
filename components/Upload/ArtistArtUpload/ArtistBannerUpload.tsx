@@ -117,8 +117,8 @@ export function ArtistBannerUpload({
     try {
       const supabase = await createClient();
       const { error } = await supabase.storage
-        .from("artist-banners")
-        .remove([artistId]);
+        .from("images")
+        .remove([`banners/${artistId}`]);
 
       if (error) {
         console.error("Error deleting image:", error);
@@ -176,8 +176,8 @@ export function ArtistBannerUpload({
       // If artistId is provided, upload to Supabase
       const supabase = await createClient();
       const { data, error } = await supabase.storage
-        .from("artist-banners")
-        .upload(artistId, file, {
+        .from("images")
+        .upload(`banners/${artistId}`, file, {
           upsert: true,
           cacheControl: "3600",
           contentType: file.type,
@@ -195,8 +195,8 @@ export function ArtistBannerUpload({
       }
 
       const { data: publicUrlData } = supabase.storage
-        .from("artist-banners")
-        .getPublicUrl(artistId);
+        .from("images")
+        .getPublicUrl(`banners/${artistId}`);
 
       const url = publicUrlData.publicUrl;
       setImageUrl(url);
