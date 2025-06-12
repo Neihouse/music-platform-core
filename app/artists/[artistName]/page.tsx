@@ -21,6 +21,7 @@ import {
 import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 
 export default async function ArtistPage({
   params,
@@ -38,7 +39,7 @@ export default async function ArtistPage({
 
   const userIsArtist = user?.id === artist.user_id;
 
-  const { name, bio, tracks } = artist;
+  const { name, bio, tracks, external_links } = artist;
   return (
     <Container>
       <Grid gutter="lg">
@@ -146,6 +147,15 @@ export default async function ArtistPage({
           <Text size="sm" c="dimmed">
             {bio || "No bio available."}
           </Text>
+          
+          {/* External Links Section */}
+          {external_links && external_links.length > 0 && (
+            <>
+              <Divider my="md" />
+              <ExternalLinksDisplay links={external_links} />
+            </>
+          )}
+          
           <Divider my="md" />
           <Title order={3} mb="md">
             Upcoming Events
