@@ -33,20 +33,7 @@ export function TrackList({ tracks: initialTracks, artist, canDelete }: TrackLis
       {tracks.map((trackData) => (
         <Track
           key={trackData.id}
-          track={{
-            id: trackData.id,
-            title: trackData.title,
-            duration: trackData.duration,
-            album_id: trackData.album_id,
-            bitrate: trackData.bitrate,
-            channels: trackData.channels,
-            codec: trackData.codec,
-            container: trackData.container,
-            created_at: trackData.created_at,
-            featured: trackData.featured,
-            sample_rate: trackData.sample_rate,
-            size: trackData.size,
-          }}
+          track={trackData}
           variant="list"
           artists={[artist]}
           showPlayCount={true}
