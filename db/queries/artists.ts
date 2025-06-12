@@ -77,8 +77,18 @@ export async function getArtistByName(
   artistName: string,
 ) {
   const { data: artist, error } = await supabase
-    .from("artist_view")
-    .select(`*`)
+    .from("artists")
+    .select(`
+      *,
+      artists_tracks (
+        track_id,
+        tracks (
+          id,
+          title,
+          duration
+        )
+      )
+    `)
     .ilike("name", artistName)
     .maybeSingle();
 
@@ -90,10 +100,12 @@ export async function getArtistByName(
     throw new Error(error.message);
   }
 
+  // Extract tracks from the joined data
+  const tracks = artist?.artists_tracks?.map((at: any) => at.tracks).filter(Boolean) || [];
+
   return {
     ...artist,
-    tracks:
-      (artist?.tracks as Pick<Track, "id" | "title" | "duration">[]) || [],
+    tracks,
   };
 }
 
@@ -152,6 +164,39 @@ export async function deleteArtistLocation(
   }
 
   return artist;
+}
+
+export async function updateArtistExternalLinks(
+  supabase: TypedClient,
+  artistId: string,
+  externalLinks: string[]
+): Promise<void> {
+  
+  const { error } = await supabase
+    .from("artists")
+    .update({ external_links: externalLinks })
+    .eq("id", artistId);
+
+  if (error) {
+    throw new Error(`Failed to update external links: ${error.message}`);
+  }
+}
+
+export async function getArtistExternalLinks(
+  supabase: TypedClient,
+  artistId: string
+): Promise<string[]> {
+  const { data: artist, error } = await supabase
+    .from("artists")
+    .select("external_links")
+    .eq("id", artistId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to get external links: ${error.message}`);
+  }
+
+  return artist?.external_links || [];
 }
 
 
