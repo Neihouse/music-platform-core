@@ -720,6 +720,7 @@ export type Database = {
           administrative_area: string | null
           bio: string | null
           created_at: string | null
+          external_links: string[] | null
           id: string | null
           locality: string | null
           name: string | null

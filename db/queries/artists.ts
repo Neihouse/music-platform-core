@@ -77,35 +77,22 @@ export async function getArtistByName(
   artistName: string,
 ) {
   const { data: artist, error } = await supabase
-    .from("artists")
-    .select(`
-      *,
-      artists_tracks (
-        track_id,
-        tracks (
-          id,
-          title,
-          duration
-        )
-      )
-    `)
+    .from("artist_view")
+    .select(`*`)
     .ilike("name", artistName)
     .maybeSingle();
 
   if (!artist && !error) {
     return null;
   }
-
   if (error) {
     throw new Error(error.message);
   }
 
-  // Extract tracks from the joined data
-  const tracks = artist?.artists_tracks?.map((at: any) => at.tracks).filter(Boolean) || [];
-
   return {
     ...artist,
-    tracks,
+    tracks:
+      (artist?.tracks as Pick<Track, "id" | "title" | "duration">[]) || [],
   };
 }
 
