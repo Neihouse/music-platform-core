@@ -7,7 +7,6 @@ export interface ITopTracksPageProps {}
 export default async function TopTracksPage(props: ITopTracksPageProps) {
   const tracks = await getTracks(await createClient());
 
-  console.log("tracks: ", tracks);
 
   return <div></div>;
   //   return (

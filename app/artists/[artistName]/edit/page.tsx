@@ -1,8 +1,11 @@
 import { ArtistForm } from "@/components/onboarding/ArtistForm";
+import { ExternalLinksForm } from "@/components/onboarding/ExternalLinksForm";
 import { getArtist, getArtistByName } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { Container, Stack, Divider } from "@mantine/core";
+import { updateExternalLinks } from "../actions";
 
 
 export default async function ArtistEditPage({
@@ -21,9 +24,14 @@ export default async function ArtistEditPage({
     }
 
     return (
-        <div>
-            <h1>Edit Artist</h1>
-            <ArtistForm artist={artist} />
-        </div>
+        <Container size="lg" py="xl">
+            <Stack gap="xl">
+                <ArtistForm artist={artist} />
+                <Divider />
+                <ExternalLinksForm 
+                    initialLinks={artist.external_links || []}
+                />
+            </Stack>
+        </Container>
     );
 }

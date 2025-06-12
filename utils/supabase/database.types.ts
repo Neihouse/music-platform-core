@@ -62,6 +62,7 @@ export type Database = {
           bio: string
           country_id: string | null
           created_at: string
+          external_links: string[] | null
           id: string
           locality_id: string | null
           name: string
@@ -72,6 +73,7 @@ export type Database = {
           bio?: string
           country_id?: string | null
           created_at?: string
+          external_links?: string[] | null
           id?: string
           locality_id?: string | null
           name: string
@@ -82,6 +84,7 @@ export type Database = {
           bio?: string
           country_id?: string | null
           created_at?: string
+          external_links?: string[] | null
           id?: string
           locality_id?: string | null
           name?: string
@@ -115,20 +118,17 @@ export type Database = {
         Row: {
           artist_id: string
           created_at: string
-          id: string
-          tag_id: string
+          tag: string
         }
         Insert: {
           artist_id: string
           created_at?: string
-          id?: string
-          tag_id: string
+          tag: string
         }
         Update: {
           artist_id?: string
           created_at?: string
-          id?: string
-          tag_id?: string
+          tag?: string
         }
         Relationships: [
           {
@@ -146,11 +146,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "artists_tags_tag_id_fkey"
-            columns: ["tag_id"]
+            foreignKeyName: "artists_tags_tag_fkey"
+            columns: ["tag"]
             isOneToOne: false
             referencedRelation: "tags"
-            referencedColumns: ["id"]
+            referencedColumns: ["name"]
           },
         ]
       }
@@ -356,55 +356,27 @@ export type Database = {
       }
       promoters: {
         Row: {
-          administrative_area_id: string
-          country_id: string
           created_at: string
           id: string
-          locality_id: string
+          phone: string | null
           title: string
           user_id: string
         }
         Insert: {
-          administrative_area_id: string
-          country_id: string
           created_at?: string
           id?: string
-          locality_id: string
+          phone?: string | null
           title: string
           user_id?: string
         }
         Update: {
-          administrative_area_id?: string
-          country_id?: string
           created_at?: string
           id?: string
-          locality_id?: string
+          phone?: string | null
           title?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "promoters_administrative_area_id_fkey"
-            columns: ["administrative_area_id"]
-            isOneToOne: false
-            referencedRelation: "administrative_areas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "promoters_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "promoters_locality_id_fkey"
-            columns: ["locality_id"]
-            isOneToOne: false
-            referencedRelation: "localities"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       promoters_artists: {
         Row: {
@@ -449,24 +421,54 @@ export type Database = {
           },
         ]
       }
-      promoters_tags: {
+      promoters_localities: {
         Row: {
           created_at: string
-          id: number
+          locality_id: string
           promoter_id: string
-          tag_id: string
         }
         Insert: {
           created_at?: string
-          id?: number
+          locality_id: string
           promoter_id: string
-          tag_id: string
         }
         Update: {
           created_at?: string
-          id?: number
+          locality_id?: string
           promoter_id?: string
-          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promoters_localities_locality_id_fkey"
+            columns: ["locality_id"]
+            isOneToOne: false
+            referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promoters_localities_promoter_id_fkey"
+            columns: ["promoter_id"]
+            isOneToOne: false
+            referencedRelation: "promoters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promoters_tags: {
+        Row: {
+          created_at: string
+          promoter_id: string
+          tag: string
+        }
+        Insert: {
+          created_at?: string
+          promoter_id: string
+          tag: string
+        }
+        Update: {
+          created_at?: string
+          promoter_id?: string
+          tag?: string
         }
         Relationships: [
           {
@@ -477,11 +479,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "promoters_tags_tag_id_fkey"
-            columns: ["tag_id"]
+            foreignKeyName: "promoters_tags_tag_fkey"
+            columns: ["tag"]
             isOneToOne: false
             referencedRelation: "tags"
-            referencedColumns: ["id"]
+            referencedColumns: ["name"]
           },
         ]
       }
@@ -524,17 +526,14 @@ export type Database = {
       tags: {
         Row: {
           created_at: string
-          id: string
           name: string
         }
         Insert: {
           created_at?: string
-          id?: string
           name: string
         }
         Update: {
           created_at?: string
-          id?: string
           name?: string
         }
         Relationships: []
@@ -582,6 +581,7 @@ export type Database = {
           sample_rate: number | null
           size: number | null
           title: string
+          user_id: string
         }
         Insert: {
           album_id?: string | null
@@ -596,6 +596,7 @@ export type Database = {
           sample_rate?: number | null
           size?: number | null
           title: string
+          user_id?: string
         }
         Update: {
           album_id?: string | null
@@ -610,6 +611,7 @@ export type Database = {
           sample_rate?: number | null
           size?: number | null
           title?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -624,29 +626,26 @@ export type Database = {
       tracks_tags: {
         Row: {
           created_at: string
-          id: string
-          tag_id: string
-          track_id: string
+          tag: string
+          track_id: string | null
         }
         Insert: {
           created_at?: string
-          id?: string
-          tag_id: string
-          track_id: string
+          tag: string
+          track_id?: string | null
         }
         Update: {
           created_at?: string
-          id?: string
-          tag_id?: string
-          track_id?: string
+          tag?: string
+          track_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "tracks_tags_tag_id_fkey"
-            columns: ["tag_id"]
-            isOneToOne: false
+            foreignKeyName: "tracks_tags_tag_fkey"
+            columns: ["tag"]
+            isOneToOne: true
             referencedRelation: "tags"
-            referencedColumns: ["id"]
+            referencedColumns: ["name"]
           },
           {
             foreignKeyName: "tracks_tags_track_id_fkey"
@@ -714,42 +713,6 @@ export type Database = {
           },
         ]
       }
-      venues_tags: {
-        Row: {
-          created_at: string
-          id: number
-          tag_id: string
-          venue_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          tag_id: string
-          venue_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          tag_id?: string
-          venue_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "venues_tags_tag_id_fkey"
-            columns: ["tag_id"]
-            isOneToOne: false
-            referencedRelation: "tags"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "venues_tags_venue_id_fkey"
-            columns: ["venue_id"]
-            isOneToOne: false
-            referencedRelation: "venues"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       artist_view: {
@@ -757,6 +720,7 @@ export type Database = {
           administrative_area: string | null
           bio: string | null
           created_at: string | null
+          external_links: string[] | null
           id: string | null
           locality: string | null
           name: string | null

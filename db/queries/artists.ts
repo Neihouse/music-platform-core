@@ -85,7 +85,6 @@ export async function getArtistByName(
   if (!artist && !error) {
     return null;
   }
-
   if (error) {
     throw new Error(error.message);
   }
@@ -109,7 +108,6 @@ export async function updateArtist(
   }: Database["public"]["Tables"]["artists"]["Update"],
   artistId: string
 ) {
-  console.log("updating artist", artistId);
   const { data, error } = await supabase
     .from("artists")
     .update({
@@ -152,6 +150,39 @@ export async function deleteArtistLocation(
   }
 
   return artist;
+}
+
+export async function updateArtistExternalLinks(
+  supabase: TypedClient,
+  artistId: string,
+  externalLinks: string[]
+): Promise<void> {
+  
+  const { error } = await supabase
+    .from("artists")
+    .update({ external_links: externalLinks })
+    .eq("id", artistId);
+
+  if (error) {
+    throw new Error(`Failed to update external links: ${error.message}`);
+  }
+}
+
+export async function getArtistExternalLinks(
+  supabase: TypedClient,
+  artistId: string
+): Promise<string[]> {
+  const { data: artist, error } = await supabase
+    .from("artists")
+    .select("external_links")
+    .eq("id", artistId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to get external links: ${error.message}`);
+  }
+
+  return artist?.external_links || [];
 }
 
 
