@@ -108,7 +108,6 @@ export async function updateArtist(
   }: Database["public"]["Tables"]["artists"]["Update"],
   artistId: string
 ) {
-  console.log("updating artist", artistId);
   const { data, error } = await supabase
     .from("artists")
     .update({
