@@ -26,10 +26,28 @@ export interface ExternalLinksFormProps {
 }
 
 function validateUrl(url: string): string | null {
-  if (!url.trim()) return null; // Allow empty URLs to be removed
+  if (!url || !url.trim()) return null; // Allow empty URLs to be removed
   
   try {
-    new URL(url);
+    const urlObj = new URL(url);
+    
+    // Check if hostname has at least one dot (indicating a TLD)
+    if (!urlObj.hostname.includes('.')) {
+      return "Please enter a valid URL with a proper domain (e.g., example.com)";
+    }
+    
+    // Check if the hostname has a valid TLD (at least 2 characters after the last dot)
+    const parts = urlObj.hostname.split('.');
+    const tld = parts[parts.length - 1];
+    if (!tld || tld.length < 2) {
+      return "Please enter a valid URL with a proper domain extension";
+    }
+    
+    // Check for valid protocol
+    if (!['http:', 'https:'].includes(urlObj.protocol)) {
+      return "URL must start with http:// or https://";
+    }
+    
     return null;
   } catch {
     return "Please enter a valid URL (including http:// or https://)";
@@ -43,15 +61,18 @@ export function ExternalLinksForm({ initialLinks = [] }: ExternalLinksFormProps)
     initialValues: {
       links: initialLinks.length > 0 ? initialLinks : [""],
     },
-    // validate: {
-    //   links: (links: string[]) => {
-    //     const errors: (string | null)[] = [];
-    //     links.forEach((url) => {
-    //       errors.push(validateUrl(url));
-    //     });
-    //     return errors.some(error => error !== null) ? errors : null;
-    //   },
-    // },
+    validate: (values) => {
+      const errors: Record<string, string> = {};
+      
+      values.links.forEach((link, index) => {
+        const error = validateUrl(link);
+        if (error) {
+          errors[`links.${index}`] = error;
+        }
+      });
+      
+      return errors;
+    },
   });
 
   const handleAddLink = () => {
@@ -63,11 +84,21 @@ export function ExternalLinksForm({ initialLinks = [] }: ExternalLinksFormProps)
   };
 
   const handleSubmit = async (values: { links: string[] }) => {
+    // Validate all links before submission
+    const hasErrors = Object.keys(form.errors).length > 0;
+    if (hasErrors) {
+      notifications.show({
+        title: "Validation Error",
+        message: "Please fix the invalid URLs before saving.",
+        color: "red",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
       // Filter out empty links
-      const validLinks = values.links.filter(link => link.trim());
+      const validLinks = values.links.filter(link => link && link.trim());
 
       console.log("Saving links:", validLinks);
       await updateExternalLinks(validLinks);
@@ -101,7 +132,7 @@ export function ExternalLinksForm({ initialLinks = [] }: ExternalLinksFormProps)
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
           {form.values.links.map((link, index) => (
-            <Group key={index} align="flex-end" gap="sm">
+            <Group key={index} align="flex-start" gap="sm">
               <Box style={{ flex: 1 }}>
                 <TextInput
                   label={index === 0 ? "URLs" : ""}
@@ -116,6 +147,7 @@ export function ExternalLinksForm({ initialLinks = [] }: ExternalLinksFormProps)
                   variant="light"
                   onClick={() => handleRemoveLink(index)}
                   size="lg"
+                  mt={index === 0 ? "lg" : 0}
                 >
                   <IconTrash size={16} />
                 </ActionIcon>
