@@ -2,9 +2,6 @@ import { createClient } from "@/utils/supabase/client";
 import { createClient as createServerClient } from "@/utils/supabase/server";
 
 // Default fallback images
-export const DEFAULT_AVATAR_URL = "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&crop=face";
-export const DEFAULT_BANNER_URL = "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=1200&h=400&fit=crop";
-
 /**
  * Get the avatar URL for an artist (client-side)
  * @param artistId The ID of the artist

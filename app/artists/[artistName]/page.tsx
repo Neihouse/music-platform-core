@@ -1,8 +1,7 @@
 import { getArtistByName } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
-import { formatDuration } from "@/lib/formatting";
-import { getArtistAvatarUrlServer, getArtistBannerUrlServer, DEFAULT_AVATAR_URL, DEFAULT_BANNER_URL } from "@/lib/image-utils";
+import { getArtistAvatarUrlServer, getArtistBannerUrlServer } from "@/lib/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import {
   Container,
@@ -17,7 +16,6 @@ import {
   Skeleton,
   Text,
   Image,
-  Center,
   Button,
 } from "@mantine/core";
 import { IconEdit } from "@tabler/icons-react";
@@ -58,7 +56,7 @@ export default async function ArtistPage({
           {/* Artist Header */}
           <div style={{ position: "relative", height: "200px", marginBottom: "2rem" }}>
             <Image
-              src={bannerUrl || DEFAULT_BANNER_URL}
+              src={bannerUrl} 
               alt={`${artist.name} banner`}
               style={{
                 width: "100%",
@@ -95,7 +93,7 @@ export default async function ArtistPage({
               }}
             >
               <Image
-                src={avatarUrl || DEFAULT_AVATAR_URL}
+                src={avatarUrl}
                 alt={`${name} avatar`}
                 w={64} // Twice the font size of the title
                 h={64} // Twice the font size of the title

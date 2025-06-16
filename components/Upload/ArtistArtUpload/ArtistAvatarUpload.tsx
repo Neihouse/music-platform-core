@@ -21,6 +21,49 @@ export function ArtistAvatarUpload({
   >("initial");
   const [imageUrl, setImageUrl] = React.useState<string | null>(null);
 
+  // Fetch existing avatar when component mounts
+  React.useEffect(() => {
+    async function fetchExistingAvatar() {
+      if (!artistId) return;
+
+      try {
+        const supabase = await createClient();
+
+        // Check if avatar exists in storage
+        const { data, error } = await supabase.storage
+          .from("avatars")
+          .list("", {
+            search: artistId,
+          });
+
+        if (error) {
+          console.error("Error checking for existing avatar:", error);
+          return;
+        }
+
+        // If avatar file exists, get its public URL
+        const avatarFile = data?.find((file) => file.name === artistId);
+        if (avatarFile) {
+          const { data: publicUrlData } = supabase.storage
+            .from("avatars")
+            .getPublicUrl(artistId);
+
+          // Add cache busting parameter to force browser to reload the image
+          const url = `${publicUrlData.publicUrl}?t=${Date.now()}`;
+          setImageUrl(url);
+
+          if (onAvatarUploaded) {
+            onAvatarUploaded(url);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching existing avatar:", error);
+      }
+    }
+
+    fetchExistingAvatar();
+  }, [artistId, onAvatarUploaded]);
+
   return (
     <Card withBorder p="md">
       <Stack gap="md">
@@ -44,7 +87,7 @@ export function ArtistAvatarUpload({
                 variant="light"
                 style={{
                   position: "absolute",
-                  bottom: -10,
+                  top: -10,
                   right: -10,
                 }}
                 radius="xl"
@@ -194,7 +237,8 @@ export function ArtistAvatarUpload({
         .from("avatars")
         .getPublicUrl(artistId);
 
-      const url = publicUrlData.publicUrl;
+      // Add cache busting parameter to force browser to reload the image
+      const url = `${publicUrlData.publicUrl}?t=${Date.now()}`;
       setImageUrl(url);
 
       if (onAvatarUploaded) {

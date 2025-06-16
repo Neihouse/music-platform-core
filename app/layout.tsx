@@ -31,7 +31,13 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const user = await getUser(await createClient());
-
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+              registration.unregister()
+            }
+          })
+        }
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
