@@ -210,27 +210,27 @@ export type Database = {
       event_stage: {
         Row: {
           created_at: string
-          id: string
+          event_id: string
           name: string
           venue: string
         }
         Insert: {
           created_at?: string
-          id: string
+          event_id: string
           name: string
           venue: string
         }
         Update: {
           created_at?: string
-          id?: string
+          event_id?: string
           name?: string
           venue?: string
         }
         Relationships: [
           {
             foreignKeyName: "event_stage_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -248,7 +248,6 @@ export type Database = {
           artist: string
           created_at: string
           event: string
-          event_stage: string
           id: string
           set_end: string | null
           set_start: string | null
@@ -257,7 +256,6 @@ export type Database = {
           artist: string
           created_at?: string
           event: string
-          event_stage: string
           id?: string
           set_end?: string | null
           set_start?: string | null
@@ -266,7 +264,6 @@ export type Database = {
           artist?: string
           created_at?: string
           event?: string
-          event_stage?: string
           id?: string
           set_end?: string | null
           set_start?: string | null
@@ -284,13 +281,6 @@ export type Database = {
             columns: ["event"]
             isOneToOne: false
             referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_stage_artists_event_stage_fkey"
-            columns: ["event_stage"]
-            isOneToOne: false
-            referencedRelation: "event_stage"
             referencedColumns: ["id"]
           },
         ]
