@@ -59,6 +59,8 @@ export type Database = {
       artists: {
         Row: {
           administrative_area_id: string | null
+          avatar_img: string | null
+          banner_img: string | null
           bio: string
           country_id: string | null
           created_at: string
@@ -70,6 +72,8 @@ export type Database = {
         }
         Insert: {
           administrative_area_id?: string | null
+          avatar_img?: string | null
+          banner_img?: string | null
           bio?: string
           country_id?: string | null
           created_at?: string
@@ -81,6 +85,8 @@ export type Database = {
         }
         Update: {
           administrative_area_id?: string | null
+          avatar_img?: string | null
+          banner_img?: string | null
           bio?: string
           country_id?: string | null
           created_at?: string
@@ -718,6 +724,8 @@ export type Database = {
       artist_view: {
         Row: {
           administrative_area: string | null
+          avatar_img: string | null
+          banner_img: string | null
           bio: string | null
           created_at: string | null
           external_links: string[] | null
