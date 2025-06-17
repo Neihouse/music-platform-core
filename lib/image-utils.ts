@@ -1,41 +1,40 @@
 import { createClient } from "@/utils/supabase/client";
 import { createClient as createServerClient } from "@/utils/supabase/server";
 
-// Default fallback images
 /**
- * Get the avatar URL for an artist (client-side)
- * @param artistId The ID of the artist
+ * Get the avatar URL for an artist using the stored filename (client-side)
+ * @param avatarFilename The filename stored in the artist table
  * @returns The public URL for the artist's avatar image
  */
-export function getArtistAvatarUrl(artistId: string): string {
+export function getArtistAvatarUrl(avatarFilename: string): string {
   const supabase = createClient();
   const { data } = supabase.storage
     .from("avatars")
-    .getPublicUrl(artistId);
+    .getPublicUrl(avatarFilename);
   
   return data.publicUrl;
 }
 
 /**
- * Get the banner URL for an artist (client-side)
- * @param artistId The ID of the artist
+ * Get the banner URL for an artist using the stored filename (client-side)
+ * @param bannerFilename The filename stored in the artist table
  * @returns The public URL for the artist's banner image
  */
-export function getArtistBannerUrl(artistId: string): string {
+export function getArtistBannerUrl(bannerFilename: string): string {
   const supabase = createClient();
   const { data } = supabase.storage
     .from("images")
-    .getPublicUrl(`banners/${artistId}`);
+    .getPublicUrl(`banners/${bannerFilename}`);
   
   return data.publicUrl;
 }
 
 /**
- * Get the avatar URL for an artist (server-side)
- * @param artistId The ID of the artist
+ * Get the avatar URL for an artist using the stored filename (server-side)
+ * @param avatarFilename The filename stored in the artist table
  * @returns The public URL for the artist's avatar image or null if doesn't exist
  */
-export async function getArtistAvatarUrlServer(artistId: string): Promise<string | null> {
+export async function getArtistAvatarUrlServer(avatarFilename: string): Promise<string | null> {
   try {
     const supabase = await createServerClient();
     
@@ -44,7 +43,7 @@ export async function getArtistAvatarUrlServer(artistId: string): Promise<string
       .from("avatars")
       .list("", {
         limit: 1,
-        search: artistId
+        search: avatarFilename
       });
     
     if (error || !fileData || fileData.length === 0) {
@@ -53,7 +52,7 @@ export async function getArtistAvatarUrlServer(artistId: string): Promise<string
     
     const { data } = supabase.storage
       .from("avatars")
-      .getPublicUrl(artistId);
+      .getPublicUrl(avatarFilename);
     
     return data.publicUrl;
   } catch {
@@ -62,11 +61,11 @@ export async function getArtistAvatarUrlServer(artistId: string): Promise<string
 }
 
 /**
- * Get the banner URL for an artist (server-side)
- * @param artistId The ID of the artist
+ * Get the banner URL for an artist using the stored filename (server-side)
+ * @param bannerFilename The filename stored in the artist table
  * @returns The public URL for the artist's banner image or null if doesn't exist
  */
-export async function getArtistBannerUrlServer(artistId: string): Promise<string | null> {
+export async function getArtistBannerUrlServer(bannerFilename: string): Promise<string | null> {
   try {
     const supabase = await createServerClient();
     
@@ -75,7 +74,7 @@ export async function getArtistBannerUrlServer(artistId: string): Promise<string
       .from("images")
       .list("banners", {
         limit: 1,
-        search: artistId
+        search: bannerFilename
       });
     
     if (error || !fileData || fileData.length === 0) {
@@ -84,11 +83,47 @@ export async function getArtistBannerUrlServer(artistId: string): Promise<string
     
     const { data } = supabase.storage
       .from("images")
-      .getPublicUrl(`banners/${artistId}`);
+      .getPublicUrl(`banners/${bannerFilename}`);
     
     return data.publicUrl;
   } catch {
     return null;
+  }
+}
+
+
+/**
+ * Get artist avatar and banner URLs from the database (server-side)
+ * @param supabase Supabase client
+ * @param artistId The artist ID
+ * @returns Object with avatar and banner URLs or null if they don't exist
+ */
+export async function getArtistImagesServer(supabase: any, artistId: string): Promise<{
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+}> {
+  try {
+    const { data: artist, error } = await supabase
+      .from("artists")
+      .select("avatar_img, banner_img")
+      .eq("id", artistId)
+      .single();
+
+    if (error || !artist) {
+      return { avatarUrl: null, bannerUrl: null };
+    }
+
+    const avatarUrl = artist.avatar_img 
+      ? await getArtistAvatarUrlServer(artist.avatar_img)
+      : null;
+    
+    const bannerUrl = artist.banner_img 
+      ? await getArtistBannerUrlServer(artist.banner_img)
+      : null;
+
+    return { avatarUrl, bannerUrl };
+  } catch {
+    return { avatarUrl: null, bannerUrl: null };
   }
 }
 
