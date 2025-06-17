@@ -1,7 +1,7 @@
 import { getArtistByName } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
-import { getArtistAvatarUrlServer, getArtistBannerUrlServer } from "@/lib/image-utils";
+import { getArtistImagesServer } from "@/lib/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import {
   Container,
@@ -43,11 +43,10 @@ export default async function ArtistPage({
   // Get tracks with play counts instead of using the basic track data
   const tracksWithPlayCounts = artist.id ? await getArtistTracksWithPlayCounts(supabase, artist.id) : [];
 
-  // Get dynamic image URLs
-  const avatarUrl = artist.id ? await getArtistAvatarUrlServer(artist.id) : null;
-  const bannerUrl = artist.id ? await getArtistBannerUrlServer(artist.id) : null;
+  // Get dynamic image URLs using the new combined function
+  const { avatarUrl, bannerUrl } = artist.id ? await getArtistImagesServer(supabase, artist.id) : { avatarUrl: null, bannerUrl: null };
 
-  const { name, bio, tracks, external_links } = artist;
+  const { name, bio, external_links } = artist;
   return (
     <Container>
       <Grid gutter="lg">
@@ -118,17 +117,7 @@ export default async function ArtistPage({
           {/* Tracks Section */}
           <TrackList
             tracks={tracksWithPlayCounts}
-            artist={{
-              id: artist.id!,
-              name: artist.name!,
-              bio: artist.bio!,
-              created_at: artist.created_at!,
-              user_id: artist.user_id!,
-              administrative_area_id: artist.administrative_area || null,
-              locality_id: artist.locality || null,
-              country_id: null,
-              external_links: artist.external_links || [],
-            }}
+            artist={artist}
             canDelete={userIsArtist}
           />
         </GridCol>
