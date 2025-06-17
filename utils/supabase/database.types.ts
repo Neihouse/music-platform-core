@@ -207,6 +207,120 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          address: string | null
+          created_at: string
+          date: string | null
+          id: string
+          locality: string | null
+          venue: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          locality?: string | null
+          venue?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          locality?: string | null
+          venue?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_locality_fkey"
+            columns: ["locality"]
+            isOneToOne: false
+            referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_venue_fkey"
+            columns: ["venue"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_artists: {
+        Row: {
+          artist: string
+          created_at: string
+          end_time: string | null
+          event: string
+          start_time: string | null
+        }
+        Insert: {
+          artist: string
+          created_at?: string
+          end_time?: string | null
+          event: string
+          start_time?: string | null
+        }
+        Update: {
+          artist?: string
+          created_at?: string
+          end_time?: string | null
+          event?: string
+          start_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_artists_artist_fkey"
+            columns: ["artist"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_artists_event_fkey"
+            columns: ["event"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_promoters: {
+        Row: {
+          created_at: string
+          event: string
+          promoter: string
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          promoter: string
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          promoter?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_promoters_event_fkey"
+            columns: ["event"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_promoters_promoter_fkey"
+            columns: ["promoter"]
+            isOneToOne: false
+            referencedRelation: "promoters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fans: {
         Row: {
           administrative_area_id: string | null
