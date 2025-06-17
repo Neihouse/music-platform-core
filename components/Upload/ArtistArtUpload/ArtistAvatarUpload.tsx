@@ -6,6 +6,7 @@ import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
 import { IconUpload, IconUser, IconX } from "@tabler/icons-react";
 import * as React from "react";
+import { v4 as uuidv4 } from "uuid";
 
 export interface IArtistAvatarUploadProps {
   artistId?: string;
@@ -20,6 +21,7 @@ export function ArtistAvatarUpload({
     "initial" | "pending" | "error" | "success"
   >("initial");
   const [imageUrl, setImageUrl] = React.useState<string | null>(null);
+  const [currentAvatarFilename, setCurrentAvatarFilename] = React.useState<string | null>(null);
 
   // Fetch existing avatar when component mounts
   React.useEffect(() => {
@@ -29,28 +31,27 @@ export function ArtistAvatarUpload({
       try {
         const supabase = await createClient();
 
-        // Check if avatar exists in storage
-        const { data, error } = await supabase.storage
-          .from("avatars")
-          .list("", {
-            search: artistId,
-          });
+        // Get avatar filename from artist table
+        const { data: artist, error: artistError } = await supabase
+          .from("artists")
+          .select("avatar_img")
+          .eq("id", artistId)
+          .single();
 
-        if (error) {
-          console.error("Error checking for existing avatar:", error);
+        if (artistError) {
+          console.error("Error fetching artist data:", artistError);
           return;
         }
 
-        // If avatar file exists, get its public URL
-        const avatarFile = data?.find((file) => file.name === artistId);
-        if (avatarFile) {
+        // If artist has an avatar filename, get the public URL
+        if (artist?.avatar_img) {
           const { data: publicUrlData } = supabase.storage
             .from("avatars")
-            .getPublicUrl(artistId);
+            .getPublicUrl(artist.avatar_img);
 
-          // Add cache busting parameter to force browser to reload the image
-          const url = `${publicUrlData.publicUrl}?t=${Date.now()}`;
+          const url = publicUrlData.publicUrl;
           setImageUrl(url);
+          setCurrentAvatarFilename(artist.avatar_img);
 
           if (onAvatarUploaded) {
             onAvatarUploaded(url);
@@ -89,6 +90,10 @@ export function ArtistAvatarUpload({
                   position: "absolute",
                   top: -10,
                   right: -10,
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  backdropFilter: "blur(4px)",
+                  border: "1px solid rgba(0, 0, 0, 0.1)",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
                 }}
                 radius="xl"
                 size="sm"
@@ -146,6 +151,7 @@ export function ArtistAvatarUpload({
   async function deleteImage() {
     if (!artistId) {
       setImageUrl(null);
+      setCurrentAvatarFilename(null);
       if (onAvatarUploaded) {
         onAvatarUploaded("");
       }
@@ -155,15 +161,29 @@ export function ArtistAvatarUpload({
     setUploadState("pending");
     try {
       const supabase = await createClient();
-      const { error } = await supabase.storage
-        .from("avatars")
-        .remove([artistId]);
+      
+      // Delete the file from storage if it exists
+      if (currentAvatarFilename) {
+        const { error: storageError } = await supabase.storage
+          .from("avatars")
+          .remove([currentAvatarFilename]);
 
-      if (error) {
-        console.error("Error deleting image:", error);
+        if (storageError) {
+          console.error("Error deleting avatar file:", storageError);
+        }
+      }
+
+      // Update the artist table to remove the avatar filename
+      const { error: dbError } = await supabase
+        .from("artists")
+        .update({ avatar_img: null })
+        .eq("id", artistId);
+
+      if (dbError) {
+        console.error("Error updating artist avatar:", dbError);
         notifications.show({
           title: "Error",
-          message: `Failed to delete avatar image: ${error.message}`,
+          message: `Failed to update avatar: ${dbError.message}`,
           color: "red",
         });
         setUploadState("error");
@@ -171,6 +191,7 @@ export function ArtistAvatarUpload({
       }
 
       setImageUrl(null);
+      setCurrentAvatarFilename(null);
       if (onAvatarUploaded) {
         onAvatarUploaded("");
       }
@@ -212,12 +233,23 @@ export function ArtistAvatarUpload({
         return;
       }
 
-      // If artistId is provided, upload to Supabase
+      // Generate a random UUID for the filename
+      const filename = uuidv4();
+ 
+
       const supabase = await createClient();
+
+      // Delete old avatar file if it exists
+      if (currentAvatarFilename) {
+        await supabase.storage
+          .from("avatars")
+          .remove([currentAvatarFilename]);
+      }
+
+      // Upload new avatar with UUID filename
       const { data, error } = await supabase.storage
         .from("avatars")
-        .upload(artistId, file, {
-          upsert: true,
+        .upload(filename, file, {
           cacheControl: "3600",
           contentType: file.type,
         });
@@ -233,13 +265,30 @@ export function ArtistAvatarUpload({
         return;
       }
 
+      // Update the artist table with the new avatar filename
+      const { error: dbError } = await supabase
+        .from("artists")
+        .update({ avatar_img: filename })
+        .eq("id", artistId);
+
+      if (dbError) {
+        console.error("Error updating artist avatar:", dbError);
+        notifications.show({
+          title: "Database Error",
+          message: dbError.message,
+          color: "red",
+        });
+        setUploadState("error");
+        return;
+      }
+
       const { data: publicUrlData } = supabase.storage
         .from("avatars")
-        .getPublicUrl(artistId);
+        .getPublicUrl(filename);
 
-      // Add cache busting parameter to force browser to reload the image
-      const url = `${publicUrlData.publicUrl}?t=${Date.now()}`;
+      const url = publicUrlData.publicUrl;
       setImageUrl(url);
+      setCurrentAvatarFilename(filename);
 
       if (onAvatarUploaded) {
         onAvatarUploaded(url);
