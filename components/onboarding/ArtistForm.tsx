@@ -270,11 +270,6 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
 
   async function submitArtistBasics() {
     setLoading(true);
-    console.log("Submitting artist basics:", {
-      name: form.values.name,
-      bio: form.values.bio,
-      place: selectedPlace,
-    });
 
     try {
       if (!selectedPlace) {
@@ -294,7 +289,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
 
       notifications.show({
         title: "Success",
-        message: "Artist profile created! Now you can add your artwork.",
+        message: "Profile updated!",
         color: "green",
       });
     } catch (error) {
