@@ -141,13 +141,6 @@ export type Database = {
             foreignKeyName: "artists_tags_artist_id_fkey"
             columns: ["artist_id"]
             isOneToOne: false
-            referencedRelation: "artist_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artists_tags_artist_id_fkey"
-            columns: ["artist_id"]
-            isOneToOne: false
             referencedRelation: "artists"
             referencedColumns: ["id"]
           },
@@ -180,13 +173,6 @@ export type Database = {
           track_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "artists_tracks_artist_id_fkey"
-            columns: ["artist_id"]
-            isOneToOne: false
-            referencedRelation: "artist_view"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "artists_tracks_artist_id_fkey"
             columns: ["artist_id"]
@@ -404,13 +390,6 @@ export type Database = {
           promoter_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "promoters_artists_artist_id_fkey"
-            columns: ["artist_id"]
-            isOneToOne: false
-            referencedRelation: "artist_view"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "promoters_artists_artist_id_fkey"
             columns: ["artist_id"]
@@ -721,37 +700,7 @@ export type Database = {
       }
     }
     Views: {
-      artist_view: {
-        Row: {
-          administrative_area: string | null
-          avatar_img: string | null
-          banner_img: string | null
-          bio: string | null
-          created_at: string | null
-          external_links: string[] | null
-          id: string | null
-          locality: string | null
-          name: string | null
-          tracks: Json[] | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "artists_administrative_area_fkey"
-            columns: ["administrative_area"]
-            isOneToOne: false
-            referencedRelation: "administrative_areas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "artists_locality_fkey"
-            columns: ["locality"]
-            isOneToOne: false
-            referencedRelation: "localities"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
