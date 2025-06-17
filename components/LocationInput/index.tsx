@@ -17,7 +17,6 @@ interface ILocationInputProps {
 
 export function LocationInput({ onPlaceSelect, onRemovePlace, storedLocality }: ILocationInputProps) {
   const [isLoading, setIsLoading] = useState(false);
-  console.log("storedLocality", storedLocality);
   const formattedAddress = storedLocality ? `${storedLocality?.locality?.name}, ${storedLocality?.administrativeArea?.name}, ${storedLocality?.country?.name}` : undefined
 
   return (

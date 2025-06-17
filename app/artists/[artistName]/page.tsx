@@ -1,7 +1,7 @@
 import { getArtistByName } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
-import { formatDuration } from "@/lib/formatting";
+import { getArtistImagesServer } from "@/lib/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import {
   Container,
@@ -16,7 +16,6 @@ import {
   Skeleton,
   Text,
   Image,
-  Center,
   Button,
 } from "@mantine/core";
 import { IconEdit } from "@tabler/icons-react";
@@ -44,7 +43,10 @@ export default async function ArtistPage({
   // Get tracks with play counts instead of using the basic track data
   const tracksWithPlayCounts = artist.id ? await getArtistTracksWithPlayCounts(supabase, artist.id) : [];
 
-  const { name, bio, tracks, external_links } = artist;
+  // Get dynamic image URLs using the new combined function
+  const { avatarUrl, bannerUrl } = artist.id ? await getArtistImagesServer(supabase, artist.id) : { avatarUrl: null, bannerUrl: null };
+
+  const { name, bio, external_links } = artist;
   return (
     <Container>
       <Grid gutter="lg">
@@ -53,7 +55,7 @@ export default async function ArtistPage({
           {/* Artist Header */}
           <div style={{ position: "relative", height: "200px", marginBottom: "2rem" }}>
             <Image
-              src="https://i1.sndcdn.com/visuals-PzeCi6m2YKysjZ7C-2pyiyA-t2480x520.jpg"
+              src={bannerUrl} 
               alt={`${artist.name} banner`}
               style={{
                 width: "100%",
@@ -90,7 +92,7 @@ export default async function ArtistPage({
               }}
             >
               <Image
-                src="https://i1.sndcdn.com/avatars-YMlrZVHCf2EwCAsA-kL7awg-t1080x1080.jpg"
+                src={avatarUrl}
                 alt={`${name} avatar`}
                 w={64} // Twice the font size of the title
                 h={64} // Twice the font size of the title
@@ -115,17 +117,7 @@ export default async function ArtistPage({
           {/* Tracks Section */}
           <TrackList
             tracks={tracksWithPlayCounts}
-            artist={{
-              id: artist.id!,
-              name: artist.name!,
-              bio: artist.bio!,
-              created_at: artist.created_at!,
-              user_id: artist.user_id!,
-              administrative_area_id: artist.administrative_area || null,
-              locality_id: artist.locality || null,
-              country_id: null,
-              external_links: artist.external_links || [],
-            }}
+            artist={artist}
             canDelete={userIsArtist}
           />
         </GridCol>

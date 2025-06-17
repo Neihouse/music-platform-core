@@ -77,7 +77,7 @@ export async function getArtistByName(
   artistName: string,
 ) {
   const { data: artist, error } = await supabase
-    .from("artist_view")
+    .from("artists")
     .select(`*`)
     .ilike("name", artistName)
     .maybeSingle();
@@ -89,11 +89,7 @@ export async function getArtistByName(
     throw new Error(error.message);
   }
 
-  return {
-    ...artist,
-    tracks:
-      (artist?.tracks as Pick<Track, "id" | "title" | "duration">[]) || [],
-  };
+  return artist
 }
 
 export async function updateArtist(
