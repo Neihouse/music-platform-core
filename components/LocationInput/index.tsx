@@ -13,11 +13,14 @@ interface ILocationInputProps {
   onPlaceSelect: (storedLocality: StoredLocality) => void;
   onRemovePlace?: () => Promise<void>;
   storedLocality?: StoredLocality;
+  searchFullAddress?: boolean; // New prop to control search type
 }
 
-export function LocationInput({ onPlaceSelect, onRemovePlace, storedLocality }: ILocationInputProps) {
+export function LocationInput({ onPlaceSelect, onRemovePlace, storedLocality, searchFullAddress = false }: ILocationInputProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const formattedAddress = storedLocality ? `${storedLocality?.locality?.name}, ${storedLocality?.administrativeArea?.name}, ${storedLocality?.country?.name}` : undefined
+  const formattedAddress = storedLocality 
+    ? (storedLocality.fullAddress || `${storedLocality?.locality?.name}, ${storedLocality?.administrativeArea?.name}, ${storedLocality?.country?.name}`)
+    : undefined
 
   return (
     <PlacesApiProvider>
@@ -36,7 +39,7 @@ export function LocationInput({ onPlaceSelect, onRemovePlace, storedLocality }: 
 
     if (!formattedAddress) {
       return (
-        <Input onPlaceSelect={handlePlaceSelect} />
+        <Input onPlaceSelect={handlePlaceSelect} searchFullAddress={searchFullAddress} />
       )
     }
 
@@ -96,6 +99,7 @@ export function LocationInput({ onPlaceSelect, onRemovePlace, storedLocality }: 
 
       const storedLocality = await submitPlace(
         place.address_components,
+        searchFullAddress ? place.formatted_address : undefined,
       );
 
 

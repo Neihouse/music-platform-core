@@ -12,6 +12,7 @@ import {
   FileInput,
   NumberInput,
   Switch,
+  Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { createVenue } from "@/app/venues/create/actions";
@@ -19,6 +20,7 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "@/components/LocationInput";
+import { StoredLocality } from "@/utils/supabase/global.types";
 import { IconUpload } from "@tabler/icons-react";
 
 export interface IVenueFormProps { }
@@ -26,11 +28,12 @@ export interface IVenueFormProps { }
 export function VenueForm(props: IVenueFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<StoredLocality | undefined>();
+  
   const form = useForm({
     initialValues: {
       venueName: "",
       description: "",
-      address: "",
       capacity: 0,
       contactEmail: "",
       contactPhone: "",
@@ -44,20 +47,41 @@ export function VenueForm(props: IVenueFormProps) {
     },
   });
 
+  // Custom validation for location
+  const validateForm = () => {
+    const formErrors = form.validate();
+    if (!selectedPlace) {
+      notifications.show({
+        title: "Error",
+        message: "Please select a location for your venue",
+        color: "red",
+      });
+      return false;
+    }
+    return !formErrors.hasErrors;
+  };
+
+  async function handleRemoveLocation() {
+    setSelectedPlace(undefined);
+  }
+
   return (
     <Group justify="center" align="center" mt="xl">
       <Paper p="lg" radius="md" shadow="sm" w={600}>
         <form
-          onSubmit={form.onSubmit((values) =>
-            submitVenue(
+          onSubmit={form.onSubmit((values) => {
+            if (!validateForm()) {
+              return;
+            }
+            return submitVenue(
               values.venueName,
               values.description,
-              values.address,
+              selectedPlace!,
               values.capacity,
               values.contactEmail,
               values.contactPhone,
-            ),
-          )}
+            );
+          })}
         >
           <Stack gap="md">
             <Container>
@@ -83,17 +107,19 @@ export function VenueForm(props: IVenueFormProps) {
                 mb="md"
               />
 
-              <TextInput
-                label="Street Address"
-                key={form.key("address")}
-                placeholder="123 Music Street"
-                {...form.getInputProps("address")}
-                mb="md"
-              />
-
               <Title order={4} mb="sm">
-                Location
+                Venue Location & Address
               </Title>
+              <Text size="sm" c="dimmed" mb="md">
+                Enter the full address of your venue. This will help fans find your location.
+              </Text>
+              
+              <LocationInput
+                onPlaceSelect={setSelectedPlace}
+                onRemovePlace={handleRemoveLocation}
+                storedLocality={selectedPlace}
+                searchFullAddress={true}
+              />
 
               <NumberInput
                 label="Capacity"
@@ -143,7 +169,7 @@ export function VenueForm(props: IVenueFormProps) {
   async function submitVenue(
     venueName: string,
     description: string,
-    address: string,
+    location: StoredLocality,
     capacity: number,
     contactEmail: string,
     contactPhone: string,
@@ -153,7 +179,7 @@ export function VenueForm(props: IVenueFormProps) {
       "Submitting venue:",
       venueName,
       description,
-      address,
+      location,
       capacity,
       contactEmail,
       contactPhone,
@@ -162,7 +188,7 @@ export function VenueForm(props: IVenueFormProps) {
       const venue = await createVenue(
         venueName,
         description,
-        address,
+        location,
         capacity,
         contactEmail,
         contactPhone,
