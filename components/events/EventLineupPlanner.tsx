@@ -30,7 +30,7 @@ import {
 	assignArtistToStageAction,
 	updateArtistStageAssignmentAction,
 	removeArtistFromStageAction
-} from "@/app/events/[eventId]/lineup/actions";
+} from "@/app/events/[eventName]/lineup/actions";
 import { VenueSearch } from "@/components/VenueSearch";
 
 interface Artist {

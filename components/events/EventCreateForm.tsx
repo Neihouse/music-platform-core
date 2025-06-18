@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createEvent } from "@/app/events/create/actions";
+import { nameToUrl } from "@/lib/utils";
 import { 
   Button, 
   TextInput, 
@@ -47,7 +48,7 @@ export function EventCreateForm({ venues = [] }: EventCreateFormProps) {
         locality: formData.locality || null,
       });
 
-      router.push(`/events/${event.id}`);
+      router.push(`/events/${nameToUrl(event.name)}`);
     } catch (error) {
       console.error("Failed to create event:", error);
       alert("Failed to create event. Please try again.");

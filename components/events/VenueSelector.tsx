@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button, Group, Text, Paper, Stack, Title, Anchor } from "@mantine/core";
 import { IconMapPin, IconEdit, IconCheck, IconX, IconPlus } from "@tabler/icons-react";
-import { updateEventVenue } from "@/app/events/[eventId]/actions";
+import { updateEventVenue } from "@/app/events/[eventName]/actions";
 import { VenueSearch } from "@/components/VenueSearch";
 import Link from "next/link";
 
