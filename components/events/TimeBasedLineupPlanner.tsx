@@ -48,6 +48,7 @@ import {
 	updateArtistStageAssignmentAction,
 	removeArtistFromStageAction
 } from "@/app/events/[eventName]/lineup/actions";
+import { createClient } from "@/utils/supabase/client";
 
 interface Artist {
 	id: string;
@@ -301,6 +302,17 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 		return `${newHours.toString().padStart(2, '0')}:${newMins.toString().padStart(2, '0')}`;
 	};
 
+	const getAvatarUrl = (artist: Artist): string | undefined => {
+		if (!artist.avatar_img) return undefined;
+		
+		const supabase = createClient();
+		const { data } = supabase.storage
+			.from("avatars")
+			.getPublicUrl(artist.avatar_img);
+		
+		return data.publicUrl;
+	};
+
 	const handleAddSlot = async () => {
 		if (!newSlotData.artistId || !newSlotData.stageId || !newSlotData.startTime) return;
 
@@ -505,7 +517,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 															fontWeight: 500,
 														}}
 													>
-														<Avatar src={artist.avatar_img} size={20}>
+														<Avatar src={getAvatarUrl(artist)} size={20}>
 															{artist.name.charAt(0)}
 														</Avatar>
 														<span>
@@ -635,7 +647,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 																	gap: '4px'
 																}}
 															>
-																<Avatar src={slot.artist.avatar_img} size={20}>
+																<Avatar src={getAvatarUrl(slot.artist)} size={20}>
 																	{slot.artist.name.charAt(0)}
 																</Avatar>
 																<div style={{ flex: 1, minWidth: 0 }}>
@@ -665,7 +677,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 					<Title order={4} mb="md">Slot Details</Title>
 					{selectedSlot ? (
 						<Group align="flex-start">
-							<Avatar src={selectedSlot.artist.avatar_img} size={40}>
+							<Avatar src={getAvatarUrl(selectedSlot.artist)} size={40}>
 								{selectedSlot.artist.name.charAt(0)}
 							</Avatar>
 							<div>
@@ -711,7 +723,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 					{selectedSlot && (
 						<Stack gap="md">
 							<Group>
-								<Avatar src={selectedSlot.artist.avatar_img} size={40}>
+								<Avatar src={getAvatarUrl(selectedSlot.artist)} size={40}>
 									{selectedSlot.artist.name.charAt(0)}
 								</Avatar>
 								<div>

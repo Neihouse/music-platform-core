@@ -25,6 +25,30 @@ export async function getEventById(eventId: string) {
   return event;
 }
 
+export async function getEventByName(eventName: string) {
+  const supabase = await createClient();
+
+  const { data: event, error } = await supabase
+    .from("events")
+    .select(`
+      *,
+      venues (
+        id,
+        name,
+        address,
+        capacity
+      )
+    `)
+    .eq("name", eventName)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to get event: ${error.message}`);
+  }
+
+  return event;
+}
+
 export async function getEvents() {
   const supabase = await createClient();
 
