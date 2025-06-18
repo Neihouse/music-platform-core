@@ -1,20 +1,22 @@
-import { getEventById } from "@/db/queries/events";
+import { getEventByName } from "@/db/queries/events";
 import { getAvailableVenues } from "./actions";
 import { VenueSelector } from "@/components/events/VenueSelector";
 import { notFound } from "next/navigation";
 import { Paper, Title, Text, Button, Group, Stack, Container } from "@mantine/core";
 import { IconUsers, IconCalendar } from "@tabler/icons-react";
+import { urlToName, nameToUrl } from "@/lib/utils";
 import Link from "next/link";
 
 interface EventDetailPageProps {
   params: Promise<{
-    eventId: string;
+    eventName: string;
   }>;
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   try {
-    const event = await getEventById((await params).eventId);
+    const eventName = urlToName((await params).eventName);
+    const event = await getEventByName(eventName);
     const availableVenues = await getAvailableVenues();
 
     return (
@@ -52,7 +54,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <Group>
                 <Button
                   component={Link}
-                  href={`/events/${event.id}/lineup`}
+                  href={`/events/${nameToUrl(event.name)}/lineup`}
                   leftSection={<IconUsers size={16} />}
                   size="lg"
                 >

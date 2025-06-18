@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { nameToUrl } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
 export async function updateEventVenue(eventId: string, venueId: string | null) {
@@ -23,7 +24,7 @@ export async function updateEventVenue(eventId: string, venueId: string | null) 
   }
 
   // Revalidate the event page to show updated data
-  revalidatePath(`/events/${eventId}`);
+  revalidatePath(`/events/${nameToUrl(event.name)}`);
   
   return event;
 }

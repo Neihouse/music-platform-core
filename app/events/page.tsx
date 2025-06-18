@@ -1,6 +1,7 @@
 import { getEvents } from "@/db/queries/events";
 import { Paper, Title, Text, Button, Group, Stack, Container, Card, Badge, SimpleGrid } from "@mantine/core";
 import { IconCalendar, IconMapPin, IconPlus, IconUsers } from "@tabler/icons-react";
+import { nameToUrl } from "@/lib/utils";
 import Link from "next/link";
 
 export default async function EventsPage() {
@@ -73,14 +74,14 @@ export default async function EventsPage() {
                     <Button
                       variant="outline"
                       component={Link}
-                      href={`/events/${event.id}`}
+                      href={`/events/${nameToUrl(event.name)}`}
                       size="sm"
                     >
                       View Details
                     </Button>
                     <Button
                       component={Link}
-                      href={`/events/${event.id}/lineup`}
+                      href={`/events/${nameToUrl(event.name)}/lineup`}
                       leftSection={<IconUsers size={14} />}
                       size="sm"
                     >
