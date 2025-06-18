@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import "./LocationInput.css";
 
