@@ -172,9 +172,12 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 					id: assignment.id,
 					artist: assignment.artists,
 					stage: assignment.stage,
-					startTime: assignment.set_start,
-					endTime: assignment.set_end,
-					duration: calculateDuration(assignment.set_start, assignment.set_end)
+					startTime: extractTimeFromTimestamp(assignment.set_start),
+					endTime: extractTimeFromTimestamp(assignment.set_end),
+					duration: calculateDuration(
+						extractTimeFromTimestamp(assignment.set_start), 
+						extractTimeFromTimestamp(assignment.set_end)
+					)
 				}));
 			
 			setScheduledSlots(slots);
@@ -260,21 +263,49 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 
 		// Handle dropping artist from available pool to timeline
 		if (source.droppableId === "available-artists") {
-			const [stageId, time] = destination.droppableId.split("-");
+			const dropParts = destination.droppableId.split("__");
+			if (dropParts.length !== 2) {
+				console.error('Invalid droppable ID format:', destination.droppableId);
+				return;
+			}
+			
+			const stageId = dropParts[0];
+			const time = dropParts[1];
 			const artist = availableUnassignedArtists.find((a: Artist) => a.id === draggableId);
 			
-			if (!artist || !stageId || !time) return;
+			if (!artist || !stageId || !time) {
+				console.error('Missing required data:', { artist: !!artist, stageId, time });
+				return;
+			}
+
+			// Validate time format
+			if (!time.match(/^\d{2}:\d{2}$/)) {
+				console.error('Invalid time format:', time);
+				return;
+			}
 
 			// Create a new scheduled slot
 			const endTime = addMinutesToTime(time, 60); // Default 1 hour
+			const startTimestamp = convertTimeToTimestamp(time);
+			const endTimestamp = convertTimeToTimestamp(endTime);
+			
+			console.log('Assigning artist:', {
+				artistId: artist.id,
+				eventId: event.id,
+				stageId,
+				startTime: time,
+				endTime,
+				startTimestamp,
+				endTimestamp
+			});
 			
 			try {
 				const assignment = await assignArtistToStageAction({
 					artist: artist.id,
 					event: event.id,
 					stage: stageId,
-					set_start: time,
-					set_end: endTime,
+					set_start: startTimestamp,
+					set_end: endTimestamp,
 				});
 
 				const newSlot: ScheduledSlot = {
@@ -295,7 +326,24 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	};
 
 	const addMinutesToTime = (time: string, minutes: number): string => {
-		const [hours, mins] = time.split(':').map(Number);
+		if (!time || !time.includes(':')) {
+			console.error('Invalid time format:', time);
+			return '00:00';
+		}
+		
+		const timeParts = time.split(':');
+		if (timeParts.length !== 2) {
+			console.error('Invalid time format:', time);
+			return '00:00';
+		}
+		
+		const [hours, mins] = timeParts.map(Number);
+		
+		if (isNaN(hours) || isNaN(mins)) {
+			console.error('Invalid time values:', time, 'parsed as:', hours, mins);
+			return '00:00';
+		}
+		
 		const totalMinutes = hours * 60 + mins + minutes;
 		const newHours = Math.floor(totalMinutes / 60) % 24;
 		const newMins = totalMinutes % 60;
@@ -313,6 +361,31 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 		return data.publicUrl;
 	};
 
+	const convertTimeToTimestamp = (time: string): string => {
+		if (!event.date) {
+			// If no event date, use today's date
+			const today = new Date().toISOString().split('T')[0];
+			return `${today}T${time}:00`;
+		}
+		
+		// Use the event's date
+		const eventDate = new Date(event.date).toISOString().split('T')[0];
+		return `${eventDate}T${time}:00`;
+	};
+
+	const extractTimeFromTimestamp = (timestamp: string): string => {
+		if (!timestamp) return '00:00';
+		
+		// Handle both full timestamps and just time strings
+		if (timestamp.includes('T')) {
+			const timePart = timestamp.split('T')[1];
+			return timePart.substring(0, 5); // HH:MM format
+		}
+		
+		// If it's already just a time string, return as is
+		return timestamp.substring(0, 5);
+	};
+
 	const handleAddSlot = async () => {
 		if (!newSlotData.artistId || !newSlotData.stageId || !newSlotData.startTime) return;
 
@@ -320,14 +393,16 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 		if (!artist) return;
 
 		const endTime = addMinutesToTime(newSlotData.startTime, newSlotData.duration);
+		const startTimestamp = convertTimeToTimestamp(newSlotData.startTime);
+		const endTimestamp = convertTimeToTimestamp(endTime);
 
 		try {
 			const assignment = await assignArtistToStageAction({
 				artist: artist.id,
 				event: event.id,
 				stage: newSlotData.stageId,
-				set_start: newSlotData.startTime,
-				set_end: endTime,
+				set_start: startTimestamp,
+				set_end: endTimestamp,
 			});
 
 			const newSlot: ScheduledSlot = {
@@ -603,7 +678,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 									{stages.map((stage) => {
 										const slot = getSlotForStageAndTime(stage.id, timeSlot.time);
 										const shouldShow = slot && shouldShowSlot(slot, timeSlot.time);
-										const dropId = `${stage.id}-${timeSlot.time}`;
+										const dropId = `${stage.id}__${timeSlot.time}`;
 										
 										return (
 											<Droppable key={dropId} droppableId={dropId}>
