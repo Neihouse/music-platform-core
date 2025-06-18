@@ -27,15 +27,6 @@ export async function submitPlace(
     component.types.includes("country"),
   )?.long_name;
 
-  // For full addresses, we might also want to extract street information
-  const streetNumber = addressComponents?.find((component) =>
-    component.types.includes("street_number"),
-  )?.long_name;
-
-  const route = addressComponents?.find((component) =>
-    component.types.includes("route"),
-  )?.long_name;
-
   if (!administrativeArea || !locality || !country) {
     throw new Error(
       "Administrative area, locality, and country are required for location.",
