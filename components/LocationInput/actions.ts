@@ -8,6 +8,7 @@ import { StoredLocality } from "@/utils/supabase/global.types";
 
 export async function submitPlace(
   addressComponents: google.maps.GeocoderAddressComponent[],
+  fullAddress?: string,
 ): Promise<StoredLocality> {
   if (!addressComponents) {
     throw new Error("No address components found");
@@ -24,6 +25,15 @@ export async function submitPlace(
 
   const country = addressComponents?.find((component) =>
     component.types.includes("country"),
+  )?.long_name;
+
+  // For full addresses, we might also want to extract street information
+  const streetNumber = addressComponents?.find((component) =>
+    component.types.includes("street_number"),
+  )?.long_name;
+
+  const route = addressComponents?.find((component) =>
+    component.types.includes("route"),
   )?.long_name;
 
   if (!administrativeArea || !locality || !country) {
@@ -53,5 +63,6 @@ export async function submitPlace(
     country: countryData,
     administrativeArea: administrativeAreaData,
     locality: localityData,
+    fullAddress: fullAddress, // Include the full formatted address if provided
   };
 }
