@@ -1,11 +1,12 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { StoredLocality } from "@/utils/supabase/global.types";
 
 export async function createVenue(
   venueName: string,
   description: string,
-  address: string,
+  location: StoredLocality,
   capacity: number,
   contactEmail: string,
   contactPhone: string,
@@ -22,18 +23,22 @@ export async function createVenue(
     throw new Error("Venue name is required");
   }
 
-  // For now, we'll use a simplified approach
+  if (!location) {
+    throw new Error("Location is required");
+  }
+
+  // Create venue with proper location data
   const { data: venue, error } = await supabase
     .from("venues")
     .insert({
       name: venueName,
       description: description,
-      address: address,
+      address: location.fullAddress || `${location.locality.name}, ${location.administrativeArea.name}, ${location.country.name}`,
       capacity: capacity,
       contact_email: contactEmail,
       contact_phone: contactPhone,
-      administrative_area: "",
-      locality: "",
+      administrative_area: location.administrativeArea.id,
+      locality: location.locality.id,
     })
     .select()
     .single();
@@ -41,9 +46,6 @@ export async function createVenue(
   if (error) {
     throw new Error(error.message);
   }
-
-  // In a complete implementation, we would also store additional details
-  // like name, description, capacity, etc. in another table or extend the venues table
 
   return venue;
 }

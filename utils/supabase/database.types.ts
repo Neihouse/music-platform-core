@@ -851,43 +851,43 @@ export type Database = {
       }
       venues: {
         Row: {
-          address: string
+          address: string | null
           administrative_area: string
           capacity: number | null
-          contact_email: string
-          contact_phone: string
+          contact_email: string | null
+          contact_phone: string | null
           created_at: string
           description: string | null
           id: string
           locality: string
           name: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
-          address: string
+          address?: string | null
           administrative_area: string
           capacity?: number | null
-          contact_email: string
-          contact_phone: string
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
           id?: string
           locality: string
           name: string
-          user_id?: string
+          user_id?: string | null
         }
         Update: {
-          address?: string
+          address?: string | null
           administrative_area?: string
           capacity?: number | null
-          contact_email?: string
-          contact_phone?: string
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
           id?: string
           locality?: string
           name?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -902,6 +902,39 @@ export type Database = {
             columns: ["locality"]
             isOneToOne: false
             referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      venues_events: {
+        Row: {
+          created_at: string
+          event: string
+          venue: string
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          venue: string
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          venue?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venues_events_event_fkey"
+            columns: ["event"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venues_events_venue_fkey"
+            columns: ["venue"]
+            isOneToOne: false
+            referencedRelation: "venues"
             referencedColumns: ["id"]
           },
         ]

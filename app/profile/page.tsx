@@ -225,7 +225,7 @@ export default async function ProfilePage() {
 
               <Button
                 component={Link}
-                href={`/venues/${userEntities.venue.id}`}
+                href={`/venues/${userEntities.venue.name.toLowerCase()}`}
                 variant="light"
                 color="violet"
                 fullWidth
