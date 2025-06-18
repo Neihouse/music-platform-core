@@ -204,25 +204,27 @@ export function VenueSearch({
                       <Stack gap={2} style={{ flex: 1 }}>
                         <Group gap="xs">
                           <IconMapPin size={16} />
-                          <Text fw={500}>
-                            <Highlight 
-                              highlight={debouncedSearch}
-                              highlightStyles={{ backgroundColor: "yellow" }}
-                            >
-                              {venue.name}
-                            </Highlight>
-                          </Text>
+                          <Highlight 
+                            component="span"
+                            fw={500}
+                            highlight={debouncedSearch}
+                            highlightStyles={{ backgroundColor: "yellow" }}
+                          >
+                            {venue.name}
+                          </Highlight>
                         </Group>
                         
                         {venue.address && (
-                          <Text size="sm" c="dimmed" pl={24}>
-                            <Highlight 
-                              highlight={debouncedSearch}
-                              highlightStyles={{ backgroundColor: "yellow" }}
-                            >
-                              {venue.address}
-                            </Highlight>
-                          </Text>
+                          <Highlight 
+                            component="div"
+                            size="sm" 
+                            c="dimmed" 
+                            pl={24}
+                            highlight={debouncedSearch}
+                            highlightStyles={{ backgroundColor: "yellow" }}
+                          >
+                            {venue.address}
+                          </Highlight>
                         )}
                       </Stack>
                       
