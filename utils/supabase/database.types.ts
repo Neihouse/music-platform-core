@@ -210,26 +210,29 @@ export type Database = {
       event_stage: {
         Row: {
           created_at: string
-          event_id: string
+          event: string
+          id: string
           name: string
           venue: string
         }
         Insert: {
           created_at?: string
-          event_id: string
+          event: string
+          id?: string
           name: string
           venue: string
         }
         Update: {
           created_at?: string
-          event_id?: string
+          event?: string
+          id?: string
           name?: string
           venue?: string
         }
         Relationships: [
           {
             foreignKeyName: "event_stage_id_fkey"
-            columns: ["event_id"]
+            columns: ["event"]
             isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
@@ -251,6 +254,7 @@ export type Database = {
           id: string
           set_end: string | null
           set_start: string | null
+          stage: string | null
         }
         Insert: {
           artist: string
@@ -259,6 +263,7 @@ export type Database = {
           id?: string
           set_end?: string | null
           set_start?: string | null
+          stage?: string | null
         }
         Update: {
           artist?: string
@@ -267,6 +272,7 @@ export type Database = {
           id?: string
           set_end?: string | null
           set_start?: string | null
+          stage?: string | null
         }
         Relationships: [
           {
@@ -281,6 +287,13 @@ export type Database = {
             columns: ["event"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_stage_artists_stage_fkey"
+            columns: ["stage"]
+            isOneToOne: false
+            referencedRelation: "event_stage"
             referencedColumns: ["id"]
           },
         ]
