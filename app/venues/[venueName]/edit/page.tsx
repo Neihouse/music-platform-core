@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { getVenueByName } from "@/db/queries/venues";
-import { VenueEditForm } from "@/components/VenueEdit";
+import { VenueEditForm } from "@/components/VenueEdit/VenueEditForm";
 
 interface VenueEditPageProps {
   params: Promise<{
