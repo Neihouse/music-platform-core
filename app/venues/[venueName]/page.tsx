@@ -9,13 +9,13 @@ import {
 } from "./actions";
 
 interface VenuePageProps {
-  params: {
+  params: Promise<{
     venueName: string;
-  };
+  }>;
 }
 
 export default async function VenuePage({ params }: VenuePageProps) {
-  const { venueName } = params;
+  const { venueName } = await params;
   const decodedVenueName = decodeURIComponent(venueName);
   
   const supabase = await createClient();
@@ -56,14 +56,4 @@ export default async function VenuePage({ params }: VenuePageProps) {
     console.error("Error loading venue:", error);
     notFound();
   }
-}
-
-export async function generateMetadata({ params }: VenuePageProps) {
-  const { venueName } = params;
-  const decodedVenueName = decodeURIComponent(venueName);
-  
-  return {
-    title: `${decodedVenueName} - Venue Details`,
-    description: `Details, events, and information for ${decodedVenueName}`,
-  };
 }
