@@ -14,4 +14,5 @@ export type StoredLocality = {
     locality: Locality;
     administrativeArea: AdministrativeArea;
     country: Country;
+    fullAddress?: string; // Optional full formatted address
 }
