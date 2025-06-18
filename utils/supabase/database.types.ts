@@ -556,24 +556,30 @@ export type Database = {
       }
       promoters: {
         Row: {
+          bio: string | null
           created_at: string
+          email: string | null
           id: string
+          name: string
           phone: string | null
-          title: string
           user_id: string
         }
         Insert: {
+          bio?: string | null
           created_at?: string
+          email?: string | null
           id?: string
+          name: string
           phone?: string | null
-          title: string
           user_id?: string
         }
         Update: {
+          bio?: string | null
           created_at?: string
+          email?: string | null
           id?: string
+          name?: string
           phone?: string | null
-          title?: string
           user_id?: string
         }
         Relationships: []
@@ -902,39 +908,6 @@ export type Database = {
             columns: ["locality"]
             isOneToOne: false
             referencedRelation: "localities"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      venues_events: {
-        Row: {
-          created_at: string
-          event: string
-          venue: string
-        }
-        Insert: {
-          created_at?: string
-          event: string
-          venue: string
-        }
-        Update: {
-          created_at?: string
-          event?: string
-          venue?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "venues_events_event_fkey"
-            columns: ["event"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "venues_events_venue_fkey"
-            columns: ["venue"]
-            isOneToOne: false
-            referencedRelation: "venues"
             referencedColumns: ["id"]
           },
         ]
