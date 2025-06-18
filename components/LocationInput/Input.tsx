@@ -27,8 +27,10 @@ export function Input({ onPlaceSelect, options, searchFullAddress = false }: IIn
   const inputRef = useRef<HTMLInputElement>(null);
   const places = useMapsLibrary("places");
 
-  // Choose the appropriate options based on searchFullAddress prop
-  const autocompleteOptions = options || (searchFullAddress ? _fullAddressOptions : _cityOptions);
+  // Memoize the appropriate options based on searchFullAddress prop
+  const autocompleteOptions = useMemo(() => {
+    return options || (searchFullAddress ? _fullAddressOptions : _cityOptions);
+  }, [options, searchFullAddress]);
 
   useEffect(() => {
     if (!places || !inputRef.current) {
