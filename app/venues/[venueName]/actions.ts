@@ -59,7 +59,7 @@ export async function getVenuePromoters(venueId: string) {
         id,
         name,
         bio,
-        contact_email,
+        email,
         user_id
       )
     `)

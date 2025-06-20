@@ -167,7 +167,7 @@ export default async function ProfilePage() {
               </CardSection>
 
               <Stack mt="md" gap="md">
-                <Text>{userEntities.promoter.title}</Text>
+                <Text>{userEntities.promoter.name}</Text>
                 <Text size="sm" c="dimmed">
                   Promote events and connect with artists and venues.
                 </Text>
