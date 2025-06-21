@@ -63,15 +63,11 @@ export async function createPromoter(
     throw new Error("User not authenticated");
   }
 
-  // Ensure user_id is set to the current authenticated user
-  const promoterWithUserId = {
-    ...promoterData,
-    user_id: user.user.id,
-  };
+
 
   const { data: promoter, error } = await supabase
     .from("promoters")
-    .insert(promoterWithUserId)
+    .insert(promoterData)
     .select()
     .single();
 
