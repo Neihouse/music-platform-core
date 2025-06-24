@@ -68,6 +68,10 @@ export function urlToName(urlName: string): string {
 - **`/app/events/[eventName]/page.tsx`** ✅ Already implemented
 - **`/app/events/[eventName]/lineup/page.tsx`** ✅ Already implemented
 
+### Promoters Routes
+- **`/app/promoters/[promoterName]/page.tsx`** ✅ **New**: Created dynamic route page
+- **`/db/queries/promoters.ts`** ✅ **Updated**: Fixed `getPromoterByName` to use `name` field instead of `title`
+
 ## ✅ **Updated Component Links**
 
 ### Artist Links
@@ -82,6 +86,7 @@ export function urlToName(urlName: string): string {
 - **`/app/profile/page.tsx`**
   - Added `nameToUrl` import
   - Updated artist profile link to use `nameToUrl(userEntities.artist.name)` (now lowercase)
+  - **Updated promoter profile link to use `nameToUrl(userEntities.promoter.name)` instead of ID** (now lowercase)
 
 ### Venue Links
 - **`/app/profile/page.tsx`**
@@ -160,14 +165,16 @@ To verify the changes:
 ### Utility Functions (1 file)
 - `/lib/utils.ts` - Updated `nameToUrl` to include `.toLowerCase()`
 
-### Database Queries (1 file)
+### Database Queries (2 files)
 - `/db/queries/events.ts` - Updated to use case-insensitive query
+- `/db/queries/promoters.ts` - **New**: Fixed `getPromoterByName` to use `name` field
 
-### Dynamic Route Pages (4 files)
+### Dynamic Route Pages (5 files)
 - `/app/artists/[artistName]/page.tsx`
 - `/app/artists/[artistName]/edit/page.tsx`
 - `/app/venues/[venueName]/page.tsx`
 - `/app/venues/[venueName]/edit/page.tsx`
+- `/app/promoters/[promoterName]/page.tsx` - **New**: Created promoter profile page
 
 ### Component Files (6 files)
 - `/components/SearchBar.tsx`
@@ -177,6 +184,6 @@ To verify the changes:
 - `/components/VenueEdit/VenueEditForm.tsx`
 - `/components/VenueDetail/VenueDetailView.tsx`
 
-### Total: 12 files updated ✅
+### Total: 14 files updated ✅
 
 All dynamic routes and their associated links now use **lowercase, standardized URLs** with consistent `urlToName`/`nameToUrl` functions, ensuring optimal SEO and user experience.

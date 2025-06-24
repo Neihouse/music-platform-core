@@ -1,5 +1,6 @@
 import { getUserEntities } from "@/db/queries/user-entities";
 import { createClient } from "@/utils/supabase/server";
+import { nameToUrl } from "@/lib/utils";
 import {
   Container,
   Title,
@@ -124,9 +125,7 @@ export default async function ProfilePage() {
               <Group grow mt="md">
                 <Button
                   component={Link}
-                  href={`/artists/${encodeURIComponent(
-                    userEntities.artist.name.toLowerCase(),
-                  )}`}
+                  href={`/artists/${nameToUrl(userEntities.artist.name)}`}
                   variant="light"
                   color="blue"
                   rightSection={<IconArrowRight size={14} />}
@@ -175,7 +174,7 @@ export default async function ProfilePage() {
 
               <Button
                 component={Link}
-                href={`/promoters/${userEntities.promoter.id}`}
+                href={`/promoters/${nameToUrl(userEntities.promoter.name)}`}
                 variant="light"
                 color="orange"
                 fullWidth
@@ -225,7 +224,7 @@ export default async function ProfilePage() {
 
               <Button
                 component={Link}
-                href={`/venues/${userEntities.venue.name.toLowerCase()}`}
+                href={`/venues/${nameToUrl(userEntities.venue.name)}`}
                 variant="light"
                 color="violet"
                 fullWidth
