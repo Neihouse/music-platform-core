@@ -39,7 +39,7 @@ export async function getEventByName(eventName: string) {
         capacity
       )
     `)
-    .eq("name", eventName)
+    .ilike("name", eventName)
     .single();
 
   if (error) {

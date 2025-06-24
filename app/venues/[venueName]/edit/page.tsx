@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { getVenueByName } from "@/db/queries/venues";
 import { VenueEditForm } from "@/components/VenueEdit/VenueEditForm";
+import { urlToName, nameToUrl } from "@/lib/utils";
 
 interface VenueEditPageProps {
   params: Promise<{
@@ -11,7 +12,7 @@ interface VenueEditPageProps {
 
 export default async function VenueEditPage({ params }: VenueEditPageProps) {
   const { venueName } = await params;
-  const decodedVenueName = decodeURIComponent(venueName);
+  const decodedVenueName = urlToName(venueName);
   
   const supabase = await createClient();
   
@@ -28,7 +29,7 @@ export default async function VenueEditPage({ params }: VenueEditPageProps) {
 
     // Check if current user is the venue owner
     if (!userData?.user || userData.user.id !== venue.user_id) {
-      redirect(`/venues/${encodeURIComponent(venue.name)}`);
+      redirect(`/venues/${nameToUrl(venue.name)}`);
     }
 
     return (

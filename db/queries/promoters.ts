@@ -44,7 +44,7 @@ export async function getPromoterByName(
   const { data: promoter, error } = await supabase
     .from("promoters")
     .select("*")
-    .ilike("title", promoterName)
+    .ilike("name", promoterName)
     .maybeSingle();
 
   if (error) {
