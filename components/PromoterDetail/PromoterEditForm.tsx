@@ -148,13 +148,7 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
               <Stack gap="md" mb="xl">
                 <PromoterBannerUpload
                   promoterId={promoter.id}
-                  onBannerUploaded={(url) => {
-                    notifications.show({
-                      title: "Success!",
-                      message: "Banner image updated successfully",
-                      color: "green",
-                    });
-                  }}
+                  
                 />
               </Stack>
 
@@ -162,13 +156,6 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
               <Stack gap="md">
                 <PromoterAvatarUpload
                   promoterId={promoter.id}
-                  onAvatarUploaded={(url) => {
-                    notifications.show({
-                      title: "Success!",
-                      message: "Profile picture updated successfully",
-                      color: "green",
-                    });
-                  }}
                 />
               </Stack>
             </Card>
