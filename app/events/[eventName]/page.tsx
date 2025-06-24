@@ -1,6 +1,7 @@
 import { getEventByName } from "@/db/queries/events";
 import { getAvailableVenues } from "./actions";
 import { VenueSelector } from "@/components/events/VenueSelector";
+import { PosterGenerator } from "@/components/events/PosterGenerator";
 import { notFound } from "next/navigation";
 import { Paper, Title, Text, Button, Group, Stack, Container, Box } from "@mantine/core";
 import { IconUsers, IconCalendar, IconPhoto } from "@tabler/icons-react";
@@ -63,6 +64,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
           {/* Venue Selection */}
           <VenueSelector event={event} availableVenues={availableVenues} />
+
+          {/* AI Poster Generator */}
+          <PosterGenerator event={event} />
 
           <Paper shadow="sm" p="xl">
             <Stack gap="md">
