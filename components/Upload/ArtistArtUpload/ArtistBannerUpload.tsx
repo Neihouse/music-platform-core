@@ -1,314 +1,61 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { Card, Button, Group, Text, Title, Stack } from "@mantine/core";
-import { Dropzone, FileWithPath } from "@mantine/dropzone";
-import { notifications } from "@mantine/notifications";
-import { IconUpload, IconPhoto, IconX } from "@tabler/icons-react";
-import * as React from "react";
-import { v4 as uuidv4 } from "uuid";
+import { BannerUpload, BannerUploadConfig } from "../BannerUpload";
 
 export interface IArtistBannerUploadProps {
   artistId?: string;
   onBannerUploaded?: (url: string) => void;
 }
 
+const artistBannerConfig: BannerUploadConfig = {
+  storageBucket: "images",
+  storageFolder: "banners",
+  title: "Banner Image",
+  description: "Upload a banner image for your artist profile",
+};
+
+async function fetchArtistBanner(artistId: string): Promise<string | null> {
+  const supabase = await createClient();
+  
+  const { data: artist, error } = await supabase
+    .from("artists")
+    .select("banner_img")
+    .eq("id", artistId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching artist banner:", error);
+    return null;
+  }
+
+  return artist?.banner_img || null;
+}
+
+async function updateArtistBanner(artistId: string, filename: string | null): Promise<void> {
+  const supabase = await createClient();
+  
+  const { error } = await supabase
+    .from("artists")
+    .update({ banner_img: filename })
+    .eq("id", artistId);
+
+  if (error) {
+    throw new Error(`Failed to update artist banner: ${error.message}`);
+  }
+}
+
 export function ArtistBannerUpload({
   artistId,
   onBannerUploaded,
 }: IArtistBannerUploadProps) {
-  const [uploadState, setUploadState] = React.useState<
-    "initial" | "pending" | "error" | "success"
-  >("initial");
-  const [imageUrl, setImageUrl] = React.useState<string | null>(null);
-  const [currentBannerFilename, setCurrentBannerFilename] = React.useState<string | null>(null);
-
-  // Fetch existing banner when component mounts
-  React.useEffect(() => {
-    async function fetchExistingBanner() {
-      if (!artistId) return;
-
-      try {
-        const supabase = await createClient();
-
-        // Get banner filename from artist table
-        const { data: artist, error: artistError } = await supabase
-          .from("artists")
-          .select("banner_img")
-          .eq("id", artistId)
-          .single();
-
-        if (artistError) {
-          console.error("Error fetching artist data:", artistError);
-          return;
-        }
-
-        // If artist has a banner filename, get the public URL
-        if (artist?.banner_img) {
-          const { data: publicUrlData } = supabase.storage
-            .from("images")
-            .getPublicUrl(`banners/${artist.banner_img}`);
-
-          const url = publicUrlData.publicUrl;
-          setImageUrl(url);
-          setCurrentBannerFilename(artist.banner_img);
-
-          if (onBannerUploaded) {
-            onBannerUploaded(url);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching existing banner:", error);
-      }
-    }
-
-    fetchExistingBanner();
-  }, [artistId, onBannerUploaded]);
-
   return (
-    <Card withBorder p="md">
-      <Stack gap="md">
-        <Title order={4}>Banner Image</Title>
-        <Text size="sm" c="dimmed">
-          Upload a banner image for your artist profile
-        </Text>
-        {imageUrl ? (
-          <div>
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                marginBottom: "0.5rem",
-              }}
-            >
-              <img
-                src={imageUrl}
-                alt="Artist banner"
-                style={{
-                  width: "100%",
-                  height: "200px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
-              />
-              <Button
-                onClick={deleteImage}
-                color="red"
-                variant="light"
-                style={{
-                  position: "absolute",
-                  top: "8px",
-                  right: "8px",
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  backdropFilter: "blur(4px)",
-                  border: "1px solid rgba(0, 0, 0, 0.1)",
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-                }}
-                radius="xl"
-                size="sm"
-              >
-                <IconX size={16} />
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <Dropzone
-            loading={uploadState === "pending"}
-            onDrop={onDrop}
-            accept={["image/png", "image/jpeg", "image/webp"]}
-            maxSize={5 * 1024 * 1024}
-            maxFiles={1}
-          >
-            <Group
-              justify="center"
-              align="center"
-              style={{ minHeight: "120px" }}
-            >
-              <Dropzone.Accept>
-                <IconUpload size={50} stroke={1.5} />
-              </Dropzone.Accept>
-              <Dropzone.Reject>
-                <IconX size={50} stroke={1.5} />
-              </Dropzone.Reject>
-              <Dropzone.Idle>
-                <IconPhoto size={50} stroke={1.5} />
-              </Dropzone.Idle>
-
-              <Stack align="center">
-                <Text size="xl" inline>
-                  Drag banner image here or click to select
-                </Text>
-                <Text size="sm" c="dimmed" inline>
-                  Attach one image file, size should not exceed 5mb
-                </Text>
-              </Stack>
-            </Group>
-          </Dropzone>
-        )}
-      </Stack>
-    </Card>
+    <BannerUpload
+      entityId={artistId}
+      config={artistBannerConfig}
+      fetchExistingBanner={fetchArtistBanner}
+      updateEntityBanner={updateArtistBanner}
+      onBannerUploaded={onBannerUploaded}
+    />
   );
-
-  async function deleteImage() {
-    if (!artistId) {
-      setImageUrl(null);
-      setCurrentBannerFilename(null);
-      if (onBannerUploaded) {
-        onBannerUploaded("");
-      }
-      return;
-    }
-
-    setUploadState("pending");
-    try {
-      const supabase = await createClient();
-      
-      // Delete the file from storage if it exists
-      if (currentBannerFilename) {
-        const { error: storageError } = await supabase.storage
-          .from("images")
-          .remove([`banners/${currentBannerFilename}`]);
-
-        if (storageError) {
-          console.error("Error deleting banner file:", storageError);
-        }
-      }
-
-      // Update the artist table to remove the banner filename
-      const { error: dbError } = await supabase
-        .from("artists")
-        .update({ banner_img: null })
-        .eq("id", artistId);
-
-      if (dbError) {
-        console.error("Error updating artist banner:", dbError);
-        notifications.show({
-          title: "Error",
-          message: `Failed to update banner: ${dbError.message}`,
-          color: "red",
-        });
-        setUploadState("error");
-        return;
-      }
-
-      setImageUrl(null);
-      setCurrentBannerFilename(null);
-      if (onBannerUploaded) {
-        onBannerUploaded("");
-      }
-      notifications.show({
-        message: "Banner image deleted successfully",
-        color: "green",
-      });
-      setUploadState("initial");
-    } catch (error: any) {
-      console.error("Error deleting image:", error);
-      notifications.show({
-        title: "Error",
-        message: `Failed to delete banner image: ${error.message || error}`,
-        color: "red",
-      });
-      setUploadState("error");
-    }
-  }
-
-  async function onDrop(files: FileWithPath[]) {
-    if (files.length === 0) return;
-
-    setUploadState("pending");
-    const file = files[0];
-
-    try {
-      // If no artistId is provided, we're in create mode and just want to preview the image
-      if (!artistId) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const url = e.target?.result as string;
-          setImageUrl(url);
-          if (onBannerUploaded) {
-            onBannerUploaded(url);
-          }
-        };
-        reader.readAsDataURL(file);
-        setUploadState("success");
-        return;
-      }
-
-      // Generate a random UUID for the filename
-      const filename = uuidv4();
-  
-
-      const supabase = await createClient();
-
-      // Delete old banner file if it exists
-      if (currentBannerFilename) {
-        await supabase.storage
-          .from("images")
-          .remove([`banners/${currentBannerFilename}`]);
-      }
-
-      // Upload new banner with UUID filename
-      const { data, error } = await supabase.storage
-        .from("images")
-        .upload(`banners/${filename}`, file, {
-          cacheControl: "3600",
-          contentType: file.type,
-        });
-
-      if (error) {
-        console.error("Error uploading file:", error);
-        notifications.show({
-          title: "Upload Error",
-          message: error.message,
-          color: "red",
-        });
-        setUploadState("error");
-        return;
-      }
-
-      // Update the artist table with the new banner filename
-      const { error: dbError } = await supabase
-        .from("artists")
-        .update({ banner_img: filename })
-        .eq("id", artistId);
-
-      if (dbError) {
-        console.error("Error updating artist banner:", dbError);
-        notifications.show({
-          title: "Database Error",
-          message: dbError.message,
-          color: "red",
-        });
-        setUploadState("error");
-        return;
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from("images")
-        .getPublicUrl(`banners/${filename}`);
-
-      const url = publicUrlData.publicUrl;
-      setImageUrl(url);
-      setCurrentBannerFilename(filename);
-
-      if (onBannerUploaded) {
-        onBannerUploaded(url);
-      }
-
-      notifications.show({
-        message: "Banner image uploaded successfully",
-        color: "green",
-      });
-
-      setUploadState("success");
-    } catch (error: any) {
-      console.error("Error uploading file:", error);
-      notifications.show({
-        title: "Upload Error",
-        message: error.message || String(error),
-        color: "red",
-      });
-      setUploadState("error");
-    }
-  }
 }
