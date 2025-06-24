@@ -30,7 +30,7 @@ export default async function ArtistCreatePage({ }: IArtistCreatePageProps) {
     );
   }
 
-  const { canCreate, reason } = await canCreateProfile(supabase, 'artist');
+  const { canCreate, reason } = await canCreateProfile(supabase);
   
   if (!canCreate) {
     return (

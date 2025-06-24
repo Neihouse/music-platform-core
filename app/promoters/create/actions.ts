@@ -20,7 +20,7 @@ export async function submitPromoter(
   }
 
   // Check if user can create a promoter profile
-  const { canCreate, reason } = await canCreateProfile(supabase, 'promoter');
+  const { canCreate, reason } = await canCreateProfile(supabase);
   if (!canCreate) {
     throw new Error(reason || "Cannot create promoter profile");
   }

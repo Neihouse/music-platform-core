@@ -29,7 +29,7 @@ export default async function PromoterOnboardingPage({}: IPromoterOnboardingPage
     );
   }
 
-  const { canCreate, reason } = await canCreateProfile(supabase, 'promoter');
+  const { canCreate, reason } = await canCreateProfile(supabase);
   
   if (!canCreate) {
     return (

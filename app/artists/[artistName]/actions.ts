@@ -42,7 +42,7 @@ export async function submitArtist(
   }
 
   // For new artist creation, check if user can create a profile
-  const { canCreate, reason } = await canCreateProfile(supabase, 'artist');
+  const { canCreate, reason } = await canCreateProfile(supabase);
   if (!canCreate) {
     throw new Error(reason || "Cannot create artist profile");
   }
