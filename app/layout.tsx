@@ -16,6 +16,7 @@ import "@mantine/core/styles.css";
 import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
 import { getUser } from "@/db/queries/users";
+import { getUserProfile } from "@/db/queries/user";
 import { Notifications } from "@mantine/notifications";
 import { theme } from "@/lib/theme";
 import { Playback } from "@/components/playback";
@@ -30,7 +31,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUser(await createClient());
+  const supabase = await createClient();
+  const user = await getUser(supabase);
+  const userProfile = user ? await getUserProfile(supabase) : null;
   if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
           navigator.serviceWorker.getRegistrations().then(function(registrations) {
             for(let registration of registrations) {
@@ -54,7 +57,7 @@ export default async function RootLayout({
 
             >
               <AppShellHeader>
-                <Header user={user} />
+                <Header user={user} userProfile={userProfile} />
               </AppShellHeader>
 
               <AppShellMain>

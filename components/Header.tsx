@@ -29,57 +29,32 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useClickOutside, useDisclosure } from "@mantine/hooks";
 import { User } from "@supabase/auth-js";
+import { UserProfile } from "@/db/queries/user";
 
 interface HeaderProps {
   user: User | null;
+  userProfile: UserProfile | null;
 }
 
-export function Header({ user }: HeaderProps) {
-  const router = useRouter();
+export function Header({ user, userProfile }: HeaderProps) {
   const { setColorScheme, colorScheme } = useMantineColorScheme();
-  const [avatarError, setAvatarError] = useState(false);
-  const [
-    notificationsOpened,
-    { toggle: toggleNotifications, close: closeNotifications },
-  ] = useDisclosure(false);
-  const notificationsRef = useClickOutside(() => closeNotifications());
 
-  // Mock notifications for demo
-  const mockNotifications = [
-    {
-      id: 1,
-      title: "New follower",
-      message: "DJ Cool started following you",
-      time: "2 min ago",
-    },
-    {
-      id: 2,
-      title: "Track liked",
-      message: 'Someone liked your track "Summer Vibes"',
-      time: "1 hour ago",
-    },
-    {
-      id: 3,
-      title: "New comment",
-      message: 'New comment on your track "Night Drive"',
-      time: "3 hours ago",
-    },
-  ];
-
-  // // Function to validate URL
-  // const isValidUrl = (urlString: string | undefined): boolean => {
-  //   if (!urlString) return false;
-  //   try {
-  //     new URL(urlString);
-  //     return true;
-  //   } catch {
-  //     return false;
-  //   }
-  // };
+  // Function to validate URL
+  const isValidUrl = (urlString: string | undefined | null): boolean => {
+    if (!urlString) return false;
+    try {
+      new URL(urlString);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   // Get valid avatar URL or fallback
-  // const avatarUrl =
-  //   isValidUrl(user.user_metadata) && !avatarError ? user?.avatar_url : undefined;
+  const avatarUrl = isValidUrl(userProfile?.avatar_img) ? userProfile?.avatar_img : undefined;
+
+  // Get display name
+  const displayName = userProfile?.name || user?.user_metadata?.name || user?.email || "User";
 
   return (
     <Container size="xl" h={60}>
@@ -170,15 +145,13 @@ export function Header({ user }: HeaderProps) {
             <Menu position="bottom-end" shadow="sm" width={200}>
               <Menu.Target>
                 <Avatar
+                  src={avatarUrl}
                   style={{ cursor: "pointer" }}
-                  alt={user.email || "User avatar"}
+                  alt={displayName}
                   radius="xl"
                   size="sm"
-                  onError={() => setAvatarError(true)}
                 >
-                  {user.user_metadata.name?.[0]?.toUpperCase() ||
-                    user.email?.[0]?.toUpperCase() ||
-                    "U"}
+                  {!avatarUrl && displayName[0]?.toUpperCase()}
                 </Avatar>
               </Menu.Target>
               <Menu.Dropdown>

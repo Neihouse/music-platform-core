@@ -9,7 +9,15 @@ export async function getPromoter(supabase: TypedClient) {
   }
   const { data: promoter, error } = await supabase
     .from("promoters")
-    .select("*")
+    .select(`
+      *,
+      promoters_localities (
+        localities (
+          id,
+          name
+        )
+      )
+    `)
     .eq("user_id", user.user.id)
     .maybeSingle();
 

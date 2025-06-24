@@ -181,4 +181,82 @@ export async function getArtistExternalLinks(
   return artist?.external_links || [];
 }
 
+export async function getArtistsByLocality(
+  supabase: TypedClient,
+  localityId?: string,
+  administrativeAreaId?: string,
+  countryId?: string
+) {
+  let query = supabase
+    .from("artists")
+    .select(`
+      *,
+      localities (
+        id,
+        name
+      ),
+      administrative_areas (
+        id,
+        name
+      ),
+      countries (
+        id,
+        name
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  // Filter by locality if provided
+  if (localityId) {
+    query = query.eq("locality_id", localityId);
+  }
+  
+  // If no locality, filter by administrative area
+  else if (administrativeAreaId) {
+    query = query.eq("administrative_area_id", administrativeAreaId);
+  }
+  
+  // If no administrative area, filter by country
+  else if (countryId) {
+    query = query.eq("country_id", countryId);
+  }
+
+  const { data: artists, error } = await query;
+
+  if (error) {
+    console.error("Error fetching artists by locality:", error);
+    return [];
+  }
+
+  return artists || [];
+}
+
+export async function getAllArtists(supabase: TypedClient) {
+  const { data: artists, error } = await supabase
+    .from("artists")
+    .select(`
+      *,
+      localities (
+        id,
+        name
+      ),
+      administrative_areas (
+        id,
+        name
+      ),
+      countries (
+        id,
+        name
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching all artists:", error);
+    return [];
+  }
+
+  return artists || [];
+}
+
 
