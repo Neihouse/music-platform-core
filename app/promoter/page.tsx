@@ -20,10 +20,7 @@ export default async function PromoterDashboardPage() {
   // Check if user has a promoter profile
   const userProfile = await getUserProfile(supabase);
   
-  // Debug logging
-  console.log('User profile data:', userProfile);
-  console.log('User ID:', user.id);
-  
+ 
   if (userProfile.type !== 'promoter') {
     return (
       <Container size="md" py="xl">
