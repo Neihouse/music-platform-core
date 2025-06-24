@@ -1,4 +1,5 @@
 import { getUserEntities } from "@/db/queries/user-entities";
+import { nameToUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import {
   Container,
@@ -175,7 +176,7 @@ export default async function ProfilePage() {
 
               <Button
                 component={Link}
-                href={`/promoters/${userEntities.promoter.id}`}
+                href={`/promoters/${nameToUrl(userEntities.promoter.name)}`}
                 variant="light"
                 color="orange"
                 fullWidth
