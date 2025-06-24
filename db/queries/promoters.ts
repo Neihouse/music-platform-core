@@ -107,8 +107,8 @@ export async function getPromoterEvents(
     .filter(Boolean)
     .filter((event: any) => event.date && new Date(event.date) >= new Date())
     .sort((a: any, b: any) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()) || [];
-  console.log("Fetched events:", events);
-  return events;
+
+    return events;
 }
 
 export async function getPromoterArtists(
