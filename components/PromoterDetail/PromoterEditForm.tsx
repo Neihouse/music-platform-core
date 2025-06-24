@@ -14,12 +14,9 @@ import {
   GridCol,
   Card,
   Avatar,
-  BackgroundImage,
   Center,
   Box,
   ActionIcon,
-  FileInput,
-  Alert,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
@@ -30,16 +27,15 @@ import {
   IconMail,
   IconPhone,
   IconFileText,
-  IconCamera,
-  IconPhoto,
-  IconUpload,
   IconArrowLeft,
   IconDeviceFloppy,
-  IconAlertCircle,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
 import { updatePromoterAction } from "@/app/promoters/[promoterName]/edit/actions";
+import { PromoterAvatarUpload } from "@/components/Upload/PromoterAvatarUpload";
+import { PromoterBannerUpload } from "@/components/Upload/PromoterBannerUpload";
+import { createClient } from "@/utils/supabase/client";
 
 interface PromoterEditFormProps {
   promoter: any;
@@ -48,10 +44,29 @@ interface PromoterEditFormProps {
 export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  // Helper function to get banner image URL
+  const getBannerImageUrl = () => {
+    if (!promoter.banner_img) return null;
+    const supabase = createClient();
+    const { data } = supabase.storage
+      .from("images")
+      .getPublicUrl(`banners/${promoter.banner_img}`);
+    return data.publicUrl;
+  };
+
+  // Helper function to get avatar image URL
+  const getAvatarImageUrl = () => {
+    if (!promoter.avatar_img) return null;
+    const supabase = createClient();
+    const { data } = supabase.storage
+      .from("images")
+      .getPublicUrl(`avatars/${promoter.avatar_img}`);
+    return data.publicUrl;
+  };
+
+  const bannerUrl = getBannerImageUrl();
+  const avatarUrl = getAvatarImageUrl();
 
   const form = useForm({
     initialValues: {
@@ -69,26 +84,6 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
           : "Invalid email format",
     },
   });
-
-  const handleBannerChange = (file: File | null) => {
-    setBannerFile(file);
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setBannerPreview(url);
-    } else {
-      setBannerPreview(null);
-    }
-  };
-
-  const handleAvatarChange = (file: File | null) => {
-    setAvatarFile(file);
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setAvatarPreview(url);
-    } else {
-      setAvatarPreview(null);
-    }
-  };
 
   const handleSubmit = async (values: typeof form.values) => {
     setLoading(true);
@@ -145,70 +140,36 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                 Collective Images
               </Title>
               
-              <Alert
-                icon={<IconAlertCircle size={16} />}
-                mb="md"
-                color="blue"
-                variant="light"
-              >
-                Image upload functionality will be available soon. For now, you can update your text information below.
-              </Alert>
-
-              {/* Banner Image */}
+              <Text size="sm" c="dimmed" mb="lg">
+                Upload images to customize your collective profile. Changes are saved automatically when you upload new images.
+              </Text>
+              
+              {/* Banner Upload */}
               <Stack gap="md" mb="xl">
-                <Text fw={500}>Banner Image (1200x400 recommended)</Text>
-                <Box
-                  style={{
-                    position: "relative",
-                    height: "200px",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                    border: "2px dashed var(--mantine-color-gray-4)",
-                    background: bannerPreview 
-                      ? `url(${bannerPreview}) center/cover` 
-                      : "var(--mantine-color-gray-1)",
+                <PromoterBannerUpload
+                  promoterId={promoter.id}
+                  onBannerUploaded={(url) => {
+                    notifications.show({
+                      title: "Success!",
+                      message: "Banner image updated successfully",
+                      color: "green",
+                    });
                   }}
-                >
-                  <Center h="100%">
-                    <Stack gap="xs" align="center">
-                      <IconPhoto size={32} color="var(--mantine-color-gray-6)" />
-                      <Text size="sm" c="dimmed">
-                        Banner Image Preview
-                      </Text>
-                    </Stack>
-                  </Center>
-                </Box>
-                <FileInput
-                  placeholder="Select banner image"
-                  accept="image/*"
-                  leftSection={<IconUpload size={16} />}
-                  onChange={handleBannerChange}
-                  disabled
                 />
               </Stack>
 
-              {/* Avatar Image */}
+              {/* Avatar Upload */}
               <Stack gap="md">
-                <Text fw={500}>Avatar Image (Square format recommended)</Text>
-                <Group align="center" gap="md">
-                  <Avatar
-                    size={80}
-                    src={avatarPreview}
-                    style={{
-                      border: "2px dashed var(--mantine-color-gray-4)",
-                    }}
-                  >
-                    <IconUser size={24} />
-                  </Avatar>
-                  <FileInput
-                    placeholder="Select avatar image"
-                    accept="image/*"
-                    leftSection={<IconCamera size={16} />}
-                    onChange={handleAvatarChange}
-                    style={{ flex: 1 }}
-                    disabled
-                  />
-                </Group>
+                <PromoterAvatarUpload
+                  promoterId={promoter.id}
+                  onAvatarUploaded={(url) => {
+                    notifications.show({
+                      title: "Success!",
+                      message: "Profile picture updated successfully",
+                      color: "green",
+                    });
+                  }}
+                />
               </Stack>
             </Card>
           </GridCol>
@@ -266,8 +227,8 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                   style={{
                     height: "80px",
                     borderRadius: "8px",
-                    background: bannerPreview 
-                      ? `url(${bannerPreview}) center/cover` 
+                    background: bannerUrl 
+                      ? `url(${bannerUrl}) center/cover` 
                       : "var(--mantine-color-gray-2)",
                     position: "relative",
                   }}
@@ -280,8 +241,8 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                     }}
                   >
                     <Avatar
+                      src={avatarUrl}
                       size={40}
-                      src={avatarPreview}
                       style={{
                         border: "2px solid white",
                       }}

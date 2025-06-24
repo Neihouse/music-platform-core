@@ -43,6 +43,7 @@ import {
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
 import { useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 interface PromoterDetailViewProps {
   promoter: any;
@@ -63,6 +64,29 @@ export function PromoterDetailView({
 }: PromoterDetailViewProps) {
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Helper function to get banner image URL
+  const getBannerImageUrl = () => {
+    if (!promoter.banner_img) return null;
+    const supabase = createClient();
+    const { data } = supabase.storage
+      .from("images")
+      .getPublicUrl(`banners/${promoter.banner_img}`);
+    return data.publicUrl;
+  };
+
+  // Helper function to get avatar image URL
+  const getAvatarImageUrl = () => {
+    if (!promoter.avatar_img) return null;
+    const supabase = createClient();
+    const { data } = supabase.storage
+      .from("images")
+      .getPublicUrl(`avatars/${promoter.avatar_img}`);
+    return data.publicUrl;
+  };
+
+  const bannerUrl = getBannerImageUrl();
+  const avatarUrl = getAvatarImageUrl();
+
   return (
     <Container size="xl" py="xl">
       {/* Hero Section */}
@@ -71,10 +95,13 @@ export function PromoterDetailView({
         p="xl"
         mb="xl"
         style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          background: bannerUrl 
+            ? `linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%), url(${bannerUrl}) center/cover`
+            : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
           position: "relative",
           overflow: "hidden",
+          minHeight: "300px",
         }}
       >
         <Box
@@ -106,14 +133,15 @@ export function PromoterDetailView({
           <GridCol span={{ base: 12, md: 8 }}>
             <Group gap="xl">
               <Avatar
+                src={avatarUrl}
                 size={120}
                 radius="xl"
                 style={{
                   border: "4px solid rgba(255,255,255,0.3)",
-                  background: "linear-gradient(45deg, #ff6b6b, #4ecdc4)",
+                  background: avatarUrl ? "transparent" : "linear-gradient(45deg, #ff6b6b, #4ecdc4)",
                 }}
               >
-                <IconSparkles size={48} />
+                {!avatarUrl && <IconSparkles size={48} />}
               </Avatar>
               <Stack gap="md">
                 <Group gap="md">
