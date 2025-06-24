@@ -39,6 +39,7 @@ import Link from "next/link";
 import { LocationInput } from "@/components/LocationInput";
 import { StoredLocality } from "@/utils/supabase/global.types";
 import { updateVenue } from "@/app/venues/[venueName]/actions";
+import { nameToUrl } from "@/lib/utils";
 
 interface VenueEditFormProps {
   venue: {
@@ -100,7 +101,7 @@ export function VenueEditForm({ venue }: VenueEditFormProps) {
         icon: <IconCheck size={16} />,
       });
 
-      router.push(`/venues/${encodeURIComponent(values.name)}`);
+      router.push(`/venues/${nameToUrl(values.name)}`);
     } catch (error) {
       notifications.show({
         title: "Error",
@@ -145,7 +146,7 @@ export function VenueEditForm({ venue }: VenueEditFormProps) {
             <Group>
               <ActionIcon
                 component={Link}
-                href={`/venues/${encodeURIComponent(venue.name)}`}
+                href={`/venues/${nameToUrl(venue.name)}`}
                 size="lg"
                 radius="xl"
                 variant="light"
@@ -399,7 +400,7 @@ export function VenueEditForm({ venue }: VenueEditFormProps) {
             <Group justify="space-between" mt="2rem">
               <Button
                 component={Link}
-                href={`/venues/${encodeURIComponent(venue.name)}`}
+                href={`/venues/${nameToUrl(venue.name)}`}
                 variant="outline"
                 size="lg"
                 radius="xl"

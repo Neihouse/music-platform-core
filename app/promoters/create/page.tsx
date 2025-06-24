@@ -1,7 +1,12 @@
 import { PromoterForm } from "@/components/onboarding/PromoterForm";
+import * as React from "react";
 
 export interface IPromoterOnboardingPageProps {}
 
 export default async function PromoterOnboardingPage({}: IPromoterOnboardingPageProps) {
-  return <PromoterForm />;
+  return (
+    <div>
+      <PromoterForm />
+    </div>
+  );
 }

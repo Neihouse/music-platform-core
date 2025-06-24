@@ -2,305 +2,212 @@
 
 import {
   Button,
+  Container,
   Group,
   Stack,
   TextInput,
   Title,
   Textarea,
   Paper,
-  FileInput,
-  Text,
-  Card,
-  Divider,
-  Badge,
-  Box,
-  Container,
-  Grid,
-  GridCol,
-  Flex,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { submitPromoter } from "@/app/promoters/create/actions";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "@/components/LocationInput";
-import { submitPromoter } from "@/app/promoters/create/actions";
-import { 
-  IconUpload, 
-  IconBuilding, 
-  IconMapPin,
-  IconSparkles,
-  IconMusic,
-  IconUsers
-} from "@tabler/icons-react";
+import { StoredLocality } from "@/utils/supabase/global.types";
+import { PromoterBannerUpload } from "@/components/Upload/PromoterBannerUpload";
 
-export interface IPromoterFormProps { }
+export interface IPromoterFormProps {}
 
 export function PromoterForm(props: IPromoterFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<StoredLocality | undefined>();
+  const [promoterId, setPromoterId] = useState<string | undefined>();
+  
   const form = useForm({
     initialValues: {
-      companyName: "",
-      description: "",
-      logo: null,
-      location: null as any,
+      name: "",
+      bio: "",
+      email: "",
+      phone: "",
     },
     validate: {
-      companyName: (value: string) =>
-        !!value.length ? null : "Company name is required",
-      location: (value: any) =>
-        value ? null : "Operating location is required",
+      name: (value: string) =>
+        !value.length ? "Promoter name is required" : null,
+      email: (value: string) =>
+        !value || /^\S+@\S+$/.test(value) ? null : "Invalid email address",
     },
   });
 
-  return (
-    <Container size="lg" py="xl">
-      {/* Hero Section */}
-      <Box mb="xl" style={{ textAlign: "center" }}>
-        <Group justify="center" mb="md">
-          <IconMusic size={40} style={{ color: "var(--mantine-color-blue-6)" }} />
-          <IconSparkles size={32} style={{ color: "var(--mantine-color-yellow-5)" }} />
-          <IconUsers size={40} style={{ color: "var(--mantine-color-green-6)" }} />
-        </Group>
-        <Title 
-          order={1} 
-          size="h1" 
-          mb="sm"
-          style={{
-            background: "linear-gradient(45deg, var(--mantine-color-blue-6), var(--mantine-color-purple-6))",
-            backgroundClip: "text",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          Join the Music Revolution! 🎵
-        </Title>
-        <Text size="lg" c="dimmed" maw={600} mx="auto">
-          Connect artists with audiences, create unforgettable experiences, and build the future of live music.
-          Your journey as a music promoter starts here!
-        </Text>
-        <Group justify="center" mt="md" gap="xs">
-          <Badge variant="light" color="blue" size="lg">Exclusive Access</Badge>
-          <Badge variant="light" color="green" size="lg">Instant Setup</Badge>
-          <Badge variant="light" color="purple" size="lg">Premium Tools</Badge>
-        </Group>
-      </Box>
+  // Custom validation for location
+  const validateForm = () => {
+    const formErrors = form.validate();
+    if (!selectedPlace) {
+      notifications.show({
+        title: "Error",
+        message: "Please select a location for your promoter profile",
+        color: "red",
+      });
+      return false;
+    }
+    return !formErrors.hasErrors;
+  };
 
-      <Paper 
-        radius="xl" 
-        shadow="xl" 
-        p="xl"
-        style={{
-          background: "linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.9))",
-          border: "1px solid var(--mantine-color-gray-2)",
-        }}
-      >
+  async function handleRemoveLocation() {
+    setSelectedPlace(undefined);
+  }
+
+  return (
+    <Group justify="center" align="center" mt="xl">
+      <Paper p="lg" radius="md" shadow="sm" w={600}>
         <form
-          onSubmit={form.onSubmit((values) =>
-            handleSubmitPromoter(
-              values.companyName,
-              values.description,
-              values.location,
-            ),
-          )}
+          onSubmit={form.onSubmit((values) => {
+            if (!validateForm()) {
+              return;
+            }
+            return submitPromoterForm(
+              values.name,
+              values.bio,
+              selectedPlace!,
+              values.email,
+              values.phone,
+            );
+          })}
         >
-          <Stack gap="xl">
-            {/* Company Info Section */}
-            <Card radius="lg" shadow="sm" p="lg" withBorder>
-              <Group mb="lg">
-                <IconBuilding size={24} style={{ color: "var(--mantine-color-blue-6)" }} />
-                <Title order={3} style={{ color: "var(--mantine-color-blue-8)" }}>
-                  Company Information
-                </Title>
-              </Group>
-              
-              <Grid>
-                <GridCol span={{ base: 12, md: 6 }}>
-                  <TextInput
-                    label="Company Name"
-                    placeholder="Your amazing promotion company"
-                    size="md"
-                    leftSection={<IconBuilding size={18} />}
-                    error={form.errors.companyName}
-                    {...form.getInputProps("companyName")}
-                    styles={{
-                      input: {
-                        borderRadius: "12px",
-                        border: "2px solid var(--mantine-color-gray-3)",
-                        "&:focus": {
-                          borderColor: "var(--mantine-color-blue-5)",
-                          boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
-                        },
-                      },
-                    }}
-                  />
-                </GridCol>
-                
-                <GridCol span={{ base: 12, md: 6 }}>
-                  <FileInput
-                    label="Company Logo"
-                    placeholder="Upload your awesome logo"
-                    size="md"
-                    leftSection={<IconUpload size={18} />}
-                    accept="image/png,image/jpeg,image/webp"
-                    {...form.getInputProps("logo")}
-                    styles={{
-                      input: {
-                        borderRadius: "12px",
-                        border: "2px solid var(--mantine-color-gray-3)",
-                        "&:focus": {
-                          borderColor: "var(--mantine-color-blue-5)",
-                          boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
-                        },
-                      },
-                    }}
-                  />
-                </GridCol>
-              </Grid>
+          <Stack gap="md">
+            <Container>
+              <Title order={2} mb="md">
+                Promoter Information
+              </Title>
+
+              <TextInput
+                label="Promoter/Company Name"
+                error={form.errors.name}
+                key={form.key("name")}
+                placeholder="Enter your promoter or company name"
+                {...form.getInputProps("name")}
+                mb="md"
+              />
 
               <Textarea
-                label="Company Description"
-                placeholder="Tell the world about your passion for music and events! What makes your company special?"
-                size="md"
-                minRows={4}
-                mt="md"
-                {...form.getInputProps("description")}
-                styles={{
-                  input: {
-                    borderRadius: "12px",
-                    border: "2px solid var(--mantine-color-gray-3)",
-                    "&:focus": {
-                      borderColor: "var(--mantine-color-blue-5)",
-                      boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
-                    },
-                  },
-                }}
+                label="Bio/Description"
+                key={form.key("bio")}
+                placeholder="Tell us about your promotion experience and what types of events you specialize in"
+                minRows={3}
+                {...form.getInputProps("bio")}
+                mb="md"
               />
-            </Card>
 
-            {/* Location Section */}
-            <Card radius="lg" shadow="sm" p="lg" withBorder>
-              <Group mb="lg">
-                <IconMapPin size={24} style={{ color: "var(--mantine-color-purple-6)" }} />
-                <Title order={3} style={{ color: "var(--mantine-color-purple-8)" }}>
-                  Operating Location
-                </Title>
-              </Group>
-              <Text size="sm" c="dimmed" mb="md">
-                Where do you primarily organize events? This helps us connect you with local artists and venues.
-              </Text>
+              <Title order={4} mb="sm">
+                Business Location
+              </Title>
+              
               <LocationInput
-                onPlaceSelect={(locality) => form.setFieldValue("location", locality)}
-                storedLocality={form.values.location}
+                onPlaceSelect={setSelectedPlace}
+                onRemovePlace={handleRemoveLocation}
+                storedLocality={selectedPlace}
+                searchFullAddress={true}
               />
-            </Card>
 
-            <Divider my="lg" />
+              <TextInput
+                label="Contact Email"
+                error={form.errors.email}
+                key={form.key("email")}
+                placeholder="contact@yourcompany.com"
+                {...form.getInputProps("email")}
+                mb="md"
+              />
 
-            {/* Submit Button */}
-            <Flex justify="center">
-              <Button
-                type="submit"
-                size="xl"
-                loading={loading}
-                leftSection={<IconSparkles size={20} />}
-                style={{
-                  background: "linear-gradient(45deg, var(--mantine-color-blue-6), var(--mantine-color-purple-6))",
-                  border: "none",
-                  borderRadius: "50px",
-                  padding: "12px 48px",
-                  fontSize: "18px",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                  boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
-                  transition: "all 0.3s ease",
-                }}
-                styles={{
-                  root: {
-                    "&:hover": {
-                      transform: "translateY(-2px)",
-                      boxShadow: "0 12px 35px rgba(0, 0, 0, 0.2)",
-                    },
-                  },
-                }}
-              >
-                🚀 Launch My Promoter Journey
-              </Button>
-            </Flex>
+              <TextInput
+                label="Contact Phone"
+                key={form.key("phone")}
+                placeholder="(555) 123-4567"
+                {...form.getInputProps("phone")}
+                mb="md"
+              />
 
-            <Text size="sm" c="dimmed" style={{ textAlign: "center" }}>
-              By creating your promoter profile, you're joining a community of music industry professionals
-              dedicated to bringing amazing live experiences to life! 🎤✨
-            </Text>
+              {/* Banner Upload - Only show if promoter is created */}
+              {promoterId && (
+                <div>
+                  <Title order={4} mb="sm">
+                    Promoter Banner
+                  </Title>
+                  <PromoterBannerUpload
+                    promoterId={promoterId}
+                    onBannerUploaded={(url) => {
+                      console.log("Promoter banner uploaded:", url);
+                      notifications.show({
+                        title: "Success",
+                        message: "Banner uploaded successfully!",
+                        color: "green",
+                      });
+                    }}
+                  />
+                </div>
+              )}
+            </Container>
+
+            <Button disabled={loading} type="submit" mt="md">
+              {promoterId ? "Update Profile" : "Create Promoter Profile"}
+            </Button>
           </Stack>
         </form>
       </Paper>
-    </Container>
+    </Group>
   );
 
-  async function handleSubmitPromoter(
-    companyName: string,
-    description: string,
-    location: any,
+  async function submitPromoterForm(
+    name: string,
+    bio: string,
+    location: StoredLocality,
+    email: string,
+    phone: string,
   ) {
     setLoading(true);
-    
-    // Validate required fields
-    if (!companyName) {
-      notifications.show({
-        title: "Validation Error",
-        message: "Company name is required",
-        color: "red",
-      });
-      setLoading(false);
-      return;
-    }
-    
-    if (!location) {
-      notifications.show({
-        title: "Validation Error", 
-        message: "Operating location is required",
-        color: "red",
-      });
-      setLoading(false);
-      return;
-    }
-    
     console.log(
       "Submitting promoter:",
-      companyName,
-      description,
+      name,
+      bio,
       location,
+      email,
+      phone,
     );
-    
     try {
-      // Map form data to promoter table structure
-      const promoterData = {
-        name: companyName,
-        bio: description || null,
-      };
-// TODO: Repeatedly calls `submitPromoter` 
-      const promoter = await submitPromoter(promoterData, location);
+      const promoter = await submitPromoter(
+        {
+          name,
+          bio,
+          email,
+          phone,
+        },
+        location
+      );
+      console.log("Promoter created:", promoter);
+      
+      // Set the promoter ID so the banner upload appears
+      setPromoterId(promoter.id);
       
       notifications.show({
-        title: "🎉 Welcome to the team!",
-        message: "Your promoter profile has been created successfully!",
+        title: "Success",
+        message: "Promoter profile created! You can now upload a banner image.",
         color: "green",
-        autoClose: 5000,
       });
       
-      console.log("Promoter profile created:", promoter);
-      router.push("/dashboard");
+      // Optionally redirect after a delay to let user upload banner
+      // setTimeout(() => {
+      //   router.push("/profile");
+      // }, 3000);
     } catch (error) {
       notifications.show({
-        title: "Oops! Something went wrong",
-        message: `${error instanceof Error ? error.message : 'Unknown error'}`,
+        title: "Error",
+        message: `${error}`,
         color: "red",
       });
 
-      console.error("Error creating promoter profile:", error);
+      console.error("Error creating promoter:", error);
     } finally {
       setLoading(false);
     }

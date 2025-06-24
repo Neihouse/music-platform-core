@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { getVenueByName } from "@/db/queries/venues";
 import { VenueDetailView } from "@/components/VenueDetail/VenueDetailView";
+import { urlToName } from "@/lib/utils";
 import {
   getVenueEvents,
   getVenuePromoters,
@@ -16,7 +17,7 @@ interface VenuePageProps {
 
 export default async function VenuePage({ params }: VenuePageProps) {
   const { venueName } = await params;
-  const decodedVenueName = decodeURIComponent(venueName);
+  const decodedVenueName = urlToName(venueName);
   
   const supabase = await createClient();
   

@@ -42,6 +42,7 @@ import {
 import { VenueEventsSection } from "./VenueEventsSection";
 import { VenueGallerySection } from "./VenueGallerySection";
 import { VenuePromotersSection } from "./VenuePromotersSection";
+import { nameToUrl } from "@/lib/utils";
 
 interface VenueDetailViewProps {
   venue: {
@@ -189,7 +190,7 @@ export function VenueDetailView({
               {isOwner && (
                 <Button
                   component={Link}
-                  href={`/venues/${encodeURIComponent(venue.name)}/edit`}
+                  href={`/venues/${nameToUrl(venue.name)}/edit`}
                   size="lg"
                   radius="xl"
                   variant="light"
