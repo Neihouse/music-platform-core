@@ -36,7 +36,7 @@ export function PromoterForm(props: IPromoterFormProps) {
     },
     validate: {
       name: (value: string) =>
-        !!value.length ? null : "Promoter name is required",
+        !value.length ? "Promoter name is required" : null,
       email: (value: string) =>
         !value || /^\S+@\S+$/.test(value) ? null : "Invalid email address",
     },
