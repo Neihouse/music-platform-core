@@ -173,3 +173,160 @@ export async function updatePromoter(
 
   return promoter;
 }
+
+export async function getAllPromoters(supabase: TypedClient) {
+  const { data: promoters, error } = await supabase
+    .from("promoters")
+    .select(`
+      *,
+      promoters_artists (
+        artists (
+          id,
+          name,
+          avatar_img
+        )
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching promoters:", error);
+    return [];
+  }
+
+  // Transform the data to include artist count and sample artists
+  const transformedPromoters = promoters?.map(promoter => {
+    const artistCount = promoter.promoters_artists?.length || 0;
+    const sampleArtists = promoter.promoters_artists?.slice(0, 3).map(pa => pa.artists).filter(Boolean) || [];
+    
+    return {
+      ...promoter,
+      artistCount,
+      sampleArtists,
+    };
+  }) || [];
+
+  return transformedPromoters;
+}
+
+export async function getPromoterTrackCount(supabase: TypedClient, promoterId: string) {
+  const { data, error } = await supabase
+    .from("promoters_artists")
+    .select(`
+      artists (
+        artists_tracks (
+          tracks (
+            id,
+            created_at
+          )
+        )
+      )
+    `)
+    .eq("promoter_id", promoterId);
+
+  if (error) {
+    console.error("Error fetching promoter track count:", error);
+    return { total: 0, recent: 0 };
+  }
+
+  let totalTracks = 0;
+  let recentTracks = 0;
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  data?.forEach(pa => {
+    pa.artists?.artists_tracks?.forEach(at => {
+      if (at.tracks) {
+        totalTracks++;
+        const trackDate = new Date(at.tracks.created_at);
+        if (trackDate >= thirtyDaysAgo) {
+          recentTracks++;
+        }
+      }
+    });
+  });
+
+  return { total: totalTracks, recent: recentTracks };
+}
+
+export async function getPromoterShowCount(supabase: TypedClient, promoterId: string) {
+  const { data, error } = await supabase
+    .from("events_promoters")
+    .select(`
+      events (
+        id,
+        date,
+        created_at
+      )
+    `)
+    .eq("promoter", promoterId);
+
+  if (error) {
+    console.error("Error fetching promoter show count:", error);
+    return { total: 0, upcoming: 0, past: 0 };
+  }
+
+  let totalShows = 0;
+  let upcomingShows = 0;
+  let pastShows = 0;
+  const now = new Date();
+
+  data?.forEach(ep => {
+    if (ep.events) {
+      totalShows++;
+      const eventDate = ep.events.date ? new Date(ep.events.date) : new Date(ep.events.created_at);
+      if (eventDate >= now) {
+        upcomingShows++;
+      } else {
+        pastShows++;
+      }
+    }
+  });
+
+  return { total: totalShows, upcoming: upcomingShows, past: pastShows };
+}
+
+export async function getAllPromotersWithMetrics(supabase: TypedClient) {
+  const { data: promoters, error } = await supabase
+    .from("promoters")
+    .select(`
+      *,
+      promoters_artists (
+        artists (
+          id,
+          name,
+          avatar_img
+        )
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching promoters:", error);
+    return [];
+  }
+
+  // Get metrics for each promoter
+  const promotersWithMetrics = await Promise.all(
+    (promoters || []).map(async (promoter) => {
+      const [trackMetrics, showMetrics] = await Promise.all([
+        getPromoterTrackCount(supabase, promoter.id),
+        getPromoterShowCount(supabase, promoter.id),
+      ]);
+
+      const artistCount = promoter.promoters_artists?.length || 0;
+      const sampleArtists = promoter.promoters_artists?.slice(0, 3).map(pa => pa.artists).filter(Boolean) || [];
+
+      return {
+        ...promoter,
+        artistCount,
+        sampleArtists,
+        trackMetrics,
+        showMetrics,
+      };
+    })
+  );
+
+  return promotersWithMetrics;
+}
+
