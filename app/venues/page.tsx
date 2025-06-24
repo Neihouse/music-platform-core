@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { getAllVenues } from "@/db/queries/venues";
+import { nameToUrl } from "@/lib/utils";
 import Link from "next/link";
 
 export default async function VenuesListPage() {
@@ -27,7 +28,7 @@ export default async function VenuesListPage() {
             <ul>
               {venues.map((venue) => (
                 <li key={venue.id} style={{ marginBottom: "0.5rem" }}>
-                  <Link href={`/venues/${encodeURIComponent(venue.name)}`}>
+                  <Link href={`/venues/${nameToUrl(venue.name)}`}>
                     {venue.name}
                   </Link>
                   <small style={{ marginLeft: "1rem", color: "#666" }}>
