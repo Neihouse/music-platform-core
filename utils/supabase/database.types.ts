@@ -9,6 +9,21 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       administrative_areas: {
         Row: {
           country_id: string
@@ -231,7 +246,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "event_stage_id_fkey"
+            foreignKeyName: "event_stage_event_fkey"
             columns: ["event"]
             isOneToOne: false
             referencedRelation: "events"
@@ -306,6 +321,7 @@ export type Database = {
           id: string
           locality: string | null
           name: string
+          user_id: string | null
           venue: string | null
         }
         Insert: {
@@ -315,6 +331,7 @@ export type Database = {
           id?: string
           locality?: string | null
           name: string
+          user_id?: string | null
           venue?: string | null
         }
         Update: {
@@ -324,6 +341,7 @@ export type Database = {
           id?: string
           locality?: string | null
           name?: string
+          user_id?: string | null
           venue?: string | null
         }
         Relationships: [
@@ -556,6 +574,8 @@ export type Database = {
       }
       promoters: {
         Row: {
+          avatar_img: string | null
+          banner_img: string | null
           bio: string | null
           created_at: string
           email: string | null
@@ -565,6 +585,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          avatar_img?: string | null
+          banner_img?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -574,6 +596,8 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          avatar_img?: string | null
+          banner_img?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -588,19 +612,16 @@ export type Database = {
         Row: {
           artist_id: string
           created_at: string
-          id: string
           promoter_id: string
         }
         Insert: {
           artist_id: string
           created_at?: string
-          id?: string
           promoter_id: string
         }
         Update: {
           artist_id?: string
           created_at?: string
-          id?: string
           promoter_id?: string
         }
         Relationships: [
@@ -656,23 +677,23 @@ export type Database = {
       promoters_tags: {
         Row: {
           created_at: string
-          promoter_id: string
+          promoter: string
           tag: string
         }
         Insert: {
           created_at?: string
-          promoter_id: string
+          promoter: string
           tag: string
         }
         Update: {
           created_at?: string
-          promoter_id?: string
+          promoter?: string
           tag?: string
         }
         Relationships: [
           {
-            foreignKeyName: "promoters_tags_promoter_id_fkey"
-            columns: ["promoter_id"]
+            foreignKeyName: "promoters_tags_promoter_fkey"
+            columns: ["promoter"]
             isOneToOne: false
             referencedRelation: "promoters"
             referencedColumns: ["id"]
@@ -689,19 +710,16 @@ export type Database = {
       promoters_venues: {
         Row: {
           created_at: string
-          id: string
           promoter_id: string
           venue_id: string
         }
         Insert: {
           created_at?: string
-          id?: string
           promoter_id: string
           venue_id: string
         }
         Update: {
           created_at?: string
-          id?: string
           promoter_id?: string
           venue_id?: string
         }
