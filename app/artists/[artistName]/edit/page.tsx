@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { Container, Stack, Divider } from "@mantine/core";
 import { updateExternalLinks } from "../actions";
+import { urlToName } from "@/lib/utils";
 
 
 export default async function ArtistEditPage({
@@ -13,9 +14,11 @@ export default async function ArtistEditPage({
 }: {
     params: Promise<{ artistName: string }>;
 }) {
+    const { artistName } = await params;
+    const decodedArtistName = urlToName(artistName);
     const supabase = await createClient();
     const user = await getUser(supabase);
-    const artist = await getArtist(supabase);
+    const artist = await getArtistByName(supabase, decodedArtistName);
 
     const userIsArtist = user?.id === artist?.user_id;
 

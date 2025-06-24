@@ -23,6 +23,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TrackList } from "@/components/Tracks/TrackList";
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
+import { urlToName, nameToUrl } from "@/lib/utils";
 
 export default async function ArtistPage({
   params,
@@ -30,9 +31,10 @@ export default async function ArtistPage({
   params: Promise<{ artistName: string }>;
 }) {
   const { artistName } = await params;
+  const decodedArtistName = urlToName(artistName);
   const supabase = await createClient();
   const user = await getUser(supabase);
-  const artist = await getArtistByName(supabase, artistName);
+  const artist = await getArtistByName(supabase, decodedArtistName);
 
   if (!artist) {
     notFound();
@@ -101,7 +103,7 @@ export default async function ArtistPage({
               <div>
                 <Group>
                   <Title style={{ color: "white" }}>{name}</Title>
-                  {userIsArtist && <Button component={Link} href={`/artists/${name}/edit`}><IconEdit size={16} /></Button>}
+                  {userIsArtist && <Button component={Link} href={`/artists/${nameToUrl(name)}/edit`}><IconEdit size={16} /></Button>}
                 </Group>
                 <Group gap="sm">
                   {["house", "rock"].map((genre) => (
