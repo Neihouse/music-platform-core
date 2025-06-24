@@ -1,5 +1,12 @@
 "use client";
-import { Divider, Paper, PaperProps, Stack, Text } from "@mantine/core";
+import { 
+  Divider, 
+  Paper, 
+  PaperProps, 
+  Stack, 
+  Text, 
+  Alert 
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useState } from "react";
 import { login, LoginData } from "@/app/login/actions";
@@ -10,6 +17,7 @@ import { validateEmail } from "../validation";
 export function Login(props: PaperProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
   const form = useForm<LoginData>({
     initialValues: {
       email: "",
@@ -21,6 +29,24 @@ export function Login(props: PaperProps) {
       password: (val: string) => (!val.length ? "Password is required" : null),
     },
   });
+
+  const handleLogin = async (values: LoginData) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      await login(values);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      if (errorMessage.includes("Invalid login credentials")) {
+        setError("Invalid email or password");
+      } else {
+        setError(errorMessage);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
@@ -56,28 +82,12 @@ export function Login(props: PaperProps) {
           />
         </Stack>
         {error && (
-          <Text c="red" size="sm" mt="sm">
+          <Alert color="red" mt="md">
             {error}
-          </Text>
+          </Alert>
         )}
         <SwitchAction loading={loading} action="login" />
       </form>
     </Paper>
   );
-
-  async function handleLogin(values: LoginData) {
-    setLoading(true);
-    const error = await login(values);
-
-    if (error) {
-      if (`${error}`.includes("Invalid login credentials")) {
-        setError("Invalid email or password");
-      }
-      setLoading(false);
-      return null;
-    }
-
-    setError(null);
-    setLoading(false);
-  }
 }
