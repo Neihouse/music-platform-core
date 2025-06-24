@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getUser } from "@/db/queries/users";
 import { getUserProfile } from "@/db/queries/user";
 import { getPromoter, getPromoterEvents, getPromoterArtists, getPromoterTrackCount, getPromoterShowCount } from "@/db/queries/promoters";
+import { getPromoterImagesServer } from "@/lib/image-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
@@ -82,52 +83,130 @@ export default async function PromoterDashboardPage() {
   }
 
   // Fetch all promoter metrics in parallel
-  const [upcomingEvents, artists, trackMetrics, showMetrics] = await Promise.all([
+  const [upcomingEvents, artists, trackMetrics, showMetrics, promoterImages] = await Promise.all([
     getPromoterEvents(supabase, promoter.id),
     getPromoterArtists(supabase, promoter.id),
     getPromoterTrackCount(supabase, promoter.id),
     getPromoterShowCount(supabase, promoter.id),
+    getPromoterImagesServer(supabase, promoter.id),
   ]);
+
+  const { avatarUrl, bannerUrl } = promoterImages;
 
   return (
     <Container size="xl" py="xl">
-      {/* Header */}
-      <Box mb="xl">
-        <Group justify="space-between" align="flex-start">
-          <Stack gap="xs">
-            <Group gap="md">
+      {/* Hero Banner Section */}
+      <Paper
+        radius="xl"
+        p="xl"
+        mb="xl"
+        style={{
+          background: bannerUrl 
+            ? `linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%), url(${bannerUrl}) center/cover`
+            : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          position: "relative",
+          overflow: "hidden",
+          minHeight: "300px",
+        }}
+      >
+        {/* Decorative elements */}
+        <Box
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "200px",
+            height: "200px",
+            background: "rgba(255,255,255,0.1)",
+            borderRadius: "50%",
+            transform: "translate(50%, -50%)",
+          }}
+        />
+        <Box
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "150px",
+            height: "150px",
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: "50%",
+            transform: "translate(-50%, 50%)",
+          }}
+        />
+        
+        <Grid align="center" style={{ position: "relative", zIndex: 1 }}>
+          <GridCol span={{ base: 12, md: 8 }}>
+            <Group gap="xl">
               <Avatar
-                src={promoter.avatar_img ? `/api/storage/avatars/${promoter.avatar_img}` : null}
-                size="lg"
+                src={avatarUrl}
+                size={120}
                 radius="xl"
+                style={{
+                  border: "4px solid rgba(255,255,255,0.3)",
+                  background: avatarUrl ? "transparent" : "linear-gradient(45deg, #ff6b6b, #4ecdc4)",
+                }}
               >
-                {promoter.name?.[0]}
+                {!avatarUrl && <IconSparkles size={48} />}
               </Avatar>
-              <div>
-                <Title order={1}>Welcome back, {promoter.name}!</Title>
-                <Text c="dimmed" size="lg">Promoter Dashboard</Text>
-              </div>
+              <Stack gap="md">
+                <Group gap="md">
+                  <Title order={1} size="3rem" fw={900}>
+                    Welcome back, {promoter.name}!
+                  </Title>
+                  <Badge
+                    size="lg"
+                    variant="light"
+                    color="yellow"
+                    leftSection={<IconSparkles size={16} />}
+                  >
+                    PROMOTER
+                  </Badge>
+                </Group>
+                <Group gap="lg">
+                  <Text size="lg" fw={500}>
+                    🎉 {showMetrics.total} Epic Events
+                  </Text>
+                  <Text size="lg" fw={500}>
+                    🎵 {artists.length} Amazing Artists
+                  </Text>
+                </Group>
+                {promoter.bio && (
+                  <Text size="md" style={{ maxWidth: "600px" }}>
+                    {promoter.bio}
+                  </Text>
+                )}
+              </Stack>
             </Group>
-          </Stack>
-          <Group gap="md">
-            <Button
-              component={Link}
-              href={`/promoters/${nameToUrl(promoter.name)}`}
-              variant="light"
-              leftSection={<IconUser size={16} />}
-            >
-              View Public Profile
-            </Button>
-            <Button
-              component={Link}
-              href={`/promoters/${nameToUrl(promoter.name)}/edit`}
-              leftSection={<IconSparkles size={16} />}
-            >
-              Edit Profile
-            </Button>
-          </Group>
-        </Group>
-      </Box>
+          </GridCol>
+          <GridCol span={{ base: 12, md: 4 }}>
+            <Stack gap="md" align="center">
+              <Group gap="md">
+                <Button
+                  component={Link}
+                  href={`/promoters/${nameToUrl(promoter.name)}`}
+                  variant="light"
+                  size="lg"
+                  leftSection={<IconUser size={16} />}
+                  style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
+                >
+                  View Public Profile
+                </Button>
+                <Button
+                  component={Link}
+                  href={`/promoters/${nameToUrl(promoter.name)}/edit`}
+                  size="lg"
+                  leftSection={<IconSparkles size={16} />}
+                  style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#667eea" }}
+                >
+                  Edit Profile
+                </Button>
+              </Group>
+            </Stack>
+          </GridCol>
+        </Grid>
+      </Paper>
 
       {/* Stats Grid */}
       <Grid gutter="xl" mb="xl">
@@ -269,7 +348,7 @@ export default async function PromoterDashboardPage() {
                   <Paper key={artist.id} p="md" radius="md" withBorder>
                     <Group>
                       <Avatar
-                        src={artist.avatar_img ? `/api/storage/avatars/${artist.avatar_img}` : null}
+                        src={artist.avatar_img ? `/api/storage/images/avatars/${artist.avatar_img}` : null}
                         size="md"
                         radius="xl"
                       >
