@@ -8,14 +8,19 @@ import {
   TextInput,
   Tooltip,
   ActionIcon,
+  Alert,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useState } from "react";
 import { signup, SignupData } from "@/app/login/actions";
 import { SwitchAction } from "../SwitchAction";
 import { EmailAndPasswordInputs } from "../EmailAndPasswordInputs";
 import { validateEmail, validatePassword } from "../validation";
 
 export function Signup(props: PaperProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const form = useForm<SignupData>({
     initialValues: {
       email: "",
@@ -28,6 +33,19 @@ export function Signup(props: PaperProps) {
       password: validatePassword,
     },
   });
+
+  const handleSubmit = async (values: SignupData) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      await signup(values);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
@@ -44,9 +62,15 @@ export function Signup(props: PaperProps) {
 
       <Divider label="Or continue with email" labelPosition="center" my="lg" />
 
+      {error && (
+        <Alert color="red" mb="md">
+          {error}
+        </Alert>
+      )}
+
       <form
         encType="multipart/form-data"
-        onSubmit={form.onSubmit((values) => signup(values))}
+        onSubmit={form.onSubmit(handleSubmit)}
       >
         <Stack>
           <TextInput
@@ -76,15 +100,19 @@ export function Signup(props: PaperProps) {
             placeholder="Your name"
             value={form.values.name}
             {...form.getInputProps("name")}
-            onChange={(event) =>
-              form.setFieldValue("name", event.currentTarget.value)
-            }
+            onChange={(event) => {
+              setError(null);
+              form.setFieldValue("name", event.currentTarget.value);
+            }}
             radius="md"
           />
           <EmailAndPasswordInputs
             errors={form.errors}
             values={form.values}
-            setFieldValue={form.setFieldValue}
+            setFieldValue={(field: string, value: string) => {
+              setError(null);
+              form.setFieldValue(field, value);
+            }}
             inputProps={{
               emailProps: form.getInputProps("email"),
               passwordProps: form.getInputProps("password"),
@@ -99,7 +127,7 @@ export function Signup(props: PaperProps) {
               }
             /> */}
         </Stack>
-        <SwitchAction action="register" />
+        <SwitchAction action="register" loading={loading} />
       </form>
     </Paper>
   );

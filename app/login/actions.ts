@@ -26,7 +26,7 @@ export async function login({ email, password }: LoginData) {
   });
 
   if (error) {
-    return error;
+    throw new Error(error.message);
   }
 
   revalidatePath("/", "layout");
@@ -50,7 +50,7 @@ export async function signup({ email, password, name }: SignupData) {
   });
 
   if (error) {
-    redirect("/error");
+    throw new Error(error.message);
   }
 
   revalidatePath("/", "layout");
