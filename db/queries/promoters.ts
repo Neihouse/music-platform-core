@@ -330,3 +330,53 @@ export async function getAllPromotersWithMetrics(supabase: TypedClient) {
   return promotersWithMetrics;
 }
 
+export async function updatePromoterAvatar(
+  supabase: TypedClient,
+  promoterId: string,
+  avatarFilename: string | null
+) {
+  return updatePromoter(supabase, promoterId, { avatar_img: avatarFilename });
+}
+
+export async function updatePromoterBanner(
+  supabase: TypedClient,
+  promoterId: string,
+  bannerFilename: string | null
+) {
+  return updatePromoter(supabase, promoterId, { banner_img: bannerFilename });
+}
+
+export async function getPromoterAvatar(
+  supabase: TypedClient,
+  promoterId: string
+): Promise<string | null> {
+  const { data: promoter, error } = await supabase
+    .from("promoters")
+    .select("avatar_img")
+    .eq("id", promoterId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch promoter avatar: ${error.message}`);
+  }
+
+  return promoter?.avatar_img || null;
+}
+
+export async function getPromoterBanner(
+  supabase: TypedClient,
+  promoterId: string
+): Promise<string | null> {
+  const { data: promoter, error } = await supabase
+    .from("promoters")
+    .select("banner_img")
+    .eq("id", promoterId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch promoter banner: ${error.message}`);
+  }
+
+  return promoter?.banner_img || null;
+}
+
