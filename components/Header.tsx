@@ -23,6 +23,7 @@ import {
   IconMusic,
   IconSettings,
   IconCalendar,
+  IconUsers,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -105,6 +106,16 @@ export function Header({ user }: HeaderProps) {
               size="sm"
             >
               Discover
+            </Button>
+
+            <Button
+              component={Link}
+              href="/promoters"
+              variant="subtle"
+              leftSection={<IconUsers size={16} />}
+              size="sm"
+            >
+              Promoters
             </Button>
 
             <Button
