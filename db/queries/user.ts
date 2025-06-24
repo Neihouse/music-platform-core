@@ -69,3 +69,26 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
     };
   }
 }
+
+export async function userHasProfile(supabase: TypedClient): Promise<boolean> {
+  const profile = await getUserProfile(supabase);
+  return profile.type !== null;
+}
+
+export async function canCreateProfile(supabase: TypedClient, profileType: 'artist' | 'promoter'): Promise<{ canCreate: boolean; reason?: string }> {
+  const { data: user } = await supabase.auth.getUser();
+  if (!user || !user.user) {
+    return { canCreate: false, reason: "User not authenticated" };
+  }
+
+  const existingProfile = await getUserProfile(supabase);
+  
+  if (existingProfile.type !== null) {
+    return { 
+      canCreate: false, 
+      reason: `User already has a ${existingProfile.type} profile. Each user can only have one profile type.` 
+    };
+  }
+
+  return { canCreate: true };
+}

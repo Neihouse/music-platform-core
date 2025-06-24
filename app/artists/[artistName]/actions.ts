@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { createArtist, deleteArtistLocation, getArtist, updateArtist, updateArtistExternalLinks } from "@/db/queries/artists";
+import { canCreateProfile } from "@/db/queries/user";
 import { StoredLocality } from "@/utils/supabase/global.types";
 
 export async function submitArtist(
@@ -21,10 +22,9 @@ export async function submitArtist(
     throw new Error("Name is required");
   }
 
-
-
   const existingArtist = await getArtist(supabase);
 
+  // If artist exists, this is an update operation
   if (existingArtist) {
     const updatedArtist = await updateArtist(supabase,
       {
@@ -39,6 +39,12 @@ export async function submitArtist(
     );
 
     return updatedArtist;
+  }
+
+  // For new artist creation, check if user can create a profile
+  const { canCreate, reason } = await canCreateProfile(supabase, 'artist');
+  if (!canCreate) {
+    throw new Error(reason || "Cannot create artist profile");
   }
 
   return await createArtist(supabase,

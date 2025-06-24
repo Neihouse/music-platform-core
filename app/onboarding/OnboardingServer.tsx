@@ -1,16 +1,12 @@
-import { ArtistForm } from "@/components/onboarding/ArtistForm";
-import { getArtist } from "@/db/queries/artists";
+import { getUserProfile, userHasProfile } from "@/db/queries/user";
 import { getUser } from "@/db/queries/users";
-import { canCreateProfile } from "@/db/queries/user";
 import { createClient } from "@/utils/supabase/server";
 import { Container, Paper, Title, Text, Button, Stack } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
-import * as React from "react";
+import OnboardingClient from "./OnboardingClient";
 
-export interface IArtistCreatePageProps { }
-
-export default async function ArtistCreatePage({ }: IArtistCreatePageProps) {
+export default async function OnboardingPage() {
   const supabase = await createClient();
   const user = await getUser(supabase);
   
@@ -20,7 +16,7 @@ export default async function ArtistCreatePage({ }: IArtistCreatePageProps) {
         <Paper withBorder radius="md" p="lg" shadow="md">
           <Stack gap="md" ta="center">
             <Title order={2} c="red">Access Denied</Title>
-            <Text>You must be logged in to create an artist profile.</Text>
+            <Text>You must be logged in to access the onboarding process.</Text>
             <Button component={Link} href="/login">
               Go to Login
             </Button>
@@ -30,15 +26,18 @@ export default async function ArtistCreatePage({ }: IArtistCreatePageProps) {
     );
   }
 
-  const { canCreate, reason } = await canCreateProfile(supabase, 'artist');
+  const hasProfile = await userHasProfile(supabase);
+  const userProfile = await getUserProfile(supabase);
   
-  if (!canCreate) {
+  if (hasProfile) {
     return (
       <Container size="md" py="xl">
         <Paper withBorder radius="md" p="lg" shadow="md">
           <Stack gap="md" ta="center">
-            <Title order={2} c="red">Cannot Create Artist Profile</Title>
-            <Text>{reason}</Text>
+            <Title order={2} c="blue">Profile Already Created</Title>
+            <Text>
+              You already have a {userProfile.type} profile. Each user can only have one profile type.
+            </Text>
             <Button 
               component={Link} 
               href="/dashboard"
@@ -52,11 +51,5 @@ export default async function ArtistCreatePage({ }: IArtistCreatePageProps) {
     );
   }
 
-  const artist = await getArtist(supabase);
-
-  return (
-    <div>
-      <ArtistForm artist={artist || undefined} />
-    </div>
-  );
+  return <OnboardingClient />;
 }
