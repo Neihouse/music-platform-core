@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { LocationInput } from "@/components/LocationInput";
 import { StoredLocality } from "@/utils/supabase/global.types";
 import { PromoterBannerUpload } from "@/components/Upload/PromoterBannerUpload";
+import { PromoterAvatarUpload } from "@/components/Upload/PromoterAvatarUpload";
 
 export interface IPromoterFormProps {}
 
@@ -128,6 +129,26 @@ export function PromoterForm(props: IPromoterFormProps) {
                 {...form.getInputProps("phone")}
                 mb="md"
               />
+
+              {/* Avatar and Banner Upload - Only show if promoter is created */}
+              {promoterId && (
+                <div>
+                  <Title order={4} mb="sm">
+                    Profile Picture
+                  </Title>
+                  <PromoterAvatarUpload
+                    promoterId={promoterId}
+                    onAvatarUploaded={(url) => {
+                      console.log("Promoter avatar uploaded:", url);
+                      notifications.show({
+                        title: "Success",
+                        message: "Profile picture uploaded successfully!",
+                        color: "green",
+                      });
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Banner Upload - Only show if promoter is created */}
               {promoterId && (

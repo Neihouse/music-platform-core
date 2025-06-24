@@ -1,131 +1,86 @@
-import { getPromoterByName } from "@/db/queries/promoters";
-import { getUser } from "@/db/queries/users";
+import { getPromoterByName, getPromoterEvents, getPromoterArtists } from "@/db/queries/promoters";
+import { getPromoterPopularTracks } from "@/db/queries/tracks";
 import { createClient } from "@/utils/supabase/server";
-import { urlToName, nameToUrl } from "@/lib/utils";
-import {
-  Container,
-  Grid,
-  GridCol,
-  Group,
-  Stack,
-  Title,
-  Badge,
-  Divider,
-  Card,
-  Text,
-  Button,
-} from "@mantine/core";
-import { IconEdit } from "@tabler/icons-react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PromoterDetailView } from "@/components/PromoterDetail/PromoterDetailView";
+import { urlToName } from "@/lib/utils";
 
-export default async function PromoterPage({
-  params,
-}: {
+interface PromoterPageProps {
   params: Promise<{ promoterName: string }>;
-}) {
-  const { promoterName } = await params;
-  const decodedPromoterName = urlToName(promoterName);
-  const supabase = await createClient();
-  const user = await getUser(supabase);
-  const promoter = await getPromoterByName(supabase, decodedPromoterName);
+}
 
-  if (!promoter) {
+export default async function PromoterPage({ params }: PromoterPageProps) {
+  try {
+    const { promoterName } = await params;
+    const supabase = await createClient();
+    
+    // Get current user and promoter data
+    const [{ data: { user } }, promoter] = await Promise.all([
+      supabase.auth.getUser(),
+      getPromoterByName(supabase, urlToName(promoterName))
+    ]);
+    
+    if (!promoter) {
+      notFound();
+    }
+
+    // Fetch all related data in parallel
+    const [
+      upcomingEvents,
+      pastEvents,
+      artists,
+      popularTracks
+    ] = await Promise.all([
+      getPromoterEvents(supabase, promoter.id),
+      getPromoterPastEvents(supabase, promoter.id),
+      getPromoterArtists(supabase, promoter.id),
+      getPromoterPopularTracks(supabase, promoter.id)
+    ]);
+
+    return (
+      <PromoterDetailView
+        promoter={promoter}
+        upcomingEvents={upcomingEvents}
+        pastEvents={pastEvents}
+        artists={artists}
+        popularTracks={popularTracks}
+        currentUser={user}
+      />
+    );
+  } catch (error) {
+    console.error("Error loading promoter page:", error);
     notFound();
   }
+}
 
-  const userIsPromoter = user?.id === promoter.user_id;
+// Helper function to get past events
+async function getPromoterPastEvents(supabase: any, promoterId: string) {
+  const { data: eventPromotions, error } = await supabase
+    .from("events_promoters")
+    .select(`
+      events (
+        *,
+        venues (
+          id,
+          name,
+          address
+        )
+      )
+    `)
+    .eq("promoter", promoterId);
 
-  const { name, bio, email, phone } = promoter;
-  
-  return (
-    <Container>
-      <Grid gutter="lg">
-        {/* Main Content */}
-        <GridCol span={{ base: 12, md: 8 }}>
-          {/* Promoter Header */}
-          <div style={{ position: "relative", height: "200px", marginBottom: "2rem" }}>
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "200px",
-                background: "linear-gradient(45deg, #ff6b35, #f7931e)",
-                zIndex: 0,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: "1rem",
-                left: "1rem",
-                zIndex: 1,
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                gap: "1rem",
-              }}
-            >
-              <div>
-                <Group>
-                  <Title style={{ color: "white" }}>{name}</Title>
-                  {userIsPromoter && (
-                    <Button 
-                      component={Link} 
-                      href={`/promoters/${nameToUrl(name)}/edit`}
-                    >
-                      <IconEdit size={16} />
-                    </Button>
-                  )}
-                </Group>
-                <Badge color="orange">Promoter</Badge>
-              </div>
-            </div>
-          </div>
+  if (error) {
+    console.error("Error fetching past events:", error);
+    return [];
+  }
 
-          {/* Events Section */}
-          <Title order={2} mb="md">
-            Promoted Events
-          </Title>
-          <Card withBorder p="lg">
-            <Text c="dimmed" ta="center">
-              Events promoted by {name} will appear here.
-            </Text>
-          </Card>
-        </GridCol>
+  // Extract events from the junction table results and filter for past events
+  const events = eventPromotions
+    ?.map((ep: any) => ep.events)
+    .filter(Boolean)
+    .filter((event: any) => event.date && new Date(event.date) < new Date())
+    .sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+    .slice(0, 6) || [];
 
-        {/* Sidebar */}
-        <GridCol span={{ base: 12, md: 4 }}>
-          <Title order={3} mb="md">
-            About
-          </Title>
-          <Text size="sm" c="dimmed">
-            {bio || "No bio available."}
-          </Text>
-          
-          <Divider my="md" />
-          
-          <Title order={3} mb="md">
-            Contact Information
-          </Title>
-          <Stack gap="sm">
-            {email && (
-              <Card withBorder p="sm">
-                <Text size="sm" fw={500}>Email</Text>
-                <Text size="sm" c="dimmed">{email}</Text>
-              </Card>
-            )}
-            {phone && (
-              <Card withBorder p="sm">
-                <Text size="sm" fw={500}>Phone</Text>
-                <Text size="sm" c="dimmed">{phone}</Text>
-              </Card>
-            )}
-          </Stack>
-        </GridCol>
-      </Grid>
-    </Container>
-  );
+  return events;
 }

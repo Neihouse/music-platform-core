@@ -63,9 +63,7 @@ export function BannerUpload({
           setImageUrl(url);
           setCurrentBannerFilename(bannerFilename);
 
-          if (onBannerUploaded) {
-            onBannerUploaded(url);
-          }
+
         }
       } catch (error) {
         console.error("Error fetching existing banner:", error);

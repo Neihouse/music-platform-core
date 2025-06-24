@@ -15,3 +15,4 @@ export type { IPromoterAvatarUploadProps } from "./PromoterAvatarUpload";
 // Entity-specific banner uploads
 export { ArtistBannerUpload } from "./ArtistArtUpload/ArtistBannerUpload";
 export { PromoterBannerUpload } from "./PromoterBannerUpload";
+export type { IPromoterBannerUploadProps } from "./PromoterBannerUpload";

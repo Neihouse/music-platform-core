@@ -305,3 +305,48 @@ export async function getArtistTracksWithPlayCounts(supabase: TypedClient, artis
     };
   }).filter(Boolean) || [];
 }
+
+export async function getPromoterPopularTracks(supabase: TypedClient, promoterId: string) {
+  const { data, error } = await supabase
+    .from("promoters_artists")
+    .select(`
+      artists (
+        id,
+        name,
+        avatar_img,
+        artists_tracks (
+          tracks (
+            *,
+            play_count:track_plays(count)
+          )
+        )
+      )
+    `)
+    .eq("promoter_id", promoterId)
+    .limit(10);
+
+  if (error) {
+    console.error("Error fetching promoter popular tracks:", error);
+    return [];
+  }
+
+  // Flatten and sort tracks by play count
+  const allTracks: any[] = [];
+  data?.forEach(pa => {
+    pa.artists?.artists_tracks?.forEach(at => {
+      if (at.tracks) {
+        const track = at.tracks as any;
+        allTracks.push({
+          ...track,
+          plays: track.play_count?.length ? track.play_count[0].count || 0 : 0,
+          artist: pa.artists
+        });
+      }
+    });
+  });
+
+  // Sort by play count and return top tracks
+  return allTracks
+    .sort((a, b) => (b.plays || 0) - (a.plays || 0))
+    .slice(0, 6);
+}
