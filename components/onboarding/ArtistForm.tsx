@@ -29,6 +29,7 @@ import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
 import { ArtistArtUpload } from "../Upload/ArtistArtUpload/index";
 import { onDeleteArtistLocation, submitArtist } from "@/app/artists/[artistName]/actions";
+import { nameToUrl } from "@/lib/utils";
 import {
   IconCheck,
   IconMusic,
@@ -88,7 +89,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
       // Finish the process
       if (artist?.id) {
         router.push(
-          `/artists/${encodeURIComponent(form.values.name.toLowerCase())}`
+          `/artists/${nameToUrl(form.values.name)}`
         );
       }
     }
