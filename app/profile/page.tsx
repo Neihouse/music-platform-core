@@ -1,5 +1,4 @@
 import { getUserEntities } from "@/db/queries/user-entities";
-import { nameToUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { nameToUrl } from "@/lib/utils";
 import {
