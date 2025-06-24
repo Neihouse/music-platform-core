@@ -9,7 +9,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function submitPromoter(
   promoter: Omit<TablesInsert<"promoters">, "administrative_area_id" | "locality_id">,
-  storedLocality: StoredLocality
+  storedLocalities: StoredLocality[]
 ) {
   const supabase = await createClient();
 
@@ -30,8 +30,24 @@ export async function submitPromoter(
     {
       ...promoter,
       user_id: user.user.id,
-  
-    })
+    }
+  );
+
+  // Add all localities to the promoter
+  if (storedLocalities.length > 0) {
+    const localityInserts = storedLocalities.map(locality => ({
+      promoter_id: newPromoter.id,
+      locality_id: locality.locality.id,
+    }));
+
+    const { error: localityError } = await supabase
+      .from("promoters_localities")
+      .insert(localityInserts);
+
+    if (localityError) {
+      throw new Error(`Failed to add promoter localities: ${localityError.message}`);
+    }
+  }
 
   return newPromoter;
 }

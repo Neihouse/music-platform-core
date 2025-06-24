@@ -14,7 +14,15 @@ export async function getPromoter(supabase: TypedClient) {
       promoters_localities (
         localities (
           id,
-          name
+          name,
+          administrative_areas (
+            id,
+            name,
+            countries (
+              id,
+              name
+            )
+          )
         )
       )
     `)
@@ -51,7 +59,23 @@ export async function getPromoterByName(
 ) {
   const { data: promoter, error } = await supabase
     .from("promoters")
-    .select("*")
+    .select(`
+      *,
+      promoters_localities (
+        localities (
+          id,
+          name,
+          administrative_areas (
+            id,
+            name,
+            countries (
+              id,
+              name
+            )
+          )
+        )
+      )
+    `)
     .ilike("name", promoterName)
     .maybeSingle();
 
