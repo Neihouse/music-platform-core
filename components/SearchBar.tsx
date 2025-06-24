@@ -29,6 +29,7 @@ import {
 import Link from "next/link";
 import { useClickOutside, useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { nameToUrl } from "@/lib/utils";
 
 // Mock data for development
 const MOCK_DATA = {
@@ -320,7 +321,7 @@ export function SearchBar() {
                       <UnstyledButton
                         key={artist.id}
                         component={Link}
-                        href={`/artists/${artist.id}`}
+                        href={`/artists/${nameToUrl(artist.name)}`}
                       >
                         <Group wrap="nowrap" justify="space-between">
                           <Group gap="sm" wrap="nowrap">
