@@ -36,19 +36,8 @@ interface HeaderProps {
 export function Header({ user, userProfile }: HeaderProps) {
   const { setColorScheme, colorScheme } = useMantineColorScheme();
 
-  // Function to validate URL
-  const isValidUrl = (urlString: string | undefined | null): boolean => {
-    if (!urlString) return false;
-    try {
-      new URL(urlString);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  // Get valid avatar URL or fallback
-  const avatarUrl = isValidUrl(userProfile?.avatar_img) ? userProfile?.avatar_img : undefined;
+  // Use the avatarUrl from the server-side getUserProfile function
+  const avatarUrl = userProfile?.avatarUrl;
 
   // Get display name
   const displayName = userProfile?.name || user?.user_metadata?.name || user?.email || "User";
