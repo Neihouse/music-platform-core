@@ -4,7 +4,6 @@ import { updatePromoter } from "@/db/queries/promoters";
 import { getPromoterLocalities, updatePromoterLocalities } from "@/db/queries/promoter_localities";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { nameToUrl } from "@/lib/utils";
 
 export interface UpdatePromoterData {
