@@ -116,9 +116,12 @@ export default function PromoterArtistsClient({
           {/* Locality Filter Toggle */}
           <Group justify="space-between" wrap="nowrap">
             <div>
-              <Text fw={500} size="sm">Filter by shared localities</Text>
+              <Text fw={500} size="sm">Show artists in your localities only</Text>
               <Text size="xs" c="dimmed">
-                Show only artists in areas where you also promote
+                {filterByPromoterLocality 
+                  ? "Currently showing only artists in your shared localities" 
+                  : "Currently showing all artists regardless of location"
+                }
               </Text>
             </div>
             <Switch
