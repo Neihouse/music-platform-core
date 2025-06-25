@@ -25,9 +25,6 @@ import {
   IconCalendar,
   IconUsers,
 } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useClickOutside, useDisclosure } from "@mantine/hooks";
 import { User } from "@supabase/auth-js";
 import { UserProfile } from "@/db/queries/user";
 
