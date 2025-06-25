@@ -2,43 +2,6 @@
 
 import { TypedClient } from "@/utils/supabase/global.types";
 
-export async function addPromoterLocality(
-  supabase: TypedClient,
-  promoterId: string,
-  localityId: string
-) {
-  const { data, error } = await supabase
-    .from("promoters_localities")
-    .insert({
-      promoter_id: promoterId,
-      locality_id: localityId,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to add promoter locality: ${error.message}`);
-  }
-
-  return data;
-}
-
-export async function removePromoterLocality(
-  supabase: TypedClient,
-  promoterId: string,
-  localityId: string
-) {
-  const { error } = await supabase
-    .from("promoters_localities")
-    .delete()
-    .eq("promoter_id", promoterId)
-    .eq("locality_id", localityId);
-
-  if (error) {
-    throw new Error(`Failed to remove promoter locality: ${error.message}`);
-  }
-}
-
 export async function getPromoterLocalities(
   supabase: TypedClient,
   promoterId: string
@@ -74,15 +37,35 @@ export async function updatePromoterLocalities(
   promoterId: string,
   localityIds: string[]
 ) {
-  // First, remove all existing localities for this promoter
+  
+  // Verify user authentication and promoter ownership
+  const { data: user } = await supabase.auth.getUser();
+  if (!user || !user.user) {
+    throw new Error("User not authenticated");
+  }
+
+  // Verify the user owns this promoter
+  const { data: existingPromoter } = await supabase
+    .from("promoters")
+    .select("user_id")
+    .eq("id", promoterId)
+    .single();
+
+  if (!existingPromoter || existingPromoter.user_id !== user.user.id) {
+    throw new Error("Unauthorized to update this promoter");
+  }
+
+   // First, remove all existing localities for this promoter
   const { error: deleteError } = await supabase
     .from("promoters_localities")
     .delete()
     .eq("promoter_id", promoterId);
 
   if (deleteError) {
+    console.error("Delete error:", deleteError);
     throw new Error(`Failed to remove existing localities: ${deleteError.message}`);
   }
+
 
   // Then, add all new localities
   if (localityIds.length > 0) {
@@ -97,6 +80,7 @@ export async function updatePromoterLocalities(
       .select();
 
     if (insertError) {
+      console.error("Insert error:", insertError);
       throw new Error(`Failed to add new localities: ${insertError.message}`);
     }
 
