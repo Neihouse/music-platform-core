@@ -475,3 +475,84 @@ export async function getPromotersByArtistLocalities(
   return Array.from(uniquePromoters.values());
 }
 
+export async function getArtistsByPromoterLocalities(
+  supabase: TypedClient,
+  promoterId: string
+) {
+  // First get all locality IDs associated with the promoter
+  const { data: promoterLocalities, error: promoterError } = await supabase
+    .from("promoters_localities")
+    .select("locality_id")
+    .eq("promoter_id", promoterId);
+
+  if (promoterError) {
+    console.error("Error fetching promoter localities:", promoterError);
+    return [];
+  }
+
+  if (!promoterLocalities || promoterLocalities.length === 0) {
+    return [];
+  }
+
+  const localityIds = promoterLocalities.map(pl => pl.locality_id);
+
+  // Then get all artists that are linked to those same localities
+  const { data: artistLocalities, error: artistError } = await supabase
+    .from("artists_localities")
+    .select(`
+      artist,
+      locality,
+      artists (
+        id,
+        name,
+        bio,
+        avatar_img,
+        banner_img,
+        external_links
+      ),
+      localities (
+        id,
+        name,
+        administrative_areas (
+          id,
+          name,
+          countries (
+            id,
+            name
+          )
+        )
+      )
+    `)
+    .in("locality", localityIds);
+
+  if (artistError) {
+    console.error("Error fetching artists by promoter localities:", artistError);
+    return [];
+  }
+
+  // Transform the data to include locality information and remove duplicates
+  const uniqueArtists = new Map();
+  
+  artistLocalities?.forEach(al => {
+    if (al.artists && !uniqueArtists.has(al.artists.id)) {
+      let storedLocality = undefined;
+      
+      if (al.localities?.administrative_areas?.countries) {
+        storedLocality = {
+          locality: al.localities,
+          administrativeArea: al.localities.administrative_areas,
+          country: al.localities.administrative_areas.countries,
+          fullAddress: undefined
+        };
+      }
+
+      uniqueArtists.set(al.artists.id, {
+        ...al.artists,
+        storedLocality
+      });
+    }
+  });
+
+  return Array.from(uniqueArtists.values());
+}
+
