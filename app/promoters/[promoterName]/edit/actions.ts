@@ -1,9 +1,9 @@
 "use server";
 
 import { updatePromoter } from "@/db/queries/promoters";
+import { getPromoterLocalities, updatePromoterLocalities } from "@/db/queries/promoter_localities";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { nameToUrl } from "@/lib/utils";
 
 export interface UpdatePromoterData {
@@ -37,5 +37,32 @@ export async function updatePromoterAction(
       success: false, 
       error: error?.message || "Failed to update promoter" 
     };
+  }
+}
+
+export async function getPromoterLocalitiesAction(promoterId: string) {
+  try {
+    const supabase = await createClient();
+    const localities = await getPromoterLocalities(supabase, promoterId);
+    
+    return { success: true, data: localities };
+  } catch (error: any) {
+    console.error("Error fetching promoter localities:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updatePromoterLocalitiesAction(
+  promoterId: string,
+  localityIds: string[]
+) {
+  try {
+    const supabase = await createClient();
+    await updatePromoterLocalities(supabase, promoterId, localityIds);
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating promoter localities:", error);
+    return { success: false, error: error.message };
   }
 }

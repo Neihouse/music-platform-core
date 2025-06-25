@@ -164,6 +164,11 @@ export function PromoterDetailView({
                   <Text size="lg" fw={500}>
                     🎵 {artists.length} Amazing Artists
                   </Text>
+                  {promoter.promoters_localities && promoter.promoters_localities.length > 0 && (
+                    <Text size="lg" fw={500}>
+                      📍 {promoter.promoters_localities.length} Location{promoter.promoters_localities.length > 1 ? 's' : ''}
+                    </Text>
+                  )}
                 </Group>
                 {promoter.bio && (
                   <Text size="md" style={{ maxWidth: "600px" }}>
@@ -248,6 +253,9 @@ export function PromoterDetailView({
           </Tabs.Tab>
           <Tabs.Tab value="music" leftSection={<IconMusic size={16} />}>
             Popular Tracks
+          </Tabs.Tab>
+          <Tabs.Tab value="locations" leftSection={<IconMapPin size={16} />}>
+            Locations
           </Tabs.Tab>
         </Tabs.List>
 
@@ -464,6 +472,39 @@ export function PromoterDetailView({
             )}
           </Stack>
         </Tabs.Panel>
+
+        <Tabs.Panel value="locations">
+          <Stack gap="xl">
+            <Group justify="space-between">
+              <Title order={2}>Operating Locations</Title>
+              <Badge size="lg" variant="light" color="orange">
+                {promoter.promoters_localities?.length || 0} Location{(promoter.promoters_localities?.length || 0) !== 1 ? 's' : ''}
+              </Badge>
+            </Group>
+
+            {promoter.promoters_localities && promoter.promoters_localities.length > 0 ? (
+              <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+                {promoter.promoters_localities.map((location: any) => (
+                  <LocationCard key={location.localities.id} location={location} />
+                ))}
+              </SimpleGrid>
+            ) : (
+              <Center py="xl">
+                <Stack align="center" gap="md">
+                  <ThemeIcon size={80} radius="xl" variant="light" color="gray">
+                    <IconMapPin size={40} />
+                  </ThemeIcon>
+                  <Text size="xl" fw={600} c="dimmed">
+                    No locations specified
+                  </Text>
+                  <Text c="dimmed" ta="center">
+                    This collective hasn't specified their operating locations yet.
+                  </Text>
+                </Stack>
+              </Center>
+            )}
+          </Stack>
+        </Tabs.Panel>
       </Tabs>
     </Container>
   );
@@ -654,6 +695,64 @@ function TrackCard({ track, index }: { track: any; index: number }) {
           <IconPlayerPlay size={24} />
         </ActionIcon>
       </Group>
+    </Card>
+  );
+}
+
+function LocationCard({ location }: { location: any }) {
+  return (
+    <Card
+      p="lg"
+      radius="xl"
+      withBorder
+      style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        transition: "transform 0.2s ease",
+        cursor: "pointer",
+      }}
+      onMouseEnter={(e: any) => {
+        e.currentTarget.style.transform = "translateY(-4px)";
+      }}
+      onMouseLeave={(e: any) => {
+        e.currentTarget.style.transform = "translateY(0)";
+      }}
+    >
+      <Stack gap="md" align="center">
+        <ThemeIcon
+          size={60}
+          radius="xl"
+          variant="white"
+          color="blue"
+          style={{
+            background: "rgba(255,255,255,0.2)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <IconMapPin size={30} />
+        </ThemeIcon>
+        
+        <Stack gap="xs" align="center">
+          <Text fw={700} size="lg" ta="center">
+            {location.localities.name}
+          </Text>
+          <Text size="sm" c="rgba(255,255,255,0.9)" ta="center">
+            {location.localities.administrative_areas?.name}
+          </Text>
+          <Text size="sm" c="rgba(255,255,255,0.8)" ta="center">
+            {location.localities.administrative_areas?.countries?.name}
+          </Text>
+        </Stack>
+
+        <Badge
+          variant="white"
+          color="blue"
+          size="sm"
+          style={{ background: "rgba(255,255,255,0.9)" }}
+        >
+          Operating Location
+        </Badge>
+      </Stack>
     </Card>
   );
 }

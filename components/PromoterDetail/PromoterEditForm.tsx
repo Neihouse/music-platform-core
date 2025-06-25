@@ -20,7 +20,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   IconUser,
@@ -32,10 +32,12 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
-import { updatePromoterAction } from "@/app/promoters/[promoterName]/edit/actions";
+import { updatePromoterAction, getPromoterLocalitiesAction, updatePromoterLocalitiesAction } from "@/app/promoters/[promoterName]/edit/actions";
 import { PromoterAvatarUpload } from "@/components/Upload/PromoterAvatarUpload";
 import { PromoterBannerUpload } from "@/components/Upload/PromoterBannerUpload";
 import { createClient } from "@/utils/supabase/client";
+import { MultipleLocationsInput } from "@/components/LocationInput/MultipleLocationsInput";
+import { StoredLocality } from "@/utils/supabase/global.types";
 
 interface PromoterEditFormProps {
   promoter: any;
@@ -44,6 +46,45 @@ interface PromoterEditFormProps {
 export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [selectedLocalities, setSelectedLocalities] = useState<StoredLocality[]>([]);
+  const [localitiesLoading, setLocalitiesLoading] = useState(true);
+
+  // Load existing localities on component mount
+  useEffect(() => {
+    async function loadLocalities() {
+      try {
+        setLocalitiesLoading(true);
+        const result = await getPromoterLocalitiesAction(promoter.id);
+        
+        if (result.success && result.data) {
+          // Transform the localities data to StoredLocality format
+          const transformedLocalities: StoredLocality[] = result.data
+            .filter((pl: any) => pl?.localities) // Filter out any items without localities
+            .map((pl: any) => ({
+              locality: pl.localities,
+              administrativeArea: pl.localities?.administrative_areas || null,
+              country: pl.localities?.administrative_areas?.countries || null,
+              fullAddress: undefined // We don't store full address for existing localities
+            }));
+          
+          setSelectedLocalities(transformedLocalities);
+        } else {
+          throw new Error(result.error || "Failed to load localities");
+        }
+      } catch (error) {
+        console.error("Error loading localities:", error);
+        notifications.show({
+          title: "Error",
+          message: "Failed to load existing localities",
+          color: "red",
+        });
+      } finally {
+        setLocalitiesLoading(false);
+      }
+    }
+
+    loadLocalities();
+  }, [promoter.id]);
 
   // Helper function to get banner image URL
   const getBannerImageUrl = () => {
@@ -88,12 +129,21 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
   const handleSubmit = async (values: typeof form.values) => {
     setLoading(true);
     try {
+      // Update basic promoter information
       const result = await updatePromoterAction(promoter.id, values);
       
       if (result.success) {
+        // Update localities
+        const localityIds = selectedLocalities.map((loc: any) => loc.locality.id);
+        const localitiesResult = await updatePromoterLocalitiesAction(promoter.id, localityIds);
+        
+        if (!localitiesResult.success) {
+          throw new Error(localitiesResult.error);
+        }
+        
         notifications.show({
           title: "Success!",
-          message: "Collective profile updated successfully",
+          message: "Collective profile and locations updated successfully",
           color: "green",
         });
 
@@ -250,6 +300,32 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                   )}
                 </Box>
               </Stack>
+            </Card>
+          </GridCol>
+
+          {/* Localities Section */}
+          <GridCol span={{ base: 12, md: 8 }}>
+            <Card withBorder radius="md" p="xl">
+              <Title order={3} mb="md">
+                Operating Locations
+              </Title>
+              
+              <Text size="sm" c="dimmed" mb="lg">
+                Manage the cities where your collective operates. This helps local artists and venues find you.
+              </Text>
+              
+              {localitiesLoading ? (
+                <Text>Loading locations...</Text>
+              ) : (
+                <MultipleLocationsInput
+                  localities={selectedLocalities}
+                  onLocalitiesChange={setSelectedLocalities}
+                  title=""
+                  description=""
+                  maxLocalities={5}
+                  searchLocalitiesOnly={true}
+                />
+              )}
             </Card>
           </GridCol>
 

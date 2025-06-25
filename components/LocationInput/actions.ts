@@ -50,10 +50,11 @@ export async function submitPlace(
     countryData.id,
   );
 
-  return {
+ return {
     country: countryData,
     administrativeArea: administrativeAreaData,
     locality: localityData,
     fullAddress: fullAddress, // Include the full formatted address if provided
   };
+
 }

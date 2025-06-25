@@ -3,18 +3,16 @@ import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
 import { getArtistImagesServer } from "@/lib/image-utils";
 import { createClient } from "@/utils/supabase/server";
-import {
-  Container,
-} from "@mantine/core";
 import { notFound } from "next/navigation";
-import { urlToName, nameToUrl } from "@/lib/utils";
+import { urlToName } from "@/lib/utils";
+import ArtistModal from "@/components/ArtistModal";
 import ArtistProfileContent from "@/components/ArtistProfileContent";
 
-export default async function ArtistPage({
-  params,
-}: {
+interface ArtistModalPageProps {
   params: Promise<{ artistName: string }>;
-}) {
+}
+
+const ArtistModalPage = async ({ params }: ArtistModalPageProps) => {
   const { artistName } = await params;
   const decodedArtistName = urlToName(artistName);
   const supabase = await createClient();
@@ -33,9 +31,8 @@ export default async function ArtistPage({
   // Get dynamic image URLs using the new combined function
   const { avatarUrl, bannerUrl } = artist.id ? await getArtistImagesServer(supabase, artist.id) : { avatarUrl: null, bannerUrl: null };
 
-  const { name, bio, external_links } = artist;
   return (
-    <Container>
+    <ArtistModal>
       <ArtistProfileContent
         artist={artist}
         user={user}
@@ -44,6 +41,8 @@ export default async function ArtistPage({
         avatarUrl={avatarUrl}
         bannerUrl={bannerUrl}
       />
-    </Container>
+    </ArtistModal>
   );
-}
+};
+
+export default ArtistModalPage;

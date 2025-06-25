@@ -15,7 +15,7 @@ import { submitPromoter } from "@/app/promoters/create/actions";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LocationInput } from "@/components/LocationInput";
+import { MultipleLocationsInput } from "@/components/LocationInput/MultipleLocationsInput";
 import { StoredLocality } from "@/utils/supabase/global.types";
 import { PromoterBannerUpload } from "@/components/Upload/PromoterBannerUpload";
 import { PromoterAvatarUpload } from "@/components/Upload/PromoterAvatarUpload";
@@ -25,7 +25,7 @@ export interface IPromoterFormProps {}
 export function PromoterForm(props: IPromoterFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState<StoredLocality | undefined>();
+  const [selectedLocalities, setSelectedLocalities] = useState<StoredLocality[]>([]);
   const [promoterId, setPromoterId] = useState<string | undefined>();
   
   const form = useForm({
@@ -43,13 +43,13 @@ export function PromoterForm(props: IPromoterFormProps) {
     },
   });
 
-  // Custom validation for location
+  // Custom validation for locations
   const validateForm = () => {
     const formErrors = form.validate();
-    if (!selectedPlace) {
+    if (selectedLocalities.length === 0) {
       notifications.show({
         title: "Error",
-        message: "Please select a location for your promoter profile",
+        message: "Please add at least one location for your promoter profile",
         color: "red",
       });
       return false;
@@ -58,7 +58,7 @@ export function PromoterForm(props: IPromoterFormProps) {
   };
 
   async function handleRemoveLocation() {
-    setSelectedPlace(undefined);
+    // This function is no longer needed since MultipleLocationsInput handles removal
   }
 
   return (
@@ -72,7 +72,7 @@ export function PromoterForm(props: IPromoterFormProps) {
             return submitPromoterForm(
               values.name,
               values.bio,
-              selectedPlace!,
+              selectedLocalities,
               values.email,
               values.phone,
             );
@@ -106,11 +106,13 @@ export function PromoterForm(props: IPromoterFormProps) {
                 Business Location
               </Title>
               
-              <LocationInput
-                onPlaceSelect={setSelectedPlace}
-                onRemovePlace={handleRemoveLocation}
-                storedLocality={selectedPlace}
-                searchFullAddress={true}
+              <MultipleLocationsInput
+                localities={selectedLocalities}
+                onLocalitiesChange={setSelectedLocalities}
+                title="Business Locations"
+                description="Add cities where your collective operates. This helps local artists and venues find you."
+                maxLocalities={5}
+                searchLocalitiesOnly={true}
               />
 
               <TextInput
@@ -183,7 +185,7 @@ export function PromoterForm(props: IPromoterFormProps) {
   async function submitPromoterForm(
     name: string,
     bio: string,
-    location: StoredLocality,
+    localities: StoredLocality[],
     email: string,
     phone: string,
   ) {
@@ -192,7 +194,7 @@ export function PromoterForm(props: IPromoterFormProps) {
       "Submitting promoter:",
       name,
       bio,
-      location,
+      localities,
       email,
       phone,
     );
@@ -204,7 +206,7 @@ export function PromoterForm(props: IPromoterFormProps) {
           email,
           phone,
         },
-        location
+        localities
       );
       console.log("Promoter created:", promoter);
       
