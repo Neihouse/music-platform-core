@@ -1,5 +1,5 @@
 "use server";
-import { Artist, StoredLocality, Track, TypedClient } from "@/utils/supabase/global.types";
+import { Artist, StoredLocality, Track, TypedClient, Locality, AdministrativeArea, Country } from "@/utils/supabase/global.types";
 import { Database } from "@/utils/supabase/database.types";
 
 export async function createArtist(
@@ -7,11 +7,11 @@ export async function createArtist(
   {
     name,
     bio,
-    locality_id,
     administrative_area_id,
     user_id,
     country_id,
   }: Database["public"]["Tables"]["artists"]["Insert"],
+  localityIds?: string[]
 ) {
   const { data: artist, error } = await supabase
     .from("artists")
@@ -19,7 +19,6 @@ export async function createArtist(
       name,
       bio,
       administrative_area_id,
-      locality_id,
       country_id,
       user_id,
     })
@@ -27,6 +26,24 @@ export async function createArtist(
     .single();
   if (error) {
     throw new Error(error.message);
+  }
+
+  // If locality IDs are provided, create the relationships
+  if (localityIds && localityIds.length > 0) {
+    const artistLocalityInserts = localityIds.map(localityId => ({
+      artist: artist.id,
+      locality: localityId,
+    }));
+
+    const { error: localityError } = await supabase
+      .from("artists_localities")
+      .insert(artistLocalityInserts);
+
+    if (localityError) {
+      // If locality insert fails, we might want to clean up the artist
+      // For now, we'll just log the error but return the artist
+      console.error("Error inserting artist localities:", localityError);
+    }
   }
 
   return artist;
@@ -44,7 +61,32 @@ export async function getArtist(supabase: TypedClient): Promise<ArtistWithLocati
 
   const { data: artist, error } = await supabase
     .from("artists")
-    .select("*, localities (*), administrative_areas(*), countries(*)")
+    .select(`
+      *,
+      artists_localities (
+        locality,
+        localities (
+          id,
+          name,
+          administrative_area_id,
+          country_id,
+          created_at,
+          administrative_areas (
+            id,
+            name,
+            country_id,
+            created_at,
+            countries (
+              id,
+              name,
+              created_at
+            )
+          )
+        )
+      ),
+      administrative_areas(*),
+      countries(*)
+    `)
     .eq("user_id", user.user.id)
     .maybeSingle();
 
@@ -56,13 +98,17 @@ export async function getArtist(supabase: TypedClient): Promise<ArtistWithLocati
     throw new Error(error?.message || "Artist not found");
   }
 
+  // Build stored locality from the first locality relationship (if any)
   let storedLocality: StoredLocality | undefined = undefined;
-
-  if (artist?.administrative_areas && artist?.localities && artist?.countries) {
-    storedLocality = {
-      locality: artist?.localities!,
-      administrativeArea: artist?.administrative_areas!,
-      country: artist?.countries!,
+  
+  if (artist?.artists_localities && artist.artists_localities.length > 0) {
+    const firstLocality = artist.artists_localities[0];
+    if (firstLocality.localities?.administrative_areas?.countries) {
+      storedLocality = {
+        locality: firstLocality.localities as Locality,
+        administrativeArea: firstLocality.localities.administrative_areas as AdministrativeArea,
+        country: firstLocality.localities.administrative_areas.countries as Country,
+      };
     }
   }
 
@@ -78,7 +124,46 @@ export async function getArtistByName(
 ) {
   const { data: artist, error } = await supabase
     .from("artists")
-    .select(`*`)
+    .select(`
+      *,
+      artists_localities (
+        locality,
+        localities (
+          id,
+          name,
+          administrative_area_id,
+          country_id,
+          created_at,
+          administrative_areas (
+            id,
+            name,
+            country_id,
+            created_at,
+            countries (
+              id,
+              name,
+              created_at
+            )
+          )
+        )
+      ),
+      administrative_areas (
+        id,
+        name,
+        country_id,
+        created_at,
+        countries (
+          id,
+          name,
+          created_at
+        )
+      ),
+      countries (
+        id,
+        name,
+        created_at
+      )
+    `)
     .ilike("name", artistName)
     .maybeSingle();
 
@@ -89,7 +174,24 @@ export async function getArtistByName(
     throw new Error(error.message);
   }
 
-  return artist
+  // Build stored locality from the first locality relationship (if any)
+  let storedLocality: StoredLocality | undefined = undefined;
+  
+  if (artist?.artists_localities && artist.artists_localities.length > 0) {
+    const firstLocality = artist.artists_localities[0];
+    if (firstLocality.localities?.administrative_areas?.countries) {
+      storedLocality = {
+        locality: firstLocality.localities as Locality,
+        administrativeArea: firstLocality.localities.administrative_areas as AdministrativeArea,
+        country: firstLocality.localities.administrative_areas.countries as Country,
+      };
+    }
+  }
+
+  return {
+    ...artist,
+    storedLocality,
+  } as ArtistWithLocation;
 }
 
 export async function updateArtist(
@@ -97,12 +199,12 @@ export async function updateArtist(
   {
     name,
     bio,
-    locality_id,
     administrative_area_id,
     user_id,
     country_id,
   }: Database["public"]["Tables"]["artists"]["Update"],
-  artistId: string
+  artistId: string,
+  localityIds?: string[]
 ) {
   const { data, error } = await supabase
     .from("artists")
@@ -110,18 +212,39 @@ export async function updateArtist(
       name,
       bio,
       administrative_area_id,
-      locality_id,
       country_id,
       user_id,
     })
-    .eq("id", artistId)
-
+    .eq("id", artistId);
 
   if (error) {
     throw new Error(error.message);
   }
 
+  // Update localities if provided
+  if (localityIds !== undefined) {
+    // First, delete existing locality relationships
+    await supabase
+      .from("artists_localities")
+      .delete()
+      .eq("artist", artistId);
 
+    // Then, insert new locality relationships
+    if (localityIds.length > 0) {
+      const artistLocalityInserts = localityIds.map(localityId => ({
+        artist: artistId,
+        locality: localityId,
+      }));
+
+      const { error: localityError } = await supabase
+        .from("artists_localities")
+        .insert(artistLocalityInserts);
+
+      if (localityError) {
+        console.error("Error updating artist localities:", localityError);
+      }
+    }
+  }
 
   return await getArtist(supabase);
 }
@@ -130,10 +253,20 @@ export async function deleteArtistLocation(
   supabase: TypedClient,
   artistId: string
 ) {
+  // Delete all locality relationships for the artist
+  const { error: localityError } = await supabase
+    .from("artists_localities")
+    .delete()
+    .eq("artist", artistId);
+
+  if (localityError) {
+    throw new Error(localityError.message);
+  }
+
+  // Update the artist to remove administrative area and country
   const { data: artist, error } = await supabase
     .from("artists")
     .update({
-      locality_id: null,
       administrative_area_id: null,
       country_id: null,
     })
@@ -187,13 +320,55 @@ export async function getArtistsByLocality(
   administrativeAreaId?: string,
   countryId?: string
 ) {
+  if (localityId) {
+    // Query through the junction table for locality-based search
+    const { data: artistLocalities, error } = await supabase
+      .from("artists_localities")
+      .select(`
+        artist,
+        locality,
+        artists (
+          *,
+          administrative_areas (
+            id,
+            name
+          ),
+          countries (
+            id,
+            name
+          )
+        ),
+        localities (
+          id,
+          name
+        )
+      `)
+      .eq("locality", localityId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching artists by locality:", error);
+      return [];
+    }
+
+    // Transform the data to match the expected format
+    return artistLocalities?.map(al => ({
+      ...al.artists,
+      localities: al.localities,
+    })).filter(Boolean) || [];
+  }
+
+  // For administrative area or country filtering, query artists directly
   let query = supabase
     .from("artists")
     .select(`
       *,
-      localities (
-        id,
-        name
+      artists_localities (
+        locality,
+        localities (
+          id,
+          name
+        )
       ),
       administrative_areas (
         id,
@@ -206,17 +381,12 @@ export async function getArtistsByLocality(
     `)
     .order("created_at", { ascending: false });
 
-  // Filter by locality if provided
-  if (localityId) {
-    query = query.eq("locality_id", localityId);
-  }
-  
-  // If no locality, filter by administrative area
-  else if (administrativeAreaId) {
+  // Filter by administrative area
+  if (administrativeAreaId) {
     query = query.eq("administrative_area_id", administrativeAreaId);
   }
   
-  // If no administrative area, filter by country
+  // Filter by country
   else if (countryId) {
     query = query.eq("country_id", countryId);
   }
@@ -224,7 +394,7 @@ export async function getArtistsByLocality(
   const { data: artists, error } = await query;
 
   if (error) {
-    console.error("Error fetching artists by locality:", error);
+    console.error("Error fetching artists:", error);
     return [];
   }
 
@@ -236,9 +406,12 @@ export async function getAllArtists(supabase: TypedClient) {
     .from("artists")
     .select(`
       *,
-      localities (
-        id,
-        name
+      artists_localities (
+        locality,
+        localities (
+          id,
+          name
+        )
       ),
       administrative_areas (
         id,
@@ -257,6 +430,109 @@ export async function getAllArtists(supabase: TypedClient) {
   }
 
   return artists || [];
+}
+
+export async function addArtistLocality(
+  supabase: TypedClient,
+  artistId: string,
+  localityId: string
+) {
+  const { data, error } = await supabase
+    .from("artists_localities")
+    .insert({
+      artist: artistId,
+      locality: localityId,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+export async function removeArtistLocality(
+  supabase: TypedClient,
+  artistId: string,
+  localityId: string
+) {
+  const { error } = await supabase
+    .from("artists_localities")
+    .delete()
+    .eq("artist", artistId)
+    .eq("locality", localityId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function getArtistLocalities(
+  supabase: TypedClient,
+  artistId: string
+) {
+  const { data: artistLocalities, error } = await supabase
+    .from("artists_localities")
+    .select(`
+      *,
+      localities (
+        id,
+        name,
+        administrative_area_id,
+        country_id,
+        created_at,
+        administrative_areas (
+          id,
+          name,
+          country_id,
+          created_at,
+          countries (
+            id,
+            name,
+            created_at
+          )
+        )
+      )
+    `)
+    .eq("artist", artistId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return artistLocalities || [];
+}
+
+export async function updateArtistLocalities(
+  supabase: TypedClient,
+  artistId: string,
+  localityIds: string[]
+) {
+  // First, delete existing locality relationships
+  await supabase
+    .from("artists_localities")
+    .delete()
+    .eq("artist", artistId);
+
+  // Then, insert new locality relationships
+  if (localityIds.length > 0) {
+    const artistLocalityInserts = localityIds.map(localityId => ({
+      artist: artistId,
+      locality: localityId,
+    }));
+
+    const { error } = await supabase
+      .from("artists_localities")
+      .insert(artistLocalityInserts);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  return await getArtist(supabase);
 }
 
 
