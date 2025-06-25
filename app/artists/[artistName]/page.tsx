@@ -116,6 +116,43 @@ export default async function ArtistPage({
             </div>
           </div>
 
+          {/* Artist Info Section */}
+          <Stack gap="md" mb="xl">
+            {/* Bio */}
+            {bio && (
+              <div>
+                <Title order={3} mb="xs">
+                  About
+                </Title>
+                <Text size="sm" c="dimmed">
+                  {bio}
+                </Text>
+              </div>
+            )}
+
+            {/* Location */}
+            {artist.storedLocality && (
+              <div>
+                <Title order={3} mb="xs">
+                  Location
+                </Title>
+                <Text size="sm" c="dimmed">
+                  {artist.storedLocality.locality.name}, {artist.storedLocality.administrativeArea.name}, {artist.storedLocality.country.name}
+                </Text>
+              </div>
+            )}
+
+            {/* External Links */}
+            {external_links && external_links.length > 0 && (
+              <div>
+                <Title order={3} mb="xs">
+                  Links
+                </Title>
+                <ExternalLinksDisplay links={external_links} />
+              </div>
+            )}
+          </Stack>
+
           {/* Tracks Section */}
           <TrackList
             tracks={tracksWithPlayCounts}
@@ -126,22 +163,6 @@ export default async function ArtistPage({
 
         {/* Upcoming Events Section */}
         <GridCol span={{ base: 12, md: 4 }}>
-          <Title order={3} mb="md">
-            Bio
-          </Title>
-          <Text size="sm" c="dimmed">
-            {bio || "No bio available."}
-          </Text>
-          
-          {/* External Links Section */}
-          {external_links && external_links.length > 0 && (
-            <>
-              <Divider my="md" />
-              <ExternalLinksDisplay links={external_links} />
-            </>
-          )}
-          
-          <Divider my="md" />
           <Title order={3} mb="md">
             Upcoming Events
           </Title>
