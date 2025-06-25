@@ -81,7 +81,6 @@ export type Database = {
           created_at: string
           external_links: string[] | null
           id: string
-          locality_id: string | null
           name: string
           user_id: string
         }
@@ -94,7 +93,6 @@ export type Database = {
           created_at?: string
           external_links?: string[] | null
           id?: string
-          locality_id?: string | null
           name: string
           user_id?: string
         }
@@ -107,7 +105,6 @@ export type Database = {
           created_at?: string
           external_links?: string[] | null
           id?: string
-          locality_id?: string | null
           name?: string
           user_id?: string
         }
@@ -126,9 +123,35 @@ export type Database = {
             referencedRelation: "countries"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      artists_localities: {
+        Row: {
+          artist: string
+          created_at: string
+          locality: string
+        }
+        Insert: {
+          artist: string
+          created_at?: string
+          locality: string
+        }
+        Update: {
+          artist?: string
+          created_at?: string
+          locality?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "artists_locality_fkey"
-            columns: ["locality_id"]
+            foreignKeyName: "artists_localities_artist_fkey"
+            columns: ["artist"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_localities_locality_fkey"
+            columns: ["locality"]
             isOneToOne: false
             referencedRelation: "localities"
             referencedColumns: ["id"]
@@ -221,6 +244,62 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      event_images: {
+        Row: {
+          artist: string | null
+          created_at: string
+          id: string
+          locality: string | null
+          promoter: string | null
+          venue: string | null
+        }
+        Insert: {
+          artist?: string | null
+          created_at?: string
+          id?: string
+          locality?: string | null
+          promoter?: string | null
+          venue?: string | null
+        }
+        Update: {
+          artist?: string | null
+          created_at?: string
+          id?: string
+          locality?: string | null
+          promoter?: string | null
+          venue?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_images_artist_fkey"
+            columns: ["artist"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_images_locality_fkey"
+            columns: ["locality"]
+            isOneToOne: false
+            referencedRelation: "localities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_images_promoter_fkey"
+            columns: ["promoter"]
+            isOneToOne: false
+            referencedRelation: "promoters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_images_venue_fkey"
+            columns: ["venue"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_stage: {
         Row: {
