@@ -56,18 +56,20 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
         setLocalitiesLoading(true);
         const result = await getPromoterLocalitiesAction(promoter.id);
         
-        if (result.success) {
+        if (result.success && result.data) {
           // Transform the localities data to StoredLocality format
-          const transformedLocalities: StoredLocality[] = result.data.map((pl: any) => ({
-            locality: pl.localities,
-            administrativeArea: pl.localities.administrative_areas,
-            country: pl.localities.administrative_areas.countries,
-            fullAddress: undefined // We don't store full address for existing localities
-          }));
+          const transformedLocalities: StoredLocality[] = result.data
+            .filter((pl: any) => pl?.localities) // Filter out any items without localities
+            .map((pl: any) => ({
+              locality: pl.localities,
+              administrativeArea: pl.localities?.administrative_areas || null,
+              country: pl.localities?.administrative_areas?.countries || null,
+              fullAddress: undefined // We don't store full address for existing localities
+            }));
           
           setSelectedLocalities(transformedLocalities);
         } else {
-          throw new Error(result.error);
+          throw new Error(result.error || "Failed to load localities");
         }
       } catch (error) {
         console.error("Error loading localities:", error);
