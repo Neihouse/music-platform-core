@@ -64,10 +64,6 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
           {/* Venue Selection */}
           <VenueSelector event={event} availableVenues={availableVenues} />
-
-          {/* AI Poster Generator */}
-          <PosterGenerator event={event} />
-
           <Paper shadow="sm" p="xl">
             <Stack gap="md">
               <Title order={2}>Event Management</Title>

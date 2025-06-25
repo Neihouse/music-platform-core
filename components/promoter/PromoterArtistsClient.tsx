@@ -130,30 +130,7 @@ export default function PromoterArtistsClient({
           </Group>
         </Stack>
       </Paper>
-
-      {/* Filter Info */}
-      {filteredArtists.length > 0 && (
-        <Paper p="md" radius="lg" style={{ background: "linear-gradient(45deg, #e3f2fd, #f3e5f5)" }} mb="xl">
-          <Group gap="md">
-            <ThemeIcon size={40} radius="xl" variant="light" color="green">
-              <IconMapPin size={20} />
-            </ThemeIcon>
-            <div>
-              <Text fw={600} c="dark">
-                {filterByPromoterLocality ? "Artists in Shared Localities!" : "Local Artists Found!"}
-              </Text>
-              <Text size="sm" c="dimmed">
-                Showing {filteredArtists.length} artists
-                {searchTerm && ` matching "${searchTerm}"`}
-                {filterByPromoterLocality 
-                  ? " from your shared localities" 
-                  : ` from your primary locality${localityName ? `: ${localityName}` : ""}`
-                }
-              </Text>
-            </div>
-          </Group>
-        </Paper>
-      )}
+     
 
       {/* Artists Grid */}
       {filteredArtists.length > 0 ? (
