@@ -412,3 +412,66 @@ export async function getPromoterBanner(
   return promoter?.banner_img || null;
 }
 
+export async function getPromotersByArtistLocalities(
+  supabase: TypedClient,
+  artistId: string
+) {
+  // First get all locality IDs associated with the artist
+  const { data: artistLocalities, error: artistError } = await supabase
+    .from("artists_localities")
+    .select("locality")
+    .eq("artist", artistId);
+
+  if (artistError) {
+    console.error("Error fetching artist localities:", artistError);
+    return [];
+  }
+
+  if (!artistLocalities || artistLocalities.length === 0) {
+    return [];
+  }
+
+  const localityIds = artistLocalities.map(al => al.locality);
+
+  // Then get all promoters that are linked to those same localities
+  const { data: promoterLocalities, error: promoterError } = await supabase
+    .from("promoters_localities")
+    .select(`
+      promoter_id,
+      locality_id,
+      promoters (
+        *,
+        promoters_localities (
+          localities (
+            id,
+            name,
+            administrative_areas (
+              id,
+              name,
+              countries (
+                id,
+                name
+              )
+            )
+          )
+        )
+      )
+    `)
+    .in("locality_id", localityIds);
+
+  if (promoterError) {
+    console.error("Error fetching promoters by artist localities:", promoterError);
+    return [];
+  }
+
+  // Extract unique promoters from the results
+  const uniquePromoters = new Map();
+  promoterLocalities?.forEach(pl => {
+    if (pl.promoters && !uniquePromoters.has(pl.promoters.id)) {
+      uniquePromoters.set(pl.promoters.id, pl.promoters);
+    }
+  });
+
+  return Array.from(uniquePromoters.values());
+}
+
