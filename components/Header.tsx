@@ -42,6 +42,16 @@ export function Header({ user, userProfile }: HeaderProps) {
   // Get display name
   const displayName = userProfile?.name || user?.user_metadata?.name || user?.email || "User";
 
+  // Get profile URL based on user type
+  const getProfileUrl = () => {
+    if (userProfile?.type === 'artist') {
+      return '/artist';
+    } else if (userProfile?.type === 'promoter') {
+      return '/promoter';
+    }
+    return '/profile'; // fallback for users without a specific profile type
+  };
+
   return (
     <Container size="xl" h={60}>
       <Group justify="space-between" h="100%">
@@ -144,7 +154,7 @@ export function Header({ user, userProfile }: HeaderProps) {
                 <Menu.Item
                   leftSection={<IconUser size={14} />}
                   component={Link}
-                  href="/profile"
+                  href={getProfileUrl()}
                 >
                   Profile
                 </Menu.Item>
