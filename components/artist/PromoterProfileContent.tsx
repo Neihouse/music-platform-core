@@ -30,9 +30,30 @@ import {
 } from "@tabler/icons-react";
 import { nameToUrl } from "@/lib/utils";
 import Link from "next/link";
+import { Promoter } from "@/utils/supabase/global.types";
+
+// Extended promoter type with additional properties needed for the profile
+type PromoterWithProfile = Promoter & {
+  avatarUrl?: string | null;
+  bannerUrl?: string | null;
+  promoters_localities?: Array<{
+    localities: {
+      id: string;
+      name: string;
+      administrative_areas: {
+        id: string;
+        name: string;
+        countries: {
+          id: string;
+          name: string;
+        };
+      };
+    };
+  }>;
+};
 
 interface PromoterProfileContentProps {
-  promoter: any;
+  promoter: PromoterWithProfile;
 }
 
 export function PromoterProfileContent({ promoter }: PromoterProfileContentProps) {
