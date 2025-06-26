@@ -47,7 +47,7 @@ export default async function ArtistPromotersPage() {
         bio: promoter.bio,
         avatar_img: promoter.avatar_img,
         avatarUrl,
-        localities: promoter.localities,
+        localities: promoter.promoters_localities?.[0]?.localities,
         administrative_areas: promoter.administrative_areas,
         countries: promoter.countries,
       };
