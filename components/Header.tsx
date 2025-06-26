@@ -25,7 +25,7 @@ import {
 } from "@tabler/icons-react";
 import { User } from "@supabase/auth-js";
 import { UserProfile } from "@/db/queries/user";
-import { getAvatarUrl } from "@/lib/image-utils";
+import { getAvatarUrl } from "@/lib/images/image-utils";
 
 interface HeaderProps {
   user: User | null;
