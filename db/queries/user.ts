@@ -1,11 +1,9 @@
 "use server";
 import { TypedClient } from "@/utils/supabase/global.types";
-import { getAvatarUrlServer } from "@/lib/image-utils";
 
 export type UserProfile = {
   type: 'artist' | 'promoter' | null;
   avatar_img: string | null;
-  avatarUrl: string | null;
   name: string | null;
   id: string | null;
 };
@@ -17,7 +15,6 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
       return {
         type: null,
         avatar_img: null,
-        avatarUrl: null,
         name: null,
         id: null,
       };
@@ -31,14 +28,9 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
       .maybeSingle();
 
     if (!artistError && artist) {
-      const avatarUrl = artist.avatar_img 
-        ? await getAvatarUrlServer(artist.avatar_img)
-        : null;
-      
       return {
         type: 'artist',
         avatar_img: artist.avatar_img,
-        avatarUrl,
         name: artist.name,
         id: artist.id,
       };
@@ -52,14 +44,9 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
       .maybeSingle();
 
     if (!promoterError && promoter) {
-      const avatarUrl = promoter.avatar_img 
-        ? await getAvatarUrlServer(promoter.avatar_img)
-        : null;
-      
       return {
         type: 'promoter',
         avatar_img: promoter.avatar_img,
-        avatarUrl,
         name: promoter.name,
         id: promoter.id,
       };
@@ -69,7 +56,6 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
     return {
       type: null,
       avatar_img: null,
-      avatarUrl: null,
       name: null,
       id: null,
     };
@@ -78,7 +64,6 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
     return {
       type: null,
       avatar_img: null,
-      avatarUrl: null,
       name: null,
       id: null,
     };
