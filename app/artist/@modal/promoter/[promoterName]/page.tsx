@@ -1,0 +1,39 @@
+import { Modal } from "@mantine/core";
+import { createClient } from "@/utils/supabase/server";
+import { getPromoterByName } from "@/db/queries/promoters";
+import { getPromoterImagesServer } from "@/lib/image-utils";
+import { notFound } from "next/navigation";
+import PromoterModalContent from "@/components/artist/PromoterModalContent";
+
+interface PromoterModalPageProps {
+  params: {
+    promoterName: string;
+  };
+}
+
+export default async function PromoterModalPage({ params }: PromoterModalPageProps) {
+  const supabase = await createClient();
+  const promoterName = decodeURIComponent(params.promoterName);
+
+  try {
+    const promoter = await getPromoterByName(supabase, promoterName);
+    if (!promoter) {
+      notFound();
+    }
+
+    const { avatarUrl, bannerUrl } = await getPromoterImagesServer(supabase, promoter.id);
+
+    return (
+      <PromoterModalContent
+        promoter={{
+          ...promoter,
+          avatarUrl,
+          bannerUrl,
+        }}
+      />
+    );
+  } catch (error) {
+    console.error("Error fetching promoter:", error);
+    notFound();
+  }
+}
