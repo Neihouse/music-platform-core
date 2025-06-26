@@ -90,10 +90,9 @@ export async function getTracks(supabase: TypedClient) {
     .select(
       `
       *,
-      play_count:track_plays!inner(count),
+      play_count:track_plays(count),
       artists_tracks (
-        id,
-        artist_id,
+        artist,
         artists (
           id,
           name
@@ -105,6 +104,7 @@ export async function getTracks(supabase: TypedClient) {
 
   if (error) {
     console.log("error getting tracks: ", error);
+    return [];
   }
 
   const tracksWithArtists = topTracks?.map((track) => {
@@ -114,12 +114,12 @@ export async function getTracks(supabase: TypedClient) {
 
     return {
       ...track,
-      plays: track.play_count[0].count,
-      artists: artists.flat(),
+      plays: track.play_count?.length ? track.play_count[0].count || 0 : 0,
+      artists: artists.flat().filter(Boolean),
     };
   });
 
-  return tracksWithArtists;
+  return tracksWithArtists || [];
 }
 
 export async function getTopTracks(supabase: TypedClient) {
@@ -283,13 +283,13 @@ export async function getArtistTracksWithPlayCounts(supabase: TypedClient, artis
   const { data, error } = await supabase
     .from("artists_tracks")
     .select(`
-      track_id,
+      track,
       tracks (
         *,
         play_count:track_plays(count)
       )
     `)
-    .eq("artist_id", artistId);
+    .eq("artist", artistId);
 
   if (error) {
     throw new Error("Error fetching artist tracks: " + error.message);
@@ -349,4 +349,21 @@ export async function getPromoterPopularTracks(supabase: TypedClient, promoterId
   return allTracks
     .sort((a, b) => (b.plays || 0) - (a.plays || 0))
     .slice(0, 6);
+}
+
+export async function getArtistListensLastMonth(supabase: TypedClient, artistId: string) {
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+  const { count: totalListens, error } = await supabase
+    .from("track_plays")
+    .select("tracks!inner(artists_tracks!inner(artist))", { count: "exact", head: true })
+    .eq("tracks.artists_tracks.artist", artistId)
+    .gte("created_at", oneMonthAgo.toISOString());
+
+  if (error) {
+    throw new Error(`Failed to get artist listens: ${error.message || 'Unknown error'}`);
+  }
+
+  return totalListens || 0;
 }
