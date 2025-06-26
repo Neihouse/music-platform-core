@@ -1,4 +1,3 @@
-import { Modal } from "@mantine/core";
 import { createClient } from "@/utils/supabase/server";
 import { getPromoterByName } from "@/db/queries/promoters";
 import { getPromoterImagesServer } from "@/lib/image-utils";
@@ -6,14 +5,14 @@ import { notFound } from "next/navigation";
 import PromoterModalContent from "@/components/artist/PromoterModalContent";
 
 interface PromoterModalPageProps {
-  params: {
+  params: Promise<{
     promoterName: string;
-  };
+  }>;
 }
 
 export default async function PromoterModalPage({ params }: PromoterModalPageProps) {
   const supabase = await createClient();
-  const promoterName = decodeURIComponent(params.promoterName);
+  const promoterName = decodeURIComponent((await params).promoterName);
 
   try {
     const promoter = await getPromoterByName(supabase, promoterName);
