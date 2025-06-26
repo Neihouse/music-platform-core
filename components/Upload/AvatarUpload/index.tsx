@@ -1,5 +1,6 @@
 "use client";
 
+import { getAvatarUrl } from "@/lib/image-utils";
 import { createClient } from "@/utils/supabase/client";
 import { Card, Button, Group, Text, Title, Stack, Avatar } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
@@ -61,12 +62,7 @@ export function AvatarUpload({
         const avatarFilename = await fetchExistingAvatar(entityId);
 
         if (avatarFilename) {
-          const supabase = await createClient();
-          const { data: publicUrlData } = supabase.storage
-            .from(config.storageBucket)
-            .getPublicUrl(config.storageFolder ? `${config.storageFolder}/${avatarFilename}` : avatarFilename);
-
-          const url = publicUrlData.publicUrl;
+          const url = await getAvatarUrl(avatarFilename)
           setImageUrl(url);
           setCurrentAvatarFilename(avatarFilename);
 
@@ -75,7 +71,7 @@ export function AvatarUpload({
           }
         }
       } catch (error) {
-        console.error("Error fetching existing avatar:", error);
+      console.error("Error fetching existing avatar:", error);
       }
     }
 
@@ -178,7 +174,7 @@ export function AvatarUpload({
     setUploadState("pending");
     try {
       const supabase = await createClient();
-      
+
       // Delete the file from storage if it exists
       if (currentAvatarFilename) {
         const { error: storageError } = await supabase.storage
