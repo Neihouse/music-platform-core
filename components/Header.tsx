@@ -18,12 +18,10 @@ import {
   IconSun,
   IconMoonStars,
   IconUpload,
-  IconHeart,
   IconSearch,
   IconMusic,
   IconSettings,
   IconCalendar,
-  IconUsers,
 } from "@tabler/icons-react";
 import { User } from "@supabase/auth-js";
 import { UserProfile } from "@/db/queries/user";
@@ -81,16 +79,6 @@ export function Header({ user, userProfile }: HeaderProps) {
 
             <Button
               component={Link}
-              href="/promoters"
-              variant="subtle"
-              leftSection={<IconUsers size={16} />}
-              size="sm"
-            >
-              Promoters
-            </Button>
-
-            <Button
-              component={Link}
               href="/events"
               variant="subtle"
               leftSection={<IconCalendar size={16} />}
@@ -107,16 +95,6 @@ export function Header({ user, userProfile }: HeaderProps) {
               size="sm"
             >
               Upload
-            </Button>
-
-            <Button
-              component={Link}
-              href="/favorites"
-              variant="subtle"
-              leftSection={<IconHeart size={16} />}
-              size="sm"
-            >
-              Favorites
             </Button>
           </Group>
         )}
