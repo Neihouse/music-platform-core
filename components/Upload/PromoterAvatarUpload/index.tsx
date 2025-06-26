@@ -12,8 +12,8 @@ export interface IPromoterAvatarUploadProps {
 }
 
 const promoterAvatarConfig: AvatarUploadConfig = {
-  storageBucket: "images",
-  storageFolder: "avatars",
+  storageBucket: "avatars",
+  storageFolder: "",
   title: "Profile Picture",
   description: "Upload a profile picture for your promoter account",
   avatarSize: 150,

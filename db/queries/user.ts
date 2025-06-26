@@ -1,6 +1,6 @@
 "use server";
 import { TypedClient } from "@/utils/supabase/global.types";
-import { getArtistAvatarUrlServer, getPromoterAvatarUrlServer } from "@/lib/image-utils";
+import { getAvatarUrlServer } from "@/lib/image-utils";
 
 export type UserProfile = {
   type: 'artist' | 'promoter' | null;
@@ -32,7 +32,7 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
 
     if (!artistError && artist) {
       const avatarUrl = artist.avatar_img 
-        ? await getArtistAvatarUrlServer(artist.avatar_img)
+        ? await getAvatarUrlServer(artist.avatar_img)
         : null;
       
       return {
@@ -53,7 +53,7 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
 
     if (!promoterError && promoter) {
       const avatarUrl = promoter.avatar_img 
-        ? await getPromoterAvatarUrlServer(promoter.avatar_img)
+        ? await getAvatarUrlServer(promoter.avatar_img)
         : null;
       
       return {

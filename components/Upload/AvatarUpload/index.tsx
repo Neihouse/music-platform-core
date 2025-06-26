@@ -64,7 +64,7 @@ export function AvatarUpload({
           const supabase = await createClient();
           const { data: publicUrlData } = supabase.storage
             .from(config.storageBucket)
-            .getPublicUrl(`${config.storageFolder}/${avatarFilename}`);
+            .getPublicUrl(config.storageFolder ? `${config.storageFolder}/${avatarFilename}` : avatarFilename);
 
           const url = publicUrlData.publicUrl;
           setImageUrl(url);
