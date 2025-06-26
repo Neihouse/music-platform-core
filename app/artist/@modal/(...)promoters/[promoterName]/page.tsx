@@ -1,4 +1,4 @@
-import { getPromoterByName, getPromoterEvents, getPromoterArtists } from "@/db/queries/promoters";
+import { getPromoterByName } from "@/db/queries/promoters";
 import { getUser } from "@/db/queries/users";
 import { getPromoterImagesServer } from "@/lib/image-utils";
 import { createClient } from "@/utils/supabase/server";

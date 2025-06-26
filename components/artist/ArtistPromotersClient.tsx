@@ -1,6 +1,6 @@
 "use client";
 
-import { Container, Title, Text, SimpleGrid, Card, Group, Stack, Badge, Avatar, Button, Center, ThemeIcon, TextInput, Paper, Switch } from "@mantine/core";
+import { Container, Title, Text, SimpleGrid, Card, Group, Stack, Avatar, Button, Center, ThemeIcon, TextInput, Paper, Switch } from "@mantine/core";
 import { IconUser, IconMapPin, IconSearch, IconX, IconUserPlus, IconSparkles, IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";

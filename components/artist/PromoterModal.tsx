@@ -3,7 +3,7 @@
 import { Modal } from "@mantine/core";
 import type { FC, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface PromoterModalProps {
   children: ReactNode;
