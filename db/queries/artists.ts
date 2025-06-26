@@ -535,4 +535,210 @@ export async function updateArtistLocalities(
   return await getArtist(supabase);
 }
 
+export async function getArtistEvents(
+  supabase: TypedClient,
+  artistId: string
+) {
+  const { data: events, error } = await supabase
+    .from("events_artists")
+    .select(`
+      events (
+        id,
+        name,
+        date,
+        venues (
+          id,
+          name
+        )
+      )
+    `)
+    .eq("artist", artistId)
+    .gte("events.date", new Date().toISOString());
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Sort the events by date on the client side since ordering by related table columns is complex
+  const sortedEvents = events
+    ?.map(ea => ea.events)
+    .filter(Boolean)
+    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+
+  return sortedEvents;
+}
+
+export async function getArtistPromoters(
+  supabase: TypedClient,
+  artistId: string
+) {
+  const { data: promoters, error } = await supabase
+    .from("promoters_artists")
+    .select(`
+      promoters (
+        id,
+        name,
+        bio,
+        avatar_img,
+        promoters_localities (
+          localities (
+            id,
+            name,
+            administrative_areas (
+              id,
+              name,
+              countries (
+                id,
+                name
+              )
+            )
+          )
+        )
+      )
+    `)
+    .eq("artist", artistId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return promoters?.map(pa => pa.promoters).filter(Boolean) || [];
+}
+
+export async function getArtistTrackCount(
+  supabase: TypedClient,
+  artistId: string
+) {
+  const { count: totalTracks, error: totalError } = await supabase
+    .from("artists_tracks")
+    .select("*", { count: "exact", head: true })
+    .eq("artist", artistId);
+
+  if (totalError) {
+    throw new Error(`Failed to get total track count: ${totalError.message || 'Unknown error'}`);
+  }
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const { count: recentTracks, error: recentError } = await supabase
+    .from("artists_tracks")
+    .select("tracks!inner(*)", { count: "exact", head: true })
+    .eq("artist", artistId)
+    .gte("tracks.created_at", thirtyDaysAgo.toISOString());
+
+  if (recentError) {
+    throw new Error(`Failed to get recent track count: ${recentError.message || 'Unknown error'}`);
+  }
+
+  return {
+    total: totalTracks || 0,
+    recent: recentTracks || 0,
+  };
+}
+
+export async function getArtistShowCount(
+  supabase: TypedClient,
+  artistId: string
+) {
+  const { count: totalShows, error: totalError } = await supabase
+    .from("events_artists")
+    .select("*", { count: "exact", head: true })
+    .eq("artist", artistId);
+
+  if (totalError) {
+    throw new Error(`Failed to get total show count: ${totalError.message || 'Unknown error'}`);
+  }
+
+  const { count: upcomingShows, error: upcomingError } = await supabase
+    .from("events_artists")
+    .select("events!inner(*)", { count: "exact", head: true })
+    .eq("artist", artistId)
+    .gte("events.date", new Date().toISOString());
+
+  if (upcomingError) {
+    throw new Error(`Failed to get upcoming show count: ${upcomingError.message || 'Unknown error'}`);
+  }
+
+  return {
+    total: totalShows || 0,
+    upcoming: upcomingShows || 0,
+  };
+}
+
+export async function getPromotersByArtistLocalities(
+  supabase: TypedClient,
+  artistId: string
+) {
+  // Get artist's localities first
+  const { data: artistLocalities, error: artistError } = await supabase
+    .from("artists_localities")
+    .select("locality")
+    .eq("artist", artistId);
+
+  if (artistError) {
+    throw new Error(artistError.message);
+  }
+
+  if (!artistLocalities || artistLocalities.length === 0) {
+    return [];
+  }
+
+  const localityIds = artistLocalities.map(al => al.locality);
+
+  // Get promoters in those localities
+  const { data: promoters, error } = await supabase
+    .from("promoters_localities")
+    .select(`
+      promoters (
+        id,
+        name,
+        bio,
+        avatar_img,
+        promoters_localities (
+          localities (
+            id,
+            name,
+            administrative_areas (
+              id,
+              name,
+              countries (
+                id,
+                name
+              )
+            )
+          )
+        )
+      ),
+      localities (
+        id,
+        name,
+        administrative_areas (
+          id,
+          name,
+          countries (
+            id,
+            name
+          )
+        )
+      )
+    `)
+    .in("locality", localityIds);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Map and add stored locality info
+  return promoters?.map(pl => ({
+    ...pl.promoters,
+    storedLocality: {
+      locality: pl.localities,
+      administrativeArea: pl.localities?.administrative_areas,
+      country: pl.localities?.administrative_areas?.countries,
+      fullAddress: undefined
+    }
+  })).filter(Boolean) || [];
+}
+
 

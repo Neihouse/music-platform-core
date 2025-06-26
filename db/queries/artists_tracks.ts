@@ -10,8 +10,8 @@ export async function createArtistTrack(
   const { data, error } = await supabase
     .from("artists_tracks")
     .insert({
-      artist_id: artistId,
-      track_id: trackId,
+      artist: artistId,
+      track: trackId,
     })
     .select()
     .single();

@@ -556,3 +556,56 @@ export async function getArtistsByPromoterLocalities(
   return Array.from(uniqueArtists.values());
 }
 
+export async function getPromotersByLocality(
+  supabase: TypedClient,
+  localityId?: string,
+  limit?: number,
+  offset?: number
+) {
+  if (!localityId) {
+    return [];
+  }
+
+  const query = supabase
+    .from("promoters_localities")
+    .select(`
+      promoters (
+        id,
+        name,
+        bio,
+        avatar_img,
+        promoters_localities (
+          localities (
+            id,
+            name,
+            administrative_areas (
+              id,
+              name,
+              countries (
+                id,
+                name
+              )
+            )
+          )
+        )
+      )
+    `)
+    .eq("locality", localityId);
+
+  if (limit) {
+    query.limit(limit);
+  }
+
+  if (offset) {
+    query.range(offset, offset + (limit || 10) - 1);
+  }
+
+  const { data: promoterLocalities, error } = await query;
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return promoterLocalities?.map(pl => pl.promoters).filter(Boolean) || [];
+}
+
