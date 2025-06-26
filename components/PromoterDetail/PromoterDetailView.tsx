@@ -44,7 +44,7 @@ import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { getAvatarUrl } from "@/lib/images/image-utils";
+import { getAvatarUrl } from "@/lib/images/image-utils-client";
 
 interface PromoterDetailViewProps {
   promoter: any;

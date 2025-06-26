@@ -1,6 +1,6 @@
 "use client";
 
-import { getAvatarUrl } from "@/lib/images/image-utils";
+import { getAvatarUrl } from "@/lib/images/image-utils-client";
 import { createClient } from "@/utils/supabase/client";
 import { Card, Button, Group, Text, Title, Stack, Avatar } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
