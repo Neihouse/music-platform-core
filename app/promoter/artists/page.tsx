@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { getPromoter, getArtistsByPromoterLocalities } from "@/db/queries/promoters";
 import { getArtistsByLocality, getAllArtists } from "@/db/queries/artists";
-import { getArtistImagesServer } from "@/lib/image-utils";
+import { getArtistImagesServer } from "@/lib/images/image-utils";
 import { redirect } from "next/navigation";
 import PromoterArtistsClient from "@/components/promoter/PromoterArtistsClient";
 

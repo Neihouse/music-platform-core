@@ -44,6 +44,7 @@ import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { getAvatarUrl } from "@/lib/images/image-utils-client";
 
 interface PromoterDetailViewProps {
   promoter: any;
@@ -74,18 +75,8 @@ export function PromoterDetailView({
     return data.publicUrl;
   };
 
-  // Helper function to get avatar image URL
-  const getAvatarImageUrl = () => {
-    if (!promoter.avatar_img) return null;
-    const supabase = createClient();
-    const { data } = supabase.storage
-      .from("images")
-      .getPublicUrl(`avatars/${promoter.avatar_img}`);
-    return data.publicUrl;
-  };
-
   const bannerUrl = getBannerImageUrl();
-  const avatarUrl = getAvatarImageUrl();
+  const avatarUrl = getAvatarUrl(promoter.avatar_img);
 
   return (
     <Container size="xl" py="xl">
