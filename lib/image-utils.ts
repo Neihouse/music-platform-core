@@ -2,11 +2,11 @@ import { createClient } from "@/utils/supabase/client";
 import { createClient as createServerClient } from "@/utils/supabase/server";
 
 /**
- * Get the avatar URL for an artist using the stored filename (client-side)
- * @param avatarFilename The filename stored in the artist table
- * @returns The public URL for the artist's avatar image
+ * Get the avatar URL using the stored filename (client-side)
+ * @param avatarFilename The filename stored in the entity table
+ * @returns The public URL for the avatar image
  */
-export function getArtistAvatarUrl(avatarFilename: string): string {
+export function getAvatarUrl(avatarFilename: string): string {
   const supabase = createClient();
   const { data } = supabase.storage
     .from("avatars")
@@ -30,11 +30,11 @@ export function getArtistBannerUrl(bannerFilename: string): string {
 }
 
 /**
- * Get the avatar URL for an artist using the stored filename (server-side)
- * @param avatarFilename The filename stored in the artist table
- * @returns The public URL for the artist's avatar image or null if doesn't exist
+ * Get the avatar URL using the stored filename (server-side)
+ * @param avatarFilename The filename stored in the entity table
+ * @returns The public URL for the avatar image or null if doesn't exist
  */
-export async function getArtistAvatarUrlServer(avatarFilename: string): Promise<string | null> {
+export async function getAvatarUrlServer(avatarFilename: string): Promise<string | null> {
   try {
     const supabase = await createServerClient();
     
@@ -114,7 +114,7 @@ export async function getArtistImagesServer(supabase: any, artistId: string): Pr
     }
 
     const avatarUrl = artist.avatar_img 
-      ? await getArtistAvatarUrlServer(artist.avatar_img)
+      ? await getAvatarUrlServer(artist.avatar_img)
       : null;
     
     const bannerUrl = artist.banner_img 
@@ -127,19 +127,6 @@ export async function getArtistImagesServer(supabase: any, artistId: string): Pr
   }
 }
 
-/**
- * Get the avatar URL for a promoter using the stored filename (client-side)
- * @param avatarFilename The filename stored in the promoter table
- * @returns The public URL for the promoter's avatar image
- */
-export function getPromoterAvatarUrl(avatarFilename: string): string {
-  const supabase = createClient();
-  const { data } = supabase.storage
-    .from("images")
-    .getPublicUrl(`avatars/${avatarFilename}`);
-  
-  return data.publicUrl;
-}
 
 /**
  * Get the banner URL for a promoter using the stored filename (client-side)
@@ -155,36 +142,7 @@ export function getPromoterBannerUrl(bannerFilename: string): string {
   return data.publicUrl;
 }
 
-/**
- * Get the avatar URL for a promoter using the stored filename (server-side)
- * @param avatarFilename The filename stored in the promoter table
- * @returns The public URL for the promoter's avatar image or null if doesn't exist
- */
-export async function getPromoterAvatarUrlServer(avatarFilename: string): Promise<string | null> {
-  try {
-    const supabase = await createServerClient();
-    
-    // Check if the file exists first
-    const { data: fileData, error } = await supabase.storage
-      .from("images")
-      .list("avatars", {
-        limit: 1,
-        search: avatarFilename
-      });
-    
-    if (error || !fileData || fileData.length === 0) {
-      return null;
-    }
-    
-    const { data } = supabase.storage
-      .from("images")
-      .getPublicUrl(`avatars/${avatarFilename}`);
-    
-    return data.publicUrl;
-  } catch {
-    return null;
-  }
-}
+
 
 /**
  * Get the banner URL for a promoter using the stored filename (server-side)
@@ -239,7 +197,7 @@ export async function getPromoterImagesServer(supabase: any, promoterId: string)
     }
 
     const avatarUrl = promoter.avatar_img 
-      ? await getPromoterAvatarUrlServer(promoter.avatar_img)
+      ? await getAvatarUrlServer(promoter.avatar_img)
       : null;
     
     const bannerUrl = promoter.banner_img 
