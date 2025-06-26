@@ -1,6 +1,6 @@
 import { getPromoterByName, getPromoterEvents, getPromoterArtists } from "@/db/queries/promoters";
 import { getUser } from "@/db/queries/users";
-import { getPromoterImagesServer } from "@/lib/image-utils";
+import { getPromoterImagesServer } from "@/lib/images/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { urlToName } from "@/lib/utils";

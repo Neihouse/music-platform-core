@@ -5,7 +5,7 @@ import { getUser } from "@/db/queries/users";
 import { getUserProfile } from "@/db/queries/user";
 import { getArtist, getArtistEvents, getArtistPromoters, getArtistTrackCount, getArtistShowCount } from "@/db/queries/artists";
 import { getArtistListensLastMonth } from "@/db/queries/tracks";
-import { getArtistImagesServer } from "@/lib/image-utils";
+import { getArtistImagesServer } from "@/lib/images/image-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";

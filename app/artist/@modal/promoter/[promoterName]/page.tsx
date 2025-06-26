@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { getPromoterByName } from "@/db/queries/promoters";
-import { getPromoterImagesServer } from "@/lib/image-utils";
+import { getPromoterImagesServer } from "@/lib/images/image-utils";
 import { notFound } from "next/navigation";
 import PromoterModalContent from "@/components/artist/PromoterModalContent";
 
