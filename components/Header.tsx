@@ -18,18 +18,14 @@ import {
   IconSun,
   IconMoonStars,
   IconUpload,
-  IconHeart,
   IconSearch,
   IconMusic,
   IconSettings,
   IconCalendar,
-  IconUsers,
 } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useClickOutside, useDisclosure } from "@mantine/hooks";
 import { User } from "@supabase/auth-js";
 import { UserProfile } from "@/db/queries/user";
+import { getAvatarUrl } from "@/lib/images/image-utils-client";
 
 interface HeaderProps {
   user: User | null;
@@ -39,22 +35,18 @@ interface HeaderProps {
 export function Header({ user, userProfile }: HeaderProps) {
   const { setColorScheme, colorScheme } = useMantineColorScheme();
 
-  // Function to validate URL
-  const isValidUrl = (urlString: string | undefined | null): boolean => {
-    if (!urlString) return false;
-    try {
-      new URL(urlString);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  // Get valid avatar URL or fallback
-  const avatarUrl = isValidUrl(userProfile?.avatar_img) ? userProfile?.avatar_img : undefined;
+  // Use the client-side function to get avatar URL
+  const avatarUrl = userProfile?.avatar_img ? getAvatarUrl(userProfile.avatar_img) : null;
 
   // Get display name
   const displayName = userProfile?.name || user?.user_metadata?.name || user?.email || "User";
+
+  // Get profile URL based on user type
+  const profileUrl = userProfile?.type === 'artist' 
+    ? '/artist' 
+    : userProfile?.type === 'promoter' 
+    ? '/promoter' 
+    : '/profile'; // fallback for users without a specific profile type
 
   return (
     <Container size="xl" h={60}>
@@ -85,16 +77,6 @@ export function Header({ user, userProfile }: HeaderProps) {
 
             <Button
               component={Link}
-              href="/promoters"
-              variant="subtle"
-              leftSection={<IconUsers size={16} />}
-              size="sm"
-            >
-              Promoters
-            </Button>
-
-            <Button
-              component={Link}
               href="/events"
               variant="subtle"
               leftSection={<IconCalendar size={16} />}
@@ -111,16 +93,6 @@ export function Header({ user, userProfile }: HeaderProps) {
               size="sm"
             >
               Upload
-            </Button>
-
-            <Button
-              component={Link}
-              href="/favorites"
-              variant="subtle"
-              leftSection={<IconHeart size={16} />}
-              size="sm"
-            >
-              Favorites
             </Button>
           </Group>
         )}
@@ -158,7 +130,7 @@ export function Header({ user, userProfile }: HeaderProps) {
                 <Menu.Item
                   leftSection={<IconUser size={14} />}
                   component={Link}
-                  href="/profile"
+                  href={profileUrl}
                 >
                   Profile
                 </Menu.Item>

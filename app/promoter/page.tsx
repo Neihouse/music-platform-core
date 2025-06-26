@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getUser } from "@/db/queries/users";
 import { getUserProfile } from "@/db/queries/user";
 import { getPromoter, getPromoterEvents, getPromoterArtists, getPromoterTrackCount, getPromoterShowCount } from "@/db/queries/promoters";
-import { getPromoterImagesServer } from "@/lib/image-utils";
+import { getPromoterImagesServer } from "@/lib/images/image-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";

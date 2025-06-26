@@ -1,7 +1,7 @@
 import { getArtistByName } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
-import { getArtistImagesServer } from "@/lib/image-utils";
+import { getArtistImagesServer } from "@/lib/images/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { urlToName } from "@/lib/utils";

@@ -24,8 +24,8 @@ export function ArtistProfileEdit({ artistId }: { artistId: string }) {
 
 // Example 2: Using the generic AvatarUpload for a custom entity (e.g., Promoter)
 const promoterAvatarConfig: AvatarUploadConfig = {
-  storageBucket: "images",
-  storageFolder: "promoter-avatars",
+  storageBucket: "avatars",
+  storageFolder: "",
   title: "Profile Picture",
   description: "Upload a profile picture for your promoter account",
   avatarSize: 120,
@@ -83,8 +83,8 @@ export function PromoterProfileEdit({ promoterId }: { promoterId: string }) {
 // Example 3: Using the generic AvatarUpload for venues
 // Note: This example assumes the venue table has an avatar_img field (not currently in schema)
 const venueAvatarConfig: AvatarUploadConfig = {
-  storageBucket: "images",
-  storageFolder: "venue-avatars",
+  storageBucket: "avatars",
+  storageFolder: "",
   title: "Venue Logo",
   description: "Upload a logo or profile picture for your venue",
   avatarSize: 150,
@@ -174,8 +174,8 @@ export function ArtistCreateForm() {
 
 // Example 5: Different avatar sizes
 const smallAvatarConfig: AvatarUploadConfig = {
-  storageBucket: "images",
-  storageFolder: "small-avatars",
+  storageBucket: "avatars",
+  storageFolder: "",
   title: "Thumbnail",
   description: "Upload a small thumbnail image",
   avatarSize: 80,
@@ -183,8 +183,8 @@ const smallAvatarConfig: AvatarUploadConfig = {
 };
 
 const largeAvatarConfig: AvatarUploadConfig = {
-  storageBucket: "images",
-  storageFolder: "large-avatars",
+  storageBucket: "avatars",
+  storageFolder: "",
   title: "High Resolution Profile Picture",
   description: "Upload a high resolution profile picture",
   avatarSize: 250,
