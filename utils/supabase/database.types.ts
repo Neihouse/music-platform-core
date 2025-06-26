@@ -193,34 +193,31 @@ export type Database = {
       }
       artists_tracks: {
         Row: {
-          artist_id: string
+          artist: string
           created_at: string
-          id: string
-          track_id: string
+          track: string
         }
         Insert: {
-          artist_id: string
+          artist: string
           created_at?: string
-          id?: string
-          track_id: string
+          track: string
         }
         Update: {
-          artist_id?: string
+          artist?: string
           created_at?: string
-          id?: string
-          track_id?: string
+          track?: string
         }
         Relationships: [
           {
-            foreignKeyName: "artists_tracks_artist_id_fkey"
-            columns: ["artist_id"]
+            foreignKeyName: "artists_tracks_artist_fkey"
+            columns: ["artist"]
             isOneToOne: false
             referencedRelation: "artists"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "artists_tracks_track_id_fkey"
-            columns: ["track_id"]
+            foreignKeyName: "artists_tracks_track_fkey"
+            columns: ["track"]
             isOneToOne: false
             referencedRelation: "tracks"
             referencedColumns: ["id"]
