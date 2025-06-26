@@ -1,9 +1,10 @@
 import { Container, Title, Text, Paper, Stack, Button, Box, Grid, GridCol, Card, Group, Badge, Avatar, Center, ThemeIcon } from "@mantine/core";
-import { IconUser, IconCalendarEvent, IconUsers, IconMusic, IconTrendingUp, IconChartBar, IconSparkles, IconArrowLeft } from "@tabler/icons-react";
+import { IconUser, IconCalendarEvent, IconUsers, IconMusic, IconTrendingUp, IconChartBar, IconSparkles, IconArrowLeft, IconHeadphones } from "@tabler/icons-react";
 import { createClient } from "@/utils/supabase/server";
 import { getUser } from "@/db/queries/users";
 import { getUserProfile } from "@/db/queries/user";
 import { getArtist, getArtistEvents, getArtistPromoters, getArtistTrackCount, getArtistShowCount } from "@/db/queries/artists";
+import { getArtistListensLastMonth } from "@/db/queries/tracks";
 import { getArtistImagesServer } from "@/lib/image-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -82,12 +83,13 @@ export default async function ArtistDashboardPage() {
   }
 
   // Fetch all artist metrics in parallel
-  const [upcomingEvents, promoters, trackMetrics, showMetrics, artistImages] = await Promise.all([
+  const [upcomingEvents, promoters, trackMetrics, showMetrics, artistImages, totalListens] = await Promise.all([
     getArtistEvents(supabase, artist.id),
     getArtistPromoters(supabase, artist.id),
     getArtistTrackCount(supabase, artist.id),
     getArtistShowCount(supabase, artist.id),
     getArtistImagesServer(supabase, artist.id),
+    getArtistListensLastMonth(supabase, artist.id),
   ]);
 
   const { avatarUrl, bannerUrl } = artistImages;
@@ -274,17 +276,17 @@ export default async function ArtistDashboardPage() {
             <Group justify="space-between">
               <div>
                 <Text size="xs" tt="uppercase" fw={700} c="dimmed">
-                  Performance
+                  Total Listens
                 </Text>
                 <Text fw={700} size="xl">
-                  {Math.round((trackMetrics.recent / Math.max(trackMetrics.total, 1)) * 100)}%
+                  {totalListens.toLocaleString()}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  Activity rate
+                  Last 30 days
                 </Text>
               </div>
               <ThemeIcon size={60} radius="xl" variant="light" color="orange">
-                <IconTrendingUp size={30} />
+                <IconHeadphones size={30} />
               </ThemeIcon>
             </Group>
           </Card>
