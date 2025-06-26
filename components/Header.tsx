@@ -25,6 +25,7 @@ import {
 } from "@tabler/icons-react";
 import { User } from "@supabase/auth-js";
 import { UserProfile } from "@/db/queries/user";
+import { getAvatarUrl } from "@/lib/image-utils";
 
 interface HeaderProps {
   user: User | null;
@@ -34,8 +35,8 @@ interface HeaderProps {
 export function Header({ user, userProfile }: HeaderProps) {
   const { setColorScheme, colorScheme } = useMantineColorScheme();
 
-  // Use the avatarUrl from the server-side getUserProfile function
-  const avatarUrl = userProfile?.avatarUrl;
+  // Use the client-side function to get avatar URL
+  const avatarUrl = userProfile?.avatar_img ? getAvatarUrl(userProfile.avatar_img) : null;
 
   // Get display name
   const displayName = userProfile?.name || user?.user_metadata?.name || user?.email || "User";
