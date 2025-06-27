@@ -22,6 +22,7 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import FontSelect from "../FontSelect";
 import {
   IconUser,
   IconMail,
@@ -115,6 +116,7 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
       bio: promoter.bio || "",
       email: promoter.email || "",
       phone: promoter.phone || "",
+      fontFamily: promoter.selectedFont || "",
     },
     validate: {
       name: (value: string) =>
@@ -125,6 +127,22 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
           : "Invalid email format",
     },
   });
+
+  // Simple font loading for preview
+  useEffect(() => {
+    if (form.values.fontFamily) {
+      const fontName = form.values.fontFamily.replace(/ /g, '+');
+      
+      // Check if font is already loaded
+      const existingLink = document.querySelector(`link[href*="${fontName}"]`);
+      if (!existingLink) {
+        const fontLink = document.createElement('link');
+        fontLink.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;600;700&display=swap`;
+        fontLink.rel = 'stylesheet';
+        document.head.appendChild(fontLink);
+      }
+    }
+  }, [form.values.fontFamily]);
 
   const handleSubmit = async (values: typeof form.values) => {
     setLoading(true);
@@ -248,6 +266,35 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                   leftSection={<IconPhone size={16} />}
                   {...form.getInputProps("phone")}
                 />
+
+                <FontSelect
+                  label="Brand Font"
+                  placeholder="Choose a font for your brand..."
+                  description="This font will be used for your collective name and branding"
+                  size="md"
+                  apiKey={process.env.NEXT_PUBLIC_GOOGLE_FONTS_API_KEY}
+                  {...form.getInputProps("fontFamily")}
+                />
+
+                {form.values.fontFamily && form.values.name && (
+                  <Paper mt="sm" p="md" bg="gray.0" radius="md" withBorder>
+                    <Text size="xs" c="dimmed" mb="xs">
+                      Preview: {form.values.fontFamily}
+                    </Text>
+                    <Text 
+                      size="xl" 
+                      fw={600}
+                      style={{ 
+                        fontFamily: `"${form.values.fontFamily}", "Inter", sans-serif`,
+                      }}
+                    >
+                      {form.values.name}
+                    </Text>
+                    <Text size="xs" c="dimmed" mt="xs" style={{ fontFamily: 'monospace' }}>
+                      CSS: font-family: "{form.values.fontFamily}", sans-serif
+                    </Text>
+                  </Paper>
+                )}
               </Stack>
             </Card>
           </GridCol>
