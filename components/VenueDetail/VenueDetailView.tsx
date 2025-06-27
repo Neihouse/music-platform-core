@@ -43,22 +43,14 @@ import { VenueEventsSection } from "./VenueEventsSection";
 import { VenueGallerySection } from "./VenueGallerySection";
 import { VenuePromotersSection } from "./VenuePromotersSection";
 import { nameToUrl } from "@/lib/utils";
+import { Venue, Event, Promoter } from "@/utils/supabase/global.types";
 
 interface VenueDetailViewProps {
-  venue: {
-    id: string;
-    name: string;
-    description: string | null;
-    address: string | null;
-    capacity: number | null;
-    contact_email: string | null;
-    contact_phone: string | null;
-    created_at: string;
-  };
-  upcomingEvents: any[];
-  pastEvents: any[];
-  promoters: any[];
-  gallery: any[];
+  venue: Venue;
+  upcomingEvents: Event[];
+  pastEvents: Event[];
+  promoters: Promoter[];
+  gallery: any[]; // This might need a specific Gallery type
   isOwner?: boolean;
 }
 

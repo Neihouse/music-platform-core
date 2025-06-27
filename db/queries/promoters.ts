@@ -151,14 +151,7 @@ export async function getPromoterArtists(
     .from("promoters_artists")
     .select(`
       *,
-      artists (
-        id,
-        name,
-        bio,
-        avatar_img,
-        banner_img,
-        external_links
-      )
+      artists (*)
     `)
     .eq("promoter_id", promoterId)
     .order("created_at", { ascending: false });

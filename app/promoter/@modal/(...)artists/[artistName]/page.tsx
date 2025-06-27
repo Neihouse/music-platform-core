@@ -35,11 +35,10 @@ const ArtistModalPage = async ({ params }: ArtistModalPageProps) => {
     <ArtistModal>
       <ArtistProfileContent
         artist={artist}
-        user={user}
-        userIsArtist={userIsArtist}
         tracksWithPlayCounts={tracksWithPlayCounts}
         avatarUrl={avatarUrl}
         bannerUrl={bannerUrl}
+        canEdit={userIsArtist}
       />
     </ArtistModal>
   );

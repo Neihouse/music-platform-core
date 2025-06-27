@@ -29,13 +29,23 @@ export default async function PromoterPage({ params }: PromoterPageProps) {
       upcomingEvents,
       pastEvents,
       artists,
-      popularTracks
+      popularTracks,
+      promoterLocalities
     ] = await Promise.all([
       getPromoterEvents(supabase, promoter.id),
       getPromoterPastEvents(supabase, promoter.id),
       getPromoterArtists(supabase, promoter.id),
-      getPromoterPopularTracks(supabase, promoter.id)
+      getPromoterPopularTracks(supabase, promoter.id),
+      getPromoterLocalities(supabase, promoter.id)
     ]);
+
+    // Get image URLs
+    const avatarUrl = promoter.avatar_img 
+      ? supabase.storage.from("images").getPublicUrl(`avatars/${promoter.avatar_img}`).data.publicUrl 
+      : null;
+    const bannerUrl = promoter.banner_img 
+      ? supabase.storage.from("images").getPublicUrl(`banners/${promoter.banner_img}`).data.publicUrl 
+      : null;
 
     return (
       <PromoterDetailView
@@ -45,6 +55,9 @@ export default async function PromoterPage({ params }: PromoterPageProps) {
         artists={artists}
         popularTracks={popularTracks}
         currentUser={user}
+        promoterLocalities={promoterLocalities}
+        avatarUrl={avatarUrl}
+        bannerUrl={bannerUrl}
       />
     );
   } catch (error) {
@@ -83,4 +96,28 @@ async function getPromoterPastEvents(supabase: any, promoterId: string) {
     .slice(0, 6) || [];
 
   return events;
+}
+
+// Helper function to get promoter localities
+async function getPromoterLocalities(supabase: any, promoterId: string) {
+  const { data, error } = await supabase
+    .from("promoters_localities")
+    .select(`
+      *,
+      localities (
+        *,
+        administrative_areas (
+          *,
+          countries (*)
+        )
+      )
+    `)
+    .eq("promoter_id", promoterId);
+
+  if (error) {
+    console.error("Error fetching promoter localities:", error);
+    return [];
+  }
+
+  return data || [];
 }

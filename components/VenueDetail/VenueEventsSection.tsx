@@ -21,6 +21,7 @@ import {
   IconUsers,
   IconCalendarOff,
 } from "@tabler/icons-react";
+import { Event } from "@/utils/supabase/global.types";
 
 // Helper functions for date formatting
 function formatDate(dateString: string): string {
@@ -42,7 +43,7 @@ function formatTime(dateString: string): string {
 }
 
 interface VenueEventsSectionProps {
-  events: any[];
+  events: Event[];
   type: "upcoming" | "past";
   emptyMessage: string;
 }

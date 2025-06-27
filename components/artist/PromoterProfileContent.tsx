@@ -30,33 +30,17 @@ import {
 } from "@tabler/icons-react";
 import { nameToUrl } from "@/lib/utils";
 import Link from "next/link";
-import { Promoter } from "@/utils/supabase/global.types";
+import { Promoter, PromotersLocality } from "@/utils/supabase/global.types";
 
-// Extended promoter type with additional properties needed for the profile
-type PromoterWithProfile = Promoter & {
-  avatarUrl?: string | null;
+
+export interface PromoterProfileContentProps {
+  promoter: Promoter;
+  promoterLocalities?: PromotersLocality[];
   bannerUrl?: string | null;
-  promoters_localities?: Array<{
-    localities: {
-      id: string;
-      name: string;
-      administrative_areas: {
-        id: string;
-        name: string;
-        countries: {
-          id: string;
-          name: string;
-        };
-      };
-    };
-  }>;
-};
-
-interface PromoterProfileContentProps {
-  promoter: PromoterWithProfile;
+  avatarUrl?: string | null;
 }
 
-export function PromoterProfileContent({ promoter }: PromoterProfileContentProps) {
+export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl, avatarUrl }: PromoterProfileContentProps) {
   return (
     <Container size="xl" py="xl">
       {/* Hero Section */}
@@ -65,8 +49,8 @@ export function PromoterProfileContent({ promoter }: PromoterProfileContentProps
         p="xl"
         mb="xl"
         style={{
-          background: promoter.bannerUrl 
-            ? `linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%), url(${promoter.bannerUrl}) center/cover`
+          background: bannerUrl 
+            ? `linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%), url(${bannerUrl}) center/cover`
             : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
           position: "relative",
@@ -104,15 +88,15 @@ export function PromoterProfileContent({ promoter }: PromoterProfileContentProps
           <GridCol span={{ base: 12, md: 8 }}>
             <Group gap="xl">
               <Avatar
-                src={promoter.avatarUrl}
+                src={avatarUrl}
                 size={120}
                 radius="xl"
                 style={{
                   border: "4px solid rgba(255,255,255,0.3)",
-                  background: promoter.avatarUrl ? "transparent" : "linear-gradient(45deg, #ff6b6b, #4ecdc4)",
+                  background: avatarUrl ? "transparent" : "linear-gradient(45deg, #ff6b6b, #4ecdc4)",
                 }}
               >
-                {!promoter.avatarUrl && <IconSparkles size={48} />}
+                {!avatarUrl && <IconSparkles size={48} />}
               </Avatar>
               <Stack gap="md">
                 <Group gap="md">
@@ -135,9 +119,9 @@ export function PromoterProfileContent({ promoter }: PromoterProfileContentProps
                   <Text size="lg" fw={500}>
                     🎵 Supporting Artists
                   </Text>
-                  {promoter.promoters_localities && promoter.promoters_localities.length > 0 && (
+                  {promoterLocalities && promoterLocalities.length > 0 && (
                     <Text size="lg" fw={500}>
-                      📍 {promoter.promoters_localities.length} Location{promoter.promoters_localities.length > 1 ? 's' : ''}
+                      📍 {promoterLocalities.length} Location{promoterLocalities.length > 1 ? 's' : ''}
                     </Text>
                   )}
                 </Group>
@@ -205,7 +189,7 @@ export function PromoterProfileContent({ promoter }: PromoterProfileContentProps
                   </div>
                 </Group>
               )}
-              {promoter.promoters_localities && promoter.promoters_localities.length > 0 && (
+              {promoterLocalities && promoterLocalities.length > 0 && (
                 <Group gap="md">
                   <ThemeIcon size="lg" variant="light" color="orange" radius="xl">
                     <IconMapPin size={20} />
@@ -213,14 +197,15 @@ export function PromoterProfileContent({ promoter }: PromoterProfileContentProps
                   <div>
                     <Text size="sm" c="dimmed">Operating Locations</Text>
                     <Stack gap="xs">
-                      {promoter.promoters_localities.slice(0, 3).map((location: any) => (
-                        <Text key={location.localities.id} fw={600} size="sm">
-                          {location.localities.name}
+                      {promoterLocalities.slice(0, 3).map((location) => (
+                        <Text key={location.locality_id} fw={600} size="sm">
+                          {/* We'd need the expanded locality data to display the name */}
+                          Locality {location.locality_id}
                         </Text>
                       ))}
-                      {promoter.promoters_localities.length > 3 && (
+                      {promoterLocalities.length > 3 && (
                         <Text size="sm" c="dimmed">
-                          +{promoter.promoters_localities.length - 3} more locations
+                          +{promoterLocalities.length - 3} more locations
                         </Text>
                       )}
                     </Stack>

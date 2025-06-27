@@ -16,20 +16,22 @@ import Link from "next/link";
 import { TrackList } from "@/components/Tracks/TrackList";
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
+import { Artist, StoredLocality } from "@/utils/supabase/global.types";
+import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
 
 interface ArtistProfileContentProps {
-  artist: any;
-  user: any;
-  userIsArtist: boolean;
-  tracksWithPlayCounts: any[];
+  artist: Artist;
+  storedLocality?: StoredLocality;
+  canEdit: boolean;
+  tracksWithPlayCounts: ArtistTrackWithPlayCount[];
   avatarUrl: string | null;
   bannerUrl: string | null;
 }
 
 const ArtistProfileContent = ({
   artist,
-  user,
-  userIsArtist,
+  storedLocality,
+  canEdit,
   tracksWithPlayCounts,
   avatarUrl,
   bannerUrl,
@@ -90,7 +92,7 @@ const ArtistProfileContent = ({
             <div>
               <Group>
                 <Title style={{ color: "white" }}>{name}</Title>
-                {userIsArtist && <Button component={Link} href={`/artists/${nameToUrl(name)}/edit`}><IconEdit size={16} /></Button>}
+                {canEdit && <Button component={Link} href={`/artists/${nameToUrl(name)}/edit`}><IconEdit size={16} /></Button>}
               </Group>
               <Group gap="sm">
                 {["house", "rock"].map((genre) => (
@@ -118,13 +120,13 @@ const ArtistProfileContent = ({
           )}
 
           {/* Location */}
-          {artist.storedLocality && (
+          {storedLocality && (
             <div>
               <Title order={3} mb="xs">
                 Location
               </Title>
               <Text size="sm" c="dimmed">
-                {artist.storedLocality.locality.name}, {artist.storedLocality.administrativeArea.name}, {artist.storedLocality.country.name}
+                {storedLocality.locality.name}, {storedLocality.administrativeArea.name}, {storedLocality.country.name}
               </Text>
             </div>
           )}
@@ -144,7 +146,7 @@ const ArtistProfileContent = ({
         <TrackList
           tracks={tracksWithPlayCounts}
           artist={artist}
-          canDelete={userIsArtist}
+          canDelete={canEdit}
         />
       </GridCol>
 

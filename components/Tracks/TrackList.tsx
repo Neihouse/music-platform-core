@@ -1,12 +1,13 @@
 "use client";
 
 import { Track } from "@/components/Tracks/Track";
-import { Artist, Track as TrackType } from "@/utils/supabase/global.types";
+import { Artist } from "@/utils/supabase/global.types";
+import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
 import { Stack, Center, Text } from "@mantine/core";
 import { useState } from "react";
 
 interface TrackListProps {
-  tracks: (TrackType & { plays: number })[];
+  tracks: ArtistTrackWithPlayCount[];
   artist: Artist;
   canDelete: boolean;
 }

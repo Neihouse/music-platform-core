@@ -24,11 +24,9 @@ export default async function PromoterModalPage({ params }: PromoterModalPagePro
 
     return (
       <PromoterModalContent
-        promoter={{
-          ...promoter,
-          avatarUrl,
-          bannerUrl,
-        }}
+        promoter={promoter}
+        avatarUrl={avatarUrl}
+        bannerUrl={bannerUrl}
       />
     );
   } catch (error) {
