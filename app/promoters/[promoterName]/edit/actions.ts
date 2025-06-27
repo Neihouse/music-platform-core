@@ -11,6 +11,7 @@ export interface UpdatePromoterData {
   bio?: string;
   email?: string;
   phone?: string;
+  fontFamily?: string;
 }
 
 export async function updatePromoterAction(
@@ -25,6 +26,7 @@ export async function updatePromoterAction(
       bio: data.bio || null,
       email: data.email || null,
       phone: data.phone || null,
+      selectedFont: data.fontFamily || null,
     });
 
     // Revalidate the promoter page to show updated data

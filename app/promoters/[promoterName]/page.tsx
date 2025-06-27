@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { PromoterDetailView } from "@/components/PromoterDetail/PromoterDetailView";
 import { urlToName } from "@/lib/utils";
+import { getPromoterImagesServer } from "@/lib/images/image-utils";
 
 interface PromoterPageProps {
   params: Promise<{ promoterName: string }>;
@@ -30,22 +31,16 @@ export default async function PromoterPage({ params }: PromoterPageProps) {
       pastEvents,
       artists,
       popularTracks,
-      promoterLocalities
+      promoterLocalities,
+      { avatarUrl, bannerUrl }
     ] = await Promise.all([
       getPromoterEvents(supabase, promoter.id),
       getPromoterPastEvents(supabase, promoter.id),
       getPromoterArtists(supabase, promoter.id),
       getPromoterPopularTracks(supabase, promoter.id),
-      getPromoterLocalities(supabase, promoter.id)
+      getPromoterLocalities(supabase, promoter.id),
+      getPromoterImagesServer(supabase, promoter.id)
     ]);
-
-    // Get image URLs
-    const avatarUrl = promoter.avatar_img 
-      ? supabase.storage.from("images").getPublicUrl(`avatars/${promoter.avatar_img}`).data.publicUrl 
-      : null;
-    const bannerUrl = promoter.banner_img 
-      ? supabase.storage.from("images").getPublicUrl(`banners/${promoter.banner_img}`).data.publicUrl 
-      : null;
 
     return (
       <PromoterDetailView

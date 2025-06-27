@@ -5,7 +5,7 @@ import { getUser } from "@/db/queries/users";
 import { getUserProfile } from "@/db/queries/user";
 import { getArtist, getArtistEvents, getArtistPromoters, getArtistTrackCount, getArtistShowCount } from "@/db/queries/artists";
 import { getArtistListensLastMonth } from "@/db/queries/tracks";
-import { getArtistImagesServer } from "@/lib/images/image-utils";
+import { getArtistImagesServer, getAvatarUrlServer } from "@/lib/images/image-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
@@ -91,6 +91,14 @@ export default async function ArtistDashboardPage() {
     getArtistImagesServer(supabase, artist.id),
     getArtistListensLastMonth(supabase, artist.id),
   ]);
+
+  // Process promoter avatar URLs (separate from artist images to avoid double calls)
+  const promotersWithAvatars = await Promise.all(
+    promoters.map(async (promoter: any) => ({
+      ...promoter,
+      avatarUrl: promoter.avatar_img ? await getAvatarUrlServer(promoter.avatar_img) : null,
+    }))
+  );
 
   const { avatarUrl, bannerUrl } = artistImages;
 
@@ -219,7 +227,7 @@ export default async function ArtistDashboardPage() {
                   Promoters
                 </Text>
                 <Text fw={700} size="xl">
-                  {promoters.length}
+                  {promotersWithAvatars.length}
                 </Text>
               </div>
               <ThemeIcon size={60} radius="xl" variant="light" color="blue">
@@ -343,13 +351,13 @@ export default async function ArtistDashboardPage() {
               <Button size="xs" variant="light">View All</Button>
             </Group>
             
-            {promoters.length > 0 ? (
+            {promotersWithAvatars.length > 0 ? (
               <Stack gap="md">
-                {promoters.slice(0, 3).map((promoter) => (
+                {promotersWithAvatars.slice(0, 3).map((promoter) => (
                   <Paper key={promoter.id} p="md" radius="md" withBorder>
                     <Group>
                       <Avatar
-                        src={promoter.avatar_img ? `/api/storage/images/avatars/${promoter.avatar_img}` : null}
+                        src={promoter.avatarUrl}
                         size="md"
                         radius="xl"
                       >

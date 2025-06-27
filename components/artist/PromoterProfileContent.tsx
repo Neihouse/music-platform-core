@@ -17,6 +17,7 @@ import {
   ThemeIcon,
   Box,
 } from "@mantine/core";
+import { useEffect } from "react";
 import {
   IconUsers,
   IconCalendarEvent,
@@ -41,6 +42,24 @@ export interface PromoterProfileContentProps {
 }
 
 export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl, avatarUrl }: PromoterProfileContentProps) {
+  
+  // Load the promoter's selected font - simplified approach
+  useEffect(() => {
+    const selectedFont = (promoter as any).selectedFont;
+    if (selectedFont) {
+      const fontName = selectedFont.replace(/ /g, '+');
+      
+      // Check if font is already loaded
+      const existingLink = document.querySelector(`link[href*="${fontName}"]`);
+      if (!existingLink) {
+        const fontLink = document.createElement('link');
+        fontLink.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;600;700;900&display=swap`;
+        fontLink.rel = 'stylesheet';
+        document.head.appendChild(fontLink);
+      }
+    }
+  }, [promoter]);
+
   return (
     <Container size="xl" py="xl">
       {/* Hero Section */}
@@ -100,7 +119,16 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
               </Avatar>
               <Stack gap="md">
                 <Group gap="md">
-                  <Title order={1} size="3rem" fw={900}>
+                  <Title 
+                    order={1} 
+                    size="3rem" 
+                    fw={900}
+                    style={{
+                      fontFamily: (promoter as any).selectedFont 
+                        ? `"${(promoter as any).selectedFont}", sans-serif` 
+                        : undefined,
+                    }}
+                  >
                     {promoter.name}
                   </Title>
                   <Badge
@@ -111,6 +139,11 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
                   >
                     COLLECTIVE
                   </Badge>
+                  {(promoter as any).selectedFont && (
+                    <Badge color="blue" variant="light" size="xs">
+                      Custom Font: {(promoter as any).selectedFont}
+                    </Badge>
+                  )}
                 </Group>
                 <Group gap="lg">
                   <Text size="lg" fw={500}>

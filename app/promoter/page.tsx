@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getUser } from "@/db/queries/users";
 import { getUserProfile } from "@/db/queries/user";
 import { getPromoter, getPromoterEvents, getPromoterArtists, getPromoterTrackCount, getPromoterShowCount } from "@/db/queries/promoters";
-import { getPromoterImagesServer } from "@/lib/images/image-utils";
+import { getPromoterImagesServer, getAvatarUrlServer } from "@/lib/images/image-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
@@ -91,6 +91,14 @@ export default async function PromoterDashboardPage() {
     getPromoterImagesServer(supabase, promoter.id),
   ]);
 
+  // Process artist avatar URLs (separate from promoter images to avoid double calls)
+  const artistsWithAvatars = await Promise.all(
+    artists.map(async (artist: any) => ({
+      ...artist,
+      avatarUrl: artist.avatar_img ? await getAvatarUrlServer(artist.avatar_img) : null,
+    }))
+  );
+
   const { avatarUrl, bannerUrl } = promoterImages;
 
   return (
@@ -169,7 +177,7 @@ export default async function PromoterDashboardPage() {
                     🎉 {showMetrics.total} Epic Events
                   </Text>
                   <Text size="lg" fw={500}>
-                    🎵 {artists.length} Amazing Artists
+                    🎵 {artistsWithAvatars.length} Amazing Artists
                   </Text>
                 </Group>
                 {promoter.bio && (
@@ -218,7 +226,7 @@ export default async function PromoterDashboardPage() {
                   Artists
                 </Text>
                 <Text fw={700} size="xl">
-                  {artists.length}
+                  {artistsWithAvatars.length}
                 </Text>
               </div>
               <ThemeIcon size={60} radius="xl" variant="light" color="blue">
@@ -342,13 +350,13 @@ export default async function PromoterDashboardPage() {
               <Button size="xs" variant="light">View All</Button>
             </Group>
             
-            {artists.length > 0 ? (
+            {artistsWithAvatars.length > 0 ? (
               <Stack gap="md">
-                {artists.slice(0, 3).map((artist) => (
+                {artistsWithAvatars.slice(0, 3).map((artist) => (
                   <Paper key={artist.id} p="md" radius="md" withBorder>
                     <Group>
                       <Avatar
-                        src={artist.avatar_img ? `/api/storage/images/avatars/${artist.avatar_img}` : null}
+                        src={artist.avatarUrl}
                         size="md"
                         radius="xl"
                       >
