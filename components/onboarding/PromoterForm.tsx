@@ -9,12 +9,14 @@ import {
   Title,
   Textarea,
   Paper,
+  Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { submitPromoter } from "@/app/promoters/create/actions";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import FontSelect from "../FontSelect";
 import { MultipleLocationsInput } from "@/components/LocationInput/MultipleLocationsInput";
 import { StoredLocality } from "@/utils/supabase/global.types";
 import { PromoterBannerUpload } from "@/components/Upload/PromoterBannerUpload";
@@ -34,6 +36,7 @@ export function PromoterForm(props: IPromoterFormProps) {
       bio: "",
       email: "",
       phone: "",
+      fontFamily: "",
     },
     validate: {
       name: (value: string) =>
@@ -42,6 +45,22 @@ export function PromoterForm(props: IPromoterFormProps) {
         !value || /^\S+@\S+$/.test(value) ? null : "Invalid email address",
     },
   });
+
+  // Simple font loading for preview
+  useEffect(() => {
+    if (form.values.fontFamily) {
+      const fontName = form.values.fontFamily.replace(/ /g, '+');
+      
+      // Check if font is already loaded
+      const existingLink = document.querySelector(`link[href*="${fontName}"]`);
+      if (!existingLink) {
+        const fontLink = document.createElement('link');
+        fontLink.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;600;700&display=swap`;
+        fontLink.rel = 'stylesheet';
+        document.head.appendChild(fontLink);
+      }
+    }
+  }, [form.values.fontFamily]);
 
   // Custom validation for locations
   const validateForm = () => {
@@ -132,6 +151,35 @@ export function PromoterForm(props: IPromoterFormProps) {
                 mb="md"
               />
 
+              <FontSelect
+                label="Brand Font"
+                placeholder="Choose a font for your brand..."
+                description="This font will be used for your collective name and branding"
+                size="md"
+                apiKey={process.env.NEXT_PUBLIC_GOOGLE_FONTS_API_KEY}
+                {...form.getInputProps("fontFamily")}
+              />
+
+              {form.values.fontFamily && form.values.name && (
+                <Paper mt="sm" p="md" bg="gray.0" radius="md" withBorder>
+                  <Text size="xs" c="dimmed" mb="xs">
+                    Preview: {form.values.fontFamily}
+                  </Text>
+                  <Text 
+                    size="xl" 
+                    fw={600}
+                    style={{ 
+                      fontFamily: `"${form.values.fontFamily}", "Inter", sans-serif`,
+                    }}
+                  >
+                    {form.values.name}
+                  </Text>
+                  <Text size="xs" c="dimmed" mt="xs" style={{ fontFamily: 'monospace' }}>
+                    CSS: font-family: "{form.values.fontFamily}", sans-serif
+                  </Text>
+                </Paper>
+              )}
+
               {/* Avatar and Banner Upload - Only show if promoter is created */}
               {promoterId && (
                 <div>
@@ -205,6 +253,7 @@ export function PromoterForm(props: IPromoterFormProps) {
           bio,
           email,
           phone,
+          selectedFont: form.values.fontFamily || null,
         },
         localities
       );
