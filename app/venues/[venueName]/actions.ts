@@ -9,24 +9,7 @@ export async function getVenueEvents(venueId: string, type: "upcoming" | "past")
 
   const query = supabase
     .from("events")
-    .select(`
-      id,
-      name,
-      date,
-      address,
-      created_at,
-      venue,
-      events_artists (
-        artist,
-        start_time,
-        end_time,
-        artists (
-          id,
-          name,
-          bio
-        )
-      )
-    `)
+    .select("*")
     .eq("venue", venueId);
 
   if (type === "upcoming") {
@@ -55,13 +38,7 @@ export async function getVenuePromoters(venueId: string) {
     .select(`
       promoter_id,
       created_at,
-      promoters (
-        id,
-        name,
-        bio,
-        email,
-        user_id
-      )
+      promoters (*)
     `)
     .eq("venue_id", venueId);
 
