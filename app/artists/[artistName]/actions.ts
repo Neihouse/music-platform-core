@@ -9,6 +9,7 @@ export async function submitArtist(
   name: string,
   bio: string,
   { locality, country, administrativeArea }: StoredLocality,
+  selectedFont?: string | null,
 ) {
   const supabase = await createClient();
 
@@ -33,6 +34,7 @@ export async function submitArtist(
         administrative_area_id: administrativeArea.id,
         user_id: user.user.id,
         country_id: country.id,
+        selectedFont,
       },
       existingArtist.id,
       [locality.id] // Pass locality as an array
@@ -54,6 +56,7 @@ export async function submitArtist(
       administrative_area_id: administrativeArea.id,
       user_id: user.user.id,
       country_id: country.id,
+      selectedFont,
     },
     [locality.id] // Pass locality as an array
   );

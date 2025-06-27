@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Grid,
   GridCol,
@@ -13,6 +15,7 @@ import {
 } from "@mantine/core";
 import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
+import { useEffect } from "react";
 import { TrackList } from "@/components/Tracks/TrackList";
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
@@ -37,6 +40,23 @@ const ArtistProfileContent = ({
   bannerUrl,
 }: ArtistProfileContentProps) => {
   const { name, bio, external_links } = artist;
+
+  // Load the artist's selected font - simplified approach
+  useEffect(() => {
+    const selectedFont = (artist as any).selectedFont;
+    if (selectedFont) {
+      const fontName = selectedFont.replace(/ /g, '+');
+      
+      // Check if font is already loaded
+      const existingLink = document.querySelector(`link[href*="${fontName}"]`);
+      if (!existingLink) {
+        const fontLink = document.createElement('link');
+        fontLink.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;600;700&display=swap`;
+        fontLink.rel = 'stylesheet';
+        document.head.appendChild(fontLink);
+      }
+    }
+  }, [artist]);
 
   return (
     <div style={{ padding: '1rem' }}>
@@ -91,7 +111,16 @@ const ArtistProfileContent = ({
             />
             <div>
               <Group>
-                <Title style={{ color: "white" }}>{name}</Title>
+                <Title 
+                  style={{ 
+                    color: "white",
+                    fontFamily: (artist as any).selectedFont 
+                      ? `"${(artist as any).selectedFont}", sans-serif` 
+                      : undefined,
+                  }}
+                >
+                  {name}
+                </Title>
                 {canEdit && <Button component={Link} href={`/artists/${nameToUrl(name)}/edit`}><IconEdit size={16} /></Button>}
               </Group>
               <Group gap="sm">
@@ -100,6 +129,11 @@ const ArtistProfileContent = ({
                     {genre}
                   </Badge>
                 ))}
+                {(artist as any).selectedFont && (
+                  <Badge color="blue" variant="light" size="xs">
+                    Custom Font: {(artist as any).selectedFont}
+                  </Badge>
+                )}
               </Group>
             </div>
           </div>

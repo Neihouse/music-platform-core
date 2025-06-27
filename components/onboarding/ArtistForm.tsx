@@ -24,10 +24,11 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LocationInput } from "../LocationInput";
 import { ArtistArtUpload } from "../Upload/ArtistArtUpload/index";
+import FontSelect from "../FontSelect";
 import { onDeleteArtistLocation, submitArtist } from "@/app/artists/[artistName]/actions";
 import { nameToUrl } from "@/lib/utils";
 import {
@@ -36,7 +37,7 @@ import {
   IconInfoCircle,
   IconArrowRight,
   IconPhoto,
-
+  IconTypography,
 } from "@tabler/icons-react";
 import { ArtistWithLocation } from "@/db/queries/artists";
 import { StoredLocality } from "@/utils/supabase/global.types";
@@ -60,12 +61,29 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
     initialValues: {
       name: artist?.name || "",
       bio: artist?.bio || "",
+      fontFamily: (artist as any)?.selectedFont || "", // Initialize with existing selected font
     },
     validate: {
       name: (value: string) =>
         value.trim().length > 0 ? null : "Name is required",
     },
   });
+
+  // Simple font loading for preview - load font when selected
+  useEffect(() => {
+    if (form.values.fontFamily) {
+      const fontName = form.values.fontFamily.replace(/ /g, '+');
+      
+      // Check if font is already loaded
+      const existingLink = document.querySelector(`link[href*="${fontName}"]`);
+      if (!existingLink) {
+        const fontLink = document.createElement('link');
+        fontLink.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;600;700&display=swap`;
+        fontLink.rel = 'stylesheet';
+        document.head.appendChild(fontLink);
+      }
+    }
+  }, [form.values.fontFamily]);
 
 
 
@@ -170,6 +188,41 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
                             maxRows={10}
                             {...form.getInputProps("bio")}
                           />
+                        </Box>
+
+                        <Box>
+                          <Group gap="xs" mb="xs">
+                            <IconTypography size={16} color={theme.colors.blue[6]} />
+                            <Text fw={500}>
+                              Brand Font
+                            </Text>
+                          </Group>
+                          <FontSelect
+                            placeholder="Choose a font for your brand..."
+                            description="This font will be used for your artist name and branding"
+                            size="md"
+                            apiKey={process.env.NEXT_PUBLIC_GOOGLE_FONTS_API_KEY}
+                            {...form.getInputProps("fontFamily")}
+                          />
+                          {form.values.fontFamily && form.values.name && (
+                            <Paper mt="sm" p="md" bg="gray.0" radius="md" withBorder>
+                              <Text size="xs" c="dimmed" mb="xs">
+                                Preview: {form.values.fontFamily}
+                              </Text>
+                              <Text 
+                                size="xl" 
+                                fw={600}
+                                style={{ 
+                                  fontFamily: `"${form.values.fontFamily}", "Inter", sans-serif`,
+                                }}
+                              >
+                                {form.values.name}
+                              </Text>
+                              <Text size="xs" c="dimmed" mt="xs" style={{ fontFamily: 'monospace' }}>
+                                CSS: font-family: "{form.values.fontFamily}", sans-serif
+                              </Text>
+                            </Paper>
+                          )}
                         </Box>
                       </Stack>
                     </Card>
@@ -282,6 +335,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
           form.values.name,
           form.values.bio,
           selectedPlace,
+          form.values.fontFamily || null // Pass the selected font family
         )
       )
 

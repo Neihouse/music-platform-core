@@ -10,6 +10,7 @@ export async function createArtist(
     administrative_area_id,
     user_id,
     country_id,
+    selectedFont,
   }: Database["public"]["Tables"]["artists"]["Insert"],
   localityIds?: string[]
 ) {
@@ -21,6 +22,7 @@ export async function createArtist(
       administrative_area_id,
       country_id,
       user_id,
+      selectedFont,
     })
     .select()
     .single();
@@ -202,6 +204,7 @@ export async function updateArtist(
     administrative_area_id,
     user_id,
     country_id,
+    selectedFont,
   }: Database["public"]["Tables"]["artists"]["Update"],
   artistId: string,
   localityIds?: string[]
@@ -214,6 +217,7 @@ export async function updateArtist(
       administrative_area_id,
       country_id,
       user_id,
+      selectedFont,
     })
     .eq("id", artistId);
 
