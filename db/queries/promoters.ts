@@ -153,7 +153,7 @@ export async function getPromoterArtists(
       *,
       artists (*)
     `)
-    .eq("promoter_id", promoterId)
+    .eq("promoter", promoterId)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -247,7 +247,7 @@ export async function getPromoterTrackCount(supabase: TypedClient, promoterId: s
         )
       )
     `)
-    .eq("promoter_id", promoterId);
+    .eq("promoter", promoterId);
 
   if (error) {
     console.error("Error fetching promoter track count:", error);

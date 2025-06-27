@@ -326,7 +326,7 @@ export async function getPromoterPopularTracks(supabase: TypedClient, promoterId
         )
       )
     `)
-    .eq("promoter_id", promoterId)
+    .eq("promoter", promoterId)
     .limit(10);
 
   if (error) {
