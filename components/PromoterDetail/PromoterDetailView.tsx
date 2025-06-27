@@ -42,7 +42,7 @@ import {
 } from "@tabler/icons-react";
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { getAvatarUrl } from "@/lib/images/image-utils-client";
 import { Promoter, Event, Artist } from "@/utils/supabase/global.types";
@@ -71,6 +71,23 @@ export function PromoterDetailView({
   bannerUrl,
 }: PromoterDetailViewProps) {
   const [activeTab, setActiveTab] = useState("overview");
+
+  // Load the promoter's selected font - simplified approach
+  useEffect(() => {
+    const selectedFont = (promoter as any).selectedFont;
+    if (selectedFont) {
+      const fontName = selectedFont.replace(/ /g, '+');
+      
+      // Check if font is already loaded
+      const existingLink = document.querySelector(`link[href*="${fontName}"]`);
+      if (!existingLink) {
+        const fontLink = document.createElement('link');
+        fontLink.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;600;700;900&display=swap`;
+        fontLink.rel = 'stylesheet';
+        document.head.appendChild(fontLink);
+      }
+    }
+  }, [promoter]);
 
   // Use the passed props instead of computing them
   // const bannerUrl and avatarUrl are now passed as props
@@ -133,7 +150,16 @@ export function PromoterDetailView({
               </Avatar>
               <Stack gap="md">
                 <Group gap="md">
-                  <Title order={1} size="3rem" fw={900}>
+                  <Title 
+                    order={1} 
+                    size="3rem" 
+                    fw={900}
+                    style={{
+                      fontFamily: (promoter as any).selectedFont 
+                        ? `"${(promoter as any).selectedFont}", sans-serif` 
+                        : undefined,
+                    }}
+                  >
                     {promoter.name}
                   </Title>
                   <Badge
@@ -144,6 +170,11 @@ export function PromoterDetailView({
                   >
                     COLLECTIVE
                   </Badge>
+                  {(promoter as any).selectedFont && (
+                    <Badge color="blue" variant="light" size="xs">
+                      Custom Font: {(promoter as any).selectedFont}
+                    </Badge>
+                  )}
                 </Group>
                 <Group gap="lg">
                   <Text size="lg" fw={500}>
