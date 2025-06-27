@@ -1,7 +1,7 @@
 import { IAudioMetadata } from "music-metadata";
 import { getArtist } from "./artists";
 import { createArtistTrack } from "./artists_tracks";
-import { TypedClient } from "@/utils/supabase/global.types";
+import { TypedClient, Track } from "@/utils/supabase/global.types";
 
 export async function createTrack(
   supabase: TypedClient,
@@ -259,7 +259,7 @@ export async function checkTrackOwnership(supabase: TypedClient, trackId: string
   }
 }
 
-export async function getTrackWithPlayCount(supabase: TypedClient, trackId: string) {
+export async function getTrackWithPlayCount(supabase: TypedClient, trackId: string): Promise<ArtistTrackWithPlayCount> {
   const { data, error } = await supabase
     .from("tracks")
     .select(`
@@ -279,7 +279,11 @@ export async function getTrackWithPlayCount(supabase: TypedClient, trackId: stri
   };
 }
 
-export async function getArtistTracksWithPlayCounts(supabase: TypedClient, artistId: string) {
+export interface ArtistTrackWithPlayCount extends Track {
+  plays: number;
+}
+
+export async function getArtistTracksWithPlayCounts(supabase: TypedClient, artistId: string): Promise<ArtistTrackWithPlayCount[]> {
   const { data, error } = await supabase
     .from("artists_tracks")
     .select(`

@@ -17,12 +17,13 @@ import { TrackList } from "@/components/Tracks/TrackList";
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
 import { Artist, StoredLocality } from "@/utils/supabase/global.types";
+import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
 
 interface ArtistProfileContentProps {
   artist: Artist;
   storedLocality?: StoredLocality;
   canEdit: boolean;
-  tracksWithPlayCounts: any[];
+  tracksWithPlayCounts: ArtistTrackWithPlayCount[];
   avatarUrl: string | null;
   bannerUrl: string | null;
 }
