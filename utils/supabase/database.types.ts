@@ -661,6 +661,7 @@ export type Database = {
           id: string
           name: string
           phone: string | null
+          selectedFont: string | null
           user_id: string
         }
         Insert: {
@@ -672,6 +673,7 @@ export type Database = {
           id?: string
           name: string
           phone?: string | null
+          selectedFont?: string | null
           user_id?: string
         }
         Update: {
@@ -683,6 +685,7 @@ export type Database = {
           id?: string
           name?: string
           phone?: string | null
+          selectedFont?: string | null
           user_id?: string
         }
         Relationships: []
@@ -964,6 +967,7 @@ export type Database = {
           id: string
           locality: string
           name: string
+          selectedFont: string | null
           user_id: string | null
         }
         Insert: {
@@ -977,6 +981,7 @@ export type Database = {
           id?: string
           locality: string
           name: string
+          selectedFont?: string | null
           user_id?: string | null
         }
         Update: {
@@ -990,6 +995,7 @@ export type Database = {
           id?: string
           locality?: string
           name?: string
+          selectedFont?: string | null
           user_id?: string | null
         }
         Relationships: [
