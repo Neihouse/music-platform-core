@@ -12,7 +12,6 @@ import {
   Badge,
   Button,
   Card,
-  Image,
   Avatar,
   Paper,
   SimpleGrid,
@@ -21,18 +20,12 @@ import {
   Tabs,
   Center,
   ActionIcon,
-  Divider,
-  Progress,
-  RingProgress,
 } from "@mantine/core";
 import {
   IconUsers,
   IconCalendarEvent,
   IconMusic,
   IconMapPin,
-  IconMail,
-  IconPhone,
-  IconExternalLink,
   IconPlayerPlay,
   IconHeart,
   IconShare,
@@ -43,8 +36,6 @@ import {
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
-import { getAvatarUrl } from "@/lib/images/image-utils-client";
 import { Promoter, Event, Artist } from "@/utils/supabase/global.types";
 
 interface PromoterDetailViewProps {
