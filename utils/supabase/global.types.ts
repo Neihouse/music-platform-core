@@ -5,6 +5,7 @@ export type TypedClient = SupabaseClient<Database>;
 type Public = Database["public"]["Tables"];
 export type Track = Public["tracks"]["Row"];
 export type Artist = Public["artists"]["Row"];
+export type ArtistsLocality = Public["artists_localities"]["Row"];
 export type Locality = Public["localities"]["Row"];
 export type AdministrativeArea = Public["administrative_areas"]["Row"];
 export type Country = Public["countries"]["Row"];

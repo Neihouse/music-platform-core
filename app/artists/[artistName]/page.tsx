@@ -24,8 +24,6 @@ export default async function ArtistPage({
   if (!artist) {
     notFound();
   }
-
-  const userIsArtist = user?.id === artist.user_id;
   
   // Get tracks with play counts instead of using the basic track data
   const tracksWithPlayCounts = artist.id ? await getArtistTracksWithPlayCounts(supabase, artist.id) : [];
@@ -33,13 +31,15 @@ export default async function ArtistPage({
   // Get dynamic image URLs using the new combined function
   const { avatarUrl, bannerUrl } = artist.id ? await getArtistImagesServer(supabase, artist.id) : { avatarUrl: null, bannerUrl: null };
 
+  // Check if the current user can edit this artist profile
+  const canEdit = user?.id === artist.user_id;
+
   const { name, bio, external_links } = artist;
   return (
     <Container>
       <ArtistProfileContent
         artist={artist}
-        user={user}
-        userIsArtist={userIsArtist}
+        canEdit={canEdit}
         tracksWithPlayCounts={tracksWithPlayCounts}
         avatarUrl={avatarUrl}
         bannerUrl={bannerUrl}
