@@ -54,6 +54,9 @@ interface PromoterDetailViewProps {
   artists: Artist[];
   popularTracks: any[]; // This might need a specific interface for tracks with artist info
   currentUser: any; // This could be a User type if we have one
+  promoterLocalities: any[]; // The joined localities data
+  avatarUrl: string | null;
+  bannerUrl: string | null;
 }
 
 export function PromoterDetailView({
@@ -63,21 +66,14 @@ export function PromoterDetailView({
   artists,
   popularTracks,
   currentUser,
+  promoterLocalities,
+  avatarUrl,
+  bannerUrl,
 }: PromoterDetailViewProps) {
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Helper function to get banner image URL
-  const getBannerImageUrl = () => {
-    if (!promoter.banner_img) return null;
-    const supabase = createClient();
-    const { data } = supabase.storage
-      .from("images")
-      .getPublicUrl(`banners/${promoter.banner_img}`);
-    return data.publicUrl;
-  };
-
-  const bannerUrl = getBannerImageUrl();
-  const avatarUrl = getAvatarUrl(promoter.avatar_img);
+  // Use the passed props instead of computing them
+  // const bannerUrl and avatarUrl are now passed as props
 
   return (
     <Container size="xl" py="xl">
@@ -156,9 +152,9 @@ export function PromoterDetailView({
                   <Text size="lg" fw={500}>
                     🎵 {artists.length} Amazing Artists
                   </Text>
-                  {promoter.promoters_localities && promoter.promoters_localities.length > 0 && (
+                  {promoterLocalities && promoterLocalities.length > 0 && (
                     <Text size="lg" fw={500}>
-                      📍 {promoter.promoters_localities.length} Location{promoter.promoters_localities.length > 1 ? 's' : ''}
+                      📍 {promoterLocalities.length} Location{promoterLocalities.length > 1 ? 's' : ''}
                     </Text>
                   )}
                 </Group>
@@ -319,7 +315,7 @@ export function PromoterDetailView({
                           <Group gap="xs">
                             <IconMapPin size={14} />
                             <Text size="sm" c="dimmed">
-                              {event.venues?.name || "TBA"}
+                              {event.venue || "TBA"}
                             </Text>
                           </Group>
                           {event.date && (
@@ -470,13 +466,13 @@ export function PromoterDetailView({
             <Group justify="space-between">
               <Title order={2}>Operating Locations</Title>
               <Badge size="lg" variant="light" color="orange">
-                {promoter.promoters_localities?.length || 0} Location{(promoter.promoters_localities?.length || 0) !== 1 ? 's' : ''}
+                {promoterLocalities?.length || 0} Location{(promoterLocalities?.length || 0) !== 1 ? 's' : ''}
               </Badge>
             </Group>
 
-            {promoter.promoters_localities && promoter.promoters_localities.length > 0 ? (
+            {promoterLocalities && promoterLocalities.length > 0 ? (
               <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-                {promoter.promoters_localities.map((location: any) => (
+                {promoterLocalities.map((location: any) => (
                   <LocationCard key={location.localities.id} location={location} />
                 ))}
               </SimpleGrid>
@@ -536,7 +532,7 @@ function EventCard({ event, type }: { event: any; type: "upcoming" | "past" }) {
         <Group gap="xs">
           <IconMapPin size={16} />
           <Text size="sm" lineClamp={1}>
-            {event.venues?.name || "Venue TBA"}
+            {event.venue || "Venue TBA"}
           </Text>
         </Group>
 
