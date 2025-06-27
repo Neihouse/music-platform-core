@@ -11,6 +11,8 @@ export type AdministrativeArea = Public["administrative_areas"]["Row"];
 export type Country = Public["countries"]["Row"];
 export type Promoter = Public["promoters"]["Row"];
 export type PromotersLocality = Public["promoters_localities"]["Row"];
+export type Event = Public["events"]["Row"];
+export type Venue = Public["venues"]["Row"];
 
 export type StoredLocality = {
     locality: Locality;

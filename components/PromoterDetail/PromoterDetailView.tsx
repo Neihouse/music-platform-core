@@ -45,14 +45,15 @@ import { nameToUrl } from "@/lib/utils";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { getAvatarUrl } from "@/lib/images/image-utils-client";
+import { Promoter, Event, Artist } from "@/utils/supabase/global.types";
 
 interface PromoterDetailViewProps {
-  promoter: any;
-  upcomingEvents: any[];
-  pastEvents: any[];
-  artists: any[];
-  popularTracks: any[];
-  currentUser: any;
+  promoter: Promoter;
+  upcomingEvents: Event[];
+  pastEvents: Event[];
+  artists: Artist[];
+  popularTracks: any[]; // This might need a specific interface for tracks with artist info
+  currentUser: any; // This could be a User type if we have one
 }
 
 export function PromoterDetailView({

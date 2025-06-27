@@ -20,9 +20,10 @@ import {
   IconUser,
   IconUserOff,
 } from "@tabler/icons-react";
+import { Promoter } from "@/utils/supabase/global.types";
 
 interface VenuePromotersSectionProps {
-  promoters: any[];
+  promoters: Promoter[];
   venueId: string;
 }
 
