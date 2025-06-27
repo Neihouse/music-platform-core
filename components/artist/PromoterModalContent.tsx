@@ -1,17 +1,21 @@
 "use client";
 
 import type { FC } from "react";
-import { PromoterProfileContent } from "./PromoterProfileContent";
+import { PromoterProfileContent, PromoterProfileContentProps } from "./PromoterProfileContent";
 import PromoterModal from "@/components/artist/PromoterModal";
 
-interface PromoterModalContentProps {
-  promoter: any;
+interface PromoterModalContentProps extends PromoterProfileContentProps {
 }
 
-const PromoterModalContent: FC<PromoterModalContentProps> = ({ promoter }) => {
+const PromoterModalContent: FC<PromoterModalContentProps> = ({ promoter, promoterLocalities, bannerUrl, avatarUrl }) => {
   return (
     <PromoterModal>
-      <PromoterProfileContent promoter={promoter} />
+      <PromoterProfileContent
+        promoter={promoter}
+        promoterLocalities={promoterLocalities}
+        bannerUrl={bannerUrl}
+        avatarUrl={avatarUrl}
+      />
     </PromoterModal>
   );
 };

@@ -26,11 +26,9 @@ const PromoterModalPage = async ({ params }: PromoterModalPageProps) => {
 
   return (
     <PromoterModalContent
-      promoter={{
-        ...promoter,
-        avatarUrl,
-        bannerUrl,
-      }}
+      promoter={promoter}
+      avatarUrl={avatarUrl}
+      bannerUrl={bannerUrl}
     />
   );
 };

@@ -33,11 +33,9 @@ export default async function PromoterPage({ params }: PromoterNamePageProps) {
 
     return (
       <PromoterProfileContent
-        promoter={{
-          ...promoter,
-          avatarUrl,
-          bannerUrl,
-        }}
+        promoter={promoter}
+        avatarUrl={avatarUrl}
+        bannerUrl={bannerUrl}
       />
     );
   } catch (error) {
