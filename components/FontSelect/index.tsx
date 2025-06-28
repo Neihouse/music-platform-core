@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { getPopularFonts, searchFonts } from "@/lib/fonts-secure";
+import { searchFonts, getPopularFonts } from "@/lib/fonts-secure";
 import { loadFont } from "@/lib/fonts-client";
 
 // Google Font interface - simplified for our needs
