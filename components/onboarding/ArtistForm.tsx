@@ -61,7 +61,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
     initialValues: {
       name: artist?.name || "",
       bio: artist?.bio || "",
-      fontFamily: (artist as any)?.selectedFont || "", // Initialize with existing selected font
+      fontFamily: artist?.selectedFont || "", // Initialize with existing selected font
     },
     validate: {
       name: (value: string) =>
