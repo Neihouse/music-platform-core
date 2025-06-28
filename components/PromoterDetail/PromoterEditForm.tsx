@@ -277,7 +277,7 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                 />
 
                 {form.values.fontFamily && form.values.name && (
-                  <Paper mt="sm" p="md" bg="gray.0" radius="md" withBorder>
+                  <Paper mt="sm" p="md" radius="md" withBorder>
                     <Text size="xs" c="dimmed" mb="xs">
                       Preview: {form.values.fontFamily}
                     </Text>
