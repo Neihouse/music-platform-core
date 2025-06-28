@@ -45,7 +45,7 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
   
   // Load the promoter's selected font - simplified approach
   useEffect(() => {
-    const selectedFont = (promoter as any).selectedFont;
+    const selectedFont = promoter.selectedFont;
     if (selectedFont) {
       const fontName = selectedFont.replace(/ /g, '+');
       
@@ -124,8 +124,8 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
                     size="3rem" 
                     fw={900}
                     style={{
-                      fontFamily: (promoter as any).selectedFont 
-                        ? `"${(promoter as any).selectedFont}", sans-serif` 
+                      fontFamily: promoter.selectedFont 
+                        ? `"${promoter.selectedFont}", sans-serif` 
                         : undefined,
                     }}
                   >
@@ -139,9 +139,9 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
                   >
                     COLLECTIVE
                   </Badge>
-                  {(promoter as any).selectedFont && (
+                  {promoter.selectedFont && (
                     <Badge color="blue" variant="light" size="xs">
-                      Custom Font: {(promoter as any).selectedFont}
+                      Custom Font: {promoter.selectedFont}
                     </Badge>
                   )}
                 </Group>
