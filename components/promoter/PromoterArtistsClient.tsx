@@ -6,6 +6,7 @@ import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
 import { useState } from "react";
 import StyledTitle from "@/components/StyledTitle";
+import InviteArtistModal from "@/components/promoter/InviteArtistModal";
 
 interface Artist {
   id: string;
@@ -13,6 +14,7 @@ interface Artist {
   bio: string | null;
   avatar_img: string | null;
   avatarUrl?: string | null;
+  user_id: string;
   localities?: { id: string; name: string } | null;
   administrative_areas?: { id: string; name: string } | null;
   countries?: { id: string; name: string } | null;
@@ -37,6 +39,8 @@ export default function PromoterArtistsClient({
 }: PromoterArtistsClientProps) {
   const [filterByPromoterLocality, setFilterByPromoterLocality] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [inviteModalOpened, setInviteModalOpened] = useState(false);
+  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
 
   // Determine which artists to show based on the toggle
   const baseArtists = filterByPromoterLocality ? promoterLocalityArtists : localityArtists;
@@ -56,6 +60,16 @@ export default function PromoterArtistsClient({
     if (artist.administrative_areas?.name) return artist.administrative_areas.name;
     if (artist.countries?.name) return artist.countries.name;
     return "Location not specified";
+  };
+
+  const handleInviteArtist = (artist: Artist) => {
+    setSelectedArtist(artist);
+    setInviteModalOpened(true);
+  };
+
+  const handleCloseInviteModal = () => {
+    setInviteModalOpened(false);
+    setSelectedArtist(null);
   };
 
   return (
@@ -140,7 +154,12 @@ export default function PromoterArtistsClient({
       {filteredArtists.length > 0 ? (
         <SimpleGrid cols={{ base: 1, xs: 2, sm: 2, md: 3, lg: 4 }} spacing={{ base: "md", sm: "lg" }}>
           {filteredArtists.map((artist) => (
-            <ArtistCard key={artist.id} artist={artist} getLocationText={getLocationText} />
+            <ArtistCard 
+              key={artist.id} 
+              artist={artist} 
+              getLocationText={getLocationText} 
+              onInviteArtist={handleInviteArtist}
+            />
           ))}
         </SimpleGrid>
       ) : (
@@ -192,16 +211,27 @@ export default function PromoterArtistsClient({
           </Button>
         </Stack>
       </Paper>
+
+      {/* Invite Artist Modal */}
+      {selectedArtist && (
+        <InviteArtistModal
+          artist={selectedArtist}
+          opened={inviteModalOpened}
+          onClose={handleCloseInviteModal}
+        />
+      )}
     </Container>
   );
 }
 
 function ArtistCard({ 
   artist, 
-  getLocationText 
+  getLocationText,
+  onInviteArtist
 }: { 
   artist: Artist; 
   getLocationText: (artist: Artist) => string;
+  onInviteArtist: (artist: Artist) => void;
 }) {
   return (
     <Card
@@ -282,6 +312,7 @@ function ArtistCard({
             fullWidth
             leftSection={<IconUserPlus size={16} />}
             color="green"
+            onClick={() => onInviteArtist(artist)}
           >
             Invite Artist
           </Button>
