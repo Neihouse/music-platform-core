@@ -32,6 +32,7 @@ import {
 	removeArtistFromStageAction
 } from "@/app/events/[eventName]/lineup/actions";
 import { VenueSearch } from "@/components/VenueSearch";
+import { StyledTitle } from "../StyledTitle/StyledTitle";
 
 interface Artist {
 	id: string;
@@ -83,8 +84,6 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 	useEffect(() => {
 		loadEventData();
 	}, [event.id]);
-
-	// ...existing code...
 
 	const handleStageVenueSelect = (venue: any) => {
 		setSelectedVenue(venue?.id || "");
@@ -246,7 +245,11 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 				<Paper shadow="sm" p="md">
 					<Group justify="space-between" align="center">
 						<div>
-							<Title order={1}>{event.name}</Title>
+							<StyledTitle 
+								title={event.name}
+								fontName="Inter"
+								order={1}
+							/>
 							{event.date && <Text c="dimmed">Event Date: {new Date(event.date).toLocaleDateString()}</Text>}
 						</div>
 						<Button leftSection={<IconPlus size={16} />} onClick={open}>

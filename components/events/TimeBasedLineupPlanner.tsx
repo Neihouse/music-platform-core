@@ -49,6 +49,7 @@ import {
 	removeArtistFromStageAction
 } from "@/app/events/[eventName]/lineup/actions";
 import { createClient } from "@/utils/supabase/client";
+import { StyledTitle } from "../StyledTitle/StyledTitle";
 
 interface Artist {
 	id: string;
@@ -497,7 +498,12 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 				<Paper shadow="sm" p="xl" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
 					<Group justify="space-between" align="center">
 						<div style={{ color: 'white' }}>
-							<Title order={1} c="white">{event.name}</Title>
+							<StyledTitle 
+								title={event.name}
+								fontName="Inter"
+								order={1} 
+								c="white"
+							/>
 							{event.date && (
 								<Text size="lg" c="white" opacity={0.9}>
 									{new Date(event.date).toLocaleDateString('en-US', { 

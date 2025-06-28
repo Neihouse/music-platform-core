@@ -20,6 +20,7 @@ import {
   IconUser,
   IconUserOff,
 } from "@tabler/icons-react";
+import { StyledTitle } from "../StyledTitle/StyledTitle";
 import { Promoter } from "@/utils/supabase/global.types";
 
 interface VenuePromotersSectionProps {
@@ -115,9 +116,13 @@ function PromoterCard({ promoter }: PromoterCardProps) {
             <IconUser size={32} />
           </Avatar>
           <div style={{ flex: 1 }}>
-            <Title order={4} lineClamp={1} mb="xs">
-              {promoter.name}
-            </Title>
+            <StyledTitle 
+              title={promoter.name}
+              fontName="Inter"
+              order={4} 
+              lineClamp={1} 
+              mb="xs"
+            />
             <Badge 
               variant="light" 
               size="sm"

@@ -22,6 +22,7 @@ import {
   SimpleGrid,
   ThemeIcon,
 } from "@mantine/core";
+import { StyledTitle } from "../StyledTitle/StyledTitle";
 import Link from "next/link";
 import {
   IconMapPin,
@@ -104,7 +105,9 @@ export function VenueDetailView({
               >
                 Live Music Venue
               </Text>
-              <Title
+              <StyledTitle
+                title={venue.name}
+                fontName="Inter" // You can make this configurable later
                 order={1}
                 style={{
                   fontSize: "clamp(2.5rem, 8vw, 5rem)",
@@ -117,9 +120,7 @@ export function VenueDetailView({
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                 }}
-              >
-                {venue.name}
-              </Title>
+              />
             </Box>
 
             {/* Description with better styling */}

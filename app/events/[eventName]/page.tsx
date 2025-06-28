@@ -2,6 +2,7 @@ import { getEventByName } from "@/db/queries/events";
 import { getAvailableVenues } from "./actions";
 import { VenueSelector } from "@/components/events/VenueSelector";
 import { PosterGenerator } from "@/components/events/PosterGenerator";
+import { StyledTitle } from "@/components/StyledTitle/StyledTitle";
 import { notFound } from "next/navigation";
 import { Paper, Title, Text, Button, Group, Stack, Container, Box } from "@mantine/core";
 import { IconUsers, IconCalendar, IconPhoto } from "@tabler/icons-react";
@@ -45,7 +46,11 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
           <Paper shadow="sm" p="xl">
             <Stack gap="md">
-              <Title order={1}>{event.name}</Title>
+              <StyledTitle 
+                title={event.name}
+                fontName="Inter"
+                order={1}
+              />
               
               <Group gap="xl">
                 {event.date && (

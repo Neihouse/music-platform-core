@@ -5,6 +5,7 @@ import { IconUser, IconMapPin, IconSearch, IconX, IconUserPlus, IconMusic, IconA
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
 import { useState } from "react";
+import { StyledTitle } from "../StyledTitle/StyledTitle";
 
 interface Artist {
   id: string;
@@ -236,9 +237,15 @@ function ArtistCard({
         
         {/* Artist Info */}
         <Stack gap="xs" align="center" style={{ flex: 1 }}>
-          <Text fw={700} size="lg" ta="center" lineClamp={1}>
-            {artist.name}
-          </Text>
+          <StyledTitle 
+            title={artist.name}
+            fontName="Inter"
+            order={4}
+            fw={700} 
+            size="lg" 
+            ta="center" 
+            style={{ lineClamp: 1 }}
+          />
           
           {/* Location */}
           <Group gap="xs" justify="center">
