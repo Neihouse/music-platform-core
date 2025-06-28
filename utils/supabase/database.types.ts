@@ -551,6 +551,30 @@ export type Database = {
           },
         ]
       }
+      invites: {
+        Row: {
+          created_at: string
+          created_by: string
+          created_by_email: string
+          id: string
+          invitee_email: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          created_by_email: string
+          id?: string
+          invitee_email: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          created_by_email?: string
+          id?: string
+          invitee_email?: string
+        }
+        Relationships: []
+      }
       likes: {
         Row: {
           created_at: string
