@@ -5,7 +5,13 @@
  * and generate CDN URLs for loading fonts in the browser.
  */
 
-import { GoogleFont, GoogleFontsResponse } from '@/components/FontSelect';
+import { GoogleFont } from '@/lib/fonts-secure';
+
+// GoogleFontsResponse interface for API responses
+export interface GoogleFontsResponse {
+  kind: string;
+  items: GoogleFont[];
+}
 
 export interface FontCDNOptions {
   weights?: string[]; // Font weights to include (e.g., ['400', '500', '700'])

@@ -15,24 +15,16 @@ import {
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { generateFontCDNUrl } from "@/lib/google-fonts";
+import { getPopularFonts, searchFonts } from "@/lib/fonts-secure";
+import { loadFont } from "@/lib/fonts-client";
 
-// Google Font interface based on API response
+// Google Font interface - simplified for our needs
 export interface GoogleFont {
   family: string;
   variants: string[];
   subsets: string[];
-  version: string;
-  lastModified: string;
+  category: 'serif' | 'sans-serif' | 'monospace' | 'display' | 'handwriting';
   files: Record<string, string>;
-  category: string;
-  kind: string;
-  menu?: string;
-}
-
-export interface GoogleFontsResponse {
-  kind: string;
-  items: GoogleFont[];
 }
 
 interface FontSelectProps {
@@ -45,7 +37,6 @@ interface FontSelectProps {
   required?: boolean;
   disabled?: boolean;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
-  apiKey?: string;
 }
 
 // Font category colors for visual differentiation
@@ -57,7 +48,13 @@ const CATEGORY_COLORS = {
   "handwriting": "#9c36b5",
 } as const;
 
-export default function FontSelect({
+/**
+ * FontSelect - A secure font selector that doesn't expose API keys
+ * 
+ * This component uses server-side API routes to search fonts, keeping
+ * the Google Fonts API key secure on the server.
+ */
+export function FontSelect({
   value,
   onChange,
   placeholder = "Search for a font...",
@@ -67,7 +64,6 @@ export default function FontSelect({
   required,
   disabled,
   size = "md",
-  apiKey, // Optional API key prop
 }: FontSelectProps) {
   const [fonts, setFonts] = useState<GoogleFont[]>([]);
   const [loading, setLoading] = useState(false);
@@ -75,178 +71,57 @@ export default function FontSelect({
   const [debouncedQuery] = useDebouncedValue(searchQuery, 300);
   const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  // Demo fonts for when no API key is provided (ordered by popularity)
+
+  // Demo fonts fallback
   const DEMO_FONTS: GoogleFont[] = [
     {
       family: "Inter",
       variants: ["regular", "500", "600", "700"],
       subsets: ["latin"],
-      version: "v12",
-      lastModified: "2023-01-01",
       files: { regular: "" },
-      category: "sans-serif",
-      kind: "webfonts#webfont"
+      category: "sans-serif"
     },
     {
       family: "Roboto",
       variants: ["regular", "500", "700"],
       subsets: ["latin"],
-      version: "v30",
-      lastModified: "2023-01-01", 
       files: { regular: "" },
-      category: "sans-serif",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Poppins",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      version: "v20",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "sans-serif",
-      kind: "webfonts#webfont"
+      category: "sans-serif"
     },
     {
       family: "Open Sans",
       variants: ["regular", "600", "700"],
       subsets: ["latin"],
-      version: "v34",
-      lastModified: "2023-01-01",
       files: { regular: "" },
-      category: "sans-serif", 
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Montserrat",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      version: "v25",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "sans-serif",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Lato",
-      variants: ["regular", "700"],
-      subsets: ["latin"],
-      version: "v24",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "sans-serif",
-      kind: "webfonts#webfont"
+      category: "sans-serif"
     },
     {
       family: "Playfair Display",
+      variants: ["regular", "600", "700"],
+      subsets: ["latin"],
+      files: { regular: "" },
+      category: "serif"
+    },
+    {
+      family: "Poppins",
       variants: ["regular", "500", "600", "700"],
       subsets: ["latin"],
-      version: "v30",
-      lastModified: "2023-01-01",
       files: { regular: "" },
-      category: "serif",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Lora",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      version: "v32",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "serif",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Merriweather",
-      variants: ["regular", "700"],
-      subsets: ["latin"],
-      version: "v30",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "serif",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "JetBrains Mono",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      version: "v15",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "monospace",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Source Code Pro",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      version: "v22",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "monospace",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Abril Fatface",
-      variants: ["regular"],
-      subsets: ["latin"],
-      version: "v19",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "display",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Bebas Neue",
-      variants: ["regular"],
-      subsets: ["latin"],
-      version: "v14",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "display",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Dancing Script",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      version: "v25",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "handwriting",
-      kind: "webfonts#webfont"
-    },
-    {
-      family: "Pacifico",
-      variants: ["regular"],
-      subsets: ["latin"],
-      version: "v22",
-      lastModified: "2023-01-01",
-      files: { regular: "" },
-      category: "handwriting",
-      kind: "webfonts#webfont"
+      category: "sans-serif"
     }
   ];
-  // Load fonts from Google Fonts API
-  const fetchFonts = async () => {
-    if (!apiKey) {
-      // Use demo fonts when no API key provided
-      setFonts(DEMO_FONTS);
-      return;
-    }
 
+  // Load fonts from secure server actions
+  const fetchFonts = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `https://www.googleapis.com/webfonts/v1/webfonts?key=${apiKey}&sort=popularity`
-      );
+      const result = await getPopularFonts(100);
       
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
+      if (result.success && result.fonts) {
+        setFonts(result.fonts);
+      } else {
+        throw new Error(result.error || 'Failed to fetch fonts');
       }
-      const data: GoogleFontsResponse = await response.json();
-      setFonts(data.items || []);
     } catch (error) {
       console.error("Failed to fetch Google Fonts:", error);
       notifications.show({
@@ -261,47 +136,37 @@ export default function FontSelect({
     }
   };
 
-  // Load font in the browser for preview - simplified approach
-  const loadFont = async (fontFamily: string) => {
+  // Load font in the browser for preview - this is safe, no API key needed
+  const loadFontForPreview = async (fontFamily: string) => {
     if (loadedFonts.has(fontFamily)) return;
     
     try {
-      const fontName = fontFamily.replace(/ /g, '+');
+      // Use the secure client-side font loader
+      const result = await loadFont(fontFamily, {
+        weights: ['400', '500', '600', '700'],
+        display: 'swap'
+      });
       
-      // Check if font is already loaded
-      const existingLink = document.querySelector(`link[href*="${fontName}"]`);
-      if (!existingLink) {
-        const fontLink = document.createElement('link');
-        fontLink.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;600;700&display=swap`;
-        fontLink.rel = 'stylesheet';
-        document.head.appendChild(fontLink);
+      if (result.success) {
+        // Mark as loaded
+        setLoadedFonts(prev => new Set([...prev, fontFamily]));
       }
-      
-      // Mark as loaded immediately - the CSS will handle the loading
-      setLoadedFonts(prev => new Set([...prev, fontFamily]));
     } catch (error) {
       console.warn(`Failed to load font: ${fontFamily}`, error);
     }
   };
 
-  // Filter fonts based on search query and category
+  // Filter fonts based on category (search is handled server-side)
   const filteredFonts = useMemo(() => {
     let filtered = fonts;
     
-    // Filter by search query
-    if (debouncedQuery.trim()) {
-      filtered = filtered.filter(font =>
-        font.family.toLowerCase().includes(debouncedQuery.toLowerCase())
-      );
-    }
-    
-    // Filter by category
+    // Filter by category (if selected)
     if (selectedCategory) {
       filtered = filtered.filter(font => font.category === selectedCategory);
     }
     
     return filtered;
-  }, [fonts, debouncedQuery, selectedCategory]);
+  }, [fonts, selectedCategory]);
 
   // Load fonts for preview when filtered fonts change
   useEffect(() => {
@@ -310,7 +175,7 @@ export default function FontSelect({
     fontsToLoad.forEach(font => {
       if (!loadedFonts.has(font.family)) {
         setTimeout(() => {
-          loadFont(font.family);
+          loadFontForPreview(font.family);
         }, 0);
       }
     });
@@ -325,9 +190,34 @@ export default function FontSelect({
     }));
   }, [filteredFonts]);
 
+  // Handle debounced search query changes
+  useEffect(() => {
+    if (debouncedQuery.trim()) {
+      // Perform server-side search for better performance
+      setLoading(true);
+      searchFonts(debouncedQuery, 20)
+        .then(result => {
+          if (result.success && result.fonts) {
+            setFonts(result.fonts);
+          } else {
+            console.error('Font search error:', result.error);
+          }
+        })
+        .catch(error => {
+          console.error('Font search failed:', error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      // If no search query, load popular fonts
+      fetchFonts();
+    }
+  }, [debouncedQuery]);
+
   useEffect(() => {
     fetchFonts();
-  }, [apiKey]);
+  }, []);
 
   // Custom option renderer with font preview
   const renderOption = ({ option }: { option: any }) => {
@@ -462,3 +352,5 @@ export default function FontSelect({
     </Stack>
   );
 }
+
+export default FontSelect;

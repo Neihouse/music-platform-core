@@ -1,42 +1,51 @@
 /**
  * Google Fonts Utilities - Usage Examples
  * 
- * This file demonstrates how to use the Google Fonts utilities
+ * This file demonstrates how to use the secure Google Fonts utilities
  * in various scenarios within your application.
  */
 
 import { 
-  searchFont, 
-  generateFontCDNUrl, 
-  searchMultipleFonts,
-  generateMultiFontCDNUrl,
-  loadFontDynamically,
-  isFontAvailable 
-} from './google-fonts';
+  searchFonts, 
+  getPopularFonts,
+  searchFont,
+  generateFontCDNUrl 
+} from './fonts-secure';
+import { loadFont } from './fonts-client';
 
 // Example usage functions
 
 /**
- * Search for a single font and get its CDN URL
+ * Search for fonts using secure server actions
  */
-export async function searchSingleFontExample() {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_FONTS_API_KEY || '';
-  
-  const result = await searchFont('Inter', apiKey, {
-    weights: ['400', '500', '600', '700'],
-    subsets: ['latin', 'latin-ext'],
-    display: 'swap'
-  });
+export async function searchFontsExample() {
+  const result = await searchFonts('Inter', 10);
 
-  if (result.error) {
+  if (!result.success) {
     console.error('Font search failed:', result.error);
     return null;
   }
 
-  console.log('Font found:', result.font?.family);
-  console.log('CDN URL:', result.cdnUrl);
+  console.log('Fonts found:', result.fonts.map(f => f.family));
   
-  return result;
+  return result.fonts;
+}
+
+/**
+ * Get a specific font using secure server actions
+ */
+export async function getSingleFontExample() {
+  const result = await searchFont('Roboto');
+
+  if (!result.success || !result.font) {
+    console.error('Font not found:', result.error);
+    return null;
+  }
+
+  console.log('Font found:', result.font.family);
+  console.log('Variants:', result.font.variants);
+  
+  return result.font;
 }
 
 /**
@@ -46,74 +55,50 @@ export function generateCDNUrlExample() {
   const cdnUrl = generateFontCDNUrl('Roboto', {
     weights: ['300', '400', '500', '700'],
     subsets: ['latin'],
-    display: 'swap',
-    format: 'css2'
+    display: 'swap'
   });
 
-  console.log('Generated CDN URL:', cdnUrl);
+  console.log('CDN URL:', cdnUrl);
   return cdnUrl;
 }
-
 /**
- * Search for multiple fonts at once
+ * Get popular fonts using secure server actions
  */
-export async function searchMultipleFontsExample() {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_FONTS_API_KEY || '';
-  const fontNames = ['Inter', 'Roboto', 'Open Sans', 'Playfair Display'];
+export async function getPopularFontsExample() {
+  const result = await getPopularFonts(20);
 
-  const results = await searchMultipleFonts(fontNames, apiKey, {
-    weights: ['400', '600', '700'],
-    display: 'swap'
-  });
+  if (!result.success) {
+    console.error('Failed to get popular fonts:', result.error);
+    return [];
+  }
 
-  results.forEach((result, index) => {
-    if (result.error) {
-      console.error(`${fontNames[index]} failed:`, result.error);
-    } else {
-      console.log(`${fontNames[index]}:`, result.cdnUrl);
-    }
-  });
-
-  return results;
+  console.log('Popular fonts:', result.fonts.map(f => f.family));
+  return result.fonts;
 }
 
 /**
- * Generate a combined CDN URL for multiple fonts
- */
-export function generateMultiFontCDNExample() {
-  const fontConfigs = [
-    { family: 'Inter', weights: ['400', '500', '600'] },
-    { family: 'Playfair Display', weights: ['400', '700'] },
-    { family: 'JetBrains Mono', weights: ['400', '500'] }
-  ];
-
-  const combinedUrl = generateMultiFontCDNUrl(fontConfigs, {
-    subsets: ['latin'],
-    display: 'swap'
-  });
-
-  console.log('Combined CDN URL:', combinedUrl);
-  return combinedUrl;
-}
-
-/**
- * Dynamically load a font in the browser
+ * Dynamically load a font in the browser (client-side)
  */
 export async function loadFontExample() {
   try {
-    await loadFontDynamically('Poppins', {
+    const result = await loadFont('Poppins', {
       weights: ['400', '600'],
       display: 'swap'
     });
     
-    console.log('Poppins font loaded successfully!');
-    
-    // Now you can use the font
-    const element = document.createElement('div');
-    element.style.fontFamily = '"Poppins", sans-serif';
-    element.textContent = 'This text uses Poppins font!';
-    
-    return true;
+    if (result.success) {
+      console.log('Poppins font loaded successfully!');
+      
+      // Now you can use the font
+      const element = document.createElement('div');
+      element.style.fontFamily = '"Poppins", sans-serif';
+      element.textContent = 'This text uses Poppins font!';
+      
+      return true;
+    } else {
+      console.error('Failed to load font:', result.error);
+      return false;
+    }
   } catch (error) {
     console.error('Failed to load font:', error);
     return false;
@@ -121,37 +106,26 @@ export async function loadFontExample() {
 }
 
 /**
- * Check if a font is available
- */
-export async function checkFontAvailabilityExample() {
-  const isAvailable = await isFontAvailable('Montserrat');
-  
-  if (isAvailable) {
-    console.log('Montserrat is available and loaded!');
-  } else {
-    console.log('Montserrat is not available');
-  }
-  
-  return isAvailable;
-}
-
-/**
- * React component example using the utilities
+ * React component example using the secure utilities
  * Note: This would need to be in a .tsx file to work properly
  */
 /*
-export function FontLoaderComponent({ fontFamily, children }: { 
+export function SecureFontLoaderComponent({ fontFamily, children }: { 
   fontFamily: string; 
   children: React.ReactNode; 
 }) {
   const [fontLoaded, setFontLoaded] = React.useState(false);
   
   React.useEffect(() => {
-    loadFontDynamically(fontFamily, {
+    loadFont(fontFamily, {
       weights: ['400', '500', '600'],
       display: 'swap'
     })
-    .then(() => setFontLoaded(true))
+    .then((result) => {
+      if (result.success) {
+        setFontLoaded(true);
+      }
+    })
     .catch(console.error);
   }, [fontFamily]);
 
@@ -170,25 +144,19 @@ export function FontLoaderComponent({ fontFamily, children }: {
 */
 
 /**
- * Next.js API route example
+ * Server action usage example (for server components)
  */
-export async function fontSearchAPIExample(fontName: string) {
-  const apiKey = process.env.GOOGLE_FONTS_API_KEY; // Server-side env var
+export async function serverComponentFontExample() {
+  // This would be called in a server component
+  const popularFonts = await getPopularFonts(10);
   
-  if (!apiKey) {
-    return { error: 'Google Fonts API key not configured' };
+  if (popularFonts.success) {
+    return popularFonts.fonts.map(font => ({
+      name: font.family,
+      category: font.category,
+      variants: font.variants.length
+    }));
   }
-
-  const result = await searchFont(fontName, apiKey, {
-    weights: ['400', '500', '600', '700'],
-    subsets: ['latin'],
-    display: 'swap'
-  });
-
-  return {
-    success: !result.error,
-    font: result.font,
-    cdnUrl: result.cdnUrl,
-    error: result.error
-  };
+  
+  return [];
 }

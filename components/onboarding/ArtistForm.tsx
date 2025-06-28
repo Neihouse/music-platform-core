@@ -201,7 +201,6 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
                             placeholder="Choose a font for your brand..."
                             description="This font will be used for your artist name and branding"
                             size="md"
-                            apiKey={process.env.NEXT_PUBLIC_GOOGLE_FONTS_API_KEY}
                             {...form.getInputProps("fontFamily")}
                           />
                           {form.values.fontFamily && form.values.name && (

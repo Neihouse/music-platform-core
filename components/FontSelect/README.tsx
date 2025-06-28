@@ -31,7 +31,7 @@
  * }
  * ```
  * 
- * ### With Google Fonts API Key
+ * ### With Secure Server Actions (Recommended)
  * ```tsx
  * import FontSelect from '@/components/FontSelect';
  * 
@@ -43,7 +43,6 @@
  *       label="Choose a font"
  *       value={selectedFont}
  *       onChange={setSelectedFont}
- *       apiKey={process.env.NEXT_PUBLIC_GOOGLE_FONTS_API_KEY}
  *       placeholder="Search fonts..."
  *     />
  *   );
@@ -74,17 +73,21 @@
  * }
  * ```
  * 
- * ## API Key Setup
+ * ## Server Action Security
  * 
- * To use the full Google Fonts catalog:
- * 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
- * 2. Create a new project or select existing
- * 3. Enable the Google Fonts Developer API
- * 4. Create an API key in Credentials
- * 5. Add to your environment variables:
- *    ```
- *    NEXT_PUBLIC_GOOGLE_FONTS_API_KEY=your_api_key_here
- *    ```
+ * This component uses secure server actions to fetch fonts from Google Fonts API:
+ * 1. **API key is kept on the server** - never exposed to the browser
+ * 2. **Server actions handle all API calls** - client only receives font data
+ * 3. **Environment variable security** - uses `GOOGLE_FONTS_API_KEY` (not `NEXT_PUBLIC_*`)
+ * 4. **Automatic fallback** - uses demo fonts if server action fails
+ * 
+ * ### Environment Setup
+ * Add to your `.env.local` file (server-side only):
+ * ```
+ * GOOGLE_FONTS_API_KEY=your_api_key_here
+ * ```
+ * 
+ * Get your API key at: [Google Cloud Console](https://console.cloud.google.com/)
  * 
  * ## Font Categories
  * 
@@ -108,7 +111,6 @@
  * | required | boolean | false | Whether field is required |
  * | disabled | boolean | false | Whether field is disabled |
  * | size | "xs" \| "sm" \| "md" \| "lg" \| "xl" | "md" | Field size |
- * | apiKey | string | undefined | Google Fonts API key |
  */
 
 export {};

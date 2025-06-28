@@ -74,17 +74,17 @@ export default function FontSelectDemo() {
         <Stack gap="sm">
           <Text fw={600} size="sm">API Key Setup</Text>
           <Text size="xs" c="dimmed">
-            To access the full Google Fonts catalog, add your API key to the component:
+            This component now uses secure server actions to fetch fonts.
+            No API key configuration needed on the frontend!
           </Text>
           <Code block>
             {`<FontSelect 
-  apiKey={process.env.NEXT_PUBLIC_GOOGLE_FONTS_API_KEY}
-  // ...other props
+  label="Choose a font"
+  value={selectedFont}
+  onChange={setSelectedFont}
+  // No apiKey prop needed - handled securely on server
 />`}
           </Code>
-          <Text size="xs" c="dimmed">
-            Get your API key at: https://console.cloud.google.com/
-          </Text>
         </Stack>
       </Paper>
     </Stack>
