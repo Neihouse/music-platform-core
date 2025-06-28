@@ -21,7 +21,7 @@ import {
   Center,
   ActionIcon,
 } from "@mantine/core";
-import { StyledTitle } from "../StyledTitle/StyledTitle";
+import StyledTitle from "@/components/StyledTitle";
 import {
   IconUsers,
   IconCalendarEvent,
@@ -66,7 +66,7 @@ export function PromoterDetailView({
 
   // Load the promoter's selected font - simplified approach
   useEffect(() => {
-    const selectedFont = (promoter as any).selectedFont;
+    const selectedFont = promoter.selectedFont;
     if (selectedFont) {
       const fontName = selectedFont.replace(/ /g, '+');
       
@@ -143,12 +143,14 @@ export function PromoterDetailView({
               <Stack gap="md">
                 <Group gap="md">
                   <StyledTitle 
-                    title={promoter.name}
-                    fontName={(promoter as any).selectedFont || "Inter"}
-                    order={1} 
-                    size="3rem" 
-                    fw={900}
-                  />
+                    selectedFont={promoter.selectedFont || "Inter"}
+                    style={{ 
+                      fontSize: '3rem', 
+                      fontWeight: 900 
+                    }}
+                  >
+                    {promoter.name}
+                  </StyledTitle>
                   <Badge
                     size="lg"
                     variant="light"
@@ -157,9 +159,9 @@ export function PromoterDetailView({
                   >
                     COLLECTIVE
                   </Badge>
-                  {(promoter as any).selectedFont && (
+                  {promoter.selectedFont && (
                     <Badge color="blue" variant="light" size="xs">
-                      Custom Font: {(promoter as any).selectedFont}
+                      Custom Font: {promoter.selectedFont}
                     </Badge>
                   )}
                 </Group>

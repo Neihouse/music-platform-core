@@ -3,9 +3,18 @@
  * 
  * This system provides secure font operations without exposing API keys to the frontend.
  * All Google Fonts API calls are handled server-side via server actions.
+ * 
+ * Caching Strategy:
+ * - Uses React cache() function for per-request memoization
+ * - Uses Next.js Data Cache with 1-hour revalidation for persistent caching
+ * - Cache tags allow for manual invalidation via revalidateTag
+ * - Works properly in serverless environments
  */
 
 'use server';
+
+import { cache } from 'react';
+import { revalidateTag } from 'next/cache';
 
 // Core types
 export interface GoogleFont {
@@ -29,8 +38,9 @@ export interface FontsSearchResult {
   error?: string;
 }
 
-// Server action to search for a single font
-export async function searchFont(fontName: string): Promise<FontSearchResult> {
+// Cached function to fetch individual font by name from Google Fonts API
+// Using React cache for proper serverless memoization
+const getCachedFont = cache(async (fontName: string): Promise<FontSearchResult> => {
   try {
     const apiKey = process.env.GOOGLE_FONTS_API_KEY;
     
@@ -48,24 +58,27 @@ export async function searchFont(fontName: string): Promise<FontSearchResult> {
       };
     }
 
-    // Search for the specific font family
+    // Use a much smaller, individual font query instead of fetching all fonts
     const response = await fetch(
-      `https://www.googleapis.com/webfonts/v1/webfonts?key=${apiKey}&family=${encodeURIComponent(fontName)}`
+      `https://www.googleapis.com/webfonts/v1/webfonts?key=${apiKey}&family=${encodeURIComponent(fontName)}`,
+      {
+        // Use Next.js Data Cache with revalidation every day for individual fonts
+        next: { 
+          revalidate: 86400, // 24 hours
+          tags: [`google-font-${fontName.toLowerCase().replace(/\s+/g, '-')}`]
+        }
+      }
     );
-
+    
     if (!response.ok) {
       return {
         success: false,
-        error: `Google Fonts API error: ${response.status} ${response.statusText}`
+        error: `Google Fonts API error: ${response.status}`
       };
     }
 
     const data = await response.json();
-    
-    // Find exact match (case-insensitive)
-    const font = data.items?.find(
-      (item: any) => item.family.toLowerCase() === fontName.toLowerCase()
-    );
+    const font = data.items?.[0];
 
     if (!font) {
       return {
@@ -94,44 +107,58 @@ export async function searchFont(fontName: string): Promise<FontSearchResult> {
   } catch (error) {
     return {
       success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch font'
+    };
+  }
+});
+
+
+
+// Server action to search for a single font
+export async function searchFont(fontName: string): Promise<FontSearchResult> {
+  try {
+    if (!fontName.trim()) {
+      return {
+        success: false,
+        error: 'Font name is required'
+      };
+    }
+
+    // Use cached individual font lookup instead of fetching all fonts
+    return await getCachedFont(fontName);
+  } catch (error) {
+    return {
+      success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
 }
 
-// Server action to get popular fonts
-export async function getPopularFonts(limit: number = 50): Promise<FontsSearchResult> {
+// Note: getPopularFonts function - returns 10 random fonts from a curated list
+export async function getPopularFonts(limit: number = 10): Promise<FontsSearchResult> {
   try {
-    const apiKey = process.env.GOOGLE_FONTS_API_KEY;
-    
-    if (!apiKey) {
-      return {
-        success: false,
-        fonts: [],
-        error: 'Google Fonts API key not configured'
-      };
-    }
+    // Curated list of popular fonts
+    const popularFontNames = [
+      'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 
+      'Poppins', 'Playfair Display', 'Source Sans Pro', 'Nunito', 'Raleway',
+      'Merriweather', 'Oswald', 'Ubuntu', 'PT Sans', 'Libre Baskerville',
+      'Fira Sans', 'Work Sans', 'Crimson Text', 'DM Sans', 'Space Grotesk',
+      'JetBrains Mono', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', 'IBM Plex Mono'
+    ];
 
-    const response = await fetch(
-      `https://www.googleapis.com/webfonts/v1/webfonts?key=${apiKey}&sort=popularity`
-    );
-    
-    if (!response.ok) {
-      return {
-        success: false,
-        fonts: [],
-        error: `Google Fonts API error: ${response.status}`
-      };
-    }
+    // Shuffle array and take the requested number of fonts (default 10)
+    const shuffled = [...popularFontNames].sort(() => 0.5 - Math.random());
+    const selectedFonts = shuffled.slice(0, Math.min(limit, popularFontNames.length));
 
-    const data = await response.json();
-    const fonts = (data.items || []).slice(0, limit).map((item: any) => ({
-      family: item.family,
-      variants: item.variants || [],
-      subsets: item.subsets || [],
-      category: item.category || 'sans-serif',
-      files: item.files || {}
-    }));
+    // Fetch all selected fonts
+    const fontPromises = selectedFonts.map(fontName => getCachedFont(fontName));
+    const results = await Promise.all(fontPromises);
+
+    // Filter successful results and extract fonts
+    const fonts: GoogleFont[] = results
+      .filter(result => result.success && result.font)
+      .map(result => result.font!)
+      .slice(0, 10); // Ensure we only return 10 fonts max
 
     return {
       success: true,
@@ -141,34 +168,77 @@ export async function getPopularFonts(limit: number = 50): Promise<FontsSearchRe
     return {
       success: false,
       fonts: [],
-      error: error instanceof Error ? error.message : 'Failed to fetch fonts'
+      error: error instanceof Error ? error.message : 'Failed to fetch popular fonts'
     };
   }
 }
 
-// Server action to search fonts by query
+// Server action to search fonts by query - only does exact font name lookup
 export async function searchFonts(query: string, limit: number = 20): Promise<FontsSearchResult> {
   try {
-    const popularResult = await getPopularFonts(200); // Get more for filtering
-    
-    if (!popularResult.success) {
-      return popularResult;
+    if (!query.trim()) {
+      return {
+        success: false,
+        fonts: [],
+        error: 'Search query is required'
+      };
     }
 
-    // Filter fonts by query
-    const filteredFonts = popularResult.fonts.filter(font =>
-      font.family.toLowerCase().includes(query.toLowerCase())
-    ).slice(0, limit);
-
-    return {
-      success: true,
-      fonts: filteredFonts
-    };
+    // Only try exact match for the font name
+    const result = await getCachedFont(query);
+    
+    if (result.success && result.font) {
+      return {
+        success: true,
+        fonts: [result.font]
+      };
+    } else {
+      return {
+        success: false,
+        fonts: [],
+        error: result.error || `Font "${query}" not found`
+      };
+    }
   } catch (error) {
     return {
       success: false,
       fonts: [],
       error: error instanceof Error ? error.message : 'Search failed'
+    };
+  }
+}
+
+// Debug function to check font availability - simplified to only check exact match
+export async function debugFontSearch(fontName: string): Promise<{
+  success: boolean;
+  found: boolean;
+  exactMatch?: GoogleFont;
+  partialMatches: GoogleFont[];
+  suggestions: GoogleFont[];
+  totalFontsAvailable: number;
+  error?: string;
+}> {
+  try {
+    // Try exact match only
+    const exactResult = await getCachedFont(fontName);
+    const exactMatch = exactResult.success ? exactResult.font : undefined;
+
+    return {
+      success: true,
+      found: !!exactMatch,
+      exactMatch,
+      partialMatches: [], // No partial matches - would require full font list
+      suggestions: [], // No suggestions - would require full font list
+      totalFontsAvailable: 0 // Unknown - we don't fetch all fonts
+    };
+  } catch (error) {
+    return {
+      success: false,
+      found: false,
+      partialMatches: [],
+      suggestions: [],
+      totalFontsAvailable: 0,
+      error: error instanceof Error ? error.message : 'Debug search failed'
     };
   }
 }
@@ -188,7 +258,7 @@ export async function generateFontCDNUrl(
     display = 'swap'
   } = options;
 
-  const encodedFamily = fontFamily.replace(/\s+/g, '+');
+  const encodedFamily = encodeURIComponent(fontFamily);
   const weightString = weights.join(';');
   
   const params = new URLSearchParams();
@@ -197,4 +267,29 @@ export async function generateFontCDNUrl(
   params.append('display', display);
 
   return `https://fonts.googleapis.com/css2?${params.toString()}`;
+}
+
+// Function to manually refresh the font cache using revalidateTag
+export async function refreshFontCache(fontName?: string): Promise<FontsSearchResult> {
+  try {
+    if (fontName) {
+      // Revalidate specific font cache
+      revalidateTag(`google-font-${fontName.toLowerCase().replace(/\s+/g, '-')}`);
+    } else {
+      // Revalidate all font caches (though this won't be very useful now)
+      revalidateTag('google-fonts');
+    }
+    
+    return {
+      success: true,
+      fonts: [],
+      error: 'Cache refreshed. Specific fonts will be refetched on next request.'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      fonts: [],
+      error: error instanceof Error ? error.message : 'Failed to refresh font cache'
+    };
+  }
 }

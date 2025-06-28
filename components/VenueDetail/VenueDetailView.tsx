@@ -22,7 +22,6 @@ import {
   SimpleGrid,
   ThemeIcon,
 } from "@mantine/core";
-import { StyledTitle } from "../StyledTitle/StyledTitle";
 import Link from "next/link";
 import {
   IconMapPin,
@@ -45,6 +44,7 @@ import { VenueGallerySection } from "./VenueGallerySection";
 import { VenuePromotersSection } from "./VenuePromotersSection";
 import { nameToUrl } from "@/lib/utils";
 import { Venue, Event, Promoter } from "@/utils/supabase/global.types";
+import StyledTitle from "../StyledTitle";
 
 interface VenueDetailViewProps {
   venue: Venue;
@@ -89,7 +89,7 @@ export function VenueDetailView({
             `,
           }}
         />
-        
+
         {/* Glass morphism container */}
         <Container size="xl" h="100%" style={{ position: "relative", zIndex: 2 }}>
           <Stack justify="center" h="70vh" gap="2rem">
@@ -106,21 +106,7 @@ export function VenueDetailView({
                 Live Music Venue
               </Text>
               <StyledTitle
-                title={venue.name}
-                fontName="Inter" // You can make this configurable later
-                order={1}
-                style={{
-                  fontSize: "clamp(2.5rem, 8vw, 5rem)",
-                  fontWeight: 300,
-                  color: "white",
-                  lineHeight: 1.1,
-                  letterSpacing: "-0.02em",
-                  background: "linear-gradient(45deg, #ffffff, #f0f0f0)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              />
+              >{venue.name}</StyledTitle>
             </Box>
 
             {/* Description with better styling */}
@@ -178,7 +164,7 @@ export function VenueDetailView({
               >
                 Book Event
               </Button>
-              
+
               {/* Edit button - only show for venue owner */}
               {isOwner && (
                 <Button
@@ -201,7 +187,7 @@ export function VenueDetailView({
                   Edit Venue
                 </Button>
               )}
-              
+
               <ActionIcon
                 size="xl"
                 radius="xl"

@@ -39,12 +39,12 @@ export async function loadFont(
       return { success: true };
     }
 
-    // Generate CDN URL
-    const encodedFamily = fontFamily.replace(/\s+/g, '+');
-    const weightString = weights.join(';');
+    // Generate CDN URL with proper encoding
+    // Google Fonts API expects specific encoding - don't double-encode
+    const familyParam = `${fontFamily}:wght@${weights.join(';')}`;
     
     const params = new URLSearchParams();
-    params.append('family', `${encodedFamily}:wght@${weightString}`);
+    params.append('family', familyParam);
     params.append('subset', subsets.join(','));
     params.append('display', display);
 
@@ -56,6 +56,7 @@ export async function loadFont(
       link.rel = 'stylesheet';
       link.href = cdnUrl;
       link.setAttribute('data-font-id', fontId);
+      link.crossOrigin = 'anonymous'; // Add CORS support
       
       link.onload = () => resolve({ success: true });
       link.onerror = () => resolve({ 
