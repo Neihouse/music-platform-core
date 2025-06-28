@@ -21,7 +21,7 @@ import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
 import { Artist, StoredLocality } from "@/utils/supabase/global.types";
 import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
-import StyledTitle from "./StyledTitle";
+import StyledTitle from "@/components/StyledTitle";
 
 interface ArtistProfileContentProps {
   artist: Artist;

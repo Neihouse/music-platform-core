@@ -5,7 +5,7 @@ import { IconUser, IconMapPin, IconSearch, IconX, IconUserPlus, IconSparkles, Ic
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
 import { useState } from "react";
-import { StyledTitle } from "../StyledTitle/StyledTitle";
+import { StyledTitle } from "../StyledTitle";
 
 interface Promoter {
   id: string;
@@ -238,14 +238,16 @@ function PromoterCard({
         {/* Promoter Info */}
         <Stack gap="xs" align="center" style={{ flex: 1 }}>
           <StyledTitle 
-            title={promoter.name}
-            fontName="Inter"
-            order={4}
-            fw={700} 
-            size="lg" 
-            ta="center" 
-            style={{ lineClamp: 1 }}
-          />
+            selectedFont="Inter"
+            style={{ 
+              lineClamp: 1, 
+              fontWeight: 700, 
+              fontSize: '1.125rem',
+              textAlign: 'center' 
+            }}
+          >
+            {promoter.name}
+          </StyledTitle>
           
           {/* Location */}
           <Group gap="xs" justify="center">
