@@ -501,7 +501,8 @@ export async function getArtistsByPromoterLocalities(
         bio,
         avatar_img,
         banner_img,
-        external_links
+        external_links,
+        user_id
       ),
       localities (
         id,
