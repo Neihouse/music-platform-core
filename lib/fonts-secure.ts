@@ -188,7 +188,7 @@ export async function generateFontCDNUrl(
     display = 'swap'
   } = options;
 
-  const encodedFamily = fontFamily.replace(/\s+/g, '+');
+  const encodedFamily = encodeURIComponent(fontFamily);
   const weightString = weights.join(';');
   
   const params = new URLSearchParams();

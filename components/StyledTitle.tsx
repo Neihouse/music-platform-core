@@ -45,7 +45,7 @@ export function StyledTitle({
   fontWeights = ['400', '600', '700'],
   fontDisplay = 'swap',
   fallbackFont = 'sans-serif',
-  transitionDuration = 300,
+  transitionDuration = 200,
   style,
   ...titleProps
 }: StyledTitleProps) {
@@ -54,6 +54,30 @@ export function StyledTitle({
 
   useEffect(() => {
     let isMounted = true;
+
+    // Check if font is already loaded to prevent unnecessary requests
+    const fontId = `font-${fontName.replace(/\s+/g, '-').toLowerCase()}`;
+    const existingLink = document.querySelector(`link[data-font-id="${fontId}"]`);
+    
+    if (existingLink) {
+      setFontLoaded(true);
+      return;
+    }
+
+    // Check if font is available in the browser's font stack
+    // This helps detect preloaded fonts or system fonts
+    const testFont = new FontFace(fontName, 'url()');
+    if (document.fonts && document.fonts.check) {
+      try {
+        const isFontAvailable = document.fonts.check(`12px "${fontName}"`);
+        if (isFontAvailable) {
+          setFontLoaded(true);
+          return;
+        }
+      } catch (error) {
+        // Font check failed, continue with loading
+      }
+    }
 
     const loadFontAsync = async () => {
       try {
@@ -100,11 +124,11 @@ export function StyledTitle({
     ? `"${fontName}", ${fallbackFont}`
     : fallbackFont;
 
-  // Combine styles with font loading transition
+  // Combine styles with minimal visual change during loading
   const combinedStyle = {
     fontFamily,
-    opacity: fontLoaded ? 1 : 0.9,
-    transition: `all ${transitionDuration}ms ease-in-out`,
+    // Remove opacity change to prevent flickering, use font-display: swap instead
+    transition: `font-family ${transitionDuration}ms ease-in-out`,
     ...(typeof style === 'object' ? style : {}),
   };
 
