@@ -846,6 +846,42 @@ export type Database = {
           },
         ]
       }
+      requests: {
+        Row: {
+          created_at: string
+          id: string
+          invited_to_entity: string
+          invited_to_entity_id: string
+          invitee_entity: string
+          invitee_entity_id: string
+          invitee_user_id: string
+          inviter_user_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_to_entity: string
+          invited_to_entity_id: string
+          invitee_entity: string
+          invitee_entity_id: string
+          invitee_user_id: string
+          inviter_user_id?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_to_entity?: string
+          invited_to_entity_id?: string
+          invitee_entity?: string
+          invitee_entity_id?: string
+          invitee_user_id?: string
+          inviter_user_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           created_at: string
