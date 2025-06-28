@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { TrackList } from "@/components/Tracks/TrackList";
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
+import { StyledTitle } from "./StyledTitle/StyledTitle";
 import { nameToUrl } from "@/lib/utils";
 import { Artist, StoredLocality } from "@/utils/supabase/global.types";
 import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
@@ -111,16 +112,13 @@ const ArtistProfileContent = ({
             />
             <div>
               <Group>
-                <Title 
+                <StyledTitle 
+                  title={name}
+                  fontName={(artist as any).selectedFont || "Inter"}
                   style={{ 
                     color: "white",
-                    fontFamily: (artist as any).selectedFont 
-                      ? `"${(artist as any).selectedFont}", sans-serif` 
-                      : undefined,
                   }}
-                >
-                  {name}
-                </Title>
+                />
                 {canEdit && <Button component={Link} href={`/artists/${nameToUrl(name)}/edit`}><IconEdit size={16} /></Button>}
               </Group>
               <Group gap="sm">

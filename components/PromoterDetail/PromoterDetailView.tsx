@@ -21,6 +21,7 @@ import {
   Center,
   ActionIcon,
 } from "@mantine/core";
+import { StyledTitle } from "../StyledTitle/StyledTitle";
 import {
   IconUsers,
   IconCalendarEvent,
@@ -141,18 +142,13 @@ export function PromoterDetailView({
               </Avatar>
               <Stack gap="md">
                 <Group gap="md">
-                  <Title 
+                  <StyledTitle 
+                    title={promoter.name}
+                    fontName={(promoter as any).selectedFont || "Inter"}
                     order={1} 
                     size="3rem" 
                     fw={900}
-                    style={{
-                      fontFamily: (promoter as any).selectedFont 
-                        ? `"${(promoter as any).selectedFont}", sans-serif` 
-                        : undefined,
-                    }}
-                  >
-                    {promoter.name}
-                  </Title>
+                  />
                   <Badge
                     size="lg"
                     variant="light"
