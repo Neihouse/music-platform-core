@@ -75,7 +75,7 @@ export async function searchFont(fontName: string): Promise<FontSearchResult> {
     }
 
     // Generate CDN URL
-    const cdnUrl = generateFontCDNUrl(font.family, {
+    const cdnUrl = await generateFontCDNUrl(font.family, {
       weights: font.variants.filter((v: string) => !v.includes('italic')).slice(0, 4),
       display: 'swap'
     });
@@ -174,14 +174,14 @@ export async function searchFonts(query: string, limit: number = 20): Promise<Fo
 }
 
 // Utility function to generate CDN URLs (no API key needed)
-export function generateFontCDNUrl(
+export async function generateFontCDNUrl(
   fontFamily: string,
   options: {
     weights?: string[];
     subsets?: string[];
     display?: 'auto' | 'block' | 'swap' | 'fallback' | 'optional';
   } = {}
-): string {
+): Promise<string> {
   const {
     weights = ['400'],
     subsets = ['latin'],

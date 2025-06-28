@@ -51,8 +51,8 @@ export async function getSingleFontExample() {
 /**
  * Generate CDN URL without API call (when you know the font exists)
  */
-export function generateCDNUrlExample() {
-  const cdnUrl = generateFontCDNUrl('Roboto', {
+export async function generateCDNUrlExample() {
+  const cdnUrl = await generateFontCDNUrl('Roboto', {
     weights: ['300', '400', '500', '700'],
     subsets: ['latin'],
     display: 'swap'
