@@ -217,6 +217,6 @@ function EventCard({ event, venue }) {
 
 ## Related Components
 
-- [`FontSelect`](../FontSelect/README.tsx) - For selecting fonts in forms
+- [`FontSelect`](../FontSelect/README.md) - For selecting fonts in forms
 - Font loading utilities in `@/lib/fonts-client`
 - Font security system in `@/lib/fonts-secure`
