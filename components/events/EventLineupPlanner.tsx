@@ -32,7 +32,7 @@ import {
 	removeArtistFromStageAction
 } from "@/app/events/[eventName]/lineup/actions";
 import { VenueSearch } from "@/components/VenueSearch";
-import { StyledTitle } from "../StyledTitle/StyledTitle";
+import StyledTitle from "@/components/StyledTitle";
 
 interface Artist {
 	id: string;
@@ -246,10 +246,10 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 					<Group justify="space-between" align="center">
 						<div>
 							<StyledTitle 
-								title={event.name}
-								fontName="Inter"
-								order={1}
-							/>
+								selectedFont="Inter"
+							>
+								{event.name}
+							</StyledTitle>
 							{event.date && <Text c="dimmed">Event Date: {new Date(event.date).toLocaleDateString()}</Text>}
 						</div>
 						<Button leftSection={<IconPlus size={16} />} onClick={open}>
