@@ -5,10 +5,12 @@ import { getUser } from "@/db/queries/users";
 import { getUserProfile } from "@/db/queries/user";
 import { getArtist, getArtistEvents, getArtistPromoters, getArtistTrackCount, getArtistShowCount } from "@/db/queries/artists";
 import { getArtistListensLastMonth } from "@/db/queries/tracks";
-import { getArtistImagesServer, getAvatarUrlServer } from "@/lib/images/image-utils";
+import { getReceivedPromoterInvitations } from "@/db/queries/requests";
+import { getArtistImagesServer, getAvatarUrlServer, getPromoterImagesServer } from "@/lib/images/image-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
+import PromotersCard from "@/components/artist/PromotersCard";
 
 export default async function ArtistDashboardPage() {
   const supabase = await createClient();
@@ -83,13 +85,14 @@ export default async function ArtistDashboardPage() {
   }
 
   // Fetch all artist metrics in parallel
-  const [upcomingEvents, promoters, trackMetrics, showMetrics, artistImages, totalListens] = await Promise.all([
+  const [upcomingEvents, promoters, trackMetrics, showMetrics, artistImages, totalListens, receivedInvitations] = await Promise.all([
     getArtistEvents(supabase, artist.id),
     getArtistPromoters(supabase, artist.id),
     getArtistTrackCount(supabase, artist.id),
     getArtistShowCount(supabase, artist.id),
     getArtistImagesServer(supabase, artist.id),
     getArtistListensLastMonth(supabase, artist.id),
+    getReceivedPromoterInvitations(supabase, user.id),
   ]);
 
   // Process promoter avatar URLs (separate from artist images to avoid double calls)
@@ -97,6 +100,19 @@ export default async function ArtistDashboardPage() {
     promoters.map(async (promoter: any) => ({
       ...promoter,
       avatarUrl: promoter.avatar_img ? await getAvatarUrlServer(promoter.avatar_img) : null,
+    }))
+  );
+
+  // Process invitation promoters with avatar URLs
+  const invitationsWithAvatars = await Promise.all(
+    receivedInvitations.map(async (invitation: any) => ({
+      ...invitation,
+      promoter: {
+        ...invitation.promoters,
+        avatarUrl: invitation.promoters?.avatar_img 
+          ? await getPromoterImagesServer(supabase, invitation.promoters.id).then(images => images.avatarUrl)
+          : null,
+      }
     }))
   );
 
@@ -345,46 +361,10 @@ export default async function ArtistDashboardPage() {
 
         {/* Promoters Overview */}
         <GridCol span={{ base: 12, lg: 6 }}>
-          <Card p="xl" radius="lg" withBorder h="100%">
-            <Group justify="space-between" mb="lg">
-              <Title order={3}>Your Promoters</Title>
-              <Button size="xs" variant="light">View All</Button>
-            </Group>
-            
-            {promotersWithAvatars.length > 0 ? (
-              <Stack gap="md">
-                {promotersWithAvatars.slice(0, 3).map((promoter) => (
-                  <Paper key={promoter.id} p="md" radius="md" withBorder>
-                    <Group>
-                      <Avatar
-                        src={promoter.avatarUrl}
-                        size="md"
-                        radius="xl"
-                      >
-                        {promoter.name?.[0]}
-                      </Avatar>
-                      <div style={{ flex: 1 }}>
-                        <Text fw={600}>{promoter.name}</Text>
-                        <Text size="sm" c="dimmed" lineClamp={1}>
-                          {promoter.bio || "No bio available"}
-                        </Text>
-                      </div>
-                    </Group>
-                  </Paper>
-                ))}
-              </Stack>
-            ) : (
-              <Center py="xl">
-                <Stack align="center" gap="md">
-                  <ThemeIcon size={60} radius="xl" variant="light" color="gray">
-                    <IconUsers size={30} />
-                  </ThemeIcon>
-                  <Text c="dimmed" ta="center">No promoters in your network yet</Text>
-                  <Button size="sm" variant="light" component={Link} href="/artist/promoters">Find Promoters</Button>
-                </Stack>
-              </Center>
-            )}
-          </Card>
+          <PromotersCard 
+            promotersWithAvatars={promotersWithAvatars}
+            invitationsWithAvatars={invitationsWithAvatars}
+          />
         </GridCol>
       </Grid>
 

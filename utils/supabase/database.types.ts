@@ -750,30 +750,30 @@ export type Database = {
       promoters_localities: {
         Row: {
           created_at: string
-          locality_id: string
-          promoter_id: string
+          locality: string
+          promoter: string
         }
         Insert: {
           created_at?: string
-          locality_id: string
-          promoter_id: string
+          locality: string
+          promoter: string
         }
         Update: {
           created_at?: string
-          locality_id?: string
-          promoter_id?: string
+          locality?: string
+          promoter?: string
         }
         Relationships: [
           {
             foreignKeyName: "promoters_localities_locality_id_fkey"
-            columns: ["locality_id"]
+            columns: ["locality"]
             isOneToOne: false
             referencedRelation: "localities"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "promoters_localities_promoter_id_fkey"
-            columns: ["promoter_id"]
+            columns: ["promoter"]
             isOneToOne: false
             referencedRelation: "promoters"
             referencedColumns: ["id"]
