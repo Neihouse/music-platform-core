@@ -2,7 +2,7 @@
 
 # dependencies
 /node_modules
-/.pnp
+/.pnp``
 .pnp.js
 .yarn/install-state.gz
 
@@ -37,3 +37,6 @@ yarn-error.log*
 next-env.d.ts
 .DS_Store
 **/.DS_Store
+
+# local reference images for claude
+/claude
