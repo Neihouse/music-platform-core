@@ -176,11 +176,40 @@ export function StyledTitle({
     return fallbackFont;
   };
 
-  // Combine styles
+  // Generate a normalized CSS class for consistent font rendering
+  const generateNormalizedClassName = (): string => {
+    const baseClasses = ['styled-title-normalized'];
+    if (className) baseClasses.push(className);
+    return baseClasses.join(' ');
+  };
+
+  // Combine styles with font normalization
   const combinedStyle: React.CSSProperties = {
     fontFamily: getFontFamily(),
     // Add a subtle transition for smooth font loading
     transition: 'font-family 0.2s ease-in-out',
+    
+    // Font normalization for consistent positioning across different fonts
+    fontFeatureSettings: '"kern" 1, "liga" 1', // Enable kerning and ligatures
+    textRendering: 'optimizeLegibility', // Better text rendering
+    
+    // Normalize line height and baseline alignment
+    lineHeight: style?.lineHeight || '1.2', // Consistent line height if not specified
+    
+    // Use CSS Grid or Flexbox properties for better alignment control
+    display: style?.display || 'block',
+    
+    // Normalize font metrics for consistent baseline alignment
+    fontVariantNumeric: 'normal',
+    fontVariantPosition: 'normal',
+    
+    // Ensure consistent text baseline across fonts
+    textAlign: style?.textAlign || 'left',
+    
+    // Font baseline normalization - key for consistent positioning
+    verticalAlign: 'baseline',
+    
+    // Apply additional styles from props
     ...style,
   };
 
@@ -189,10 +218,27 @@ export function StyledTitle({
     combinedStyle.opacity = 0.7;
   }
 
+  // Add CSS normalization styles directly to the component
+  const normalizedStyle: React.CSSProperties = {
+    ...combinedStyle,
+    
+    // The following normalization properties are set after spreading user/computed styles,
+    // so they cannot be overridden by user styles.
+    WebkitFontSmoothing: 'antialiased',
+    MozOsxFontSmoothing: 'grayscale',
+    boxSizing: 'border-box',
+    alignSelf: 'baseline',
+    marginTop: 0,
+    marginBottom: 0,
+    position: 'relative',
+    top: combinedStyle?.top || '0px',
+    lineHeight: combinedStyle.lineHeight || 1.2,
+  };
+
   return (
     <Component 
-      className={className} 
-      style={combinedStyle}
+      className={generateNormalizedClassName()} 
+      style={normalizedStyle}
       // Add data attributes for debugging/testing
       data-font={selectedFont}
       data-font-loaded={fontLoaded}
