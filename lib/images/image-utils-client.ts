@@ -6,6 +6,11 @@ import { createClient } from "@/utils/supabase/client";
  * @returns The public URL for the avatar image
  */
 export function getAvatarUrl(avatarFilename: string): string {
+  // Check for null/undefined
+  if (!avatarFilename) {
+    return '';
+  }
+  
   // If it's already a full URL (e.g., Unsplash), return it as-is
   if (avatarFilename.startsWith('http://') || avatarFilename.startsWith('https://')) {
     return avatarFilename;
@@ -26,6 +31,11 @@ export function getAvatarUrl(avatarFilename: string): string {
  * @returns The public URL for the banner image
  */
 export function getBannerUrl(bannerFilename: string): string {
+  // Check for null/undefined
+  if (!bannerFilename) {
+    return '';
+  }
+  
   // If it's already a full URL (e.g., Unsplash), return it as-is
   if (bannerFilename.startsWith('http://') || bannerFilename.startsWith('https://')) {
     return bannerFilename;
