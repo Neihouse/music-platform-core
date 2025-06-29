@@ -37,11 +37,7 @@ const InviteArtistModal = ({ artist, opened, onClose }: InviteArtistModalProps) 
         icon: <IconCheck size={16} />,
       });
       
-      // Auto-close after success
-      setTimeout(() => {
-        onClose();
-        setSuccess(false); // Reset for next time
-      }, 2000);
+
     } catch (error) {
       notifications.show({
         title: "Failed to Send Invitation",
