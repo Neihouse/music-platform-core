@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useRef } from "react";
 import { 
   Group, 
   Text, 
@@ -23,6 +23,7 @@ import { formatDuration } from "@/lib/formatting";
 
 export function GlobalPlayer() {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const volumeSliderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const { 
     currentTrack, 
