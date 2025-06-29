@@ -209,9 +209,6 @@ export function StyledTitle({
     // Font baseline normalization - key for consistent positioning
     verticalAlign: 'baseline',
     
-    // Prevent font size adjustments that can cause positioning issues
-    fontSizeAdjust: 'none',
-    
     // Apply additional styles from props
     ...style,
   };
@@ -225,25 +222,16 @@ export function StyledTitle({
   const normalizedStyle: React.CSSProperties = {
     ...combinedStyle,
     
-    // Cross-browser font baseline normalization
+    // The following normalization properties are set after spreading user/computed styles,
+    // so they cannot be overridden by user styles.
     WebkitFontSmoothing: 'antialiased',
     MozOsxFontSmoothing: 'grayscale',
-    
-    // Normalize font metrics for consistent positioning
     boxSizing: 'border-box',
-    
-    // Fix baseline alignment issues with flexbox containers
     alignSelf: 'baseline',
-    
-    // Consistent spacing and positioning - reset browser defaults
     marginTop: 0,
     marginBottom: 0,
-    
-    // Ensure consistent vertical positioning across fonts
     position: 'relative',
-    top: style?.top || '0px',
-    
-    // Force consistent line-height calculation
+    top: combinedStyle?.top || '0px',
     lineHeight: combinedStyle.lineHeight || 1.2,
   };
 
