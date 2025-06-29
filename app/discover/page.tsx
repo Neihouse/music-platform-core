@@ -4,7 +4,6 @@ import { CitySearchClient } from "@/components/discover/CitySearchClient";
 import { CityResultsClient } from "@/components/discover/CityResultsClient";
 import { mockCityData } from "@/lib/mock-data";
 import { cache } from 'react';
-import { unstable_cache } from 'next/cache';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 
@@ -20,15 +19,6 @@ const getCachedCityData = cache(async (city: string): Promise<CityData> => {
   }
 });
 
-// Unstable cache for longer-term caching with revalidation
-const getCityDataWithCache = unstable_cache(
-  async (city: string) => getCachedCityData(city),
-  ['city-music-data'],
-  {
-    revalidate: 60 * 60, // Cache for 1 hour
-    tags: ['discover', 'city-data'],
-  }
-);
 
 interface DiscoverPageProps {
   searchParams: { city?: string };
@@ -85,7 +75,7 @@ export async function generateMetadata({ searchParams }: DiscoverPageProps): Pro
 }
 
 async function CityDataWrapper({ city }: { city: string }) {
-  const cityData = await getCityDataWithCache(city);
+  const cityData = await getCachedCityData(city);
   
   return (
     <CityResultsClient 
