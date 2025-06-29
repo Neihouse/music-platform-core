@@ -21,6 +21,8 @@ export interface LocalVenue {
   address?: string;
   selectedFont?: string;
   upcomingEvents?: number;
+  banner_img?: string;
+  avatar_img?: string;
 }
 
 export interface LocalPromoter {

@@ -11,6 +11,8 @@ import { Metadata } from 'next';
 const getCachedCityData = cache(async (city: string): Promise<CityData> => {
   try {
     const data = await getCityMusicData(city);
+
+    
     return data;
   } catch (error) {
     console.error('Error fetching city data:', error);
@@ -21,7 +23,7 @@ const getCachedCityData = cache(async (city: string): Promise<CityData> => {
 
 
 interface DiscoverPageProps {
-  searchParams: { city?: string };
+  searchParams: Promise<{ city?: string }>;
 }
 
 // Generate static params for popular cities (for static generation)
@@ -77,9 +79,11 @@ export async function generateMetadata({ searchParams }: DiscoverPageProps): Pro
 async function CityDataWrapper({ city }: { city: string }) {
   const cityData = await getCachedCityData(city);
   
+const isEmpty = Object.values(cityData).flat().length === 0;
+
   return (
     <CityResultsClient 
-      cityData={cityData} 
+      cityData={isEmpty ? mockCityData : cityData} 
       cityName={city}
       isLoading={false}
     />
