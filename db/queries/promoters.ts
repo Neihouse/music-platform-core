@@ -143,6 +143,40 @@ export async function getPromoterEvents(
     return events;
 }
 
+export async function getPromoterPastEvents(
+  supabase: TypedClient,
+  promoterId: string
+) {
+  const { data: eventPromotions, error } = await supabase
+    .from("events_promoters")
+    .select(`
+      events (
+        *,
+        venues (
+          id,
+          name,
+          address
+        )
+      )
+    `)
+    .eq("promoter", promoterId);
+
+  if (error) {
+    console.error("Error fetching past events:", error);
+    return [];
+  }
+
+  // Extract events from the junction table results and filter for past events
+  const events = eventPromotions
+    ?.map((ep: any) => ep.events)
+    .filter(Boolean)
+    .filter((event: any) => event.date && new Date(event.date) < new Date())
+    .sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+    .slice(0, 6) || [];
+
+  return events;
+}
+
 export async function getPromoterArtists(
   supabase: TypedClient,
   promoterId: string

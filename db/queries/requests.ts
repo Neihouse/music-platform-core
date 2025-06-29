@@ -1,6 +1,7 @@
 "use server";
 import { TypedClient } from "@/utils/supabase/global.types";
 import { Database } from "@/utils/supabase/database.types";
+import { createPromoterArtistRelationship } from "./promoters_artists";
 
 export async function createRequest(
   supabase: TypedClient,
@@ -39,18 +40,62 @@ export async function acceptRequest(
   supabase: TypedClient,
   requestId: string
 ) {
-  const { data: request, error } = await supabase
+  // First get the request details
+  const { data: request, error: fetchError } = await supabase
+    .from("requests")
+    .select("*")
+    .eq("id", requestId)
+    .single();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  if (!request) {
+    throw new Error("Request not found");
+  }
+
+  // Update the request status to accepted
+  const { data: updatedRequest, error: updateError } = await supabase
     .from("requests")
     .update({ status: "accepted" })
     .eq("id", requestId)
     .select()
     .single();
 
-  if (error) {
-    throw new Error(error.message);
+  if (updateError) {
+    throw new Error(updateError.message);
   }
 
-  return request;
+  // If this is a promoter-artist invitation, create the relationship
+  if (
+    (request.invited_to_entity === "promoter" && request.invitee_entity === "artist") ||
+    (request.invited_to_entity === "artist" && request.invitee_entity === "promoter")
+  ) {
+    try {
+      // Determine promoter and artist IDs based on the request direction
+      let promoterId: string;
+      let artistId: string;
+
+      if (request.invited_to_entity === "promoter") {
+        // Promoter invited artist
+        promoterId = request.invited_to_entity_id;
+        artistId = request.invitee_entity_id;
+      } else {
+        // Artist requested to join promoter
+        promoterId = request.invitee_entity_id;
+        artistId = request.invited_to_entity_id;
+      }
+
+      await createPromoterArtistRelationship(supabase, promoterId, artistId);
+    } catch (relationshipError) {
+      console.error("Failed to create promoter-artist relationship:", relationshipError);
+      // Note: We don't throw here to avoid rolling back the request acceptance
+      // The relationship creation failure should be handled separately
+    }
+  }
+
+  return updatedRequest;
 }
 
 export async function denyRequest(
