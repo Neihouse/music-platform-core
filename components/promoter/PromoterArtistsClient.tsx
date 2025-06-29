@@ -262,6 +262,7 @@ function ArtistCard({
       });
       // Force a page refresh to update the state
       window.location.reload();
+      //TODO: Ideally, we should update the state without a full reload
     } catch (error) {
       notifications.show({
         title: "Failed to Cancel Invitation",
