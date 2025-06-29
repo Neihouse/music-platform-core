@@ -9,7 +9,9 @@ import {
   Stack,
   Paper,
   Image,
-  Slider
+  Slider,
+  useMantineTheme,
+  useMantineColorScheme
 } from "@mantine/core";
 import { 
   IconPlayerPlay, 
@@ -24,6 +26,8 @@ import { formatDuration } from "@/lib/formatting";
 export function GlobalPlayer() {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const volumeSliderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
   
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -97,8 +101,10 @@ export function GlobalPlayer() {
         right: 0, 
         zIndex: 1000,
         borderRadius: 0,
-        borderTop: '1px solid var(--mantine-color-gray-3)',
-        background: 'rgba(255, 255, 255, 0.95)',
+        borderTop: `1px solid ${colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}`,
+        background: colorScheme === 'dark' 
+          ? theme.colors.dark[7] 
+          : theme.colors.gray[0],
         backdropFilter: 'blur(10px)',
         height: '72px',
       }}
@@ -109,8 +115,8 @@ export function GlobalPlayer() {
           style={{ 
             cursor: duration > 0 ? 'pointer' : 'default',
             height: '3px',
-            backgroundColor: 'var(--mantine-color-gray-2)',
             position: 'relative',
+            backgroundColor: colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2],
           }}
           onClick={handleProgressClick}
         >
@@ -118,7 +124,7 @@ export function GlobalPlayer() {
             style={{
               height: '100%',
               width: `${progress}%`,
-              backgroundColor: 'var(--mantine-color-blue-6)',
+              backgroundColor: theme.colors.blue[6],
               transition: 'width 0.1s ease',
             }}
           />
@@ -156,7 +162,7 @@ export function GlobalPlayer() {
             </Box>
             
             <Box style={{ minWidth: 0, flex: 1 }}>
-              <Text size="sm" fw={500} lineClamp={1} c="dark">
+              <Text size="sm" fw={500} lineClamp={1} c={colorScheme === 'dark' ? 'gray.0' : 'dark'}>
                 {currentTrack.title}
               </Text>
               <Text size="xs" c="dimmed" lineClamp={1}>
@@ -228,10 +234,15 @@ export function GlobalPlayer() {
                     transform: 'translateY(-50%)',
                     marginRight: '8px',
                     zIndex: 1001,
-                    background: 'white',
+                    background: colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
                     padding: '8px',
                     borderRadius: '6px',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    boxShadow: colorScheme === 'dark' 
+                      ? '0 4px 12px rgba(0, 0, 0, 0.4)' 
+                      : '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    border: colorScheme === 'dark' 
+                      ? `1px solid ${theme.colors.dark[4]}` 
+                      : 'none',
                   }}
                   onMouseEnter={() => setShowVolumeSlider(true)}
                   onMouseLeave={() => setShowVolumeSlider(false)}
