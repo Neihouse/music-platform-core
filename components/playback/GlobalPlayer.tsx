@@ -196,7 +196,14 @@ export function GlobalPlayer() {
                 size="sm"
                 onClick={toggleMute}
                 onMouseEnter={() => setShowVolumeSlider(true)}
-                onMouseLeave={() => setTimeout(() => setShowVolumeSlider(false), 100)}
+                onMouseLeave={() => {
+                  if (volumeSliderTimeoutRef.current) {
+                    clearTimeout(volumeSliderTimeoutRef.current);
+                  }
+                  volumeSliderTimeoutRef.current = setTimeout(() => {
+                    setShowVolumeSlider(false);
+                  }, 100);
+                }}
               >
                 {volume > 0 ? <IconVolume size={16} /> : <IconVolumeOff size={16} />}
               </ActionIcon>
