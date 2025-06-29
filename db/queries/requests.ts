@@ -181,12 +181,11 @@ export async function getReceivedPromoterInvitations(
   }
 
   // Combine the data
-  const requestsWithPromoters = requests.map(request => ({
-    ...request,
-    promoters: promoters?.find(promoter => promoter.id === request.invited_to_entity_id) || null
-  }));
+  return requests.map(request => ({
+      ...request,
+      promoters: promoters?.find(promoter => promoter.id === request.invited_to_entity_id) || null
+    }));
 
-  return requestsWithPromoters;
 }
 
 export async function getRequestBetweenUsers(
