@@ -55,11 +55,12 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
   const supabase = await createClient();
   
   try {
-    // First, try to find the locality by name
+    // First, try to find the locality by name with more precise matching
+    const normalizedCityName = cityName.trim().toLowerCase();
     const { data: localities } = await supabase
       .from('localities')
       .select('id, name')
-      .ilike('name', `%${cityName}%`)
+      .ilike('name', normalizedCityName)
       .limit(1);
     
     const localityId = localities?.[0]?.id;

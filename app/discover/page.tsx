@@ -23,43 +23,30 @@ const getCachedCityData = cache(async (city: string): Promise<CityData> => {
 
 
 interface DiscoverPageProps {
-  searchParams: Promise<{ city?: string }>;
-}
-
-// Generate static params for popular cities (for static generation)
-export function generateStaticParams() {
-  const popularCities = [
-    'New York',
-    'Los Angeles', 
-    'Chicago',
-    'Austin',
-    'Nashville',
-    'Seattle',
-    'Portland',
-    'Denver'
-  ];
-  
-  return popularCities.map((city) => ({
-    city: city.toLowerCase().replace(' ', '-'),
-  }));
+  searchParams: { city?: string };
 }
 
 // Generate dynamic metadata based on search params
 export async function generateMetadata({ searchParams }: DiscoverPageProps): Promise<Metadata> {
-  const city = (await searchParams).city;
+  const city = searchParams.city;
+  
+  // Decode hyphenated city names back to spaces for display
+  const displayCity = city ? city.replace(/-/g, ' ').split(' ').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ') : null;
   
   if (city) {
     return {
-      title: `Music Scene in ${city} | MusicPlatform`,
-      description: `Discover local artists, venues, promoters, and upcoming events in ${city}. Connect with your city's vibrant music community.`,
+      title: `Music Scene in ${displayCity} | MusicPlatform`,
+      description: `Discover local artists, venues, promoters, and upcoming events in ${displayCity}. Connect with your city's vibrant music community.`,
       openGraph: {
-        title: `Music Scene in ${city} | MusicPlatform`,
-        description: `Explore ${city}'s music scene - find local artists, venues, and events`,
+        title: `Music Scene in ${displayCity} | MusicPlatform`,
+        description: `Explore ${displayCity}'s music scene - find local artists, venues, and events`,
         type: 'website',
       },
       // Add structured data for SEO
       other: {
-        'city': city,
+        'city': displayCity || city,
         'content-type': 'music-discovery',
       },
     };
@@ -77,21 +64,23 @@ export async function generateMetadata({ searchParams }: DiscoverPageProps): Pro
 }
 
 async function CityDataWrapper({ city }: { city: string }) {
-  const cityData = await getCachedCityData(city);
+  // Decode hyphenated city names back to spaces for database lookup
+  const decodedCity = city.replace(/-/g, ' ');
+  const cityData = await getCachedCityData(decodedCity);
   
-const isEmpty = Object.values(cityData).flat().length === 0;
+  const isEmpty = Object.values(cityData).flat().length === 0;
 
   return (
     <CityResultsClient 
       cityData={isEmpty ? mockCityData : cityData} 
-      cityName={city}
+      cityName={decodedCity}
       isLoading={false}
     />
   );
 }
 
-export default async function DiscoverPage({ searchParams }: DiscoverPageProps) {
-  const selectedCity = (await searchParams).city || "";
+export default function DiscoverPage({ searchParams }: DiscoverPageProps) {
+  const selectedCity = searchParams.city || "";
 
   return (
     <Container size="xl" py="xl">
@@ -111,7 +100,3 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     </Container>
   );
 }
-
-// Enable static generation for this page
-export const dynamic = 'force-dynamic'; // Allow dynamic rendering for search params
-export const revalidate = 3600; // Revalidate every hour
