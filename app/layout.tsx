@@ -35,12 +35,12 @@ export default async function RootLayout({
   const user = await getUser(supabase);
   const userProfile = user ? await getUserProfile(supabase) : null;
   if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(let registration of registrations) {
-              registration.unregister()
-            }
-          })
-        }
+    navigator.serviceWorker.getRegistrations().then(function (registrations) {
+      for (let registration of registrations) {
+        registration.unregister()
+      }
+    })
+  }
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
