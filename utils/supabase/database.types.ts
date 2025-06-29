@@ -849,7 +849,6 @@ export type Database = {
       requests: {
         Row: {
           created_at: string
-          id: string
           invited_to_entity: string
           invited_to_entity_id: string
           invitee_entity: string
@@ -860,7 +859,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          id?: string
           invited_to_entity: string
           invited_to_entity_id: string
           invitee_entity: string
@@ -871,7 +869,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          id?: string
           invited_to_entity?: string
           invited_to_entity_id?: string
           invitee_entity?: string
