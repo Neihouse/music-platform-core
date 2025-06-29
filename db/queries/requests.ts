@@ -16,7 +16,7 @@ export async function createRequest(
 ) {
   const { data: request, error } = await supabase
     .from("requests")
-    .insert({
+    .upsert({
       invited_to_entity,
       invited_to_entity_id,
       invitee_entity,
