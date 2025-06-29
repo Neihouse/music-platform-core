@@ -21,7 +21,6 @@ import {
 import { IconEdit, IconMapPin, IconPlayerPlay, IconBell, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { TrackList } from "@/components/Tracks/TrackList";
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import { nameToUrl } from "@/lib/utils";
 import { Artist, StoredLocality } from "@/utils/supabase/global.types";
@@ -64,28 +63,6 @@ const ArtistProfileContent = ({
       }
     }
   }, [artist]);
-
-  // Mock data for the demo - replace with real data from your database
-  const mockTracks = [
-    {
-      id: "1",
-      title: "Echoes in the Night",
-      artist: name,
-      cover: "https://lh3.googleusercontent.com/aida-public/AB6AXuBBoDbgVIb0dASOoNd5TjwPTv6yAwUxedBG8JryBF7kdaDp5r_dVgtgHcqS1nzKqUiN5R7HywNojZt_hkqrGdsv7GyAAMRelXiH7hto2423z2fblbw_RethajEcDN2D_YDp9MyDJJ6rlC7JdRb4AjJuIwVyrA7Gij4FVUCd_dLVmojz0f1sl6r0yKoQv-8Q_EqP1oBk7ICCm2AZxbWRGhlQGWhDNbeGhpD9_Rm9rkgI3N4yAaoXibCZnT5uvz6MSflk9bTYAEuiiTE"
-    },
-    {
-      id: "2", 
-      title: "Whispers of Dawn",
-      artist: name,
-      cover: "https://lh3.googleusercontent.com/aida-public/AB6AXuCRd7RIso_ahxWYHLVvPbcTL2oiKYGHwcB7EvugUUqkCaIYsT4IEmH4O_hqi--fKxmdyBsro5QgXSBsGoa_YYv7b0TmkPJ_MmXJcjlmIJFzK2CBtd-_FtNejWKFt6hwgMn3UyVQdFMZFIIG9sdQ-Bxcbs4fyFMx5wYTbSW2waxgWGwqxZm4XAfyb9tvCjA7deSVW3dI5C7rmmTXIMbVSH3_nvrTj0N4BCjxyyA1qbDOpxTx1tsa7v6rPTtoJ6D_eL9vrAc4faxVBLQ"
-    },
-    {
-      id: "3",
-      title: "Journey Within", 
-      artist: name,
-      cover: "https://lh3.googleusercontent.com/aida-public/AB6AXuCQgcCSImDeB-jV_OiYNQgmnd88Yq3ipBqHoyFZyU6ZkHHNPjMtPUFn5PEj3B1LRN8SH-gYnaGp7Rwl2FTKLnL6O4wi8z96Yvs4LRWxp-MQJlhrNPlFb1y6SjgVS5WXPXKB4fGFO5axjQ-EwI2v1Fg6ftHRteAOqDw4FiXPiJDK_i3YnWSOMfmdd35hw-Y7wBA5vjUAusBcjy39Ywqrj_ZQmOsvaiVYOTOYzeb3rdIoWjEjbu82N136vaudXNCN5wJf3HIgNYUFGjA"
-    }
-  ];
 
   const mockCollaborations = [
     { name: "The Harmony Collective", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCdzRSDB5SRYEkV5xiIEloxEO38TlSqPcDPIV02zv79CQ0wINcpYaDOC4nIkTbG7PbprOPlYYSJStKrA6m2wR5Ix2Yh-mXi_d72F6105a_IeoKo7Zbt6KY2LG8YBNHRrDwuiJKQJcU3WVvoj3k4aIWNOV0gLN1FBL-Aw6sy-_CuC7CTdie5FgtCLvN1srcpzGBWG2ArN1yJMRqPfV-XOnnl6PLkohWI2EWRcfetw3STedkrtUbhrB2tyqHDbns-CuqU_WSH7wVuHrU" },
@@ -137,16 +114,20 @@ const ArtistProfileContent = ({
             }}
           />
           <Stack align="center" gap="xs">
-            <StyledTitle 
-              style={{ 
-                color: 'var(--mantine-color-gray-0)',
-                fontSize: '2.5rem',
-                fontWeight: 700,
-              }}
-              selectedFont={artist.selectedFont}
-            >
-              {name}
-            </StyledTitle>
+            <div style={{ textAlign: 'center' }}>
+              <StyledTitle 
+                style={{ 
+                  color: 'var(--mantine-color-gray-0)',
+                  fontSize: '2.5rem',
+                  fontWeight: 700,
+                  textAlign: 'center',
+                  margin: 0,
+                }}
+                selectedFont={artist.selectedFont}
+              >
+                {name}
+              </StyledTitle>
+            </div>
             <Text size="lg" c="dimmed">Singer-songwriter | Indie Pop</Text>
             <Group gap="xs" align="center">
               <IconMapPin size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />
@@ -221,78 +202,72 @@ const ArtistProfileContent = ({
           <Tabs.Panel value="music" pt="xl">
             <Container size="md">
               <Title order={2} mb="md" c="gray.0">Featured Music</Title>
-              <Grid gutter="lg">
-                {mockTracks.map((track) => (
-                  <GridCol key={track.id} span={{ base: 6, sm: 4, md: 3 }}>
-                    <Card 
-                      padding="0" 
-                      style={{ 
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'transform 0.3s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                      }}
-                    >
-                      <Box style={{ position: 'relative' }}>
+              {tracksWithPlayCounts.length > 0 ? (
+                <Grid gutter="lg">
+                  {tracksWithPlayCounts.slice(0, 8).map((track) => (
+                    <GridCol key={track.id} span={{ base: 6, sm: 4, md: 3 }}>
+                      <Card 
+                        padding="0" 
+                        style={{ 
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'transform 0.3s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                      >                      <Box style={{ position: 'relative' }}>
                         <Image
-                          src={track.cover}
+                          src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/tracks/${track.id}`}
                           alt={track.title}
                           style={{ aspectRatio: '1', borderRadius: '8px' }}
+                          fallbackSrc="https://lh3.googleusercontent.com/aida-public/AB6AXuBBoDbgVIb0dASOoNd5TjwPTv6yAwUxedBG8JryBF7kdaDp5r_dVgtgHcqS1nzKqUiN5R7HywNojZt_hkqrGdsv7GyAAMRelXiH7hto2423z2fblbw_RethajEcDN2D_YDp9MyDJJ6rlC7JdRb4AjJuIwVyrA7Gij4FVUCd_dLVmojz0f1sl6r0yKoQv-8Q_EqP1oBk7ICCm2AZxbWRGhlQGWhDNbeGhpD9_Rm9rkgI3N4yAaoXibCZnT5uvz6MSflk9bTYAEuiiTE"
                         />
-                        <Box
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            background: 'rgba(0, 0, 0, 0.3)',
-                            backdropFilter: 'blur(2px)',
-                            opacity: 0,
-                            transition: 'opacity 0.3s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '8px',
-                          }}
-                          className="play-overlay"
-                        >
-                          <ActionIcon
-                            size="xl"
-                            color="white"
-                            variant="filled"
-                            style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
+                          <Box
+                            style={{
+                              position: 'absolute',
+                              inset: 0,
+                              background: 'rgba(0, 0, 0, 0.3)',
+                              backdropFilter: 'blur(2px)',
+                              opacity: 0,
+                              transition: 'opacity 0.3s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: '8px',
+                            }}
+                            className="play-overlay"
                           >
-                            <IconPlayerPlay size={24} style={{ color: 'black' }} />
-                          </ActionIcon>
+                            <ActionIcon
+                              size="xl"
+                              color="white"
+                              variant="filled"
+                              style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
+                            >
+                              <IconPlayerPlay size={24} style={{ color: 'black' }} />
+                            </ActionIcon>
+                          </Box>
                         </Box>
-                      </Box>
-                      <Stack gap="xs" mt="sm">
-                        <Text size="sm" fw={500} c="gray.0" style={{ textAlign: 'center' }}>
-                          {track.title}
-                        </Text>
-                        <Text size="xs" c="dimmed" style={{ textAlign: 'center' }}>
-                          {track.artist}
-                        </Text>
-                      </Stack>
-                    </Card>
-                  </GridCol>
-                ))}
-              </Grid>
-              
-              {/* Real tracks from database */}
-              {tracksWithPlayCounts.length > 0 && (
-                <Box mt="xl">
-                  <Title order={3} mb="md" c="gray.0">Your Tracks</Title>
-                  <TrackList
-                    tracks={tracksWithPlayCounts}
-                    artist={artist}
-                    canDelete={canEdit}
-                  />
-                </Box>
+                        <Stack gap="xs" mt="sm">
+                          <Text size="sm" fw={500} c="gray.0" style={{ textAlign: 'center' }}>
+                            {track.title}
+                          </Text>
+                          <Text size="xs" c="dimmed" style={{ textAlign: 'center' }}>
+                            {name} • {track.plays} plays
+                          </Text>
+                        </Stack>
+                      </Card>
+                    </GridCol>
+                  ))}
+                </Grid>
+              ) : (
+                <Text c="dimmed" ta="center" py="xl">
+                  No tracks available yet.
+                </Text>
               )}
             </Container>
           </Tabs.Panel>
@@ -385,6 +360,9 @@ const ArtistProfileContent = ({
           </Tabs.Panel>
         </Tabs>
       </Container>
+
+      {/* Add bottom spacing */}
+      <div style={{ height: '4rem' }} />
     </Box>
   );
 };

@@ -48,7 +48,7 @@ export default async function RootLayout({
         <ColorSchemeScript defaultColorScheme="dark" />
       </head>
       <body style={{ 
-        paddingBottom: '72px',
+        paddingBottom: '80px', // Account for GlobalPlayer + some spacing
         backgroundColor: 'var(--mantine-color-dark-9)',
         color: 'var(--mantine-color-gray-0)',
         margin: 0,
@@ -59,7 +59,7 @@ export default async function RootLayout({
             <Notifications />
             <AppShell
               header={{ height: 60 }}
-              footer={{ height: 50 }}
+              footer={{ height: 60 }}
               padding="0"
               styles={{
                 main: {
@@ -89,7 +89,7 @@ export default async function RootLayout({
                 </ConditionalLayout>
               </AppShellMain>
 
-              <AppShellFooter h={100}>
+              <AppShellFooter h={60}>
                 <Footer />
               </AppShellFooter>
             </AppShell>

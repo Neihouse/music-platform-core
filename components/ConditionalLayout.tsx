@@ -25,7 +25,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   return (
     <Container size={1200} px="1rem" py="1.5rem" style={{ 
       backgroundColor: 'var(--mantine-color-dark-9)',
-      minHeight: 'calc(100vh - 110px)', // Account for header + footer
+      minHeight: 'calc(100vh - 120px)', // Account for header (60px) + footer (60px)
       color: 'var(--mantine-color-gray-0)'
     }}>
       {children}
