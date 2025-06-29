@@ -79,15 +79,14 @@ export async function checkExistingInvite(artistUserId: string) {
   }
 
   try {
-    const existingRequest = await getRequestBetweenUsers(
-      supabase,
-      user.id,
-      artistUserId,
-      "promoter",
-      promoter.id
-    );
-    
-    return existingRequest;
+    return await getRequestBetweenUsers(
+          supabase,
+          user.id,
+          artistUserId,
+          "promoter",
+          promoter.id
+        );
+
   } catch (error) {
     console.error("Error checking existing invite:", error);
     return null;
