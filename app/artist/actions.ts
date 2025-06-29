@@ -19,17 +19,9 @@ export async function acceptPromoterInvitation(requestId: string) {
   }
 
   try {
-    // Accept the request
+    // Accept the request (this will automatically create the promoter-artist relationship)
     const request = await acceptRequest(supabase, requestId);
     
-    // Create the actual promoter-artist relationship
-    await supabase
-      .from("promoters_artists")
-      .insert({
-        promoter: request.invited_to_entity_id,
-        artist: artist.id,
-      });
-
     return { success: true, request };
   } catch (error) {
     console.error("Error accepting promoter invitation:", error);
