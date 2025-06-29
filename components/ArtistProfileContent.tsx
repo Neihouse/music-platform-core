@@ -46,7 +46,7 @@ const ArtistProfileContent = ({
   bannerUrl,
 }: ArtistProfileContentProps) => {
   const { name, bio, external_links } = artist;
-  const [activeTab, setActiveTab] = useState<string | null>("about");
+  const [activeTab, setActiveTab] = useState<string | null>("music");
 
   // Load the artist's selected font - simplified approach
   useEffect(() => {
@@ -151,9 +151,39 @@ const ArtistProfileContent = ({
             <Group gap="xs" align="center">
               <IconMapPin size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />
               <Text size="sm" c="dimmed">
-                Based in {storedLocality ? `${storedLocality.locality.name}, ${storedLocality.administrativeArea.name}` : 'Austin, TX'}
+                {storedLocality 
+                  ? `Based in ${storedLocality.locality.name}, ${storedLocality.administrativeArea.name}, ${storedLocality.country.name}`
+                  : 'Location not specified'
+                }
               </Text>
             </Group>
+            
+            {/* Bio section - no title, just content */}
+            {bio && (
+              <Text c="dimmed" size="md" style={{ lineHeight: 1.6, textAlign: 'center', maxWidth: '600px' }}>
+                {bio}
+              </Text>
+            )}
+            
+            {/* External Links - no title, just icons */}
+            {external_links && external_links.length > 0 && (
+              <Group justify="center" gap="md">
+                <ExternalLinksDisplay links={external_links} />
+              </Group>
+            )}
+            
+            {canEdit && (
+              <Group justify="center" mt="md">
+                <Button 
+                  component={Link} 
+                  href={`/artists/${nameToUrl(name)}/edit`}
+                  leftSection={<IconEdit size={16} />}
+                  variant="outline"
+                >
+                  Edit Profile
+                </Button>
+              </Group>
+            )}
           </Stack>
         </Stack>
 
@@ -183,44 +213,10 @@ const ArtistProfileContent = ({
           }}
         >
           <Tabs.List justify="center" style={{ borderBottom: 'none' }}>
-            <Tabs.Tab value="about">About</Tabs.Tab>
             <Tabs.Tab value="music">Music</Tabs.Tab>
             <Tabs.Tab value="events">Events</Tabs.Tab>
             <Tabs.Tab value="collaborations">Collaborations</Tabs.Tab>
           </Tabs.List>
-
-          <Tabs.Panel value="about" pt="xl">
-            <Container size="md">
-              <Stack gap="lg">
-                <Box>
-                  <Title order={2} mb="md" c="gray.0">About</Title>
-                  <Text c="dimmed" size="md" style={{ lineHeight: 1.6 }}>
-                    {bio || `${name} is an indie pop singer-songwriter based in Austin, Texas. Known for their soulful voice and introspective lyrics, ${name}'s music blends catchy melodies with heartfelt storytelling. Their influences range from classic folk to modern pop, creating a unique sound that resonates with listeners of all ages. ${name} has performed at numerous local venues and festivals, building a dedicated fanbase with their captivating stage presence and authentic connection with the audience.`}
-                  </Text>
-                </Box>
-                
-                {external_links && external_links.length > 0 && (
-                  <Box>
-                    <Title order={3} mb="md" c="gray.0">Links</Title>
-                    <ExternalLinksDisplay links={external_links} />
-                  </Box>
-                )}
-
-                {canEdit && (
-                  <Group justify="center" mt="xl">
-                    <Button 
-                      component={Link} 
-                      href={`/artists/${nameToUrl(name)}/edit`}
-                      leftSection={<IconEdit size={16} />}
-                      variant="outline"
-                    >
-                      Edit Profile
-                    </Button>
-                  </Group>
-                )}
-              </Stack>
-            </Container>
-          </Tabs.Panel>
 
           <Tabs.Panel value="music" pt="xl">
             <Container size="md">

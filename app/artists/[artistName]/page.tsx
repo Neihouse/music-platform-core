@@ -1,4 +1,4 @@
-import { getArtistByName } from "@/db/queries/artists";
+import { getArtistByName, getArtistLocalities } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
 import { getArtistImagesServer } from "@/lib/images/image-utils";
@@ -28,6 +28,31 @@ export default async function ArtistPage({
   // Get dynamic image URLs using the new combined function
   const { avatarUrl, bannerUrl } = artist.id ? await getArtistImagesServer(supabase, artist.id) : { avatarUrl: null, bannerUrl: null };
 
+  // Get artist's localities
+  const artistLocalities = artist.id ? await getArtistLocalities(supabase, artist.id) : [];
+  
+  // Create StoredLocality from the first locality (if available)
+  const storedLocality = artistLocalities.length > 0 && artistLocalities[0].localities ? {
+    locality: {
+      id: artistLocalities[0].localities.id,
+      name: artistLocalities[0].localities.name,
+      administrative_area_id: artistLocalities[0].localities.administrative_area_id,
+      country_id: artistLocalities[0].localities.country_id,
+      created_at: artistLocalities[0].localities.created_at,
+    },
+    administrativeArea: {
+      id: artistLocalities[0].localities.administrative_areas.id,
+      name: artistLocalities[0].localities.administrative_areas.name,
+      country_id: artistLocalities[0].localities.administrative_areas.country_id,
+      created_at: artistLocalities[0].localities.administrative_areas.created_at,
+    },
+    country: {
+      id: artistLocalities[0].localities.administrative_areas.countries.id,
+      name: artistLocalities[0].localities.administrative_areas.countries.name,
+      created_at: artistLocalities[0].localities.administrative_areas.countries.created_at,
+    }
+  } : undefined;
+
   // Check if the current user can edit this artist profile
   const canEdit = user?.id === artist.user_id;
 
@@ -38,7 +63,7 @@ export default async function ArtistPage({
       tracksWithPlayCounts={tracksWithPlayCounts}
       avatarUrl={avatarUrl}
       bannerUrl={bannerUrl}
-      storedLocality={undefined}
+      storedLocality={storedLocality}
     />
   );
 }
