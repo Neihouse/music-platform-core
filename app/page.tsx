@@ -1,5 +1,6 @@
 import HeroSection from "@/components/HomePage/HeroSection";
 import GenreHighlights from "@/components/HomePage/GenreHighlights";
+import { TopTrackItem } from "@/components/Tracks/TopTrackItem";
 import { getTracks } from "@/db/queries/tracks";
 import { Artist } from "@/utils/supabase/global.types";
 import { createClient } from "@/utils/supabase/server";
@@ -18,6 +19,7 @@ import {
   GridCol,
   ThemeIcon,
   Container,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconPlayerPlay,
@@ -25,9 +27,10 @@ import {
   IconStar,
   IconMusic,
   IconHeadphones,
+  IconVinyl,
+  IconPlaylist,
   IconWaveSine
 } from "@tabler/icons-react";
-import { Track } from "@/components/Tracks/Track";
 
 export interface IHomePage { }
 
@@ -179,10 +182,10 @@ export default async function HomePage({ }: IHomePage) {
 
               <Stack gap={0} style={{ position: 'relative', zIndex: 1 }}>
                 {(topTracks || []).map((track) => (
-                  <Track
-                    playCount={track.plays}
+                  <TopTrackItem
                     key={track.id}
                     track={track}
+                    plays={track.plays}
                     artists={track.artists as Artist[]}
                   />
                 ))}

@@ -20,7 +20,7 @@ import { getUserProfile } from "@/db/queries/user";
 import { Notifications } from "@mantine/notifications";
 import { theme } from "@/lib/theme";
 import { Playback } from "@/components/playback";
-import { GlobalPlayer } from "@/components/playback/GlobalPlayer";
+import { Player } from "@/components/playback/Player";
 import { createClient } from "@/utils/supabase/server";
 
 // Metadata needs to be in a separate file for Next.js 14
@@ -46,7 +46,7 @@ export default async function RootLayout({
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
-      <body style={{ paddingBottom: '72px' }}>
+      <body>
         <MantineProvider theme={theme}>
           <Playback>
             <Notifications />
@@ -70,9 +70,6 @@ export default async function RootLayout({
                 <Footer />
               </AppShellFooter>
             </AppShell>
-            
-            {/* Global Player - positioned outside AppShell */}
-            <GlobalPlayer />
           </Playback>
         </MantineProvider>
       </body>
