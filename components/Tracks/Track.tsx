@@ -31,17 +31,30 @@ export function Track({
   canDelete = false,
   onDelete
 }: TrackProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
-  const { setTrackId } = useContext(PlaybackContext);
+  const { currentTrack, isPlaying, playTrack, pauseTrack, resumeTrack } = useContext(PlaybackContext);
+
+  // Check if this track is currently playing
+  const isCurrentTrack = currentTrack?.id === track.id;
+  const isTrackPlaying = isCurrentTrack && isPlaying;
 
   // Construct the image URL from Supabase storage
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/tracks/${track.id}`;
   
   const handlePlay = () => {
-    setIsPlaying(!isPlaying);
-    setTrackId(track.id);
+    if (isCurrentTrack) {
+      // If this track is currently playing, pause it
+      if (isPlaying) {
+        pauseTrack();
+      } else {
+        // If this track is current but paused, resume it
+        resumeTrack();
+      }
+    } else {
+      // Play this track (will stop any currently playing track)
+      playTrack(track.id);
+    }
     onPlay?.();
   };
 
@@ -115,7 +128,7 @@ export function Track({
           )}
           <Text size="xs" c="dimmed">{formatDuration(track.duration)}</Text>
           <ActionIcon variant="subtle" size="sm" onClick={handlePlay}>
-            {isPlaying ? <IconPlayerPause size={14} /> : <IconPlayerPlay size={14} />}
+            {isTrackPlaying ? <IconPlayerPause size={14} /> : <IconPlayerPlay size={14} />}
           </ActionIcon>
           {canDelete && (
             <Menu shadow="md" width={120}>
@@ -186,9 +199,9 @@ export function Track({
             </Box>
           </Group>
           <Group gap="xs">
-            <Tooltip label={isPlaying ? "Pause" : "Play"}>
+            <Tooltip label={isTrackPlaying ? "Pause" : "Play"}>
               <ActionIcon variant="light" color="blue" onClick={handlePlay}>
-                {isPlaying ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
+                {isTrackPlaying ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
               </ActionIcon>
             </Tooltip>
             {canDelete && (
@@ -260,7 +273,7 @@ export function Track({
               boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
             }}
           >
-            {isPlaying ? <IconPlayerPause size={20} /> : <IconPlayerPlay size={20} />}
+            {isTrackPlaying ? <IconPlayerPause size={20} /> : <IconPlayerPlay size={20} />}
           </ActionIcon>
         </Box>
         
