@@ -21,6 +21,19 @@ export const theme = createTheme({
       "#1971C2",
       "#1864AB",
     ],
+    // Dark theme colors to match the design
+    dark: [
+      "#C1C2C5",
+      "#A6A7AB", 
+      "#909296",
+      "#5C5F66",
+      "#373A40",
+      "#2C2E33",
+      "#25262B",
+      "#1A1B1E",
+      "#141518",
+      "#161122", // Custom dark background to match design
+    ]
   },
   shadows: {
     md: "0 4px 8px rgba(0,0,0,0.1)",

@@ -3,11 +3,8 @@ import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
 import { getArtistImagesServer } from "@/lib/images/image-utils";
 import { createClient } from "@/utils/supabase/server";
-import {
-  Container,
-} from "@mantine/core";
 import { notFound } from "next/navigation";
-import { urlToName, nameToUrl } from "@/lib/utils";
+import { urlToName } from "@/lib/utils";
 import ArtistProfileContent from "@/components/ArtistProfileContent";
 
 export default async function ArtistPage({
@@ -34,16 +31,14 @@ export default async function ArtistPage({
   // Check if the current user can edit this artist profile
   const canEdit = user?.id === artist.user_id;
 
-  const { name, bio, external_links } = artist;
   return (
-    <Container>
-      <ArtistProfileContent
-        artist={artist}
-        canEdit={canEdit}
-        tracksWithPlayCounts={tracksWithPlayCounts}
-        avatarUrl={avatarUrl}
-        bannerUrl={bannerUrl}
-      />
-    </Container>
+    <ArtistProfileContent
+      artist={artist}
+      canEdit={canEdit}
+      tracksWithPlayCounts={tracksWithPlayCounts}
+      avatarUrl={avatarUrl}
+      bannerUrl={bannerUrl}
+      storedLocality={undefined}
+    />
   );
 }
