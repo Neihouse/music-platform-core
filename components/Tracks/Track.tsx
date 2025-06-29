@@ -21,10 +21,10 @@ interface TrackProps {
   onDelete?: () => void; // Callback after successful deletion
 }
 
-export function Track({ 
-  track, 
-  artists = [], 
-  showPlayCount = false, 
+export function Track({
+  track,
+  artists = [],
+  showPlayCount = false,
   playCount = 0,
   variant = "card",
   onPlay,
@@ -41,7 +41,7 @@ export function Track({
 
   // Construct the image URL from Supabase storage
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/tracks/${track.id}`;
-  
+
   const handlePlay = () => {
     if (isCurrentTrack) {
       // If this track is currently playing, pause it
@@ -62,10 +62,10 @@ export function Track({
     if (!canDelete || isDeleting) return;
 
     setIsDeleting(true);
-    
+
     try {
       const result = await deleteTrackAction(track.id);
-      
+
       if (result.success) {
         notifications.show({
           title: "Track deleted",
@@ -231,11 +231,11 @@ export function Track({
 
   // Default card variant
   return (
-    <Card 
-      withBorder 
-      shadow="sm" 
-      radius="lg" 
-      p="lg" 
+    <Card
+      withBorder
+      shadow="sm"
+      radius="lg"
+      p="lg"
       className="hover:shadow-md transition-all duration-200"
       style={{ width: "100%", maxWidth: 400 }}
     >
@@ -276,7 +276,7 @@ export function Track({
             {isTrackPlaying ? <IconPlayerPause size={20} /> : <IconPlayerPlay size={20} />}
           </ActionIcon>
         </Box>
-        
+
         <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
           <Group justify="space-between" align="flex-start">
             <Box style={{ flex: 1, minWidth: 0 }}>
@@ -305,7 +305,7 @@ export function Track({
               </Menu>
             )}
           </Group>
-          
+
           <Group gap="xs" wrap="wrap">
             <Badge color="blue" variant="light" size="sm">
               {formatDuration(track.duration)}
@@ -357,7 +357,7 @@ export function Track({
               </Text>
             </Box>
           </Group>
-          
+
           <Group justify="flex-end" gap="sm">
             <Button
               variant="default"

@@ -18,7 +18,6 @@ import {
   GridCol,
   ThemeIcon,
   Container,
-  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconPlayerPlay,
@@ -26,8 +25,6 @@ import {
   IconStar,
   IconMusic,
   IconHeadphones,
-  IconVinyl,
-  IconPlaylist,
   IconWaveSine
 } from "@tabler/icons-react";
 import { Track } from "@/components/Tracks/Track";
