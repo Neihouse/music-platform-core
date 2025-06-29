@@ -10,6 +10,7 @@ export interface IPlaybackProps {
 
 export function Playback({ children }: IPlaybackProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const currentTrackRef = useRef<Track | null>(null);
   const supabase = createClient();
   
   const [playerState, setPlayerState] = useState<PlayerState>({
@@ -101,6 +102,11 @@ export function Playback({ children }: IPlaybackProps) {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
       audio.removeEventListener('volumechange', handleVolumeChange);
+      
+      // Cleanup audio element
+      audio.pause();
+      audio.src = '';
+      audio.load(); // This is important to fully reset the audio element
     };
   }, []);
 
@@ -111,7 +117,7 @@ export function Playback({ children }: IPlaybackProps) {
       setPlayerState(prev => ({ ...prev, isLoading: true, error: null }));
       
       // If it's the same track and we're paused, just resume
-      if (playerState.currentTrack?.id === trackId) {
+      if (currentTrackRef.current?.id === trackId) {
         if (audioRef.current.paused) {
           await audioRef.current.play();
         } else {
@@ -147,12 +153,16 @@ export function Playback({ children }: IPlaybackProps) {
         artist: trackDetails.artist, // Include the artist information
       };
 
-      setPlayerState(prev => ({
-        ...prev,
-        currentTrack: track,
-        playUrl,
-        currentTime: 0,
-      }));
+      setPlayerState(prev => {
+        const newState = {
+          ...prev,
+          currentTrack: track,
+          playUrl,
+          currentTime: 0,
+        };
+        currentTrackRef.current = track; // Keep ref in sync
+        return newState;
+      });
 
       // Play the track
       await audioRef.current.play();
@@ -165,7 +175,7 @@ export function Playback({ children }: IPlaybackProps) {
         error: error instanceof Error ? error.message : 'Failed to play track'
       }));
     }
-  }, [supabase, playerState.currentTrack?.id]);
+  }, [supabase]); // Remove stale dependency
 
   const pauseTrack = useCallback(() => {
     if (audioRef.current && !audioRef.current.paused) {
@@ -174,7 +184,7 @@ export function Playback({ children }: IPlaybackProps) {
   }, []);
 
   const resumeTrack = useCallback(async () => {
-    if (audioRef.current && audioRef.current.paused && playerState.playUrl) {
+    if (audioRef.current && audioRef.current.paused && audioRef.current.src) {
       try {
         await audioRef.current.play();
       } catch (error) {
@@ -185,12 +195,13 @@ export function Playback({ children }: IPlaybackProps) {
         }));
       }
     }
-  }, [playerState.playUrl]);
+  }, []); // Remove stale dependency
 
   const stopTrack = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      currentTrackRef.current = null; // Clear the ref
       setPlayerState(prev => ({
         ...prev,
         currentTrack: null,
@@ -208,10 +219,10 @@ export function Playback({ children }: IPlaybackProps) {
   }, []);
 
   const seekTo = useCallback((time: number) => {
-    if (audioRef.current && playerState.duration > 0) {
-      audioRef.current.currentTime = Math.max(0, Math.min(playerState.duration, time));
+    if (audioRef.current && audioRef.current.duration > 0) {
+      audioRef.current.currentTime = Math.max(0, Math.min(audioRef.current.duration, time));
     }
-  }, [playerState.duration]);
+  }, []); // Use audio element's duration directly
 
   return (
     <PlayerContext.Provider value={{

@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState, useRef } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { 
   Group, 
   Text, 
@@ -25,6 +25,15 @@ export function GlobalPlayer() {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const volumeSliderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (volumeSliderTimeoutRef.current) {
+        clearTimeout(volumeSliderTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const { 
     currentTrack, 
     isPlaying, 
