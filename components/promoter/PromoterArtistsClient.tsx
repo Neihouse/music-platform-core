@@ -7,6 +7,8 @@ import { nameToUrl } from "@/lib/utils";
 import { useState } from "react";
 import StyledTitle from "@/components/StyledTitle";
 import InviteArtistModal from "@/components/promoter/InviteArtistModal";
+import { cancelInviteAction } from "@/app/promoter/artists/actions";
+import { notifications } from "@mantine/notifications";
 
 interface Artist {
   id: string;
@@ -30,12 +32,14 @@ interface PromoterArtistsClientProps {
   localityArtists: Artist[];
   promoterLocalityArtists: Artist[];
   localityName?: string;
+  pendingRequests: any[];
 }
 
 export default function PromoterArtistsClient({ 
   localityArtists, 
   promoterLocalityArtists, 
-  localityName 
+  localityName,
+  pendingRequests
 }: PromoterArtistsClientProps) {
   const [filterByPromoterLocality, setFilterByPromoterLocality] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -70,6 +74,13 @@ export default function PromoterArtistsClient({
   const handleCloseInviteModal = () => {
     setInviteModalOpened(false);
     setSelectedArtist(null);
+  };
+
+  const getArtistPendingRequest = (artist: Artist) => {
+    return pendingRequests.find(request => 
+      request.invitee_user_id === artist.user_id && 
+      request.status === "pending"
+    );
   };
 
   return (
@@ -159,6 +170,7 @@ export default function PromoterArtistsClient({
               artist={artist} 
               getLocationText={getLocationText} 
               onInviteArtist={handleInviteArtist}
+              pendingRequest={getArtistPendingRequest(artist)}
             />
           ))}
         </SimpleGrid>
@@ -227,12 +239,39 @@ export default function PromoterArtistsClient({
 function ArtistCard({ 
   artist, 
   getLocationText,
-  onInviteArtist
+  onInviteArtist,
+  pendingRequest
 }: { 
   artist: Artist; 
   getLocationText: (artist: Artist) => string;
   onInviteArtist: (artist: Artist) => void;
+  pendingRequest?: any;
 }) {
+  const [cancellingInvite, setCancellingInvite] = useState(false);
+
+  const handleCancelInvite = async () => {
+    if (!pendingRequest) return;
+    
+    setCancellingInvite(true);
+    try {
+      await cancelInviteAction(pendingRequest.id);
+      notifications.show({
+        title: "Invitation Cancelled",
+        message: `Your invitation to ${artist.name} has been cancelled.`,
+        color: "orange",
+      });
+      // Force a page refresh to update the state
+      window.location.reload();
+    } catch (error) {
+      notifications.show({
+        title: "Failed to Cancel Invitation",
+        message: error instanceof Error ? error.message : "An unexpected error occurred.",
+        color: "red",
+      });
+    } finally {
+      setCancellingInvite(false);
+    }
+  };
   return (
     <Card
       p={{ base: "md", sm: "lg" }}
@@ -307,15 +346,28 @@ function ArtistCard({
           >
             View Profile
           </Button>
-          <Button
-            size="sm"
-            fullWidth
-            leftSection={<IconUserPlus size={16} />}
-            color="green"
-            onClick={() => onInviteArtist(artist)}
-          >
-            Invite Artist
-          </Button>
+          {pendingRequest ? (
+            <Button
+              size="sm"
+              fullWidth
+              leftSection={<IconX size={16} />}
+              color="red"
+              onClick={handleCancelInvite}
+              loading={cancellingInvite}
+            >
+              Cancel Invite
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              fullWidth
+              leftSection={<IconUserPlus size={16} />}
+              color="green"
+              onClick={() => onInviteArtist(artist)}
+            >
+              Invite Artist
+            </Button>
+          )}
         </Stack>
       </Stack>
     </Card>

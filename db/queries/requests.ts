@@ -102,3 +102,45 @@ export async function getReceivedRequests(
 
   return requests;
 }
+
+export async function getRequestBetweenUsers(
+  supabase: TypedClient,
+  inviterUserId: string,
+  inviteeUserId: string,
+  invitedToEntity: string,
+  invitedToEntityId: string
+) {
+  const { data: request, error } = await supabase
+    .from("requests")
+    .select("*")
+    .eq("inviter_user_id", inviterUserId)
+    .eq("invitee_user_id", inviteeUserId)
+    .eq("invited_to_entity", invitedToEntity)
+    .eq("invited_to_entity_id", invitedToEntityId)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return request;
+}
+
+export async function cancelRequest(
+  supabase: TypedClient,
+  requestId: string
+) {
+  const { data: request, error } = await supabase
+    .from("requests")
+    .update({ status: "cancelled" })
+    .eq("id", requestId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return request;
+}

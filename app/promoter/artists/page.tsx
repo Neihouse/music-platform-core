@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { getPromoter, getArtistsByPromoterLocalities } from "@/db/queries/promoters";
 import { getArtistsByLocality, getAllArtists } from "@/db/queries/artists";
+import { getSentRequests } from "@/db/queries/requests";
 import { getArtistImagesServer } from "@/lib/images/image-utils";
 import { redirect } from "next/navigation";
 import PromoterArtistsClient from "@/components/promoter/PromoterArtistsClient";
@@ -74,11 +75,16 @@ export default async function PromoterArtistsPage() {
     })
   );
 
+  // Get pending requests sent by this promoter
+  const sentRequests = await getSentRequests(supabase, user.id);
+  const pendingRequests = sentRequests.filter(request => request.status === "pending");
+
   return (
     <PromoterArtistsClient
       localityArtists={localityArtistsWithAvatars}
       promoterLocalityArtists={promoterLocalityArtistsWithAvatars}
       localityName={localityName}
+      pendingRequests={pendingRequests}
     />
   );
 }

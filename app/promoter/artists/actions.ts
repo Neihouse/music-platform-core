@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { createRequest } from "@/db/queries/requests";
+import { createRequest, getRequestBetweenUsers, cancelRequest } from "@/db/queries/requests";
 import { getPromoter } from "@/db/queries/promoters";
 
 export async function inviteArtistAction(artistId: string, artistUserId: string) {
@@ -38,5 +38,58 @@ export async function inviteArtistAction(artistId: string, artistUserId: string)
   } catch (error) {
     console.error("Error creating invite request:", error);
     throw new Error("Failed to send invite");
+  }
+}
+
+export async function cancelInviteAction(requestId: string) {
+  const supabase = await createClient();
+  
+  // Get current user and verify they are a promoter
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const promoter = await getPromoter(supabase);
+  if (!promoter) {
+    throw new Error("User is not a promoter");
+  }
+
+  try {
+    const request = await cancelRequest(supabase, requestId);
+    return { success: true, request };
+  } catch (error) {
+    console.error("Error cancelling invite request:", error);
+    throw new Error("Failed to cancel invite");
+  }
+}
+
+export async function checkExistingInvite(artistUserId: string) {
+  const supabase = await createClient();
+  
+  // Get current user and verify they are a promoter
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const promoter = await getPromoter(supabase);
+  if (!promoter) {
+    throw new Error("User is not a promoter");
+  }
+
+  try {
+    const existingRequest = await getRequestBetweenUsers(
+      supabase,
+      user.id,
+      artistUserId,
+      "promoter",
+      promoter.id
+    );
+    
+    return existingRequest;
+  } catch (error) {
+    console.error("Error checking existing invite:", error);
+    return null;
   }
 }
