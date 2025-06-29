@@ -143,6 +143,39 @@ export async function getPromoterEvents(
     return events;
 }
 
+export async function getPromoterPastEvents(
+  supabase: TypedClient,
+  promoterId: string
+) {
+  const { data: eventPromotions, error } = await supabase
+    .from("events_promoters")
+    .select(`
+      events (
+        *,
+        venues (
+          id,
+          name,
+          address
+        )
+      )
+    `)
+    .eq("promoter", promoterId);
+
+  if (error) {
+    console.error("Error fetching past events:", error);
+    return [];
+  }
+
+  // Extract events from the junction table results and filter for past events
+  return eventPromotions
+      ?.map((ep: any) => ep.events)
+      .filter(Boolean)
+      .filter((event: any) => event.date && new Date(event.date) < new Date())
+      .sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+      .slice(0, 6) || [];
+
+}
+
 export async function getPromoterArtists(
   supabase: TypedClient,
   promoterId: string
@@ -430,8 +463,8 @@ export async function getPromotersByArtistLocalities(
   const { data: promoterLocalities, error: promoterError } = await supabase
     .from("promoters_localities")
     .select(`
-      promoter_id,
-      locality_id,
+      promoter,
+      locality,
       promoters (
         *,
         promoters_localities (
@@ -450,7 +483,7 @@ export async function getPromotersByArtistLocalities(
         )
       )
     `)
-    .in("locality_id", localityIds);
+    .in("locality", localityIds);
 
   if (promoterError) {
     console.error("Error fetching promoters by artist localities:", promoterError);
@@ -475,8 +508,8 @@ export async function getArtistsByPromoterLocalities(
   // First get all locality IDs associated with the promoter
   const { data: promoterLocalities, error: promoterError } = await supabase
     .from("promoters_localities")
-    .select("locality_id")
-    .eq("promoter_id", promoterId);
+    .select("locality")
+    .eq("promoter", promoterId);
 
   if (promoterError) {
     console.error("Error fetching promoter localities:", promoterError);
@@ -487,7 +520,7 @@ export async function getArtistsByPromoterLocalities(
     return [];
   }
 
-  const localityIds = promoterLocalities.map(pl => pl.locality_id);
+  const localityIds = promoterLocalities.map(pl => pl.locality);
 
   // Then get all artists that are linked to those same localities
   const { data: artistLocalities, error: artistError } = await supabase
@@ -501,7 +534,8 @@ export async function getArtistsByPromoterLocalities(
         bio,
         avatar_img,
         banner_img,
-        external_links
+        external_links,
+        user_id
       ),
       localities (
         id,

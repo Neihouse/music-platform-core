@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getUser } from "@/db/queries/users";
 import { getUserProfile } from "@/db/queries/user";
 import { getPromoter, getPromoterEvents, getPromoterArtists, getPromoterTrackCount, getPromoterShowCount } from "@/db/queries/promoters";
+import { getSentRequests } from "@/db/queries/requests";
 import { getPromoterImagesServer, getAvatarUrlServer } from "@/lib/images/image-utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -83,12 +84,13 @@ export default async function PromoterDashboardPage() {
   }
 
   // Fetch all promoter metrics in parallel
-  const [upcomingEvents, artists, trackMetrics, showMetrics, promoterImages] = await Promise.all([
+  const [upcomingEvents, artists, trackMetrics, showMetrics, promoterImages, sentRequests] = await Promise.all([
     getPromoterEvents(supabase, promoter.id),
     getPromoterArtists(supabase, promoter.id),
     getPromoterTrackCount(supabase, promoter.id),
     getPromoterShowCount(supabase, promoter.id),
     getPromoterImagesServer(supabase, promoter.id),
+    getSentRequests(supabase, user.id),
   ]);
 
   // Process artist avatar URLs (separate from promoter images to avoid double calls)
@@ -98,6 +100,13 @@ export default async function PromoterDashboardPage() {
       avatarUrl: artist.avatar_img ? await getAvatarUrlServer(artist.avatar_img) : null,
     }))
   );
+
+  // Count pending invites to artists
+  const pendingInvites = sentRequests.filter(request => 
+    request.status === "pending" && 
+    request.invited_to_entity === "promoter" &&
+    request.invitee_entity === "artist"
+  ).length;
 
   const { avatarUrl, bannerUrl } = promoterImages;
 
@@ -346,8 +355,18 @@ export default async function PromoterDashboardPage() {
         <GridCol span={{ base: 12, lg: 6 }}>
           <Card p="xl" radius="lg" withBorder h="100%">
             <Group justify="space-between" mb="lg">
-              <Title order={3}>Your Artists</Title>
-              <Button size="xs" variant="light">View All</Button>
+              <Stack gap={4}>
+                <Title order={3}>Your Artists</Title>
+                <Text size="sm" c="dimmed">
+                  {pendingInvites > 0 
+                    ? `${pendingInvites} pending invite${pendingInvites === 1 ? '' : 's'}`
+                    : "All artists in your collective"
+                  }
+                </Text>
+              </Stack>
+              <Button size="xs" variant="light" component={Link} href="/promoter/artists">
+                View All
+              </Button>
             </Group>
             
             {artistsWithAvatars.length > 0 ? (

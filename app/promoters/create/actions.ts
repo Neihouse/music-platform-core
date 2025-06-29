@@ -36,8 +36,8 @@ export async function submitPromoter(
   // Add all localities to the promoter
   if (storedLocalities.length > 0) {
     const localityInserts = storedLocalities.map(locality => ({
-      promoter_id: newPromoter.id,
-      locality_id: locality.locality.id,
+      promoter: newPromoter.id,
+      locality: locality.locality.id,
     }));
 
     const { error: localityError } = await supabase

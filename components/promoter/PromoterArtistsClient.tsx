@@ -6,6 +6,9 @@ import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
 import { useState } from "react";
 import StyledTitle from "@/components/StyledTitle";
+import InviteArtistModal from "@/components/promoter/InviteArtistModal";
+import { cancelInviteAction } from "@/app/promoter/artists/actions";
+import { notifications } from "@mantine/notifications";
 
 interface Artist {
   id: string;
@@ -13,6 +16,7 @@ interface Artist {
   bio: string | null;
   avatar_img: string | null;
   avatarUrl?: string | null;
+  user_id: string;
   localities?: { id: string; name: string } | null;
   administrative_areas?: { id: string; name: string } | null;
   countries?: { id: string; name: string } | null;
@@ -28,15 +32,19 @@ interface PromoterArtistsClientProps {
   localityArtists: Artist[];
   promoterLocalityArtists: Artist[];
   localityName?: string;
+  pendingRequests: any[];
 }
 
 export default function PromoterArtistsClient({ 
   localityArtists, 
   promoterLocalityArtists, 
-  localityName 
+  localityName,
+  pendingRequests
 }: PromoterArtistsClientProps) {
   const [filterByPromoterLocality, setFilterByPromoterLocality] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [inviteModalOpened, setInviteModalOpened] = useState(false);
+  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
 
   // Determine which artists to show based on the toggle
   const baseArtists = filterByPromoterLocality ? promoterLocalityArtists : localityArtists;
@@ -56,6 +64,23 @@ export default function PromoterArtistsClient({
     if (artist.administrative_areas?.name) return artist.administrative_areas.name;
     if (artist.countries?.name) return artist.countries.name;
     return "Location not specified";
+  };
+
+  const handleInviteArtist = (artist: Artist) => {
+    setSelectedArtist(artist);
+    setInviteModalOpened(true);
+  };
+
+  const handleCloseInviteModal = () => {
+    setInviteModalOpened(false);
+    setSelectedArtist(null);
+  };
+
+  const getArtistPendingRequest = (artist: Artist) => {
+    return pendingRequests.find(request => 
+      request.invitee_user_id === artist.user_id && 
+      request.status === "pending"
+    );
   };
 
   return (
@@ -140,7 +165,13 @@ export default function PromoterArtistsClient({
       {filteredArtists.length > 0 ? (
         <SimpleGrid cols={{ base: 1, xs: 2, sm: 2, md: 3, lg: 4 }} spacing={{ base: "md", sm: "lg" }}>
           {filteredArtists.map((artist) => (
-            <ArtistCard key={artist.id} artist={artist} getLocationText={getLocationText} />
+            <ArtistCard 
+              key={artist.id} 
+              artist={artist} 
+              getLocationText={getLocationText} 
+              onInviteArtist={handleInviteArtist}
+              pendingRequest={getArtistPendingRequest(artist)}
+            />
           ))}
         </SimpleGrid>
       ) : (
@@ -192,17 +223,56 @@ export default function PromoterArtistsClient({
           </Button>
         </Stack>
       </Paper>
+
+      {/* Invite Artist Modal */}
+      {selectedArtist && (
+        <InviteArtistModal
+          artist={selectedArtist}
+          opened={inviteModalOpened}
+          onClose={handleCloseInviteModal}
+        />
+      )}
     </Container>
   );
 }
 
 function ArtistCard({ 
   artist, 
-  getLocationText 
+  getLocationText,
+  onInviteArtist,
+  pendingRequest
 }: { 
   artist: Artist; 
   getLocationText: (artist: Artist) => string;
+  onInviteArtist: (artist: Artist) => void;
+  pendingRequest?: any;
 }) {
+  const [cancellingInvite, setCancellingInvite] = useState(false);
+
+  const handleCancelInvite = async () => {
+    if (!pendingRequest) return;
+    
+    setCancellingInvite(true);
+    try {
+      await cancelInviteAction(pendingRequest.id);
+      notifications.show({
+        title: "Invitation Cancelled",
+        message: `Your invitation to ${artist.name} has been cancelled.`,
+        color: "orange",
+      });
+      // Force a page refresh to update the state
+      window.location.reload();
+      //TODO: Ideally, we should update the state without a full reload
+    } catch (error) {
+      notifications.show({
+        title: "Failed to Cancel Invitation",
+        message: error instanceof Error ? error.message : "An unexpected error occurred.",
+        color: "red",
+      });
+    } finally {
+      setCancellingInvite(false);
+    }
+  };
   return (
     <Card
       p={{ base: "md", sm: "lg" }}
@@ -277,14 +347,28 @@ function ArtistCard({
           >
             View Profile
           </Button>
-          <Button
-            size="sm"
-            fullWidth
-            leftSection={<IconUserPlus size={16} />}
-            color="green"
-          >
-            Invite Artist
-          </Button>
+          {pendingRequest ? (
+            <Button
+              size="sm"
+              fullWidth
+              leftSection={<IconX size={16} />}
+              color="red"
+              onClick={handleCancelInvite}
+              loading={cancellingInvite}
+            >
+              Cancel Invite
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              fullWidth
+              leftSection={<IconUserPlus size={16} />}
+              color="green"
+              onClick={() => onInviteArtist(artist)}
+            >
+              Invite Artist
+            </Button>
+          )}
         </Stack>
       </Stack>
     </Card>
