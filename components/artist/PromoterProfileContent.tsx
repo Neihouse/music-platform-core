@@ -231,9 +231,9 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
                     <Text size="sm" c="dimmed">Operating Locations</Text>
                     <Stack gap="xs">
                       {promoterLocalities.slice(0, 3).map((location) => (
-                        <Text key={location.locality_id} fw={600} size="sm">
+                        <Text key={location.locality} fw={600} size="sm">
                           {/* We'd need the expanded locality data to display the name */}
-                          Locality {location.locality_id}
+                          Locality {location.locality}
                         </Text>
                       ))}
                       {promoterLocalities.length > 3 && (
