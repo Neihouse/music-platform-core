@@ -371,3 +371,30 @@ export async function getArtistListensLastMonth(supabase: TypedClient, artistId:
 
   return totalListens || 0;
 }
+
+export async function getTrackById(supabase: TypedClient, trackId: string): Promise<Track & { artist?: string }> {
+  const { data, error } = await supabase
+    .from("tracks")
+    .select(`
+      *,
+      artists_tracks (
+        artists (
+          name
+        )
+      )
+    `)
+    .eq("id", trackId)
+    .single();
+
+  if (error) {
+    throw new Error("Error fetching track: " + error.message);
+  }
+
+  // Extract artist name from the joined data
+  const artistName = data.artists_tracks?.[0]?.artists?.name;
+
+  return {
+    ...data,
+    artist: artistName
+  };
+}

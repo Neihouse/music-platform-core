@@ -21,27 +21,40 @@ interface TrackProps {
   onDelete?: () => void; // Callback after successful deletion
 }
 
-export function Track({ 
-  track, 
-  artists = [], 
-  showPlayCount = false, 
+export function Track({
+  track,
+  artists = [],
+  showPlayCount = false,
   playCount = 0,
   variant = "card",
   onPlay,
   canDelete = false,
   onDelete
 }: TrackProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
-  const { setTrackId } = useContext(PlaybackContext);
+  const { currentTrack, isPlaying, playTrack, pauseTrack, resumeTrack } = useContext(PlaybackContext);
+
+  // Check if this track is currently playing
+  const isCurrentTrack = currentTrack?.id === track.id;
+  const isTrackPlaying = isCurrentTrack && isPlaying;
 
   // Construct the image URL from Supabase storage
   const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/tracks/${track.id}`;
-  
+
   const handlePlay = () => {
-    setIsPlaying(!isPlaying);
-    setTrackId(track.id);
+    if (isCurrentTrack) {
+      // If this track is currently playing, pause it
+      if (isPlaying) {
+        pauseTrack();
+      } else {
+        // If this track is current but paused, resume it
+        resumeTrack();
+      }
+    } else {
+      // Play this track (will stop any currently playing track)
+      playTrack(track.id);
+    }
     onPlay?.();
   };
 
@@ -49,10 +62,10 @@ export function Track({
     if (!canDelete || isDeleting) return;
 
     setIsDeleting(true);
-    
+
     try {
       const result = await deleteTrackAction(track.id);
-      
+
       if (result.success) {
         notifications.show({
           title: "Track deleted",
@@ -115,7 +128,7 @@ export function Track({
           )}
           <Text size="xs" c="dimmed">{formatDuration(track.duration)}</Text>
           <ActionIcon variant="subtle" size="sm" onClick={handlePlay}>
-            {isPlaying ? <IconPlayerPause size={14} /> : <IconPlayerPlay size={14} />}
+            {isTrackPlaying ? <IconPlayerPause size={14} /> : <IconPlayerPlay size={14} />}
           </ActionIcon>
           {canDelete && (
             <Menu shadow="md" width={120}>
@@ -186,9 +199,9 @@ export function Track({
             </Box>
           </Group>
           <Group gap="xs">
-            <Tooltip label={isPlaying ? "Pause" : "Play"}>
+            <Tooltip label={isTrackPlaying ? "Pause" : "Play"}>
               <ActionIcon variant="light" color="blue" onClick={handlePlay}>
-                {isPlaying ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
+                {isTrackPlaying ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
               </ActionIcon>
             </Tooltip>
             {canDelete && (
@@ -218,11 +231,11 @@ export function Track({
 
   // Default card variant
   return (
-    <Card 
-      withBorder 
-      shadow="sm" 
-      radius="lg" 
-      p="lg" 
+    <Card
+      withBorder
+      shadow="sm"
+      radius="lg"
+      p="lg"
       className="hover:shadow-md transition-all duration-200"
       style={{ width: "100%", maxWidth: 400 }}
     >
@@ -260,10 +273,10 @@ export function Track({
               boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
             }}
           >
-            {isPlaying ? <IconPlayerPause size={20} /> : <IconPlayerPlay size={20} />}
+            {isTrackPlaying ? <IconPlayerPause size={20} /> : <IconPlayerPlay size={20} />}
           </ActionIcon>
         </Box>
-        
+
         <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
           <Group justify="space-between" align="flex-start">
             <Box style={{ flex: 1, minWidth: 0 }}>
@@ -292,7 +305,7 @@ export function Track({
               </Menu>
             )}
           </Group>
-          
+
           <Group gap="xs" wrap="wrap">
             <Badge color="blue" variant="light" size="sm">
               {formatDuration(track.duration)}
@@ -344,7 +357,7 @@ export function Track({
               </Text>
             </Box>
           </Group>
-          
+
           <Group justify="flex-end" gap="sm">
             <Button
               variant="default"
