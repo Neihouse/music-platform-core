@@ -1,0 +1,103 @@
+import { CityData } from "@/app/discover/actions";
+
+export const mockCityData: CityData = {
+  artists: [
+    {
+      id: "1",
+      name: "Electric Shadows",
+      bio: "Indie electronic duo creating atmospheric soundscapes that blend organic and synthetic elements.",
+      genre: "Electronic",
+      followerCount: 1250,
+      banner_img: "electric-shadows-banner.jpg",
+      selectedFont: "Poppins",
+    },
+    {
+      id: "2", 
+      name: "Luna Verde",
+      bio: "Bilingual indie folk artist weaving stories of urban life and natural beauty.",
+      genre: "Indie Folk",
+      followerCount: 890,
+      banner_img: "luna-verde-banner.jpg",
+      selectedFont: "Montserrat",
+    },
+    {
+      id: "3",
+      name: "Neon Collective",
+      bio: "High-energy rock band known for their explosive live performances and catchy hooks.",
+      genre: "Rock",
+      followerCount: 2100,
+      banner_img: "neon-collective-banner.jpg",
+      selectedFont: "Roboto",
+    },
+  ],
+  venues: [
+    {
+      id: "1",
+      name: "The Underground",
+      description: "Intimate venue featuring emerging artists and experimental music.",
+      capacity: 200,
+      upcomingEvents: 8,
+      selectedFont: "Inter",
+    },
+    {
+      id: "2",
+      name: "Riverside Amphitheater", 
+      description: "Outdoor venue with stunning views, perfect for summer concerts.",
+      capacity: 5000,
+      upcomingEvents: 12,
+      selectedFont: "Lato",
+    },
+    {
+      id: "3",
+      name: "Jazz Corner",
+      description: "Historic venue known for its incredible acoustics and cozy atmosphere.",
+      capacity: 150,
+      upcomingEvents: 6,
+      selectedFont: "Playfair Display",
+    },
+  ],
+  promoters: [
+    {
+      id: "1",
+      name: "Sonic Boom Events",
+      bio: "Curating unique musical experiences that connect artists with their perfect audience.",
+      eventsOrganized: 45,
+      banner_img: "sonic-boom-banner.jpg",
+      selectedFont: "Raleway",
+    },
+    {
+      id: "2",
+      name: "Underground Collective",
+      bio: "Supporting local and touring acts with a focus on experimental and indie music.",
+      eventsOrganized: 32,
+      banner_img: "underground-collective-banner.jpg",
+      selectedFont: "Open Sans",
+    },
+  ],
+  events: [
+    {
+      id: "1",
+      name: "Summer Sonic Festival",
+      date: "2025-07-15T19:00:00",
+      venue: "Riverside Amphitheater",
+      artists: ["Electric Shadows", "Luna Verde", "Neon Collective"],
+      price: "$25",
+    },
+    {
+      id: "2",
+      name: "Indie Night Sessions",
+      date: "2025-07-02T21:00:00", 
+      venue: "The Underground",
+      artists: ["Luna Verde", "Local Opener"],
+      price: "$15",
+    },
+    {
+      id: "3",
+      name: "Rock Revival",
+      date: "2025-07-08T20:00:00",
+      venue: "Jazz Corner",
+      artists: ["Neon Collective"],
+      price: "$20",
+    },
+  ],
+};

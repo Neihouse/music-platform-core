@@ -1,114 +1,123 @@
-"use client";
+import { Container } from "@mantine/core";
+import { getCityMusicData, CityData } from "./actions";
+import { CitySearchClient } from "@/components/discover/CitySearchClient";
+import { CityResultsClient } from "@/components/discover/CityResultsClient";
+import { mockCityData } from "@/lib/mock-data";
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
+import { Suspense } from 'react';
+import { Metadata } from 'next';
 
-import {
-  Container,
-  Title,
-  Paper,
-  Group,
-  Text,
-  Stack,
-  ActionIcon,
-  Collapse,
-  UnstyledButton,
-} from "@mantine/core";
-import { IconChevronUp, IconChevronDown } from "@tabler/icons-react";
-import { useState } from "react";
+// Cached data fetching function with Next.js caching
+const getCachedCityData = cache(async (city: string): Promise<CityData> => {
+  try {
+    const data = await getCityMusicData(city);
+    return data;
+  } catch (error) {
+    console.error('Error fetching city data:', error);
+    // Fall back to mock data if server action fails
+    return mockCityData;
+  }
+});
 
-interface Track {
-  id: number;
-  title: string;
-  artist: string;
-  votes: number;
+// Unstable cache for longer-term caching with revalidation
+const getCityDataWithCache = unstable_cache(
+  async (city: string) => getCachedCityData(city),
+  ['city-music-data'],
+  {
+    revalidate: 60 * 60, // Cache for 1 hour
+    tags: ['discover', 'city-data'],
+  }
+);
+
+interface DiscoverPageProps {
+  searchParams: { city?: string };
 }
 
-function TrackItem({ artist }: { artist: string }) {
+// Generate static params for popular cities (for static generation)
+export function generateStaticParams() {
+  const popularCities = [
+    'New York',
+    'Los Angeles', 
+    'Chicago',
+    'Austin',
+    'Nashville',
+    'Seattle',
+    'Portland',
+    'Denver'
+  ];
+  
+  return popularCities.map((city) => ({
+    city: city.toLowerCase().replace(' ', '-'),
+  }));
+}
+
+// Generate dynamic metadata based on search params
+export async function generateMetadata({ searchParams }: DiscoverPageProps): Promise<Metadata> {
+  const city = (await searchParams).city;
+  
+  if (city) {
+    return {
+      title: `Music Scene in ${city} | MusicPlatform`,
+      description: `Discover local artists, venues, promoters, and upcoming events in ${city}. Connect with your city's vibrant music community.`,
+      openGraph: {
+        title: `Music Scene in ${city} | MusicPlatform`,
+        description: `Explore ${city}'s music scene - find local artists, venues, and events`,
+        type: 'website',
+      },
+      // Add structured data for SEO
+      other: {
+        'city': city,
+        'content-type': 'music-discovery',
+      },
+    };
+  }
+  
+  return {
+    title: 'Discover Your City\'s Music Scene | MusicPlatform',
+    description: 'Enter your city and explore local artists, venues, promoters, and the hottest upcoming events in your area.',
+    openGraph: {
+      title: 'Discover Your City\'s Music Scene',
+      description: 'Find local music artists, venues, and events in your city',
+      type: 'website',
+    },
+  };
+}
+
+async function CityDataWrapper({ city }: { city: string }) {
+  const cityData = await getCityDataWithCache(city);
+  
   return (
-    <UnstyledButton
-      component="div"
-      px="md"
-      py="xs"
-      className="hover:bg-gray-50 transition-colors w-full"
-    >
-      <Text size="sm" c="dimmed">
-        {artist}
-      </Text>
-    </UnstyledButton>
+    <CityResultsClient 
+      cityData={cityData} 
+      cityName={city}
+      isLoading={false}
+    />
   );
 }
 
-function TrackSection({
-  title,
-  tracks,
-  voteCount,
-}: {
-  title: string;
-  tracks: Track[];
-  voteCount: number;
-}) {
-  const [opened, setOpened] = useState(true);
+export default async function DiscoverPage({ searchParams }: DiscoverPageProps) {
+  const selectedCity = (await searchParams).city || "";
 
   return (
-    <Paper radius="md" withBorder>
-      <UnstyledButton
-        component="div"
-        p="md"
-        className="w-full"
-        onClick={() => setOpened((o) => !o)}
-      >
-        <Group justify="space-between">
-          <Text fw={500} size="lg">
-            {title}
-          </Text>
-          <Group gap={4}>
-            <Text size="sm" c="dimmed">
-              {voteCount}
-            </Text>
-            <ActionIcon variant="subtle" size="sm">
-              {opened ? (
-                <IconChevronUp size={16} />
-              ) : (
-                <IconChevronDown size={16} />
-              )}
-            </ActionIcon>
-          </Group>
-        </Group>
-      </UnstyledButton>
-
-      <Collapse in={opened}>
-        <Stack gap={0}>
-          {tracks.map((track) => (
-            <TrackItem key={track.id} artist={track.artist} />
-          ))}
-        </Stack>
-      </Collapse>
-    </Paper>
-  );
-}
-
-export default function DiscoverPage() {
-  const newReleases: Track[] = [
-    { id: 1, title: "Track 1", artist: "Artist Name", votes: 10 },
-  ];
-
-  const popularTracks: Track[] = [
-    { id: 2, title: "Track 2", artist: "Another Artist", votes: 20 },
-  ];
-
-  return (
-    <Container size="lg" py="xl">
-      <Title order={1} mb="xl">
-        Discover New Music
-      </Title>
-
-      <Stack gap="lg">
-        <TrackSection title="New Release" tracks={newReleases} voteCount={10} />
-
-        <TrackSection
-          title="Popular Track"
-          tracks={popularTracks}
-          voteCount={20}
-        />
-      </Stack>
+    <Container size="xl" py="xl">
+      <CitySearchClient />
+      
+      {selectedCity && (
+        <Suspense fallback={
+          <CityResultsClient 
+            cityData={null} 
+            cityName={selectedCity}
+            isLoading={true}
+          />
+        }>
+          <CityDataWrapper city={selectedCity} />
+        </Suspense>
+      )}
     </Container>
   );
 }
+
+// Enable static generation for this page
+export const dynamic = 'force-dynamic'; // Allow dynamic rendering for search params
+export const revalidate = 3600; // Revalidate every hour

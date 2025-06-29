@@ -176,11 +176,43 @@ export function StyledTitle({
     return fallbackFont;
   };
 
-  // Combine styles
+  // Generate a normalized CSS class for consistent font rendering
+  const generateNormalizedClassName = (): string => {
+    const baseClasses = ['styled-title-normalized'];
+    if (className) baseClasses.push(className);
+    return baseClasses.join(' ');
+  };
+
+  // Combine styles with font normalization
   const combinedStyle: React.CSSProperties = {
     fontFamily: getFontFamily(),
     // Add a subtle transition for smooth font loading
     transition: 'font-family 0.2s ease-in-out',
+    
+    // Font normalization for consistent positioning across different fonts
+    fontFeatureSettings: '"kern" 1, "liga" 1', // Enable kerning and ligatures
+    textRendering: 'optimizeLegibility', // Better text rendering
+    
+    // Normalize line height and baseline alignment
+    lineHeight: style?.lineHeight || '1.2', // Consistent line height if not specified
+    
+    // Use CSS Grid or Flexbox properties for better alignment control
+    display: style?.display || 'block',
+    
+    // Normalize font metrics for consistent baseline alignment
+    fontVariantNumeric: 'normal',
+    fontVariantPosition: 'normal',
+    
+    // Ensure consistent text baseline across fonts
+    textAlign: style?.textAlign || 'left',
+    
+    // Font baseline normalization - key for consistent positioning
+    verticalAlign: 'baseline',
+    
+    // Prevent font size adjustments that can cause positioning issues
+    fontSizeAdjust: 'none',
+    
+    // Apply additional styles from props
     ...style,
   };
 
@@ -189,10 +221,36 @@ export function StyledTitle({
     combinedStyle.opacity = 0.7;
   }
 
+  // Add CSS normalization styles directly to the component
+  const normalizedStyle: React.CSSProperties = {
+    ...combinedStyle,
+    
+    // Cross-browser font baseline normalization
+    WebkitFontSmoothing: 'antialiased',
+    MozOsxFontSmoothing: 'grayscale',
+    
+    // Normalize font metrics for consistent positioning
+    boxSizing: 'border-box',
+    
+    // Fix baseline alignment issues with flexbox containers
+    alignSelf: 'baseline',
+    
+    // Consistent spacing and positioning - reset browser defaults
+    marginTop: 0,
+    marginBottom: 0,
+    
+    // Ensure consistent vertical positioning across fonts
+    position: 'relative',
+    top: style?.top || '0px',
+    
+    // Force consistent line-height calculation
+    lineHeight: combinedStyle.lineHeight || 1.2,
+  };
+
   return (
     <Component 
-      className={className} 
-      style={combinedStyle}
+      className={generateNormalizedClassName()} 
+      style={normalizedStyle}
       // Add data attributes for debugging/testing
       data-font={selectedFont}
       data-font-loaded={fontLoaded}
