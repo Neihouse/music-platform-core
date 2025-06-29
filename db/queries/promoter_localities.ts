@@ -23,7 +23,7 @@ export async function getPromoterLocalities(
         )
       )
     `)
-    .eq("promoter_id", promoterId);
+    .eq("promoter", promoterId);
 
   if (error) {
     throw new Error(`Failed to fetch promoter localities: ${error.message}`);
@@ -59,7 +59,7 @@ export async function updatePromoterLocalities(
   const { error: deleteError } = await supabase
     .from("promoters_localities")
     .delete()
-    .eq("promoter_id", promoterId);
+    .eq("promoter", promoterId);
 
   if (deleteError) {
     console.error("Delete error:", deleteError);
@@ -70,8 +70,8 @@ export async function updatePromoterLocalities(
   // Then, add all new localities
   if (localityIds.length > 0) {
     const inserts = localityIds.map(localityId => ({
-      promoter_id: promoterId,
-      locality_id: localityId,
+      promoter: promoterId,
+      locality: localityId,
     }));
 
     const { data, error: insertError } = await supabase
