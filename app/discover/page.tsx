@@ -23,12 +23,12 @@ const getCachedCityData = cache(async (city: string): Promise<CityData> => {
 
 
 interface DiscoverPageProps {
-  searchParams: { city?: string };
+  searchParams: Promise<{ city?: string }>;
 }
 
 // Generate dynamic metadata based on search params
 export async function generateMetadata({ searchParams }: DiscoverPageProps): Promise<Metadata> {
-  const city = searchParams.city;
+  const city = (await searchParams).city;
   
   // Decode hyphenated city names back to spaces for display
   const displayCity = city ? city.replace(/-/g, ' ').split(' ').map(word => 
