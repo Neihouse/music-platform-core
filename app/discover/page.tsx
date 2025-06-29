@@ -28,7 +28,7 @@ interface DiscoverPageProps {
 
 // Generate dynamic metadata based on search params
 export async function generateMetadata({ searchParams }: DiscoverPageProps): Promise<Metadata> {
-  const city = (await searchParams).city;
+  const {city} = await searchParams;
   
   // Decode hyphenated city names back to spaces for display
   const displayCity = city ? city.replace(/-/g, ' ').split(' ').map(word => 
