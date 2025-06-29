@@ -167,14 +167,13 @@ export async function getPromoterPastEvents(
   }
 
   // Extract events from the junction table results and filter for past events
-  const events = eventPromotions
-    ?.map((ep: any) => ep.events)
-    .filter(Boolean)
-    .filter((event: any) => event.date && new Date(event.date) < new Date())
-    .sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
-    .slice(0, 6) || [];
+  return eventPromotions
+      ?.map((ep: any) => ep.events)
+      .filter(Boolean)
+      .filter((event: any) => event.date && new Date(event.date) < new Date())
+      .sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+      .slice(0, 6) || [];
 
-  return events;
 }
 
 export async function getPromoterArtists(
