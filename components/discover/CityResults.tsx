@@ -21,7 +21,6 @@ import {
 import { CityData } from "@/app/discover/actions";
 import { LoadingAnimation } from "@/components/discover/LoadingAnimation";
 import { EmptyState } from "@/components/discover/EmptyState";
-import { CityStats } from "@/components/discover/CityStats";
 import { ArtistCard } from "@/components/discover/ArtistCard";
 import { VenueCard } from "@/components/discover/VenueCard";
 import { PromoterCard } from "@/components/discover/PromoterCard";
@@ -61,9 +60,6 @@ export function CityResults({ cityData, cityName, isLoading, onReset }: CityResu
           Music Scene in {cityName}
         </Title>
       </Group>
-
-      {/* City Stats Overview */}
-      <CityStats cityData={cityData} cityName={cityName} />
 
       {/* Upcoming Events */}
       {cityData.events.length > 0 && (
