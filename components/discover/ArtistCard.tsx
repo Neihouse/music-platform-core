@@ -38,13 +38,8 @@ export function ArtistCard({ artist }: ArtistCardProps) {
         overflow: 'hidden',
         transition: 'all 0.3s ease',
         border: '1px solid var(--mantine-color-gray-2)',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-          border: '1px solid var(--mantine-color-violet-2)',
-        }
       }}
-      className="group hover:shadow-2xl transition-all duration-300"
+      className="group hover:shadow-2xl hover:-translate-y-1 hover:border-violet-200 transition-all duration-300"
     >
       {/* Banner Section */}
       <Card.Section

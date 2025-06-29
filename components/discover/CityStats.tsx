@@ -26,11 +26,8 @@ function StatItem({ icon, value, label, color, suffix = "" }: StatItemProps) {
         background: 'var(--mantine-color-gray-0)',
         border: '1px solid var(--mantine-color-gray-2)',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-        '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        }
       }}
+      className="hover:-translate-y-0.5 hover:shadow-md"
     >
       <Group gap="sm">
         <ThemeIcon size="lg" radius="md" variant="light" color={color}>
