@@ -584,6 +584,7 @@ export async function getArtistPromoters(
         name,
         bio,
         avatar_img,
+        banner_img,
         promoters_localities (
           localities (
             id,
@@ -744,5 +745,3 @@ export async function getPromotersByArtistLocalities(
     }
   })).filter(Boolean) || [];
 }
-
-

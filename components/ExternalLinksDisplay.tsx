@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Stack,
-  Title,
   Group,
   Text,
   ActionIcon,
@@ -85,10 +83,8 @@ export function ExternalLinksDisplay({ links }: ExternalLinksDisplayProps) {
   }
 
   return (
-    <Stack gap="sm">
-      <Title order={4}>Links</Title>
-      <Group gap="xs">
-        {links.map((url, index) => {
+    <Group gap="xs">
+      {links.map((url, index) => {
           const platform = detectPlatform(url);
           const IconComponent = PLATFORM_ICONS[platform] || IconExternalLink;
           const color = PLATFORM_COLORS[platform] || "#6C757D";
@@ -129,6 +125,5 @@ export function ExternalLinksDisplay({ links }: ExternalLinksDisplayProps) {
           );
         })}
       </Group>
-    </Stack>
-  );
-}
+    );
+  }

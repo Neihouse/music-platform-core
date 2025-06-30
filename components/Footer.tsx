@@ -5,8 +5,6 @@ import {
   Group,
   Text,
   ActionIcon,
-  Paper,
-  useMantineTheme
 } from '@mantine/core'
 import {
   IconBrandGithub,
@@ -84,21 +82,18 @@ const FEATURES = [
 
 export function Footer() {
   const year = new Date().getFullYear();
-  const theme = useMantineTheme();
 
   return (
-    <Paper
-      component="footer"
-      py="xs"
-      withBorder
-      radius={0}
-      h="100%"
+    <div
       style={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'var(--mantine-color-dark-8)',
+        borderTop: '1px solid var(--mantine-color-dark-4)',
         display: 'flex',
         alignItems: 'center',
-        borderLeft: 0,
-        borderRight: 0,
-        borderBottom: 0,
+        justifyContent: 'center',
+        padding: '0 1rem',
       }}
     >
       <Container size="xl" style={{ width: "100%" }}>
@@ -118,6 +113,13 @@ export function Footer() {
                 size="sm"
                 radius="xl"
                 aria-label={link.label}
+                style={{
+                  color: 'var(--mantine-color-dimmed)',
+                  '&:hover': {
+                    color: 'var(--mantine-color-gray-0)',
+                    backgroundColor: 'var(--mantine-color-dark-6)',
+                  }
+                }}
               >
                 <link.icon size={16} stroke={1.5} />
               </ActionIcon>
@@ -125,6 +127,6 @@ export function Footer() {
           </Group>
         </Group>
       </Container>
-    </Paper>
+    </div>
   );
 }

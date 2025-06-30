@@ -76,3 +76,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Artist Page Styles */
+.play-overlay:hover {
+  opacity: 1 !important;
+}
+
+.collab-name:hover {
+  color: var(--mantine-color-blue-6) !important;
+}
+
+/* Artist page background override */
+.artist-page-container {
+  background: var(--mantine-color-dark-9);
+  min-height: 100vh;
+  color: var(--mantine-color-gray-0);
+}
