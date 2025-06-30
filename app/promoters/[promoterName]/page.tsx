@@ -1,11 +1,11 @@
 import { getPromoterByName, getPromoterEvents, getPromoterArtists, getPromoterPastEvents } from "@/db/queries/promoters";
 import { getPromoterPopularTracks } from "@/db/queries/tracks";
+import { getPromoterLocalities } from "@/db/queries/promoter_localities";
+import { getPromoterImagesServer, getArtistImagesServer } from "@/lib/images/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
-import { PromoterDetailView } from "@/components/PromoterDetail/PromoterDetailView";
 import { urlToName } from "@/lib/utils";
-import { getPromoterImagesServer } from "@/lib/images/image-utils";
-import { getPromoterLocalities } from "@/db/queries/promoter_localities";
+import PromoterProfileContent from "@/components/PromoterProfileContent";
 
 interface PromoterPageProps {
   params: Promise<{ promoterName: string }>;
@@ -43,12 +43,24 @@ export default async function PromoterPage({ params }: PromoterPageProps) {
       getPromoterImagesServer(supabase, promoter.id)
     ]);
 
+    // Add avatar URLs to artists
+    const artistsWithAvatars = await Promise.all(
+      artists.map(async (artist: any) => {
+        const { avatarUrl, bannerUrl } = await getArtistImagesServer(supabase, artist.id);
+        return {
+          ...artist,
+          avatarUrl,
+          bannerUrl,
+        };
+      })
+    );
+
     return (
-      <PromoterDetailView
+      <PromoterProfileContent
         promoter={promoter}
         upcomingEvents={upcomingEvents}
         pastEvents={pastEvents}
-        artists={artists}
+        artists={artistsWithAvatars}
         popularTracks={popularTracks}
         currentUser={user}
         promoterLocalities={promoterLocalities}
