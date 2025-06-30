@@ -14,6 +14,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   // Pages that should NOT have the container wrapper (full-width pages)
   const fullWidthPages = [
     '/artists/', // Any artist page
+    '/promoters/', // Any promoter page
   ];
   
   const isFullWidth = fullWidthPages.some(path => pathname.includes(path));
