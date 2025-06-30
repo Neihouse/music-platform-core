@@ -1,4 +1,4 @@
-import { getArtistByName, getArtistLocalities, getArtistPromoters } from "@/db/queries/artists";
+import { getArtistByName, getArtistLocalities, getArtistPromoters, getArtistEvents } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
 import { getArtistImagesServer, getPromoterImagesServer } from "@/lib/images/image-utils";
@@ -45,6 +45,9 @@ export default async function ArtistPage({
       };
     })
   );
+
+  // Get artist events
+  const events = artist.id ? await getArtistEvents(supabase, artist.id) : [];
   
   // Create StoredLocality from the first locality (if available)
   const storedLocality = artistLocalities.length > 0 && artistLocalities[0].localities ? {
@@ -80,6 +83,7 @@ export default async function ArtistPage({
       bannerUrl={bannerUrl}
       storedLocality={storedLocality}
       promoters={promotersWithImages}
+      events={events}
     />
   );
 }

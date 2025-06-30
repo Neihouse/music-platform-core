@@ -26,6 +26,7 @@ import { nameToUrl } from "@/lib/utils";
 import { Artist, StoredLocality } from "@/utils/supabase/global.types";
 import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
 import StyledTitle from "@/components/StyledTitle";
+import EventCard from "@/components/events/EventCard";
 
 interface ArtistProfileContentProps {
   artist: Artist;
@@ -44,6 +45,15 @@ interface ArtistProfileContentProps {
     avatarUrl?: string | null;
     bannerUrl?: string | null;
   }>;
+  events?: Array<{
+    id: string;
+    name: string;
+    date: string | null;
+    venues?: {
+      id: string;
+      name: string;
+    } | null;
+  }>;
 }
 
 const ArtistProfileContent = ({
@@ -54,6 +64,7 @@ const ArtistProfileContent = ({
   avatarUrl,
   bannerUrl,
   promoters = [],
+  events = [],
 }: ArtistProfileContentProps) => {
   const { name, bio, external_links } = artist;
   const [activeTab, setActiveTab] = useState<string | null>("music");
@@ -322,41 +333,31 @@ const ArtistProfileContent = ({
           <Tabs.Panel value="events" pt="xl" style={{ minHeight: '600px' }}>
             <Container size="md">
               <Title order={2} mb="md" c="gray.0">Upcoming Events</Title>
-              <Card 
-                style={{ 
-                  backgroundColor: 'rgba(46, 35, 72, 0.5)',
-                  border: '1px solid var(--mantine-color-dark-4)',
-                }}
-                radius="lg"
-                p="xl"
-              >
-                <Grid align="stretch">
-                  <GridCol span={{ base: 12, md: 8 }}>
-                    <Stack gap="md">
-                      <Badge color="blue" size="sm" style={{ width: 'fit-content' }}>
-                        LIVE PERFORMANCE
-                      </Badge>
-                      <Title order={3} c="gray.0">The Blue Note</Title>
-                      <Text c="dimmed" size="sm">
-                        Join {name} for an intimate evening of music at The Blue Note. Experience their latest songs and fan favorites in a cozy setting.
-                      </Text>
-                      <Button 
-                        style={{ width: 'fit-content', marginTop: 'auto' }}
-                        size="sm"
-                      >
-                        Get Tickets
-                      </Button>
-                    </Stack>
-                  </GridCol>
-                  <GridCol span={{ base: 12, md: 4 }}>
-                    <Image
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv3EiSMWOv9Io9sTcAHcW1V6hOx6x2XvrREmdEMknb0y_n5v6ojQB1YX3fGkEAST4NbeirvraX5lWmbZAvQU7JNdlYc-U0Husyh4TNkuPIk1X9CEg-zb9rAM4aG1g4X6a63BUy-uOAUpo4REDg7TsRQekIibeI2hNmTbwJpBkKgYFJhNi1S9fLBYM4mcq8F6ZnmjeB4FVT8RGxqibAOpNARwjuFoe4pkzzbTjY2zGklvAu-A4RDN2Fc6BOnKBIVN3DFvlk8VE2Ylk"
-                      alt="The Blue Note venue"
-                      style={{ height: '100%', borderRadius: '8px' }}
+              {events.filter(event => event.date).length > 0 ? (
+                <Stack gap="lg">
+                  {events
+                    .filter(event => event.date) // Filter out events with null dates
+                    .map((event) => (
+                    <EventCard
+                      key={event.id}
+                      id={event.id}
+                      title={event.name}
+                      description={`Join ${name} for a live performance at ${event.venues?.name || 'this venue'}.`}
+                      date={event.date!} // Use non-null assertion since we filtered
+                      venue={{
+                        name: event.venues?.name || 'TBA',
+                        location: 'Location TBA'
+                      }}
+                      category="LIVE PERFORMANCE"
+                      artistName={name}
                     />
-                  </GridCol>
-                </Grid>
-              </Card>
+                  ))}
+                </Stack>
+              ) : (
+                <Text c="dimmed" ta="center" py="xl">
+                  No upcoming events scheduled.
+                </Text>
+              )}
             </Container>
           </Tabs.Panel>
 
