@@ -238,7 +238,7 @@ const ArtistProfileContent = ({
             tab: {
               color: 'var(--mantine-color-dimmed)',
               borderBottom: '3px solid transparent',
-              '&[data-active]': {
+              '&[dataActive]': {
                 color: 'var(--mantine-color-gray-0)',
                 borderBottomColor: 'var(--mantine-color-blue-6)',
                 backgroundColor: 'transparent',
