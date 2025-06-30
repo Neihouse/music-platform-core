@@ -57,6 +57,7 @@ const ArtistProfileContent = ({
 }: ArtistProfileContentProps) => {
   const { name, bio, external_links } = artist;
   const [activeTab, setActiveTab] = useState<string | null>("music");
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Load the artist's selected font - simplified approach
   useEffect(() => {
@@ -74,6 +75,22 @@ const ArtistProfileContent = ({
       }
     }
   }, [artist]);
+
+  // Handle scroll for smooth transitions
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollStart = 200; // When to start the transition
+      const scrollEnd = 400; // When to complete the transition
+      const scrollY = window.scrollY;
+      
+      // Calculate progress from 0 to 1
+      const progress = Math.min(Math.max((scrollY - scrollStart) / (scrollEnd - scrollStart), 0), 1);
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <Box 
@@ -109,6 +126,10 @@ const ArtistProfileContent = ({
       {/* Artist Profile Section */}
       <Container size="lg" style={{ position: 'relative', zIndex: 10 }}>
         <Stack align="center" gap="md" style={{ textAlign: 'center', paddingTop: '0.5rem' }}>
+          {/* Placeholder for avatar when it becomes fixed */}
+          {scrollProgress > 0 && (
+            <div style={{ width: '192px', height: '192px' }} />
+          )}
           <Avatar
             src={avatarUrl}
             alt={`${name} avatar`}
@@ -116,10 +137,30 @@ const ArtistProfileContent = ({
             style={{
               border: '4px solid var(--mantine-color-dark-9)',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+              position: scrollProgress > 0 ? 'fixed' : 'static',
+              top: scrollProgress > 0 ? `${80 + (1 - scrollProgress) * 200}px` : 'auto',
+              left: scrollProgress > 0 ? `${2 + (1 - scrollProgress) * 20}rem` : 'auto',
+              zIndex: scrollProgress > 0 ? 101 : 'auto',
+              transform: `scale(${1 - scrollProgress * 0.65})`,
+              transformOrigin: 'top left',
+              transition: scrollProgress === 0 ? 'all 0.3s ease-in-out' : 'none',
             }}
           />
           <Stack align="center" gap="xs">
-            <div style={{ textAlign: 'center' }}>
+            {/* Placeholder for title when it becomes fixed */}
+            {scrollProgress > 0 && (
+              <div style={{ height: '3rem', width: '100%' }} />
+            )}
+            <div style={{ 
+              textAlign: 'center',
+              position: scrollProgress > 0 ? 'fixed' : 'static',
+              top: scrollProgress > 0 ? `${85 + (1 - scrollProgress) * 200}px` : 'auto',
+              left: scrollProgress > 0 ? `${120 + (1 - scrollProgress) * 200}px` : 'auto',
+              zIndex: scrollProgress > 0 ? 101 : 'auto',
+              transform: `scale(${1 - scrollProgress * 0.4})`,
+              transformOrigin: 'top left',
+              transition: scrollProgress === 0 ? 'all 0.3s ease-in-out' : 'none',
+            }}>
               <StyledTitle 
                 style={{ 
                   color: 'var(--mantine-color-gray-0)',
@@ -127,6 +168,7 @@ const ArtistProfileContent = ({
                   fontWeight: 700,
                   textAlign: 'center',
                   margin: 0,
+                  whiteSpace: 'nowrap',
                 }}
                 selectedFont={artist.selectedFont}
               >
