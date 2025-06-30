@@ -34,6 +34,16 @@ interface ArtistProfileContentProps {
   tracksWithPlayCounts: ArtistTrackWithPlayCount[];
   avatarUrl: string | null;
   bannerUrl: string | null;
+  promoters?: Array<{
+    id: string;
+    name: string;
+    bio?: string | null;
+    avatar_img?: string | null;
+    banner_img?: string | null;
+    selectedFont?: string | null;
+    avatarUrl?: string | null;
+    bannerUrl?: string | null;
+  }>;
 }
 
 const ArtistProfileContent = ({
@@ -43,6 +53,7 @@ const ArtistProfileContent = ({
   tracksWithPlayCounts,
   avatarUrl,
   bannerUrl,
+  promoters = [],
 }: ArtistProfileContentProps) => {
   const { name, bio, external_links } = artist;
   const [activeTab, setActiveTab] = useState<string | null>("music");
@@ -63,12 +74,6 @@ const ArtistProfileContent = ({
       }
     }
   }, [artist]);
-
-  const mockCollaborations = [
-    { name: "The Harmony Collective", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCdzRSDB5SRYEkV5xiIEloxEO38TlSqPcDPIV02zv79CQ0wINcpYaDOC4nIkTbG7PbprOPlYYSJStKrA6m2wR5Ix2Yh-mXi_d72F6105a_IeoKo7Zbt6KY2LG8YBNHRrDwuiJKQJcU3WVvoj3k4aIWNOV0gLN1FBL-Aw6sy-_CuC7CTdie5FgtCLvN1srcpzGBWG2ArN1yJMRqPfV-XOnnl6PLkohWI2EWRcfetw3STedkrtUbhrB2tyqHDbns-CuqU_WSH7wVuHrU" },
-    { name: "Rhythm & Rhyme Sessions", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuARLYoSKk-rt3Z0-x5W7jJKvroXPkWB3o0_fIaRvirarqP08K2gut3vSnJoBaIVKkCae_dhO64coxjUstMnecXFia4x1uDJVyNS8oK80Ui8wtQlPl236mMXRKPOH4PAuXLitpw8QDz-TENp6K5ExrtChi9KNtwqMn81isacSsJdzD8N60GJgBM9eVL0sYpgke5e3zWLlpUIffR2tG3bvHzXrV3vlAvC8ZvOwuXnkVdhHnUQ3fEIY9RWbVjsW3BgDlvPjL9AQsK4vCE" },
-    { name: "Sonic Canvas Project", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDGwHP4lpnD9o9mXgCVOlQoUWqsRCHXi6tG5LmRXXKIUbmKEZF19bkQ5GeQgE3ZOKgrN_477o6mJBoKhTcNrwEC3q2XAgF6uH2r2KPW1KdnCZl6emWDja1_VjktRCx8Sy1Ekodfon4b1KMUNdKcGbv990GrfGu-v0yr4-xYKMDv9ZXcz5qICXOo0ftLF_4Fu1-LVK-BlqHMTju26RoHEtLSk1Wqs7ctuAubQGrSTDgiH4K0MjEMpW7mOg0BnU3_u7JzjXMubV6A2jc" }
-  ];
 
   return (
     <Box 
@@ -196,10 +201,10 @@ const ArtistProfileContent = ({
           <Tabs.List justify="center" style={{ borderBottom: 'none' }}>
             <Tabs.Tab value="music">Music</Tabs.Tab>
             <Tabs.Tab value="events">Events</Tabs.Tab>
-            <Tabs.Tab value="collaborations">Collaborations</Tabs.Tab>
+            <Tabs.Tab value="collaborations">Collectives</Tabs.Tab>
           </Tabs.List>
 
-          <Tabs.Panel value="music" pt="xl">
+          <Tabs.Panel value="music" pt="xl" style={{ minHeight: '600px' }}>
             <Container size="md">
               <Title order={2} mb="md" c="gray.0">Featured Music</Title>
               {tracksWithPlayCounts.length > 0 ? (
@@ -272,7 +277,7 @@ const ArtistProfileContent = ({
             </Container>
           </Tabs.Panel>
 
-          <Tabs.Panel value="events" pt="xl">
+          <Tabs.Panel value="events" pt="xl" style={{ minHeight: '600px' }}>
             <Container size="md">
               <Title order={2} mb="md" c="gray.0">Upcoming Events</Title>
               <Card 
@@ -313,49 +318,102 @@ const ArtistProfileContent = ({
             </Container>
           </Tabs.Panel>
 
-          <Tabs.Panel value="collaborations" pt="xl">
+          <Tabs.Panel value="collaborations" pt="xl" style={{ minHeight: '600px' }}>
             <Container size="md">
-              <Title order={2} mb="md" c="gray.0">Collaborations</Title>
-              <Grid gutter="lg">
-                {mockCollaborations.map((collab, index) => (
-                  <GridCol key={index} span={{ base: 6, sm: 4, md: 4 }}>
-                    <Card 
-                      padding="0" 
-                      style={{ 
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'transform 0.3s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                      }}
-                    >
-                      <Image
-                        src={collab.image}
-                        alt={collab.name}
-                        style={{ aspectRatio: '1', borderRadius: '8px' }}
-                      />
-                      <Text 
-                        size="sm" 
-                        fw={500} 
-                        c="gray.0" 
-                        mt="sm" 
-                        style={{ 
-                          textAlign: 'center',
-                          transition: 'color 0.3s ease',
-                        }}
-                        className="collab-name"
-                      >
-                        {collab.name}
-                      </Text>
-                    </Card>
-                  </GridCol>
-                ))}
-              </Grid>
+              <Title order={2} mb="md" c="gray.0">Promoters & Collectives</Title>
+              {promoters.length > 0 ? (
+                <Grid gutter="lg">
+                  {promoters.map((promoter) => {
+                    
+                    return (
+                      <GridCol key={promoter.id} span={{ base: 6, sm: 4, md: 4 }}>
+                        <Card 
+                          padding="0" 
+                          style={{ 
+                            backgroundColor: 'rgba(46, 35, 72, 0.3)',
+                            border: '1px solid var(--mantine-color-dark-4)',
+                            cursor: 'pointer',
+                            transition: 'transform 0.3s ease',
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          component={Link}
+                          href={`/promoters/${nameToUrl(promoter.name)}`}
+                        >
+                          {/* Banner Image */}
+                          <Box style={{ 
+                            height: '120px', 
+                            position: 'relative',
+                            background: promoter.bannerUrl 
+                              ? `url(${promoter.bannerUrl})` 
+                              : 'linear-gradient(135deg, var(--mantine-color-violet-6), var(--mantine-color-indigo-6))',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                          }}>
+                            {/* Avatar positioned to overlap banner */}
+                            <Avatar
+                              src={promoter.avatarUrl}
+                              alt={promoter.name}
+                              size={60}
+                              radius="xl"
+                              style={{
+                                position: 'absolute',
+                                bottom: -30,
+                                left: 16,
+                                border: '3px solid var(--mantine-color-dark-7)',
+                                zIndex: 10,
+                              }}
+                            >
+                              {promoter.name.charAt(0)}
+                            </Avatar>
+                          </Box>
+                          
+                          {/* Content Section */}
+                          <Box p="md" pt="xl">
+                            <Text 
+                              size="md" 
+                              fw={600} 
+                              c="gray.0" 
+                              mb="xs"
+                              lineClamp={1}
+                            >
+                              {promoter.name}
+                            </Text>
+                            {promoter.bio && (
+                              <Text 
+                                size="sm" 
+                                c="dimmed" 
+                                lineClamp={2}
+                                mb="sm"
+                              >
+                                {promoter.bio}
+                              </Text>
+                            )}
+                            <Badge 
+                              variant="light" 
+                              color="blue" 
+                              size="sm"
+                              style={{ width: 'fit-content' }}
+                            >
+                              Promoter
+                            </Badge>
+                          </Box>
+                        </Card>
+                      </GridCol>
+                    );
+                  })}
+                </Grid>
+              ) : (
+                <Text c="dimmed" ta="center" py="xl">
+                  No promoters or collectives found yet.
+                </Text>
+              )}
             </Container>
           </Tabs.Panel>
         </Tabs>

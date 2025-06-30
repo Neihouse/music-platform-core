@@ -1,7 +1,7 @@
-import { getArtistByName, getArtistLocalities } from "@/db/queries/artists";
+import { getArtistByName, getArtistLocalities, getArtistPromoters } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
-import { getArtistImagesServer } from "@/lib/images/image-utils";
+import { getArtistImagesServer, getPromoterImagesServer } from "@/lib/images/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { urlToName } from "@/lib/utils";
@@ -30,6 +30,21 @@ export default async function ArtistPage({
 
   // Get artist's localities
   const artistLocalities = artist.id ? await getArtistLocalities(supabase, artist.id) : [];
+
+  // Get artist promoters/collectives
+  const promoters = artist.id ? await getArtistPromoters(supabase, artist.id) : [];
+
+  // Get promoter images for each promoter
+  const promotersWithImages = await Promise.all(
+    promoters.map(async (promoter) => {
+      const { avatarUrl, bannerUrl } = await getPromoterImagesServer(supabase, promoter.id);
+      return {
+        ...promoter,
+        avatarUrl,
+        bannerUrl,
+      };
+    })
+  );
   
   // Create StoredLocality from the first locality (if available)
   const storedLocality = artistLocalities.length > 0 && artistLocalities[0].localities ? {
@@ -64,6 +79,7 @@ export default async function ArtistPage({
       avatarUrl={avatarUrl}
       bannerUrl={bannerUrl}
       storedLocality={storedLocality}
+      promoters={promotersWithImages}
     />
   );
 }
