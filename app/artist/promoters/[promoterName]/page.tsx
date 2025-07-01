@@ -4,7 +4,7 @@ import { getPromoterImagesServer } from "@/lib/images/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { urlToName } from "@/lib/utils";
-import { PromoterProfileContent } from "@/components/artist/PromoterProfileContent";
+import PromoterProfileContent from "@/components/PromoterProfileContent";
 
 interface PromoterNamePageProps {
   params: Promise<{ promoterName: string }>;
@@ -34,6 +34,7 @@ export default async function PromoterPage({ params }: PromoterNamePageProps) {
     return (
       <PromoterProfileContent
         promoter={promoter}
+        currentUser={user}
         avatarUrl={avatarUrl}
         bannerUrl={bannerUrl}
       />
