@@ -60,7 +60,8 @@ interface PromoterProfileContentProps {
     id: string;
     title: string;
     plays: number;
-    artists?: {
+    artist?: {
+      id: string;
       name: string;
     };
   }>;

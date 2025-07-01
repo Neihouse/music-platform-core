@@ -6,6 +6,7 @@ export { default as EventsList } from './EventsList';
 export { default as CollaboratorsGrid } from './CollaboratorsGrid';
 export { default as ProfileContent } from './ProfileContent';
 export type { ProfileTab, ProfileEntity, ProfileContentProps } from './ProfileContent';
+export type { MusicTrack, MusicGridProps } from './MusicGrid';
 export { 
   transformArtistData, 
   transformPromoterData, 

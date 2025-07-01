@@ -38,11 +38,12 @@ export function transformArtistData(
     user_id: artist.user_id,
   };
 
-  // Transform data for shared components
+  // Transform data for shared components - preserve full track structure
   const musicTracks = tracksWithPlayCounts.map(track => ({
     id: track.id,
     title: track.title,
-    plays: track.plays
+    plays: track.plays,
+    artists: [{ id: artist.id, name: artist.name }] // Artist's own tracks
   }));
 
   const collaborators = promoters.map(promoter => ({
@@ -59,7 +60,7 @@ export function transformArtistData(
     {
       key: "music",
       label: "Music",
-      content: <MusicGrid tracks={musicTracks} artistName={artist.name} />
+      content: <MusicGrid tracks={musicTracks} />
     },
     {
       key: "events", 
@@ -116,7 +117,8 @@ export function transformPromoterData(
     id: string;
     title: string;
     plays: number;
-    artists?: {
+    artist?: {
+      id: string;
       name: string;
     };
   }> = []
@@ -136,7 +138,8 @@ export function transformPromoterData(
   const musicTracks = popularTracks.map(track => ({
     id: track.id,
     title: track.title,
-    plays: track.plays || 0
+    plays: track.plays || 0,
+    artists: track.artist ? [{ id: track.artist.id, name: track.artist.name }] : []
   }));
 
   const collaborators = artists.map(artist => ({
@@ -160,7 +163,6 @@ export function transformPromoterData(
         <Container size="md">
           <MusicGrid 
             tracks={musicTracks} 
-            artistName={promoter.name}
             title="Popular Tracks"
             maxItems={8}
           />
@@ -198,7 +200,6 @@ export function transformPromoterData(
       content: (
         <MusicGrid 
           tracks={musicTracks} 
-          artistName={promoter.name}
           title="Popular Tracks"
         />
       )

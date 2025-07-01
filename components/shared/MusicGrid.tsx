@@ -2,16 +2,17 @@
 
 import { Container, Title, Text, Grid, GridCol, Card, Box, Image, ActionIcon, Stack } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
+import { Track, Artist } from "@/utils/supabase/global.types";
 
-interface Track {
+export interface MusicTrack {
   id: string;
   title: string;
   plays: number;
+  artists: Pick<Artist, 'id' | 'name'>[];
 }
 
-interface MusicGridProps {
-  tracks: Track[];
-  artistName: string;
+export interface MusicGridProps {
+  tracks: MusicTrack[];
   title?: string;
   maxItems?: number;
   storageBasePath?: string;
@@ -20,7 +21,6 @@ interface MusicGridProps {
 
 const MusicGrid = ({ 
   tracks, 
-  artistName, 
   title = "Featured Music",
   maxItems = 8,
   storageBasePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/tracks/`,
@@ -85,7 +85,7 @@ const MusicGrid = ({
                     {track.title}
                   </Text>
                   <Text size="xs" c="dimmed" style={{ textAlign: 'center' }}>
-                    {artistName} • {track.plays} plays
+                    {track.artists.map(artist => artist.name).join(', ') || 'Unknown Artist'} • {track.plays} plays
                   </Text>
                 </Stack>
               </Card>
