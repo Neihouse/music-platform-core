@@ -1,7 +1,6 @@
 import { Container } from "@mantine/core";
 import { getCityMusicData, CityData } from "./actions";
-import { CitySearchClient } from "@/components/discover/CitySearchClient";
-import { CityResultsClient } from "@/components/discover/CityResultsClient";
+import { DiscoverClient } from "@/components/discover/DiscoverClient";
 import { mockCityData } from "@/lib/mock-data";
 import { cache } from 'react';
 import { Suspense } from 'react';
@@ -11,8 +10,6 @@ import { Metadata } from 'next';
 const getCachedCityData = cache(async (city: string): Promise<CityData> => {
   try {
     const data = await getCityMusicData(city);
-
-    
     return data;
   } catch (error) {
     console.error('Error fetching city data:', error);
@@ -20,7 +17,6 @@ const getCachedCityData = cache(async (city: string): Promise<CityData> => {
     return mockCityData;
   }
 });
-
 
 interface DiscoverPageProps {
   searchParams: Promise<{ city?: string }>;
@@ -71,10 +67,9 @@ async function CityDataWrapper({ city }: { city: string }) {
   const isEmpty = Object.values(cityData).flat().length === 0;
 
   return (
-    <CityResultsClient 
-      cityData={isEmpty ? mockCityData : cityData} 
-      cityName={decodedCity}
-      isLoading={false}
+    <DiscoverClient 
+      initialData={isEmpty ? mockCityData : cityData}
+      initialCity={decodedCity}
     />
   );
 }
@@ -82,21 +77,13 @@ async function CityDataWrapper({ city }: { city: string }) {
 export default async function DiscoverPage({ searchParams }: DiscoverPageProps) {
   const selectedCity = (await searchParams).city || "";
 
-  return (
-    <Container size="xl" py="xl">
-      <CitySearchClient />
-      
-      {selectedCity && (
-        <Suspense fallback={
-          <CityResultsClient 
-            cityData={null} 
-            cityName={selectedCity}
-            isLoading={true}
-          />
-        }>
-          <CityDataWrapper city={selectedCity} />
-        </Suspense>
-      )}
-    </Container>
-  );
+  if (selectedCity) {
+    return (
+      <Suspense fallback={<DiscoverClient />}>
+        <CityDataWrapper city={selectedCity} />
+      </Suspense>
+    );
+  }
+
+  return <DiscoverClient />;
 }
