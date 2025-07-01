@@ -258,6 +258,7 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       venue={event.venue}
                       artists={event.artists}
                       price={event.price}
+                      imageUrl={event.banner_img}
                       onClick={() => console.log('Event clicked:', event.id)}
                       onGetTickets={() => console.log('Get tickets:', event.id)}
                     />
@@ -284,6 +285,7 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       genre={artist.genre}
                       followerCount={artist.followerCount}
                       location={currentCity}
+                      selectedFont={artist.selectedFont}
                       onClick={() => console.log('Artist clicked:', artist.id)}
                       onFollow={() => console.log('Follow artist:', artist.id)}
                     />
@@ -334,6 +336,7 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       bannerUrl={promoter.banner_img}
                       location={currentCity}
                       upcomingShows={promoter.eventsOrganized}
+                      selectedFont={promoter.selectedFont}
                       onClick={() => console.log('Promoter clicked:', promoter.id)}
                       onFollow={() => console.log('Follow promoter:', promoter.id)}
                     />

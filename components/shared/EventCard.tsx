@@ -147,13 +147,45 @@ export function EventCard({
 
       {/* Image Section */}
       <Box h={180} pos="relative">
-        <Image
-          src={eventImageUrl || '/placeholder-event.jpg'}
-          alt={name}
-          h={180}
-          style={{ objectFit: 'cover' }}
-          fallbackSrc="https://via.placeholder.com/340x180/2C2E33/FFFFFF?text=Event"
-        />
+        {eventImageUrl ? (
+          <Image
+            src={eventImageUrl}
+            alt={name}
+            h={180}
+            style={{ objectFit: 'cover' }}
+            fallbackSrc="https://via.placeholder.com/340x180/2C2E33/FFFFFF?text=Event"
+          />
+        ) : (
+          <Box
+            h={180}
+            style={{
+              background: 'linear-gradient(135deg, var(--mantine-color-orange-8), var(--mantine-color-red-8))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+            }}
+          >
+            {/* Decorative background pattern */}
+            <Box
+              style={{
+                position: 'absolute',
+                inset: 0,
+                opacity: 0.2,
+                background: `
+                  radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0%, transparent 70%)
+                `,
+              }}
+            />
+            <IconTicket 
+              size={56} 
+              color="rgba(255, 255, 255, 0.8)" 
+              style={{ opacity: 0.8 }}
+            />
+          </Box>
+        )}
         
         {/* Gradient overlay */}
         <Box

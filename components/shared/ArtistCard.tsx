@@ -14,6 +14,7 @@ import {
 } from "@mantine/core";
 import { IconMapPin, IconUsers, IconCalendarEvent } from "@tabler/icons-react";
 import { getAvatarUrl, getBannerUrl } from "@/lib/images/image-utils-client";
+import { StyledTitle } from "@/components/StyledTitle";
 
 interface ArtistCardProps {
   id: string;
@@ -26,6 +27,7 @@ interface ArtistCardProps {
   location?: string;
   upcomingShows?: number;
   isVerified?: boolean;
+  selectedFont?: string;
   size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
   onFollow?: () => void;
@@ -42,6 +44,7 @@ export function ArtistCard({
   location,
   upcomingShows,
   isVerified = false,
+  selectedFont,
   size = 'md',
   onClick,
   onFollow,
@@ -129,9 +132,23 @@ export function ArtistCard({
         <Stack justify="space-between" h="100%" pt={40}>
           <Stack gap="sm">
             <Group align="center" gap="xs">
-              <Text fw={700} size="lg" c="white" lineClamp={1}>
+              <StyledTitle
+                selectedFont={selectedFont}
+                as="h3"
+                style={{
+                  fontSize: rem(18),
+                  fontWeight: 700,
+                  color: 'var(--mantine-color-white)',
+                  lineHeight: 1.2,
+                  margin: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: '180px',
+                }}
+              >
                 {name}
-              </Text>
+              </StyledTitle>
               {isVerified && (
                 <Badge size="xs" color="blue" variant="filled">
                   ✓

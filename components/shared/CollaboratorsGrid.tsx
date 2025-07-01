@@ -3,6 +3,7 @@
 import { Container, Title, Text, Grid, GridCol, Card, Box, Avatar, Badge } from "@mantine/core";
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
+import { StyledTitle } from "@/components/StyledTitle";
 
 interface CollaboratorCard {
   id: string;
@@ -10,6 +11,7 @@ interface CollaboratorCard {
   bio?: string | null;
   avatarUrl?: string | null;
   bannerUrl?: string | null;
+  selectedFont?: string;
   type?: string;
 }
 
@@ -84,15 +86,22 @@ const CollaboratorsGrid = ({
                 
                 {/* Content Section */}
                 <Box p="md" pt="xl">
-                  <Text 
-                    size="md" 
-                    fw={600} 
-                    c="gray.0" 
-                    mb="xs"
-                    lineClamp={1}
+                  <StyledTitle
+                    selectedFont={collaborator.selectedFont}
+                    as="h3"
+                    style={{
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      color: 'var(--mantine-color-gray-0)',
+                      marginBottom: '0.5rem',
+                      margin: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
                   >
                     {collaborator.name}
-                  </Text>
+                  </StyledTitle>
                   {collaborator.bio && (
                     <Text 
                       size="sm" 

@@ -93,6 +93,7 @@ export const mockCityData: CityData = {
       venue: "Riverside Amphitheater",
       artists: ["Electric Shadows", "Luna Verde", "Neon Collective"],
       price: "$25",
+      banner_img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&h=600&fit=crop&q=80", // Festival crowd
     },
     {
       id: "2",
@@ -101,6 +102,7 @@ export const mockCityData: CityData = {
       venue: "The Underground",
       artists: ["Luna Verde", "Local Opener"],
       price: "$15",
+      banner_img: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=1200&h=600&fit=crop&q=80", // Indie acoustic performance
     },
     {
       id: "3",
@@ -109,6 +111,7 @@ export const mockCityData: CityData = {
       venue: "Jazz Corner",
       artists: ["Neon Collective"],
       price: "$20",
+      banner_img: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=1200&h=600&fit=crop&q=80", // Rock concert
     },
   ],
 };
