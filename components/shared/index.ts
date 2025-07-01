@@ -12,3 +12,11 @@ export {
   transformPromoterData, 
   transformPromoterLocalities 
 } from './ProfileContentHelpers';
+
+// New shared components for discover page
+export { SearchHero } from './SearchHero';
+export { MusicCard } from './MusicCard';
+export { ArtistCard } from './ArtistCard';
+export { VenueCard } from './VenueCard';
+export { EventCard } from './EventCard';
+export { ContentSection } from './ContentSection';
