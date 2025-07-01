@@ -4,7 +4,8 @@ import { getPromoterImagesServer } from "@/lib/images/image-utils";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { urlToName } from "@/lib/utils";
-import PromoterModalContent from "@/components/artist/PromoterModalContent";
+import PromoterProfileContent from "@/components/PromoterProfileContent";
+import ArtistModal from "@/components/ArtistModal";
 
 interface PromoterModalPageProps {
   params: Promise<{ promoterName: string }>;
@@ -25,11 +26,14 @@ const PromoterModalPage = async ({ params }: PromoterModalPageProps) => {
   const { avatarUrl, bannerUrl } = promoter.id ? await getPromoterImagesServer(supabase, promoter.id) : { avatarUrl: null, bannerUrl: null };
 
   return (
-    <PromoterModalContent
-      promoter={promoter}
-      avatarUrl={avatarUrl}
-      bannerUrl={bannerUrl}
-    />
+    <ArtistModal>
+      <PromoterProfileContent
+        promoter={promoter}
+        currentUser={user}
+        avatarUrl={avatarUrl}
+        bannerUrl={bannerUrl}
+      />
+    </ArtistModal>
   );
 };
 

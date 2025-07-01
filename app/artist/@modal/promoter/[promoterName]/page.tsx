@@ -2,7 +2,8 @@ import { createClient } from "@/utils/supabase/server";
 import { getPromoterByName } from "@/db/queries/promoters";
 import { getPromoterImagesServer } from "@/lib/images/image-utils";
 import { notFound } from "next/navigation";
-import PromoterModalContent from "@/components/artist/PromoterModalContent";
+import PromoterProfileContent from "@/components/PromoterProfileContent";
+import ArtistModal from "@/components/ArtistModal";
 
 interface PromoterModalPageProps {
   params: Promise<{
@@ -23,11 +24,13 @@ export default async function PromoterModalPage({ params }: PromoterModalPagePro
     const { avatarUrl, bannerUrl } = await getPromoterImagesServer(supabase, promoter.id);
 
     return (
-      <PromoterModalContent
-        promoter={promoter}
-        avatarUrl={avatarUrl}
-        bannerUrl={bannerUrl}
-      />
+      <ArtistModal>
+        <PromoterProfileContent
+          promoter={promoter}
+          avatarUrl={avatarUrl}
+          bannerUrl={bannerUrl}
+        />
+      </ArtistModal>
     );
   } catch (error) {
     console.error("Error fetching promoter:", error);
