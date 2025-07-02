@@ -26,7 +26,7 @@ import {
   ArtistCard, 
   VenueCard, 
   EventCard, 
-  MusicCard 
+   
 } from "@/components/shared";
 import { getCityMusicData, CityData } from "@/app/discover/actions";
 import { mockCityData } from "@/lib/mock-data";
