@@ -1,8 +1,8 @@
 "use client";
 
-import { Container, Title, Text, Grid, GridCol, Card, Box, Image, ActionIcon, Stack } from "@mantine/core";
-import { IconPlayerPlay } from "@tabler/icons-react";
+import { Container, Title, Text, Grid, GridCol } from "@mantine/core";
 import { Track, Artist } from "@/utils/supabase/global.types";
+import { MusicCard } from "./MusicCard";
 
 export interface MusicTrack {
   id: string;
@@ -33,62 +33,16 @@ const MusicGrid = ({
         <Grid gutter="lg">
           {tracks.slice(0, maxItems).map((track) => (
             <GridCol key={track.id} span={{ base: 6, sm: 4, md: 3 }}>
-              <Card 
-                padding="0" 
-                style={{ 
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'transform 0.3s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              >
-                <Box style={{ position: 'relative' }}>
-                  <Image
-                    src={`${storageBasePath}${track.id}`}
-                    alt={track.title}
-                    style={{ aspectRatio: '1', borderRadius: '8px' }}
-                    fallbackSrc={fallbackImageUrl}
-                  />
-                  <Box
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: 'rgba(0, 0, 0, 0.3)',
-                      backdropFilter: 'blur(2px)',
-                      opacity: 0,
-                      transition: 'opacity 0.3s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '8px',
-                    }}
-                    className="play-overlay"
-                  >
-                    <ActionIcon
-                      size="xl"
-                      color="white"
-                      variant="filled"
-                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
-                    >
-                      <IconPlayerPlay size={24} style={{ color: 'black' }} />
-                    </ActionIcon>
-                  </Box>
-                </Box>
-                <Stack gap="xs" mt="sm">
-                  <Text size="sm" fw={500} c="gray.0" style={{ textAlign: 'center' }}>
-                    {track.title}
-                  </Text>
-                  <Text size="xs" c="dimmed" style={{ textAlign: 'center' }}>
-                    {track.artists.map(artist => artist.name).join(', ') || 'Unknown Artist'} • {track.plays} plays
-                  </Text>
-                </Stack>
-              </Card>
+              <MusicCard
+                id={track.id}
+                title={track.title}
+                artist={track.artists.map(artist => artist.name).join(', ') || 'Unknown Artist'}
+                coverUrl={`${storageBasePath}${track.id}`} // Full track image URL
+                plays={track.plays}
+                size="grid"
+                onClick={() => console.log('Track clicked:', track.title)}
+                onPlay={() => console.log('Track played:', track.title)}
+              />
             </GridCol>
           ))}
         </Grid>

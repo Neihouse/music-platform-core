@@ -42,6 +42,7 @@ export interface LocalEvent {
   venue: string;
   artists: string[];
   price?: string;
+  banner_img?: string;
 }
 
 export interface CityData {

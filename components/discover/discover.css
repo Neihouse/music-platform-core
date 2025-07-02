@@ -1,0 +1,8 @@
+/* Custom hover animations for discover page cards */
+.group:hover .group-hover\\:opacity-100 {
+  opacity: 1 !important;
+}
+
+.group:hover .group-hover\\:translate-y-0 {
+  transform: translateY(0) !important;
+}
