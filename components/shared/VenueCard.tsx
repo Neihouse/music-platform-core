@@ -148,7 +148,7 @@ export function VenueCard({
             </Badge>
           )}
           
-          {upcomingEvents && upcomingEvents > 0 && (
+          {upcomingEvents !== undefined && (
             <Badge
               size="sm"
               variant="filled"
@@ -185,7 +185,7 @@ export function VenueCard({
                 </Group>
               )}
 
-              {capacity && (
+              {capacity !== undefined && (
                 <Group gap="xs" align="center">
                   <IconUsers size={14} color="var(--mantine-color-dimmed)" />
                   <Text size="xs" c="dimmed">
@@ -194,7 +194,7 @@ export function VenueCard({
                 </Group>
               )}
 
-              {upcomingEvents && upcomingEvents > 0 && (
+              {upcomingEvents !== undefined && (
                 <Group gap="xs" align="center">
                   <IconTicket size={14} color="var(--mantine-color-dimmed)" />
                   <Text size="xs" c="dimmed">

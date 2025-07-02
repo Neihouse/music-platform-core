@@ -142,7 +142,7 @@ export function MusicCard({
           {title}
         </Text>
         <Text size="xs" c="dimmed" style={{ textAlign: 'center' }}>
-          {artist} • {plays ? `${plays} plays` : '0 plays'}
+          {artist} • {plays ? `${plays} ${plays === 1 ? 'play' : 'plays'}` : '0 plays'}
         </Text>
       </Stack>
     </Box>

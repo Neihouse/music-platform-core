@@ -61,7 +61,18 @@ export function EventCard({
 
   const eventImageUrl = imageUrl ? getBannerUrl(imageUrl) : null;
 
+  // Validate and parse the date
   const eventDate = new Date(date);
+  if (isNaN(eventDate.getTime())) {
+    console.warn(`Invalid date provided to EventCard: ${date}`);
+    // Return a simple error state or fallback
+    return (
+      <Card p="md" style={{ border: '1px solid red' }}>
+        <Text c="red">Invalid event date: {date}</Text>
+      </Card>
+    );
+  }
+
   const isUpcoming = eventDate > new Date();
   const daysUntil = Math.ceil((eventDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
   
@@ -258,7 +269,7 @@ export function EventCard({
                 </Group>
               )}
 
-              {ticketsLeft && ticketsLeft < 50 && (
+              {ticketsLeft !== undefined && ticketsLeft < 50 && (
                 <Group gap="xs" align="center">
                   <IconUsers size={14} color="var(--mantine-color-red-6)" />
                   <Text size="sm" c="red.6" fw={600}>

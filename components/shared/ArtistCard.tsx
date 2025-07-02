@@ -172,7 +172,7 @@ export function ArtistCard({
                 </Group>
               )}
 
-              {followerCount && (
+              {followerCount !== undefined && (
                 <Group gap="xs" align="center">
                   <IconUsers size={14} color="var(--mantine-color-dimmed)" />
                   <Text size="xs" c="dimmed">
@@ -181,7 +181,7 @@ export function ArtistCard({
                 </Group>
               )}
 
-              {upcomingShows && (
+              {upcomingShows !== undefined && (
                 <Group gap="xs" align="center">
                   <IconCalendarEvent size={14} color="var(--mantine-color-dimmed)" />
                   <Text size="xs" c="dimmed">
