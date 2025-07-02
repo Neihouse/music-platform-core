@@ -30,7 +30,6 @@ interface VenueCardProps {
   location?: string;
   upcomingEvents?: number;
   type?: string;
-  rating?: number;
   size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
   onViewEvents?: () => void;
@@ -44,8 +43,7 @@ export function VenueCard({
   capacity,
   location,
   upcomingEvents,
-  type,
-  rating,
+  type, 
   size = 'md',
   onClick,
   onViewEvents,
