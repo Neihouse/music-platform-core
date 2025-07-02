@@ -50,9 +50,9 @@ export function ArtistCard({
   onFollow,
 }: ArtistCardProps) {
   const cardSize = {
-    sm: { width: 240, height: 320 },
-    md: { width: 280, height: 360 },
-    lg: { width: 320, height: 400 }
+    sm: { minWidth: 200, maxWidth: 240, height: 320 },
+    md: { minWidth: 240, maxWidth: 280, height: 360 },
+    lg: { minWidth: 280, maxWidth: 320, height: 400 }
   }[size];
 
   const bannerImageUrl = bannerUrl ? getBannerUrl(bannerUrl) : null;
@@ -60,16 +60,19 @@ export function ArtistCard({
 
   return (
     <Card
-      w={cardSize.width}
-      h={cardSize.height}
       p={0}
       radius="xl"
       style={{
+        width: '100%',
+        minWidth: cardSize.minWidth,
+        maxWidth: cardSize.maxWidth,
+        height: cardSize.height,
         background: 'var(--mantine-color-dark-8)',
         border: '1px solid var(--mantine-color-dark-6)',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         overflow: 'hidden',
+        boxSizing: 'border-box',
       }}
       onClick={onClick}
       onMouseEnter={(e) => {
@@ -134,18 +137,17 @@ export function ArtistCard({
             <Group align="center" gap="xs">
               <StyledTitle
                 selectedFont={selectedFont}
-                as="h3"
-                style={{
-                  fontSize: rem(18),
-                  fontWeight: 700,
-                  color: 'var(--mantine-color-white)',
-                  lineHeight: 1.2,
-                  margin: 0,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  maxWidth: '180px',
-                }}
+                as="h3"                  style={{
+                    fontSize: rem(18),
+                    fontWeight: 700,
+                    color: 'var(--mantine-color-white)',
+                    lineHeight: 1.2,
+                    margin: 0,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: '140px',
+                  }}
               >
                 {name}
               </StyledTitle>

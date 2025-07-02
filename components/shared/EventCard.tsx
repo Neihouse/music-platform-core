@@ -54,9 +54,9 @@ export function EventCard({
   onGetTickets,
 }: EventCardProps) {
   const cardSize = {
-    sm: { width: 260, height: 340 },
-    md: { width: 300, height: 380 },
-    lg: { width: 340, height: 420 }
+    sm: { minWidth: 220, maxWidth: 260, height: 340 },
+    md: { minWidth: 260, maxWidth: 300, height: 380 },
+    lg: { minWidth: 300, maxWidth: 340, height: 420 }
   }[size];
 
   const eventImageUrl = imageUrl ? getBannerUrl(imageUrl) : null;
@@ -89,17 +89,20 @@ export function EventCard({
 
   return (
     <Card
-      w={cardSize.width}
-      h={cardSize.height}
       p={0}
       radius="xl"
       style={{
+        width: '100%',
+        minWidth: cardSize.minWidth,
+        maxWidth: cardSize.maxWidth,
+        height: cardSize.height,
         background: 'var(--mantine-color-dark-8)',
         border: '1px solid var(--mantine-color-dark-6)',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         overflow: 'hidden',
         position: 'relative',
+        boxSizing: 'border-box',
       }}
       onClick={onClick}
       onMouseEnter={(e) => {

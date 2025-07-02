@@ -51,11 +51,11 @@ export function MusicCard({
   const isTrackPlaying = isCurrentTrack && isPlaying;
 
   const cardSize = {
-    sm: { width: 180, height: 240 },
-    md: { width: 200, height: 260 },
-    lg: { width: 220, height: 280 },
+    sm: { minWidth: 160, maxWidth: 180, height: 240 },
+    md: { minWidth: 180, maxWidth: 200, height: 260 },
+    lg: { minWidth: 200, maxWidth: 220, height: 280 },
     grid: { width: '100%', height: 'auto' }
-  }[size] || { width: 200, height: 260 };
+  }[size] || { minWidth: 180, maxWidth: 200, height: 260 };
 
   const trackImageUrl = coverUrl ? getBannerUrl(coverUrl) : null;
 
@@ -148,11 +148,13 @@ export function MusicCard({
     </Box>
   ) : (
     <Card
-      w={cardSize.width}
-      h={cardSize.height}
       p="sm"
       radius="lg"
       style={{
+        width: '100%',
+        minWidth: cardSize.minWidth,
+        maxWidth: cardSize.maxWidth,
+        height: cardSize.height,
         background: isCurrentTrack 
           ? 'var(--mantine-color-dark-7)' 
           : 'var(--mantine-color-dark-8)',
@@ -163,6 +165,7 @@ export function MusicCard({
         transition: 'all 0.3s ease',
         position: 'relative',
         overflow: 'hidden',
+        boxSizing: 'border-box',
       }}
       onClick={() => {
         console.log(`Clicked on track: ${title} by ${artist}`);
@@ -201,7 +204,7 @@ export function MusicCard({
         <Image
           src={trackImageUrl || '/placeholder-album.jpg'}
           alt={title}
-          h={(cardSize.width as number) - 32}
+          h={cardSize.minWidth ? cardSize.minWidth - 32 : 168}
           radius="md"
           fallbackSrc="https://via.placeholder.com/200x200/2C2E33/FFFFFF?text=Music"
         />
