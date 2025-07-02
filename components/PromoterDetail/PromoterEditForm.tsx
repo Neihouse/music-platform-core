@@ -22,6 +22,7 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useMediaQuery } from "@mantine/hooks";
 import FontSelect from "../FontSelect";
 import {
   IconUser,
@@ -49,6 +50,10 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [selectedLocalities, setSelectedLocalities] = useState<StoredLocality[]>([]);
   const [localitiesLoading, setLocalitiesLoading] = useState(true);
+  
+  // Mobile responsive hooks
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
 
   // Load existing localities on component mount
   useEffect(() => {
@@ -181,42 +186,47 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
   };
 
   return (
-    <Container size="lg" py="xl">
+    <Container size="lg" py={isSmallMobile ? "md" : "xl"} px={isSmallMobile ? "xs" : "md"}>
       {/* Header */}
-      <Group mb="xl">
-        <ActionIcon
-          component={Link}
-          href={`/promoters/${nameToUrl(promoter.name)}`}
-          size="lg"
-          variant="light"
-          color="gray"
-        >
-          <IconArrowLeft size={20} />
-        </ActionIcon>
-        <div>
-          <Title order={1}>Edit Collective Profile</Title>
-          <Text c="dimmed">Update your collective information and images</Text>
-        </div>
-      </Group>
+      <Stack gap={isSmallMobile ? "sm" : "md"} mb={isSmallMobile ? "lg" : "xl"}>
+        <Group gap="sm" wrap="nowrap">
+          <ActionIcon
+            component={Link}
+            href={`/promoters/${nameToUrl(promoter.name)}`}
+            size={isSmallMobile ? "md" : "lg"}
+            variant="light"
+            color="gray"
+          >
+            <IconArrowLeft size={isSmallMobile ? 16 : 20} />
+          </ActionIcon>
+          <Box style={{ flex: 1, minWidth: 0 }}>
+            <Title order={isSmallMobile ? 2 : 1} size={isSmallMobile ? "1.5rem" : undefined}>
+              Edit Collective Profile
+            </Title>
+            <Text c="dimmed" size={isSmallMobile ? "xs" : "sm"} lineClamp={isMobile ? 2 : undefined}>
+              Update your collective information and images
+            </Text>
+          </Box>
+        </Group>
+      </Stack>
 
       <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Grid gutter="xl">
+        <Grid gutter={isSmallMobile ? "md" : "xl"}>
           {/* Banner and Avatar Section */}
           <GridCol span={12}>
-            <Card withBorder radius="md" p="xl">
-              <Title order={3} mb="md">
+            <Card withBorder radius="md" p={isSmallMobile ? "md" : "xl"}>
+              <Title order={3} mb="md" size={isSmallMobile ? "1.25rem" : undefined}>
                 Collective Images
               </Title>
               
-              <Text size="sm" c="dimmed" mb="lg">
+              <Text size={isSmallMobile ? "xs" : "sm"} c="dimmed" mb={isSmallMobile ? "md" : "lg"}>
                 Upload images to customize your collective profile. Changes are saved automatically when you upload new images.
               </Text>
               
               {/* Banner Upload */}
-              <Stack gap="md" mb="xl">
+              <Stack gap="md" mb={isSmallMobile ? "lg" : "xl"}>
                 <PromoterBannerUpload
                   promoterId={promoter.id}
-                  
                 />
               </Stack>
 
@@ -230,17 +240,18 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
           </GridCol>
 
           {/* Basic Information */}
-          <GridCol span={{ base: 12, md: 8 }}>
-            <Card withBorder radius="md" p="xl">
-              <Title order={3} mb="md">
+          <GridCol span={{ base: 12, md: isMobile ? 12 : 8 }}>
+            <Card withBorder radius="md" p={isSmallMobile ? "md" : "xl"}>
+              <Title order={3} mb="md" size={isSmallMobile ? "1.25rem" : undefined}>
                 Basic Information
               </Title>
               
-              <Stack gap="md">
+              <Stack gap={isSmallMobile ? "sm" : "md"}>
                 <TextInput
                   label="Collective Name"
                   placeholder="Enter your collective name"
                   leftSection={<IconUser size={16} />}
+                  size={isSmallMobile ? "sm" : "md"}
                   {...form.getInputProps("name")}
                   required
                 />
@@ -249,7 +260,8 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                   label="Bio"
                   placeholder="Tell us about your collective, your mission, and what makes you unique..."
                   leftSection={<IconFileText size={16} />}
-                  rows={4}
+                  rows={isSmallMobile ? 3 : 4}
+                  size={isSmallMobile ? "sm" : "md"}
                   {...form.getInputProps("bio")}
                 />
 
@@ -257,6 +269,7 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                   label="Email"
                   placeholder="contact@collective.com"
                   leftSection={<IconMail size={16} />}
+                  size={isSmallMobile ? "sm" : "md"}
                   {...form.getInputProps("email")}
                 />
 
@@ -264,6 +277,7 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                   label="Phone"
                   placeholder="+1 (555) 123-4567"
                   leftSection={<IconPhone size={16} />}
+                  size={isSmallMobile ? "sm" : "md"}
                   {...form.getInputProps("phone")}
                 />
 
@@ -271,25 +285,26 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
                   label="Brand Font"
                   placeholder="Choose a font for your brand..."
                   description="This font will be used for your collective name and branding"
-                  size="md"
+                  size={isSmallMobile ? "sm" : "md"}
                   {...form.getInputProps("fontFamily")}
                 />
 
                 {form.values.fontFamily && form.values.name && (
-                  <Paper mt="sm" p="md" radius="md" withBorder>
+                  <Paper mt="sm" p={isSmallMobile ? "sm" : "md"} radius="md" withBorder>
                     <Text size="xs" c="dimmed" mb="xs">
                       Preview: {form.values.fontFamily}
                     </Text>
                     <Text 
-                      size="xl" 
+                      size={isSmallMobile ? "lg" : "xl"} 
                       fw={600}
                       style={{ 
                         fontFamily: `"${form.values.fontFamily}", "Inter", sans-serif`,
+                        wordBreak: 'break-word'
                       }}
                     >
                       {form.values.name}
                     </Text>
-                    <Text size="xs" c="dimmed" mt="xs" style={{ fontFamily: 'monospace' }}>
+                    <Text size="xs" c="dimmed" mt="xs" style={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
                       CSS: font-family: "{form.values.fontFamily}", sans-serif
                     </Text>
                   </Paper>
@@ -298,70 +313,131 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
             </Card>
           </GridCol>
 
-          {/* Preview Card */}
-          <GridCol span={{ base: 12, md: 4 }}>
-            <Card withBorder radius="md" p="xl" h="fit-content" style={{ position: "sticky", top: "20px" }}>
-              <Title order={3} mb="md">
-                Preview
-              </Title>
-              
-              <Stack gap="md">
-                <Box
-                  style={{
-                    height: "80px",
-                    borderRadius: "8px",
-                    background: bannerUrl 
-                      ? `url(${bannerUrl}) center/cover` 
-                      : "var(--mantine-color-gray-2)",
-                    position: "relative",
-                  }}
-                >
+          {/* Preview Card - Hidden on mobile, shown on larger screens */}
+          {!isMobile && (
+            <GridCol span={4}>
+              <Card 
+                withBorder 
+                radius="md" 
+                p="xl" 
+                h="fit-content" 
+                style={{ position: "sticky", top: "20px" }}
+              >
+                <Title order={3} mb="md">
+                  Preview
+                </Title>
+                
+                <Stack gap="md">
                   <Box
                     style={{
-                      position: "absolute",
-                      bottom: "-20px",
-                      left: "16px",
+                      height: "80px",
+                      borderRadius: "8px",
+                      background: bannerUrl 
+                        ? `url(${bannerUrl}) center/cover` 
+                        : "var(--mantine-color-gray-2)",
+                      position: "relative",
                     }}
                   >
-                    <Avatar
-                      src={avatarUrl}
-                      size={40}
+                    <Box
                       style={{
-                        border: "2px solid white",
+                        position: "absolute",
+                        bottom: "-20px",
+                        left: "16px",
                       }}
                     >
-                      <IconUser size={16} />
-                    </Avatar>
+                      <Avatar
+                        src={avatarUrl}
+                        size={40}
+                        style={{
+                          border: "2px solid white",
+                        }}
+                      >
+                        <IconUser size={16} />
+                      </Avatar>
+                    </Box>
                   </Box>
-                </Box>
-                
-                <Box pt="md">
-                  <Text fw={600} size="lg">
-                    {form.values.name || "Collective Name"}
-                  </Text>
-                  {form.values.bio && (
-                    <Text size="sm" c="dimmed" lineClamp={3} mt="xs">
-                      {form.values.bio}
+                  
+                  <Box pt="md">
+                    <Text fw={600} size="lg">
+                      {form.values.name || "Collective Name"}
                     </Text>
-                  )}
-                </Box>
-              </Stack>
-            </Card>
-          </GridCol>
+                    {form.values.bio && (
+                      <Text size="sm" c="dimmed" lineClamp={3} mt="xs">
+                        {form.values.bio}
+                      </Text>
+                    )}
+                  </Box>
+                </Stack>
+              </Card>
+            </GridCol>
+          )}
+
+          {/* Mobile Preview Card - Only shown on mobile */}
+          {isMobile && (
+            <GridCol span={12}>
+              <Card withBorder radius="md" p={isSmallMobile ? "md" : "xl"}>
+                <Title order={3} mb="md" size={isSmallMobile ? "1.25rem" : undefined}>
+                  Preview
+                </Title>
+                
+                <Stack gap="md">
+                  <Box
+                    style={{
+                      height: isSmallMobile ? "60px" : "80px",
+                      borderRadius: "8px",
+                      background: bannerUrl 
+                        ? `url(${bannerUrl}) center/cover` 
+                        : "var(--mantine-color-gray-2)",
+                      position: "relative",
+                    }}
+                  >
+                    <Box
+                      style={{
+                        position: "absolute",
+                        bottom: isSmallMobile ? "-15px" : "-20px",
+                        left: "16px",
+                      }}
+                    >
+                      <Avatar
+                        src={avatarUrl}
+                        size={isSmallMobile ? 30 : 40}
+                        style={{
+                          border: "2px solid white",
+                        }}
+                      >
+                        <IconUser size={isSmallMobile ? 12 : 16} />
+                      </Avatar>
+                    </Box>
+                  </Box>
+                  
+                  <Box pt="md">
+                    <Text fw={600} size={isSmallMobile ? "md" : "lg"} style={{ wordBreak: 'break-word' }}>
+                      {form.values.name || "Collective Name"}
+                    </Text>
+                    {form.values.bio && (
+                      <Text size="sm" c="dimmed" lineClamp={isSmallMobile ? 2 : 3} mt="xs">
+                        {form.values.bio}
+                      </Text>
+                    )}
+                  </Box>
+                </Stack>
+              </Card>
+            </GridCol>
+          )}
 
           {/* Localities Section */}
-          <GridCol span={{ base: 12, md: 8 }}>
-            <Card withBorder radius="md" p="xl">
-              <Title order={3} mb="md">
+          <GridCol span={12}>
+            <Card withBorder radius="md" p={isSmallMobile ? "md" : "xl"}>
+              <Title order={3} mb="md" size={isSmallMobile ? "1.25rem" : undefined}>
                 Operating Locations
               </Title>
               
-              <Text size="sm" c="dimmed" mb="lg">
+              <Text size={isSmallMobile ? "xs" : "sm"} c="dimmed" mb={isSmallMobile ? "md" : "lg"}>
                 Manage the cities where your collective operates. This helps local artists and venues find you.
               </Text>
               
               {localitiesLoading ? (
-                <Text>Loading locations...</Text>
+                <Text size={isSmallMobile ? "sm" : undefined}>Loading locations...</Text>
               ) : (
                 <MultipleLocationsInput
                   localities={selectedLocalities}
@@ -377,27 +453,43 @@ export function PromoterEditForm({ promoter }: PromoterEditFormProps) {
 
           {/* Actions */}
           <GridCol span={12}>
-            <Group justify="center" mt="xl">
-              <Button
-                component={Link}
-                href={`/promoters/${nameToUrl(promoter.name)}`}
-                variant="light"
-                size="lg"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                loading={loading}
-                leftSection={<IconDeviceFloppy size={20} />}
-                size="lg"
-                style={{
-                  background: "linear-gradient(45deg, #667eea, #764ba2)",
+            <Stack gap={isSmallMobile ? "sm" : "md"} mt={isSmallMobile ? "lg" : "xl"}>
+              {/* Mobile: Stack buttons vertically, Desktop: Side by side */}
+              <Group 
+                justify="center" 
+                gap={isSmallMobile ? "xs" : "md"}
+                style={{ 
+                  flexDirection: isSmallMobile ? 'column' : 'row',
+                  width: '100%'
                 }}
               >
-                Save Changes
-              </Button>
-            </Group>
+                <Button
+                  component={Link}
+                  href={`/promoters/${nameToUrl(promoter.name)}`}
+                  variant="light"
+                  size={isSmallMobile ? "md" : "lg"}
+                  style={{ 
+                    width: isSmallMobile ? '100%' : 'auto',
+                    maxWidth: isSmallMobile ? '300px' : 'none'
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={loading}
+                  leftSection={<IconDeviceFloppy size={isSmallMobile ? 16 : 20} />}
+                  size={isSmallMobile ? "md" : "lg"}
+                  style={{
+                    background: "linear-gradient(45deg, #667eea, #764ba2)",
+                    width: isSmallMobile ? '100%' : 'auto',
+                    maxWidth: isSmallMobile ? '300px' : 'none'
+                  }}
+                >
+                  Save Changes
+                </Button>
+              </Group>
+            </Stack>
           </GridCol>
         </Grid>
       </form>

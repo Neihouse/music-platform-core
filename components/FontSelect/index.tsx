@@ -13,7 +13,7 @@ import {
   Pill,
   ScrollArea,
 } from "@mantine/core";
-import { useDebouncedValue } from "@mantine/hooks";
+import { useDebouncedValue, useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { searchFonts, getPopularFonts } from "@/lib/fonts-secure";
 import { loadFont } from "@/lib/fonts-client";
@@ -71,6 +71,10 @@ export function FontSelect({
   const [debouncedQuery] = useDebouncedValue(searchQuery, 300);
   const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Mobile responsive hooks
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
 
   // Demo fonts fallback
   const DEMO_FONTS: GoogleFont[] = [
@@ -267,47 +271,49 @@ export function FontSelect({
   };
 
   return (
-    <Stack gap="xs">
-      {/* Category filter pills */}
-      <Box>
-        <Text size="xs" c="dimmed" mb="xs">
-          Filter by category:
-        </Text>
-        <Group gap="xs">
-          <Pill 
-            size="sm" 
-            variant={selectedCategory === null ? "filled" : "light"}
-            style={{ cursor: "pointer" }}
-            onClick={() => setSelectedCategory(null)}
-          >
-            All
-          </Pill>
-          {Object.entries(CATEGORY_COLORS).map(([category, color]) => (
-            <Pill
-              key={category}
-              size="sm"
-              variant={selectedCategory === category ? "filled" : "light"}
-              style={{ 
-                cursor: "pointer",
-                backgroundColor: selectedCategory === category ? color : undefined,
-                color: selectedCategory === category ? "white" : undefined,
-              }}
-              onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
+    <Stack gap={isSmallMobile ? "xs" : "sm"}>
+      {/* Category filter pills - Hidden on small mobile for space */}
+      {!isSmallMobile && (
+        <Box>
+          <Text size="xs" c="dimmed" mb="xs">
+            Filter by category:
+          </Text>
+          <Group gap="xs" wrap="wrap">
+            <Pill 
+              size="sm" 
+              variant={selectedCategory === null ? "filled" : "light"}
+              style={{ cursor: "pointer" }}
+              onClick={() => setSelectedCategory(null)}
             >
-              {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
+              All
             </Pill>
-          ))}
-        </Group>
-      </Box>
+            {Object.entries(CATEGORY_COLORS).map(([category, color]) => (
+              <Pill
+                key={category}
+                size="sm"
+                variant={selectedCategory === category ? "filled" : "light"}
+                style={{ 
+                  cursor: "pointer",
+                  backgroundColor: selectedCategory === category ? color : undefined,
+                  color: selectedCategory === category ? "white" : undefined,
+                }}
+                onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
+              >
+                {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
+              </Pill>
+            ))}
+          </Group>
+        </Box>
+      )}
 
       <Select
         label={label}
         description={description}
-        placeholder={placeholder}
+        placeholder={isSmallMobile ? "Choose font..." : placeholder}
         error={error}
         required={required}
         disabled={disabled}
-        size={size}
+        size={isSmallMobile ? "sm" : size}
         value={value}
         onChange={onChange}
         data={selectData}
@@ -318,29 +324,29 @@ export function FontSelect({
         allowDeselect
         nothingFoundMessage={
           loading ? (
-            <Group justify="center" p="md">
+            <Group justify="center" p={isSmallMobile ? "sm" : "md"}>
               <Loader size="sm" />
               <Text size="sm" c="dimmed">Loading fonts...</Text>
             </Group>
           ) : (
-            <Text size="sm" c="dimmed" ta="center" p="md">
+            <Text size="sm" c="dimmed" ta="center" p={isSmallMobile ? "sm" : "md"}>
               No fonts found{debouncedQuery ? ` matching "${debouncedQuery}"` : ''}
               {selectedCategory ? ` in ${selectedCategory} category` : ''}
             </Text>
           )
         }
         renderOption={renderOption}
-        maxDropdownHeight={450}
-        limit={50}
+        maxDropdownHeight={isMobile ? 300 : 450}
+        limit={isMobile ? 30 : 50}
         comboboxProps={{
           shadow: "md",
           transitionProps: { transition: "fade", duration: 200 },
-          dropdownPadding: 8,
+          dropdownPadding: isSmallMobile ? 4 : 8,
           offset: 2,
         }}
         leftSection={loading ? <Loader size={16} /> : undefined}
         rightSection={
-          value && (
+          value && !isSmallMobile && (
             <Group gap={4} wrap="nowrap">
               <Text size="xs" c="dimmed">
                 {fonts.find(f => f.family === value)?.variants.length || 0} variants

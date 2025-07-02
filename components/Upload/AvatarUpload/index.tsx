@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Card, Button, Group, Text, Title, Stack, Avatar } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
+import { useMediaQuery } from "@mantine/hooks";
 import { IconUpload, IconUser, IconX } from "@tabler/icons-react";
 import * as React from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -50,7 +51,11 @@ export function AvatarUpload({
   const [imageUrl, setImageUrl] = React.useState<string | null>(null);
   const [currentAvatarFilename, setCurrentAvatarFilename] = React.useState<string | null>(null);
 
-  const avatarSize = config.avatarSize || 150;
+  // Mobile responsive hooks
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
+
+  const avatarSize = config.avatarSize || (isSmallMobile ? 100 : isMobile ? 120 : 150);
   const maxFileSize = config.maxFileSize || 2 * 1024 * 1024; // 2MB default
 
   // Fetch existing avatar when component mounts
@@ -79,10 +84,12 @@ export function AvatarUpload({
   }, [entityId, onAvatarUploaded, config, fetchExistingAvatar]);
 
   return (
-    <Card withBorder p="md">
-      <Stack gap="md">
-        <Title order={4}>{config.title}</Title>
-        <Text size="sm" c="dimmed">
+    <Card withBorder p={isSmallMobile ? "sm" : "md"}>
+      <Stack gap={isSmallMobile ? "sm" : "md"}>
+        <Title order={4} size={isSmallMobile ? "1rem" : undefined}>
+          {config.title}
+        </Title>
+        <Text size={isSmallMobile ? "xs" : "sm"} c="dimmed">
           {config.description}
         </Text>
         <Group justify="center" mt="xs">
@@ -109,9 +116,9 @@ export function AvatarUpload({
                   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
                 }}
                 radius="xl"
-                size="sm"
+                size={isSmallMobile ? "xs" : "sm"}
               >
-                <IconX size={16} />
+                <IconX size={isSmallMobile ? 12 : 16} />
               </Button>
             </div>
           ) : (
@@ -128,6 +135,7 @@ export function AvatarUpload({
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                minHeight: "auto",
               }}
             >
               <Group
@@ -142,13 +150,13 @@ export function AvatarUpload({
                 }}
               >
                 <Dropzone.Accept>
-                  <IconUpload size={40} stroke={1.5} />
+                  <IconUpload size={isSmallMobile ? 24 : 40} stroke={1.5} />
                 </Dropzone.Accept>
                 <Dropzone.Reject>
-                  <IconX size={40} stroke={1.5} />
+                  <IconX size={isSmallMobile ? 24 : 40} stroke={1.5} />
                 </Dropzone.Reject>
                 <Dropzone.Idle>
-                  <IconUser size={40} stroke={1.5} />
+                  <IconUser size={isSmallMobile ? 24 : 40} stroke={1.5} />
                 </Dropzone.Idle>
               </Group>
             </Dropzone>

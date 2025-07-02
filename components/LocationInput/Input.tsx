@@ -1,7 +1,9 @@
 "use client";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import "./LocationInput.css";
+import { TextInput } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import { IconMapPin } from "@tabler/icons-react";
 
 export interface IInputProps {
   onPlaceSelect?: (place: google.maps.places.PlaceResult) => void;
@@ -26,6 +28,10 @@ export function Input({ onPlaceSelect, options, searchFullAddress = false }: IIn
     useState<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const places = useMapsLibrary("places");
+  
+  // Mobile responsive hooks
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
 
   // Memoize the appropriate options based on searchFullAddress prop
   const autocompleteOptions = useMemo(() => {
@@ -51,11 +57,15 @@ export function Input({ onPlaceSelect, options, searchFullAddress = false }: IIn
   }, [onPlaceSelect, placeAutocomplete]);
 
   return (
-    <div className="autocomplete-container">
-      <input 
-        placeholder={searchFullAddress ? "Enter full address" : "Enter your city"} 
-        ref={inputRef} 
-      />
-    </div>
+    <TextInput
+      ref={inputRef}
+      placeholder={searchFullAddress ? "Enter full address" : "Enter your city"}
+      leftSection={<IconMapPin size={16} />}
+      size={isSmallMobile ? "sm" : "md"}
+      style={{
+        width: '100%',
+        maxWidth: isMobile ? '100%' : '400px'
+      }}
+    />
   );
 }
