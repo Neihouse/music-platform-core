@@ -283,7 +283,6 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       avatarUrl={artist.avatar_img}
                       bannerUrl={artist.banner_img}
                       genre={artist.genre}
-                      followerCount={artist.followerCount}
                       location={currentCity}
                       selectedFont={artist.selectedFont}
                       onClick={() => console.log('Artist clicked:', artist.id)}
@@ -310,7 +309,6 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       imageUrl={venue.banner_img}
                       capacity={venue.capacity}
                       location={venue.address}
-                      upcomingEvents={venue.upcomingEvents}
                       onClick={() => console.log('Venue clicked:', venue.id)}
                       onViewEvents={() => console.log('View venue events:', venue.id)}
                     />
@@ -335,7 +333,6 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       avatarUrl={promoter.avatar_img}
                       bannerUrl={promoter.banner_img}
                       location={currentCity}
-                      upcomingShows={promoter.eventsOrganized}
                       selectedFont={promoter.selectedFont}
                       onClick={() => console.log('Promoter clicked:', promoter.id)}
                       onFollow={() => console.log('Follow promoter:', promoter.id)}

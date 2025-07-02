@@ -13,7 +13,6 @@ import {
 } from "@mantine/core";
 import { 
   IconMicrophone, 
-  IconUsers, 
   IconPlayerPlay,
 } from "@tabler/icons-react";
 import { StyledTitle } from "@/components/StyledTitle";
@@ -110,14 +109,8 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           </Text>
           
           <Group justify="space-between" align="center">
-            <Group gap="xs">
-              <ThemeIcon size="sm" variant="light" color="violet" radius="xl">
-                <IconUsers size={12} />
-              </ThemeIcon>
-              <Text size="xs" c="dimmed" fw={500}>
-                {artist.followerCount?.toLocaleString() || 0}
-              </Text>
-            </Group>
+            {/* Follower count removed - not a real feature yet */}
+            <Box />
             <Button 
               size="xs" 
               variant="gradient"

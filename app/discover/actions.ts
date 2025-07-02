@@ -147,7 +147,7 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
       banner_img: artist.banner_img || undefined,
       selectedFont: artist.selectedFont || undefined,
       genre: 'Various', // You might want to add a genre field to your schema
-      followerCount: Math.floor(Math.random() * 2000) + 100 // Mock data for now
+      // followerCount removed - not a real feature yet
     }));
 
     const transformedVenues: LocalVenue[] = (venues || []).map((venue: any) => ({
@@ -157,7 +157,7 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
       capacity: venue.capacity || undefined,
       address: venue.address || undefined,
       selectedFont: venue.selectedFont || undefined,
-      upcomingEvents: Math.floor(Math.random() * 15) + 1 // Mock data for now
+      // upcomingEvents removed - should be calculated from real events data
     }));
 
     const transformedEvents: LocalEvent[] = (events || []).map((event: any) => ({
@@ -166,7 +166,7 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
       date: event.date || new Date().toISOString(),
       venue: event.venues?.name || 'TBA',
       artists: event.events_artists?.map((ea: any) => ea.artists?.name).filter(Boolean) || [],
-      price: `$${Math.floor(Math.random() * 50) + 10}` // Mock pricing
+      // price removed - should come from real event data when pricing feature is implemented
     }));
 
     const transformedPromoters: LocalPromoter[] = (promoters || []).map((promoter: any) => ({
@@ -176,7 +176,7 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
       avatar_img: promoter.avatar_img || undefined,
       banner_img: promoter.banner_img || undefined,
       selectedFont: promoter.selectedFont || undefined,
-      eventsOrganized: Math.floor(Math.random() * 50) + 5 // Mock data for now
+      // eventsOrganized removed - should be calculated from real events data
     }));
 
     return {
