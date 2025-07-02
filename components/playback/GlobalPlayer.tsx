@@ -107,9 +107,20 @@ export function GlobalPlayer() {
           : theme.colors.gray[0],
         backdropFilter: 'blur(10px)',
         height: '72px',
+        width: '100%',
+        maxWidth: '100vw',
+        overflowX: 'hidden',
       }}
     >
-      <Stack gap={0} h="100%">
+      <Stack 
+        gap={0} 
+        h="100%" 
+        style={{
+          width: '100%',
+          maxWidth: '100%',
+          overflowX: 'hidden'
+        }}
+      >
         {/* Progress bar - thin at top */}
         <Box 
           style={{ 
@@ -117,6 +128,8 @@ export function GlobalPlayer() {
             height: '3px',
             position: 'relative',
             backgroundColor: colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2],
+            width: '100%',
+            maxWidth: '100%'
           }}
           onClick={handleProgressClick}
         >
@@ -136,7 +149,13 @@ export function GlobalPlayer() {
           align="center" 
           px="lg" 
           py={0}
-          style={{ flex: 1, height: '69px' }}
+          style={{ 
+            flex: 1, 
+            height: '69px',
+            width: '100%',
+            maxWidth: '100%',
+            overflowX: 'hidden'
+          }}
         >
           {/* Track info with album art */}
           <Group gap="sm" style={{ flex: 1, minWidth: 0, maxWidth: 300 }}>

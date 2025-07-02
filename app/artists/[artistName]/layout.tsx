@@ -9,10 +9,10 @@ export default function ArtistLayout({ children }: ArtistLayoutProps) {
     <div style={{ 
       minHeight: '100vh',
       background: 'var(--mantine-color-dark-9)',
-      margin: '-1.5rem -1rem', // Remove the container padding/margins
-      marginTop: '-1.5rem', // Remove top padding from AppShellMain
-      marginBottom: '-1.5rem', // Remove bottom padding from AppShellMain
-      width: 'calc(100% + 2rem)', // Compensate for the removed horizontal margins
+      margin: 0, // Remove negative margins that cause overflow
+      width: '100%',
+      maxWidth: '100vw',
+      overflowX: 'hidden'
     }}>
       {children}
     </div>

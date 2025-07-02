@@ -49,8 +49,16 @@ export function Header({ user, userProfile }: HeaderProps) {
     : '/profile'; // fallback for users without a specific profile type
 
   return (
-    <Container size="xl" h={60}>
-      <Group justify="space-between" h="100%">
+    <Container 
+      size="xl" 
+      h={60} 
+      style={{
+        width: '100%',
+        maxWidth: '100vw',
+        overflowX: 'hidden'
+      }}
+    >
+      <Group justify="space-between" h="100%" style={{ width: '100%' }}>
         <UnstyledButton component={Link} href="/">
           <Group gap="xs">
             <IconMusic

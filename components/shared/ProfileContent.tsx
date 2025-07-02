@@ -117,9 +117,11 @@ const ProfileContent = ({
         background: 'var(--mantine-color-dark-9)',
         minHeight: '100vh',
         color: 'var(--mantine-color-gray-0)',
-        margin: '-1.5rem -1rem', // Remove container padding
-        width: 'calc(100% + 2rem)', // Compensate for removed margins
+        margin: 0, // Remove negative margins that cause overflow
+        width: '100%',
+        maxWidth: '100vw',
         position: 'relative',
+        overflowX: 'hidden'
       }}
     >
       {/* Hero Section */}

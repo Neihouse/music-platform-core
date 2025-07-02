@@ -52,7 +52,10 @@ export default async function RootLayout({
         backgroundColor: 'var(--mantine-color-dark-9)',
         color: 'var(--mantine-color-gray-0)',
         margin: 0,
-        padding: 0
+        padding: 0,
+        overflowX: 'hidden', // Prevent horizontal scroll
+        width: '100%',
+        maxWidth: '100vw'
       }}>
         <MantineProvider theme={theme} defaultColorScheme="dark">
           <Playback>
@@ -65,6 +68,9 @@ export default async function RootLayout({
                 main: {
                   backgroundColor: 'var(--mantine-color-dark-9)',
                   color: 'var(--mantine-color-gray-0)',
+                  overflowX: 'hidden', // Prevent horizontal scroll
+                  width: '100%',
+                  maxWidth: '100vw'
                 },
                 header: {
                   backgroundColor: 'var(--mantine-color-dark-8)',
@@ -82,7 +88,10 @@ export default async function RootLayout({
 
               <AppShellMain style={{ 
                 backgroundColor: 'var(--mantine-color-dark-9)',
-                padding: 0 
+                padding: 0,
+                overflowX: 'hidden', // Prevent horizontal scroll
+                width: '100%',
+                maxWidth: '100vw'
               }}>
                 <ConditionalLayout>
                   {children}
