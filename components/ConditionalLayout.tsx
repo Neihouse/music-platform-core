@@ -28,9 +28,9 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
         width: '100%',
         maxWidth: '100vw',
         overflowX: 'hidden',
-        padding: isSmallMobile ? '0.5rem' : isMobile ? '1rem' : '1.5rem',
-        paddingTop: isSmallMobile ? '1rem' : '1.5rem', // Add top padding for header spacing
-        paddingBottom: isSmallMobile ? '1rem' : '1.5rem',
+        // padding: isSmallMobile ? '0.5rem' : isMobile ? '1rem' : '1.5rem',
+        // paddingTop: isSmallMobile ? '1rem' : '1.5rem', // Add top padding for header spacing
+        // paddingBottom: isSmallMobile ? '1rem' : '1.5rem',
       }}>
         {children}
       </div>
