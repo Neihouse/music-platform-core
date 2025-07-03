@@ -88,7 +88,7 @@ const ProfileHeader = ({
 
         {location && (
           <Group gap="xs" align="center">
-            <IconMapPin size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />
+            <IconMapPin size={18} style={{ color: 'var(--mantine-color-dimmed)', margin: "auto" }} />
             <Text size="sm" c="dimmed">
               {`Based in ${location.locality.name}`}
             </Text>
