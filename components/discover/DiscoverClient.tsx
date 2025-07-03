@@ -34,9 +34,10 @@ import { mockCityData } from "@/lib/mock-data";
 interface DiscoverClientProps {
   initialData?: CityData | null;
   initialCity?: string;
+  popularCities?: string[];
 }
 
-export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps) {
+export function DiscoverClient({ initialData, initialCity, popularCities }: DiscoverClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cityData, setCityData] = useState<CityData | null>(initialData || null);
@@ -199,7 +200,7 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
   return (
     <Box style={{ background: 'var(--mantine-color-dark-9)', minHeight: '100vh' }}>
       {/* Hero Section */}
-      <SearchHero onSearch={handleSearch} />
+      <SearchHero onSearch={handleSearch} popularCities={popularCities} />
 
       {/* Loading State */}
       {isLoading && <LoadingState />}
