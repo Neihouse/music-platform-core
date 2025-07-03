@@ -90,7 +90,7 @@ const ProfileHeader = ({
           <Group gap="xs" align="center">
             <IconMapPin size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />
             <Text size="sm" c="dimmed">
-              {`Based in ${location.locality.name}, ${location.administrativeArea.name}, ${location.country.name}`}
+              {`Based in ${location.locality.name}`}
             </Text>
           </Group>
         )}
