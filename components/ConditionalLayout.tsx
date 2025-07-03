@@ -40,8 +40,8 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   return (
     <Container 
       size={1200} 
-      px={isSmallMobile ? "0.5rem" : "1rem"} 
-      py={isSmallMobile ? "1rem" : "1.5rem"} 
+      // px={isSmallMobile ? "0.5rem" : "1rem"} 
+      // py={isSmallMobile ? "1rem" : "1.5rem"} 
       style={{ 
         backgroundColor: 'var(--mantine-color-dark-9)',
         // Remove the minHeight calculation since AppShell.Main handles header offset automatically

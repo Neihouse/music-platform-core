@@ -225,16 +225,16 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
           {!hasData ? (
             <EmptyState />
           ) : (
-            <Stack gap={0}>
+            <Stack gap={4}>
               {/* City Header */}
               {currentCity && (
-                <Box py="xl" style={{ background: 'var(--mantine-color-dark-8)' }}>
-                  <Container size="xl" px="xl">
-                    <Group justify="center" align="center" gap="md">
+                <Box  style={{ background: 'var(--mantine-color-dark-8)' }}>
+                  <Container size="xl" >
+                    <Group ta="center" justify="center" align="center" gap="md">
                       <ThemeIcon size="xl" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
                         <IconMapPin size={28} />
                       </ThemeIcon>
-                      <Text size={rem(36)} fw={700} c="white">
+                      <Text mb="md" size={rem(36)} fw={700} c="white">
                         Music in {capitalizeCity(currentCity)}
                       </Text>
                     </Group>
@@ -273,7 +273,6 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                   title="🎤 Rising Artists"
                   subtitle="Discover the next big names in your local music scene"
                   badge={`${cityData.artists.length} artists`}
-                  scrollable
                 >
                   {cityData.artists.map((artist) => (
                     <ArtistCard
@@ -284,10 +283,8 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                       avatarUrl={artist.avatar_img}
                       bannerUrl={artist.banner_img}
                       genre={artist.genre}
-                      location={currentCity}
                       selectedFont={artist.selectedFont}
                       onClick={() => console.log('Artist clicked:', artist.id)}
-                      onFollow={() => console.log('Follow artist:', artist.id)}
                     />
                   ))}
                 </ContentSection>
@@ -299,7 +296,6 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                   title="🏛️ Top Venues"
                   subtitle="The best places to catch live music in your city"
                   badge={`${cityData.venues.length} venues`}
-                  scrollable
                 >
                   {cityData.venues.map((venue) => (
                     <VenueCard
@@ -323,8 +319,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                   title="🎪 Active Promoters"
                   subtitle="The tastemakers bringing the best events to your city"
                   badge={`${cityData.promoters.length} promoters`}
-                  scrollable
-                >
+              >
                   {cityData.promoters.map((promoter) => (
                     <ArtistCard
                       key={promoter.id}
@@ -333,10 +328,8 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                       bio={promoter.bio}
                       avatarUrl={promoter.avatar_img}
                       bannerUrl={promoter.banner_img}
-                      location={currentCity}
                       selectedFont={promoter.selectedFont}
                       onClick={() => console.log('Promoter clicked:', promoter.id)}
-                      onFollow={() => console.log('Follow promoter:', promoter.id)}
                     />
                   ))}
                 </ContentSection>
