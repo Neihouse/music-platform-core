@@ -30,6 +30,7 @@ import {
 } from "@/components/shared";
 import { getCityMusicData, CityData } from "@/app/discover/actions";
 import { mockCityData } from "@/lib/mock-data";
+import { nameToUrl } from "@/lib/utils";
 
 interface DiscoverClientProps {
   initialData?: CityData | null;
@@ -260,7 +261,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                       artists={event.artists}
                       price={event.price}
                       imageUrl={event.banner_img}
-                      onClick={() => console.log('Event clicked:', event.id)}
+                      onClick={() => router.push(`/events/${nameToUrl(event.name)}`)}
                       onGetTickets={() => console.log('Get tickets:', event.id)}
                     />
                   ))}
@@ -284,7 +285,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                       bannerUrl={artist.banner_img}
                       genre={artist.genre}
                       selectedFont={artist.selectedFont}
-                      onClick={() => console.log('Artist clicked:', artist.id)}
+                      onClick={() => router.push(`/artists/${nameToUrl(artist.name)}`)}
                     />
                   ))}
                 </ContentSection>
@@ -306,7 +307,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                       imageUrl={venue.banner_img}
                       capacity={venue.capacity}
                       location={venue.address}
-                      onClick={() => console.log('Venue clicked:', venue.id)}
+                      onClick={() => router.push(`/venues/${nameToUrl(venue.name)}`)}
                       onViewEvents={() => console.log('View venue events:', venue.id)}
                     />
                   ))}
@@ -329,7 +330,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                       avatarUrl={promoter.avatar_img}
                       bannerUrl={promoter.banner_img}
                       selectedFont={promoter.selectedFont}
-                      onClick={() => console.log('Promoter clicked:', promoter.id)}
+                      onClick={() => router.push(`/promoters/${nameToUrl(promoter.name)}`)}
                     />
                   ))}
                 </ContentSection>
