@@ -99,7 +99,7 @@ export function Footer() {
       <Container size="xl" style={{ width: "100%" }}>
         <Group justify="space-between" wrap="nowrap">
           <Text size="sm" c="dimmed">
-            © {year} MusicApp. All rights reserved.
+            © {year} Myuzo. All rights reserved.
           </Text>
           <Group gap="md" wrap="nowrap">
             {SOCIAL_LINKS.map((link) => (

@@ -55,7 +55,7 @@ export default function OnboardingClient({}: IOnboardingClientProps) {
         <Stack gap="md">
           <div>
             <Title order={2} ta="center" mb="xs">
-              Welcome to MusicApp
+              Welcome to Myuzo
             </Title>
             <Text ta="center" size="md" c="dimmed">
               Tell us how you want to use our platform
