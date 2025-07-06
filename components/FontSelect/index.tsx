@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { searchFonts, getPopularFonts } from "@/lib/fonts-secure";
+import { searchFonts, getPopularFonts, getFontsByCategory } from "@/lib/fonts-secure";
 import { loadFont } from "@/lib/fonts-client";
 
 // Google Font interface - simplified for our needs
@@ -72,65 +72,37 @@ export function FontSelect({
   const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Demo fonts fallback
-  const DEMO_FONTS: GoogleFont[] = [
-    {
-      family: "Inter",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "sans-serif"
-    },
-    {
-      family: "Roboto",
-      variants: ["regular", "500", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "sans-serif"
-    },
-    {
-      family: "Open Sans",
-      variants: ["regular", "600", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "sans-serif"
-    },
-    {
-      family: "Playfair Display",
-      variants: ["regular", "600", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "serif"
-    },
-    {
-      family: "Poppins",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "sans-serif"
-    }
-  ];
-
-  // Load fonts from secure server actions
-  const fetchFonts = async () => {
+  // Load fonts from server - either popular fonts or search results
+  const fetchFonts = async (query?: string, category?: string | null) => {
     setLoading(true);
     try {
-      const result = await getPopularFonts(100);
+      let result;
       
-      if (result.success && result.fonts) {
+      if (query?.trim()) {
+        // Search for fonts based on query
+        result = await searchFonts(query, 50);
+      } else if (category) {
+        // Get fonts by category
+        result = await getFontsByCategory(category, 50);
+      } else {
+        // Get popular fonts
+        result = await getPopularFonts(50);
+      }
+      
+      if (result.success) {
         setFonts(result.fonts);
       } else {
         throw new Error(result.error || 'Failed to fetch fonts');
       }
     } catch (error) {
-      console.error("Failed to fetch Google Fonts:", error);
+      console.error("Failed to fetch fonts:", error);
       notifications.show({
         title: "Font Loading Error",
-        message: "Failed to load Google Fonts. Using demo fonts instead.",
+        message: "Failed to load fonts. Please try again.",
         color: "orange",
       });
-      // Fallback to demo fonts
-      setFonts(DEMO_FONTS);
+      // Clear fonts on error
+      setFonts([]);
     } finally {
       setLoading(false);
     }
@@ -156,22 +128,10 @@ export function FontSelect({
     }
   };
 
-  // Filter fonts based on category (search is handled server-side)
-  const filteredFonts = useMemo(() => {
-    let filtered = fonts;
-    
-    // Filter by category (if selected)
-    if (selectedCategory) {
-      filtered = filtered.filter(font => font.category === selectedCategory);
-    }
-    
-    return filtered;
-  }, [fonts, selectedCategory]);
-
-  // Load fonts for preview when filtered fonts change
+  // Load fonts for preview when fonts change
   useEffect(() => {
     // Load first few visible fonts to avoid loading too many at once
-    const fontsToLoad = filteredFonts.slice(0, 10);
+    const fontsToLoad = fonts.slice(0, 10);
     fontsToLoad.forEach(font => {
       if (!loadedFonts.has(font.family)) {
         setTimeout(() => {
@@ -179,42 +139,23 @@ export function FontSelect({
         }, 0);
       }
     });
-  }, [filteredFonts, loadedFonts]);
+  }, [fonts, loadedFonts]);
 
   // Convert fonts to select data format
   const selectData = useMemo(() => {
-    return filteredFonts.map(font => ({
+    return fonts.map(font => ({
       value: font.family,
       label: font.family,
       font: font,
     }));
-  }, [filteredFonts]);
+  }, [fonts]);
 
   // Handle debounced search query changes
   useEffect(() => {
-    if (debouncedQuery.trim()) {
-      // Perform server-side search for better performance
-      setLoading(true);
-      searchFonts(debouncedQuery, 20)
-        .then(result => {
-          if (result.success && result.fonts) {
-            setFonts(result.fonts);
-          } else {
-            console.error('Font search error:', result.error);
-          }
-        })
-        .catch(error => {
-          console.error('Font search failed:', error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      // If no search query, load popular fonts
-      fetchFonts();
-    }
-  }, [debouncedQuery]);
+    fetchFonts(debouncedQuery, selectedCategory);
+  }, [debouncedQuery, selectedCategory]);
 
+  // Load initial fonts
   useEffect(() => {
     fetchFonts();
   }, []);
@@ -278,7 +219,10 @@ export function FontSelect({
             size="sm" 
             variant={selectedCategory === null ? "filled" : "light"}
             style={{ cursor: "pointer" }}
-            onClick={() => setSelectedCategory(null)}
+            onClick={() => {
+              setSelectedCategory(null);
+              setSearchQuery(""); // Clear search when changing category
+            }}
           >
             All
           </Pill>
@@ -292,7 +236,11 @@ export function FontSelect({
                 backgroundColor: selectedCategory === category ? color : undefined,
                 color: selectedCategory === category ? "white" : undefined,
               }}
-              onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
+              onClick={() => {
+                const newCategory = selectedCategory === category ? null : category;
+                setSelectedCategory(newCategory);
+                setSearchQuery(""); // Clear search when changing category
+              }}
             >
               {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
             </Pill>
@@ -320,11 +268,14 @@ export function FontSelect({
           loading ? (
             <Group justify="center" p="md">
               <Loader size="sm" />
-              <Text size="sm" c="dimmed">Loading fonts...</Text>
+              <Text size="sm" c="dimmed">
+                {searchQuery ? `Searching for "${searchQuery}"...` : "Loading fonts..."}
+              </Text>
             </Group>
           ) : (
             <Text size="sm" c="dimmed" ta="center" p="md">
-              No fonts found{debouncedQuery ? ` matching "${debouncedQuery}"` : ''}
+              No fonts found
+              {searchQuery ? ` matching "${searchQuery}"` : ''}
               {selectedCategory ? ` in ${selectedCategory} category` : ''}
             </Text>
           )
