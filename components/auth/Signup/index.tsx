@@ -48,7 +48,16 @@ export function Signup(props: PaperProps) {
   };
 
   return (
-    <Paper radius="md" p="xl" withBorder {...props}>
+    <Paper
+      radius="md"
+      p={{ base: "md", sm: "xl" }}
+      withBorder
+      style={{
+        width: '100%',
+        maxWidth: '100%'
+      }}
+      {...props}
+    >
       <Text size="lg" fw={500}>
         Welcome to Myuzo
       </Text>
