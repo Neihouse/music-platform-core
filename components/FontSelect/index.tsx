@@ -7,13 +7,11 @@ import {
   Box,
   Group,
   Loader,
-  Paper,
   Stack,
   rem,
   Pill,
-  ScrollArea,
 } from "@mantine/core";
-import { useDebouncedValue } from "@mantine/hooks";
+import {  useMediaQuery } from "@mantine/hooks";
 import { loadFont } from "@/lib/fonts-client";
 import { useFontFetch } from "./useFontFetch";
 
@@ -67,6 +65,10 @@ export function FontSelect({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
+  
+  // Media queries for responsive design
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
   
   // Use custom hook for font fetching
   const { fonts, loading } = useFontFetch({
@@ -199,26 +201,11 @@ export function FontSelect({
                 setSearchQuery(""); // Clear search when changing category
               }}
             >
-              All
+              {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
             </Pill>
-            {Object.entries(CATEGORY_COLORS).map(([category, color]) => (
-              <Pill
-                key={category}
-                size="sm"
-                variant={selectedCategory === category ? "filled" : "light"}
-                style={{ 
-                  cursor: "pointer",
-                  backgroundColor: selectedCategory === category ? color : undefined,
-                  color: selectedCategory === category ? "white" : undefined,
-                }}
-                onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
-              >
-                {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
-              </Pill>
-            ))}
-          </Group>
-        </Box>
-      )}
+          ))}
+        </Group>
+      </Box>
 
       <Select
         label={label}
