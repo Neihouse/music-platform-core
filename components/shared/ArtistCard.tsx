@@ -12,7 +12,7 @@ import {
   Avatar,
   Button,
 } from "@mantine/core";
-import { IconMapPin, IconUsers, IconCalendarEvent } from "@tabler/icons-react";
+import { IconUsers, IconCalendarEvent } from "@tabler/icons-react";
 import { getAvatarUrl, getBannerUrl } from "@/lib/images/image-utils-client";
 import { StyledTitle } from "@/components/StyledTitle";
 
@@ -50,9 +50,9 @@ export function ArtistCard({
   onFollow,
 }: ArtistCardProps) {
   const cardSize = {
-    sm: { width: 240, height: 320 },
-    md: { width: 280, height: 360 },
-    lg: { width: 320, height: 400 }
+    sm: { minWidth: 200, maxWidth: 240, height: 260 },
+    md: { minWidth: 240, maxWidth: 280, height: 300 },
+    lg: { minWidth: 280, maxWidth: 320, height: 340 }
   }[size];
 
   const bannerImageUrl = bannerUrl ? getBannerUrl(bannerUrl) : null;
@@ -60,16 +60,19 @@ export function ArtistCard({
 
   return (
     <Card
-      w={cardSize.width}
-      h={cardSize.height}
       p={0}
       radius="xl"
       style={{
+        width: '100%',
+        minWidth: cardSize.minWidth,
+        maxWidth: cardSize.maxWidth,
+        height: cardSize.height,
         background: 'var(--mantine-color-dark-8)',
         border: '1px solid var(--mantine-color-dark-6)',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         overflow: 'hidden',
+        boxSizing: 'border-box',
       }}
       onClick={onClick}
       onMouseEnter={(e) => {
@@ -129,23 +132,22 @@ export function ArtistCard({
           }}
         />
 
-        <Stack justify="space-between" h="100%" pt={40}>
+        <Stack justify="space-between" h="100%" pt="xs">
           <Stack gap="sm">
             <Group align="center" gap="xs">
               <StyledTitle
                 selectedFont={selectedFont}
-                as="h3"
-                style={{
-                  fontSize: rem(18),
-                  fontWeight: 700,
-                  color: 'var(--mantine-color-white)',
-                  lineHeight: 1.2,
-                  margin: 0,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  maxWidth: '180px',
-                }}
+                as="h3"                  style={{
+                    fontSize: rem(18),
+                    fontWeight: 700,
+                    color: 'var(--mantine-color-white)',
+                    lineHeight: 1.2,
+                    margin: 0,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: '140px',
+                  }}
               >
                 {name}
               </StyledTitle>
@@ -163,15 +165,6 @@ export function ArtistCard({
             )}
 
             <Stack gap="xs">
-              {location && (
-                <Group gap="xs" align="center">
-                  <IconMapPin size={14} color="var(--mantine-color-dimmed)" />
-                  <Text size="xs" c="dimmed">
-                    {location}
-                  </Text>
-                </Group>
-              )}
-
               {followerCount !== undefined && (
                 <Group gap="xs" align="center">
                   <IconUsers size={14} color="var(--mantine-color-dimmed)" />
@@ -192,19 +185,21 @@ export function ArtistCard({
             </Stack>
           </Stack>
 
-          <Button
-            size="sm"
-            variant="gradient"
-            gradient={{ from: 'blue', to: 'cyan' }}
-            fullWidth
-            radius="xl"
-            onClick={(e) => {
-              e.stopPropagation();
-              onFollow?.();
-            }}
-          >
-            Follow
-          </Button>
+          {onFollow && (
+            <Button
+              size="sm"
+              variant="gradient"
+              gradient={{ from: 'blue', to: 'cyan' }}
+              fullWidth
+              radius="xl"
+              onClick={(e) => {
+                e.stopPropagation();
+                onFollow();
+              }}
+            >
+              Follow
+            </Button>
+          )}
         </Stack>
       </Box>
     </Card>

@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Card, Button, Group, Text, Title, Stack } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
+import { useMediaQuery } from "@mantine/hooks";
 import { IconUpload, IconPhoto, IconX } from "@tabler/icons-react";
 import * as React from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -45,6 +46,10 @@ export function BannerUpload({
   const [imageUrl, setImageUrl] = React.useState<string | null>(null);
   const [currentBannerFilename, setCurrentBannerFilename] = React.useState<string | null>(null);
 
+  // Mobile responsive hooks
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
+
   // Fetch existing banner when component mounts
   React.useEffect(() => {
     async function fetchBanner() {
@@ -74,10 +79,12 @@ export function BannerUpload({
   }, [entityId, onBannerUploaded, config, fetchExistingBanner]);
 
   return (
-    <Card withBorder p="md">
-      <Stack gap="md">
-        <Title order={4}>{config.title}</Title>
-        <Text size="sm" c="dimmed">
+    <Card withBorder p={isSmallMobile ? "sm" : "md"}>
+      <Stack gap={isSmallMobile ? "sm" : "md"}>
+        <Title order={4} size={isSmallMobile ? "1rem" : undefined}>
+          {config.title}
+        </Title>
+        <Text size={isSmallMobile ? "xs" : "sm"} c="dimmed">
           {config.description}
         </Text>
         {imageUrl ? (
@@ -94,7 +101,7 @@ export function BannerUpload({
                 alt="Banner image"
                 style={{
                   width: "100%",
-                  height: "200px",
+                  height: isSmallMobile ? "120px" : isMobile ? "160px" : "200px",
                   objectFit: "cover",
                   borderRadius: "8px",
                 }}
@@ -105,17 +112,17 @@ export function BannerUpload({
                 variant="light"
                 style={{
                   position: "absolute",
-                  top: "8px",
-                  right: "8px",
+                  top: 8,
+                  right: 8,
                   backgroundColor: "rgba(255, 255, 255, 0.9)",
                   backdropFilter: "blur(4px)",
                   border: "1px solid rgba(0, 0, 0, 0.1)",
                   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
                 }}
-                radius="xl"
-                size="sm"
+                radius="md"
+                size={isSmallMobile ? "xs" : "sm"}
               >
-                <IconX size={16} />
+                <IconX size={isSmallMobile ? 12 : 16} />
               </Button>
             </div>
           </div>
@@ -124,32 +131,33 @@ export function BannerUpload({
             loading={uploadState === "pending"}
             onDrop={onDrop}
             accept={["image/png", "image/jpeg", "image/webp"]}
-            maxSize={5 * 1024 * 1024}
+            maxSize={5 * 1024 * 1024} // 5MB
             maxFiles={1}
+            style={{
+              minHeight: isSmallMobile ? "120px" : isMobile ? "160px" : "200px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
-            <Group
-              justify="center"
-              align="center"
-              style={{ minHeight: "120px" }}
-            >
+            <Group justify="center" align="center" gap={isSmallMobile ? "xs" : "sm"}>
               <Dropzone.Accept>
-                <IconUpload size={50} stroke={1.5} />
+                <IconUpload size={isSmallMobile ? 24 : 40} stroke={1.5} />
               </Dropzone.Accept>
               <Dropzone.Reject>
-                <IconX size={50} stroke={1.5} />
+                <IconX size={isSmallMobile ? 24 : 40} stroke={1.5} />
               </Dropzone.Reject>
               <Dropzone.Idle>
-                <IconPhoto size={50} stroke={1.5} />
+                <Stack align="center" gap={isSmallMobile ? "xs" : "sm"}>
+                  <IconPhoto size={isSmallMobile ? 24 : 40} stroke={1.5} />
+                  <Text size={isSmallMobile ? "xs" : "sm"} ta="center">
+                    {isSmallMobile ? "Upload banner" : "Drag banner image here or click to select"}
+                  </Text>
+                  <Text size="xs" c="dimmed" ta="center">
+                    Wide image recommended (16:9 ratio), max 5MB
+                  </Text>
+                </Stack>
               </Dropzone.Idle>
-
-              <Stack align="center">
-                <Text size="xl" inline>
-                  Drag banner image here or click to select
-                </Text>
-                <Text size="sm" c="dimmed" inline>
-                  Attach one image file, size should not exceed 5mb
-                </Text>
-              </Stack>
             </Group>
           </Dropzone>
         )}

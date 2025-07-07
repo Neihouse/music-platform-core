@@ -30,13 +30,15 @@ import {
 } from "@/components/shared";
 import { getCityMusicData, CityData } from "@/app/discover/actions";
 import { mockCityData } from "@/lib/mock-data";
+import { nameToUrl } from "@/lib/utils";
 
 interface DiscoverClientProps {
   initialData?: CityData | null;
   initialCity?: string;
+  popularCities?: string[];
 }
 
-export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps) {
+export function DiscoverClient({ initialData, initialCity, popularCities }: DiscoverClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cityData, setCityData] = useState<CityData | null>(initialData || null);
@@ -199,7 +201,7 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
   return (
     <Box style={{ background: 'var(--mantine-color-dark-9)', minHeight: '100vh' }}>
       {/* Hero Section */}
-      <SearchHero onSearch={handleSearch} />
+      <SearchHero onSearch={handleSearch} popularCities={popularCities} />
 
       {/* Loading State */}
       {isLoading && <LoadingState />}
@@ -224,16 +226,16 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
           {!hasData ? (
             <EmptyState />
           ) : (
-            <Stack gap={0}>
+            <Stack gap={4}>
               {/* City Header */}
               {currentCity && (
-                <Box py="xl" style={{ background: 'var(--mantine-color-dark-8)' }}>
-                  <Container size="xl" px="xl">
-                    <Group justify="center" align="center" gap="md">
+                <Box  style={{ background: 'var(--mantine-color-dark-8)' }}>
+                  <Container size="xl" >
+                    <Group ta="center" justify="center" align="center" gap="md">
                       <ThemeIcon size="xl" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
                         <IconMapPin size={28} />
                       </ThemeIcon>
-                      <Text size={rem(36)} fw={700} c="white">
+                      <Text mb="md" size={rem(36)} fw={700} c="white">
                         Music in {capitalizeCity(currentCity)}
                       </Text>
                     </Group>
@@ -259,7 +261,7 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       artists={event.artists}
                       price={event.price}
                       imageUrl={event.banner_img}
-                      onClick={() => console.log('Event clicked:', event.id)}
+                      onClick={() => router.push(`/events/${nameToUrl(event.name)}`)}
                       onGetTickets={() => console.log('Get tickets:', event.id)}
                     />
                   ))}
@@ -272,7 +274,6 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                   title="🎤 Rising Artists"
                   subtitle="Discover the next big names in your local music scene"
                   badge={`${cityData.artists.length} artists`}
-                  scrollable
                 >
                   {cityData.artists.map((artist) => (
                     <ArtistCard
@@ -283,11 +284,8 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       avatarUrl={artist.avatar_img}
                       bannerUrl={artist.banner_img}
                       genre={artist.genre}
-                      followerCount={artist.followerCount}
-                      location={currentCity}
                       selectedFont={artist.selectedFont}
-                      onClick={() => console.log('Artist clicked:', artist.id)}
-                      onFollow={() => console.log('Follow artist:', artist.id)}
+                      onClick={() => router.push(`/artists/${nameToUrl(artist.name)}`)}
                     />
                   ))}
                 </ContentSection>
@@ -299,7 +297,6 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                   title="🏛️ Top Venues"
                   subtitle="The best places to catch live music in your city"
                   badge={`${cityData.venues.length} venues`}
-                  scrollable
                 >
                   {cityData.venues.map((venue) => (
                     <VenueCard
@@ -310,8 +307,7 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       imageUrl={venue.banner_img}
                       capacity={venue.capacity}
                       location={venue.address}
-                      upcomingEvents={venue.upcomingEvents}
-                      onClick={() => console.log('Venue clicked:', venue.id)}
+                      onClick={() => router.push(`/venues/${nameToUrl(venue.name)}`)}
                       onViewEvents={() => console.log('View venue events:', venue.id)}
                     />
                   ))}
@@ -324,8 +320,7 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                   title="🎪 Active Promoters"
                   subtitle="The tastemakers bringing the best events to your city"
                   badge={`${cityData.promoters.length} promoters`}
-                  scrollable
-                >
+              >
                   {cityData.promoters.map((promoter) => (
                     <ArtistCard
                       key={promoter.id}
@@ -334,11 +329,8 @@ export function DiscoverClient({ initialData, initialCity }: DiscoverClientProps
                       bio={promoter.bio}
                       avatarUrl={promoter.avatar_img}
                       bannerUrl={promoter.banner_img}
-                      location={currentCity}
-                      upcomingShows={promoter.eventsOrganized}
                       selectedFont={promoter.selectedFont}
-                      onClick={() => console.log('Promoter clicked:', promoter.id)}
-                      onFollow={() => console.log('Follow promoter:', promoter.id)}
+                      onClick={() => router.push(`/promoters/${nameToUrl(promoter.name)}`)}
                     />
                   ))}
                 </ContentSection>

@@ -53,8 +53,8 @@ export function CityStats({ cityData, cityName }: CityStatsProps) {
   // Calculate total upcoming events
   const totalUpcomingEvents = cityData.events.length;
   
-  // Calculate total venues with events
-  const activeVenues = cityData.venues.filter(v => (v.upcomingEvents || 0) > 0).length;
+  // Calculate total venues (removed fake upcomingEvents check)
+  const activeVenues = cityData.venues.length;
   
   // Calculate total artists
   const totalArtists = cityData.artists.length;
@@ -65,10 +65,7 @@ export function CityStats({ cityData, cityName }: CityStatsProps) {
   // Calculate total venue capacity
   const totalCapacity = cityData.venues.reduce((sum, venue) => sum + (venue.capacity || 0), 0);
 
-  // Average events per promoter
-  const avgEventsPerPromoter = activePromoters > 0 
-    ? Math.round(cityData.promoters.reduce((sum, p) => sum + (p.eventsOrganized || 0), 0) / activePromoters)
-    : 0;
+  // Average events per promoter calculation removed (was using fake data)
 
   const stats = [
     {
@@ -100,13 +97,8 @@ export function CityStats({ cityData, cityName }: CityStatsProps) {
       value: totalCapacity,
       label: "Total Venue Capacity",
       color: "blue"
-    },
-    {
-      icon: <IconTrendingUp size={20} />,
-      value: avgEventsPerPromoter,
-      label: "Avg Events/Promoter",
-      color: "cyan"
     }
+    // Removed fake "Avg Events/Promoter" stat that was using eventsOrganized fake data
   ];
 
   return (

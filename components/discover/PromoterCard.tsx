@@ -12,7 +12,6 @@ import {
 } from "@mantine/core";
 import { 
   IconUsers, 
-  IconStar,
 } from "@tabler/icons-react";
 import { StyledTitle } from "@/components/StyledTitle";
 import { getAvatarUrl, getBannerUrl } from "@/lib/images/image-utils-client";
@@ -94,14 +93,7 @@ export function PromoterCard({ promoter }: PromoterCardProps) {
           >
             {promoter.name}
           </StyledTitle>
-          <Badge
-            size="sm"
-            variant="light"
-            color="orange"
-            leftSection={<IconStar size={12} />}
-          >
-            {promoter.eventsOrganized || 0}
-          </Badge>
+          {/* Events organized badge removed - should be calculated from real events data */}
         </Group>
         
         <Box style={{ paddingLeft: 75 }}>

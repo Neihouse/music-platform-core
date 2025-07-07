@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Stack, Title, Text, Button, Group, Badge, Box } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { IconPlus, IconMapPin } from "@tabler/icons-react";
 import { LocationInput } from "@/components/LocationInput";
 import { StoredLocality } from "@/utils/supabase/global.types";
@@ -24,6 +25,8 @@ export function MultipleLocationsInput({
   searchLocalitiesOnly = true,
 }: MultipleLocationsInputProps) {
   const [isAddingLocation, setIsAddingLocation] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
 
   const handleAddLocation = (newLocality: StoredLocality) => {
     // Check if this locality is already added
@@ -47,24 +50,31 @@ export function MultipleLocationsInput({
   const canAddMore = localities.length < maxLocalities;
 
   return (
-    <Stack gap="md">
-      <div>
-        <Title order={4} mb="xs">
-          {title}
-        </Title>
-        <Text size="sm" c="dimmed">
-          {description}
-        </Text>
-      </div>
+    <Stack gap={isSmallMobile ? "sm" : "md"}>
+      {title && (
+        <div>
+          <Title order={4} mb="xs" size={isSmallMobile ? "1rem" : undefined}>
+            {title}
+          </Title>
+          <Text size={isSmallMobile ? "xs" : "sm"} c="dimmed">
+            {description}
+          </Text>
+        </div>
+      )}
 
       {/* Display current localities */}
       {localities.length > 0 && (
         <Stack gap="xs">
           {localities.map((locality, index) => (
-            <Group key={locality.locality.id} justify="space-between" wrap="nowrap">
+            <Group 
+              key={locality.locality.id} 
+              justify="space-between" 
+              wrap="nowrap"
+              gap={isSmallMobile ? "xs" : "sm"}
+            >
               <Group gap="xs" style={{ flex: 1, minWidth: 0 }}>
-                <IconMapPin size={16} color="var(--mantine-color-blue-6)" />
-                <Text size="sm" lineClamp={1}>
+                <IconMapPin size={isSmallMobile ? 14 : 16} color="var(--mantine-color-blue-6)" />
+                <Text size={isSmallMobile ? "xs" : "sm"} lineClamp={isMobile ? 2 : 1}>
                   {locality.fullAddress || 
                     `${locality.locality.name}, ${locality.administrativeArea.name}, ${locality.country.name}`
                   }
@@ -75,6 +85,10 @@ export function MultipleLocationsInput({
                 variant="subtle"
                 color="red"
                 onClick={() => handleRemoveLocation(locality)}
+                style={{ 
+                  flexShrink: 0,
+                  fontSize: isSmallMobile ? '0.625rem' : undefined
+                }}
               >
                 Remove
               </Button>
@@ -91,9 +105,9 @@ export function MultipleLocationsInput({
             onRemovePlace={async () => setIsAddingLocation(false)}
             searchFullAddress={!searchLocalitiesOnly}
           />
-          <Group mt="sm" gap="xs">
+          <Group mt="sm" gap="xs" justify="flex-start">
             <Button
-              size="xs"
+              size={isSmallMobile ? "xs" : "sm"}
               variant="light"
               onClick={() => setIsAddingLocation(false)}
             >
@@ -103,14 +117,23 @@ export function MultipleLocationsInput({
         </Box>
       ) : (
         canAddMore && (
-          <Button
-            variant="light"
-            leftSection={<IconPlus size={16} />}
-            onClick={() => setIsAddingLocation(true)}
-            size="sm"
-          >
-            Add Location ({localities.length}/{maxLocalities})
-          </Button>
+          <Group justify="flex-start" mt="sm" wrap="wrap">
+            <Button
+              leftSection={<IconPlus size={isSmallMobile ? 14 : 16} />}
+              variant="light"
+              size={isSmallMobile ? "sm" : "md"}
+              onClick={() => setIsAddingLocation(true)}
+              style={{
+                borderStyle: 'dashed',
+                borderWidth: '1px',
+              }}
+            >
+              Add Location
+            </Button>
+            <Text size="xs" c="dimmed">
+              {localities.length}/{maxLocalities} locations
+            </Text>
+          </Group>
         )
       )}
 

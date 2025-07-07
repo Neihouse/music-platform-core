@@ -35,7 +35,6 @@ export function transformArtistData(
     name: artist.name,
     bio: artist.bio,
     selectedFont: (artist as any).selectedFont,
-    user_id: artist.user_id,
   };
 
   // Transform data for shared components - preserve full track structure
@@ -131,7 +130,6 @@ export function transformPromoterData(
     name: promoter.name,
     bio: promoter.bio,
     selectedFont: promoter.selectedFont,
-    user_id: promoter.user_id,
   };
 
   // Transform data for shared components

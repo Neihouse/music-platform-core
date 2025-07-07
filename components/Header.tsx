@@ -8,15 +8,11 @@ import {
   Button,
   Menu,
   Avatar,
-  ActionIcon,
   UnstyledButton,
-  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconUser,
   IconLogout,
-  IconSun,
-  IconMoonStars,
   IconUpload,
   IconSearch,
   IconMusic,
@@ -33,8 +29,6 @@ interface HeaderProps {
 }
 
 export function Header({ user, userProfile }: HeaderProps) {
-  const { setColorScheme, colorScheme } = useMantineColorScheme();
-
   // Use the client-side function to get avatar URL
   const avatarUrl = userProfile?.avatar_img ? getAvatarUrl(userProfile.avatar_img) : null;
 
@@ -49,9 +43,17 @@ export function Header({ user, userProfile }: HeaderProps) {
     : '/profile'; // fallback for users without a specific profile type
 
   return (
-    <Container size="xl" h={60}>
-      <Group justify="space-between" h="100%">
-        <UnstyledButton component={Link} href="/">
+    <Container 
+      size="xl" 
+      h={60} 
+      style={{
+        width: '100%',
+        maxWidth: '100vw',
+        overflowX: 'hidden'
+      }}
+    >
+      <Group justify="space-between" h="100%" style={{ width: '100%' }}>
+        <UnstyledButton component={Link} href="/discover">
           <Group gap="xs">
             <IconMusic
               size={24}
@@ -98,21 +100,6 @@ export function Header({ user, userProfile }: HeaderProps) {
         )}
 
         <Group gap="md">
-          <ActionIcon
-            variant="subtle"
-            onClick={() =>
-              setColorScheme(colorScheme === "light" ? "dark" : "light")
-            }
-            size="md"
-            aria-label="Toggle color scheme"
-          >
-            {colorScheme === "light" ? (
-              <IconMoonStars size={18} />
-            ) : (
-              <IconSun size={18} />
-            )}
-          </ActionIcon>
-
           {user ? (
             <Menu position="bottom-end" shadow="sm" width={200}>
               <Menu.Target>

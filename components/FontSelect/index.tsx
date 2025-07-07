@@ -7,13 +7,11 @@ import {
   Box,
   Group,
   Loader,
-  Paper,
   Stack,
   rem,
   Pill,
-  ScrollArea,
 } from "@mantine/core";
-import { useDebouncedValue } from "@mantine/hooks";
+import {  useMediaQuery } from "@mantine/hooks";
 import { loadFont } from "@/lib/fonts-client";
 import { useFontFetch } from "./useFontFetch";
 
@@ -67,6 +65,10 @@ export function FontSelect({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
+  
+  // Media queries for responsive design
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
   
   // Use custom hook for font fetching
   const { fonts, loading } = useFontFetch({
@@ -208,11 +210,11 @@ export function FontSelect({
       <Select
         label={label}
         description={description}
-        placeholder={placeholder}
+        placeholder={isSmallMobile ? "Choose font..." : placeholder}
         error={error}
         required={required}
         disabled={disabled}
-        size={size}
+        size={isSmallMobile ? "sm" : size}
         value={value}
         onChange={onChange}
         data={selectData}
@@ -223,7 +225,7 @@ export function FontSelect({
         allowDeselect
         nothingFoundMessage={
           loading ? (
-            <Group justify="center" p="md">
+            <Group justify="center" p={isSmallMobile ? "sm" : "md"}>
               <Loader size="sm" />
               <Text size="sm" c="dimmed">
                 {searchQuery ? `Searching for "${searchQuery}"...` : "Loading fonts..."}
@@ -238,17 +240,17 @@ export function FontSelect({
           )
         }
         renderOption={renderOption}
-        maxDropdownHeight={450}
-        limit={50}
+        maxDropdownHeight={isMobile ? 300 : 450}
+        limit={isMobile ? 30 : 50}
         comboboxProps={{
           shadow: "md",
           transitionProps: { transition: "fade", duration: 200 },
-          dropdownPadding: 8,
+          dropdownPadding: isSmallMobile ? 4 : 8,
           offset: 2,
         }}
         leftSection={loading ? <Loader size={16} /> : undefined}
         rightSection={
-          value && (
+          value && !isSmallMobile && (
             <Group gap={4} wrap="nowrap">
               <Text size="xs" c="dimmed">
                 {fonts.find(f => f.family === value)?.variants.length || 0} variants

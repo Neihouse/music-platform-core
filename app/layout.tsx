@@ -48,50 +48,47 @@ export default async function RootLayout({
         <ColorSchemeScript defaultColorScheme="dark" />
       </head>
       <body style={{ 
-        paddingBottom: '80px', // Account for GlobalPlayer + some spacing
         backgroundColor: 'var(--mantine-color-dark-9)',
         color: 'var(--mantine-color-gray-0)',
         margin: 0,
-        padding: 0
+        padding: 0,
+        overflowX: 'hidden', // Prevent horizontal scroll
+        width: '100%',
+        maxWidth: '100vw'
       }}>
         <MantineProvider theme={theme} defaultColorScheme="dark">
           <Playback>
             <Notifications />
             <AppShell
-              header={{ height: 60 }}
-              footer={{ height: 60 }}
-              padding="0"
+              header={{ height: { base: 64, sm: 60 } }} // Responsive height for mobile
+              footer={{ height: 0 }}
+              padding="0" // Let AppShell handle the main padding automatically
               styles={{
                 main: {
                   backgroundColor: 'var(--mantine-color-dark-9)',
                   color: 'var(--mantine-color-gray-0)',
+                  overflowX: 'hidden',
+                  width: '100%',
+                  maxWidth: '100vw',
+                  paddingBottom: '80px', // Only add bottom padding for GlobalPlayer
+                  minHeight: '100vh',
                 },
                 header: {
                   backgroundColor: 'var(--mantine-color-dark-8)',
                   borderBottom: '1px solid var(--mantine-color-dark-4)',
+                  zIndex: 200,
                 },
-                footer: {
-                  backgroundColor: 'var(--mantine-color-dark-8)',
-                  borderTop: '1px solid var(--mantine-color-dark-4)',
-                }
               }}
             >
               <AppShellHeader>
                 <Header user={user} userProfile={userProfile} />
               </AppShellHeader>
 
-              <AppShellMain style={{ 
-                backgroundColor: 'var(--mantine-color-dark-9)',
-                padding: 0 
-              }}>
+              <AppShellMain>
                 <ConditionalLayout>
                   {children}
                 </ConditionalLayout>
               </AppShellMain>
-
-              <AppShellFooter h={60}>
-                <Footer />
-              </AppShellFooter>
             </AppShell>
             
             {/* Global Player - positioned outside AppShell */}

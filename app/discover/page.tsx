@@ -5,6 +5,7 @@ import { mockCityData } from "@/lib/mock-data";
 import { cache } from 'react';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
+import { createClient } from '@/utils/supabase/server';
 
 // Cached data fetching function with Next.js caching
 const getCachedCityData = cache(async (city: string): Promise<CityData> => {
@@ -15,6 +16,60 @@ const getCachedCityData = cache(async (city: string): Promise<CityData> => {
     console.error('Error fetching city data:', error);
     // Fall back to mock data if server action fails
     return mockCityData;
+  }
+});
+
+// Cached function to fetch popular cities
+const getCachedPopularCities = cache(async (): Promise<string[]> => {
+  const supabase = await createClient();
+  
+  try {
+    // Get localities that have active artists
+    const { data: artistLocalities } = await supabase
+      .from('artists_localities')
+      .select(`
+        locality,
+        localities!inner(id, name)
+      `);
+
+    // Get localities that have active promoters
+    const { data: promoterLocalities } = await supabase
+      .from('promoters_localities')
+      .select(`
+        locality,
+        localities!inner(id, name)
+      `);
+
+    // Combine and count occurrences of each locality
+    const localityCounts = new Map<string, number>();
+    
+    // Count artist localities
+    artistLocalities?.forEach(al => {
+      if (al.localities?.name) {
+        const count = localityCounts.get(al.localities.name) || 0;
+        localityCounts.set(al.localities.name, count + 1);
+      }
+    });
+    
+    // Count promoter localities (add to existing counts)
+    promoterLocalities?.forEach(pl => {
+      if (pl.localities?.name) {
+        const count = localityCounts.get(pl.localities.name) || 0;
+        localityCounts.set(pl.localities.name, count + 1);
+      }
+    });
+
+    // Sort by count (most active first) and return top cities
+    const sortedCities = Array.from(localityCounts.entries())
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 6) // Get top 6 cities
+      .map(([cityName]) => cityName);
+
+    return sortedCities.length > 0 ? sortedCities : ['New York', 'Los Angeles', 'Chicago', 'Austin', 'Nashville', 'Miami'];
+  } catch (error) {
+    console.error('Error fetching popular cities:', error);
+    // Fall back to default cities if there's an error
+    return ['New York', 'Los Angeles', 'Chicago', 'Austin', 'Nashville', 'Miami'];
   }
 });
 
@@ -62,7 +117,10 @@ export async function generateMetadata({ searchParams }: DiscoverPageProps): Pro
 async function CityDataWrapper({ city }: { city: string }) {
   // Decode hyphenated city names back to spaces for database lookup
   const decodedCity = city.replace(/-/g, ' ');
-  const cityData = await getCachedCityData(decodedCity);
+  const [cityData, popularCities] = await Promise.all([
+    getCachedCityData(decodedCity),
+    getCachedPopularCities()
+  ]);
   
   const isEmpty = Object.values(cityData).flat().length === 0;
 
@@ -70,6 +128,7 @@ async function CityDataWrapper({ city }: { city: string }) {
     <DiscoverClient 
       initialData={isEmpty ? mockCityData : cityData}
       initialCity={decodedCity}
+      popularCities={popularCities}
     />
   );
 }
@@ -85,5 +144,8 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     );
   }
 
-  return <DiscoverClient />;
+  // Fetch popular cities for the default discover page
+  const popularCities = await getCachedPopularCities();
+
+  return <DiscoverClient popularCities={popularCities} />;
 }

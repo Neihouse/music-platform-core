@@ -14,7 +14,6 @@ import {
 import { 
   IconBuilding, 
   IconUsers, 
-  IconCalendarEvent,
 } from "@tabler/icons-react";
 import { StyledTitle } from "@/components/StyledTitle";
 import { LocalVenue } from "@/app/discover/actions";
@@ -116,14 +115,8 @@ export function VenueCard({ venue }: VenueCardProps) {
           )}
           
           <Group justify="space-between" align="center">
-            <Group gap="xs">
-              <ThemeIcon size="sm" variant="light" color="green" radius="xl">
-                <IconCalendarEvent size={12} />
-              </ThemeIcon>
-              <Text size="sm" c="green.7" fw={600}>
-                {venue.upcomingEvents || 0} events
-              </Text>
-            </Group>
+            {/* Upcoming events count removed - should be calculated from real events data */}
+            <Box />
             <Button 
               variant="gradient"
               gradient={{ from: 'green', to: 'teal' }}

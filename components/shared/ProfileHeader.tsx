@@ -4,8 +4,7 @@ import { Stack, Group, Text, Button, Avatar } from "@mantine/core";
 import { IconEdit, IconMapPin } from "@tabler/icons-react";
 import Link from "next/link";
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
-import { nameToUrl } from "@/lib/utils";
-import { Artist, StoredLocality } from "@/utils/supabase/global.types";
+import { StoredLocality } from "@/utils/supabase/global.types";
 import StyledTitle from "@/components/StyledTitle";
 
 interface ProfileHeaderProps {
@@ -60,7 +59,7 @@ const ProfileHeader = ({
         {scrollProgress > 0 && (
           <div style={{ height: '3rem', width: '100%' }} />
         )}
-        <div style={{ 
+        <div style={{
           textAlign: 'center',
           position: scrollProgress > 0 ? 'fixed' : 'static',
           top: scrollProgress > 0 ? `${85 + (1 - scrollProgress) * 200}px` : 'auto',
@@ -70,8 +69,8 @@ const ProfileHeader = ({
           transformOrigin: 'top left',
           transition: scrollProgress === 0 ? 'all 0.3s ease-in-out' : 'none',
         }}>
-          <StyledTitle 
-            style={{ 
+          <StyledTitle
+            style={{
               color: 'var(--mantine-color-gray-0)',
               fontSize: '2.5rem',
               fontWeight: 700,
@@ -84,36 +83,36 @@ const ProfileHeader = ({
             {name}
           </StyledTitle>
         </div>
-        
+
         <Text size="lg" c="dimmed">{subtitle}</Text>
-        
+
         {location && (
           <Group gap="xs" align="center">
-            <IconMapPin size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />
+            <IconMapPin size={18} style={{ color: 'var(--mantine-color-dimmed)', margin: "auto" }} />
             <Text size="sm" c="dimmed">
-              {`Based in ${location.locality.name}, ${location.administrativeArea.name}, ${location.country.name}`}
+              {`Based in ${location.locality.name}`}
             </Text>
           </Group>
         )}
-        
+
         {/* Bio section */}
         {bio && (
           <Text c="dimmed" size="md" style={{ lineHeight: 1.6, textAlign: 'center', maxWidth: '600px' }}>
             {bio}
           </Text>
         )}
-        
+
         {/* External Links */}
         {externalLinks && externalLinks.length > 0 && (
           <Group justify="center" gap="md">
             <ExternalLinksDisplay links={externalLinks} />
           </Group>
         )}
-        
+
         {canEdit && editHref && (
           <Group justify="center" mt="md">
-            <Button 
-              component={Link} 
+            <Button
+              component={Link}
               href={editHref}
               leftSection={<IconEdit size={16} />}
               variant="outline"

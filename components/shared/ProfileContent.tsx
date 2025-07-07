@@ -1,6 +1,7 @@
 "use client";
 
 import { Box, Container } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { useEffect, useState, ReactNode } from "react";
 import { nameToUrl } from "@/lib/utils";
 import { StoredLocality } from "@/utils/supabase/global.types";
@@ -21,7 +22,6 @@ export interface ProfileEntity {
   name: string;
   bio?: string | null;
   selectedFont?: string | null;
-  user_id?: string;
 }
 
 export interface ProfileContentProps {
@@ -63,13 +63,13 @@ const ProfileContent = ({
   editPath,
   tabs,
   defaultActiveTab,
-  currentUser,
 }: ProfileContentProps) => {
   const { name, bio, selectedFont } = entity;
   const [activeTab, setActiveTab] = useState<string | null>(
     defaultActiveTab || (tabs.length > 0 ? tabs[0].key : null)
   );
   const [scrollProgress, setScrollProgress] = useState(0);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Load the entity's selected font
   useEffect(() => {
@@ -89,6 +89,11 @@ const ProfileContent = ({
 
   // Handle scroll for smooth transitions
   useEffect(() => {
+    // Don't add scroll listener on mobile devices
+    if (isMobile) {
+      return;
+    }
+
     const handleScroll = () => {
       const scrollStart = 200; // When to start the transition
       const scrollEnd = 400; // When to complete the transition
@@ -101,7 +106,7 @@ const ProfileContent = ({
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMobile]);
 
   // Generate edit href based on profile type and entity name
   const generateEditHref = () => {
@@ -117,9 +122,11 @@ const ProfileContent = ({
         background: 'var(--mantine-color-dark-9)',
         minHeight: '100vh',
         color: 'var(--mantine-color-gray-0)',
-        margin: '-1.5rem -1rem', // Remove container padding
-        width: 'calc(100% + 2rem)', // Compensate for removed margins
+        margin: 0, // Remove negative margins that cause overflow
+        width: '100%',
+        maxWidth: '100vw',
         position: 'relative',
+        overflowX: 'hidden'
       }}
     >
       {/* Hero Section */}

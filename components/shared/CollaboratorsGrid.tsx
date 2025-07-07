@@ -4,6 +4,7 @@ import { Container, Title, Text, Grid, GridCol, Card, Box, Avatar, Badge } from 
 import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
 import { StyledTitle } from "@/components/StyledTitle";
+import { useMobileCardSize } from "@/lib/mobile-responsive-hooks";
 
 interface CollaboratorCard {
   id: string;
@@ -30,13 +31,15 @@ const CollaboratorsGrid = ({
   basePath = "/promoters",
   cardType = "Promoter"
 }: CollaboratorsGridProps) => {
+  const { gap } = useMobileCardSize();
+  
   return (
     <Container size="md">
       <Title order={2} mb="md" c="gray.0">{title}</Title>
       {collaborators.length > 0 ? (
-        <Grid gutter="lg">
+        <Grid gutter={gap}>
           {collaborators.map((collaborator) => (
-            <GridCol key={collaborator.id} span={{ base: 6, sm: 4, md: 4 }}>
+            <GridCol key={collaborator.id} span={{ base: 12, xs: 6, sm: 6, md: 4 }}>
               <Card 
                 padding="0" 
                 style={{ 

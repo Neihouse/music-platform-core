@@ -12,6 +12,7 @@ import {
   Badge,
 } from "@mantine/core";
 import { ReactNode } from "react";
+import { useMobileContentSection } from "@/lib/mobile-responsive-hooks";
 
 interface ContentSectionProps {
   title: string;
@@ -32,6 +33,8 @@ export function ContentSection({
   maxWidth = "1200px",
   spacing = 'lg',
 }: ContentSectionProps) {
+  const { containerPadding, titleSize, gridStyle } = useMobileContentSection();
+  
   const content = scrollable ? (
     <ScrollArea
       style={{ width: '100%' }}
@@ -40,7 +43,7 @@ export function ContentSection({
     >
       <Box style={{ 
         display: 'flex', 
-        gap: rem(20), 
+        gap: rem(16), 
         paddingBottom: rem(16),
         paddingRight: rem(16),
         minWidth: 'fit-content'
@@ -49,15 +52,7 @@ export function ContentSection({
       </Box>
     </ScrollArea>
   ) : (
-    <Box
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: rem(20),
-        width: '100%',
-        justifyItems: 'center',
-      }}
-    >
+    <Box style={gridStyle}>
       {children}
     </Box>
   );
@@ -70,7 +65,7 @@ export function ContentSection({
         borderTop: spacing === 'lg' ? '1px solid var(--mantine-color-dark-6)' : 'none'
       }}
     >
-      <Container size="xl" px="xl">
+      <Container size="xl" px={containerPadding}>
         <Stack gap="xl">
           {/* Section Header */}
           <Group justify="space-between" align="center">
@@ -81,7 +76,10 @@ export function ContentSection({
                   size={rem(32)}
                   fw={700}
                   c="white"
-                  style={{ letterSpacing: rem(-0.5) }}
+                  style={{ 
+                    letterSpacing: rem(-0.5),
+                    fontSize: titleSize
+                  }}
                 >
                   {title}
                 </Title>
@@ -97,7 +95,7 @@ export function ContentSection({
                 )}
               </Group>
               {subtitle && (
-                <Text size="lg" c="dimmed" maw={600}>
+                <Text size="lg" c="dimmed" maw={600} style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)' }}>
                   {subtitle}
                 </Text>
               )}

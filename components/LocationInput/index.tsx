@@ -5,7 +5,8 @@ import { submitPlace } from "./actions";
 import { Input } from "./Input";
 import { PlacesApiProvider } from "./PlacesApiProvider";
 import { StoredLocality } from "@/utils/supabase/global.types";
-import { Loader, Pill } from "@mantine/core";
+import { Loader, Pill, Box } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 
 
@@ -18,22 +19,29 @@ interface ILocationInputProps {
 
 export function LocationInput({ onPlaceSelect, onRemovePlace, storedLocality, searchFullAddress = false }: ILocationInputProps) {
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Mobile responsive hooks
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
+  
   const formattedAddress = storedLocality 
     ? (storedLocality.fullAddress || `${storedLocality?.locality?.name}, ${storedLocality?.administrativeArea?.name}, ${storedLocality?.country?.name}`)
     : undefined
 
   return (
     <PlacesApiProvider>
-      <span>
+      <Box style={{ width: '100%' }}>
         {renderGroup(isLoading, formattedAddress)}
-      </span>
+      </Box>
     </PlacesApiProvider>
   );
 
   function renderGroup(loading: boolean, formattedAddress?: string) {
     if (loading) {
       return (
-        <Loader type="dots" />
+        <Box style={{ display: 'flex', justifyContent: 'center', padding: isSmallMobile ? '8px' : '12px' }}>
+          <Loader type="dots" size={isSmallMobile ? "sm" : "md"} />
+        </Box>
       )
     }
 
@@ -45,14 +53,18 @@ export function LocationInput({ onPlaceSelect, onRemovePlace, storedLocality, se
 
     return (
       <Pill
-        w="min-content"
-        size="xl" withRemoveButton color="green"
+        size={isSmallMobile ? "md" : "lg"}
+        withRemoveButton 
+        color="blue"
         onRemove={handleRemovePlace}
+        style={{
+          maxWidth: '100%',
+          fontSize: isSmallMobile ? '0.75rem' : '0.875rem'
+        }}
       >
         {formattedAddress}
       </Pill>
     );
-
   }
 
   async function handleRemovePlace() {
