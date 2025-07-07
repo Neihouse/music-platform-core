@@ -62,7 +62,6 @@ export default async function RootLayout({
                   overflowX: 'hidden',
                   width: '100%',
                   maxWidth: '100vw',
-                  paddingBottom: '80px',
                   minHeight: '100vh',
                 },
                 header: {
