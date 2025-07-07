@@ -1,6 +1,6 @@
 "use server";
-import { TypedClient } from "@/utils/supabase/global.types";
 import { TablesInsert } from "@/utils/supabase/database.types";
+import { TypedClient } from "@/utils/supabase/global.types";
 
 export async function getPromoter(supabase: TypedClient) {
   const { data: user } = await supabase.auth.getUser();
@@ -99,7 +99,7 @@ export async function createPromoter(
 
   const { data: promoter, error } = await supabase
     .from("promoters")
-    .insert(promoterData)
+    .upsert(promoterData)
     .select()
     .single();
 
@@ -140,7 +140,7 @@ export async function getPromoterEvents(
     .filter((event: any) => event.date && new Date(event.date) >= new Date())
     .sort((a: any, b: any) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()) || [];
 
-    return events;
+  return events;
 }
 
 export async function getPromoterPastEvents(
@@ -168,11 +168,11 @@ export async function getPromoterPastEvents(
 
   // Extract events from the junction table results and filter for past events
   return eventPromotions
-      ?.map((ep: any) => ep.events)
-      .filter(Boolean)
-      .filter((event: any) => event.date && new Date(event.date) < new Date())
-      .sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
-      .slice(0, 6) || [];
+    ?.map((ep: any) => ep.events)
+    .filter(Boolean)
+    .filter((event: any) => event.date && new Date(event.date) < new Date())
+    .sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+    .slice(0, 6) || [];
 
 }
 
@@ -256,7 +256,7 @@ export async function getAllPromoters(supabase: TypedClient) {
   const transformedPromoters = promoters?.map(promoter => {
     const artistCount = promoter.promoters_artists?.length || 0;
     const sampleArtists = promoter.promoters_artists?.slice(0, 3).map(pa => pa.artists).filter(Boolean) || [];
-    
+
     return {
       ...promoter,
       artistCount,
@@ -559,11 +559,11 @@ export async function getArtistsByPromoterLocalities(
 
   // Transform the data to include locality information and remove duplicates
   const uniqueArtists = new Map();
-  
+
   artistLocalities?.forEach(al => {
     if (al.artists && !uniqueArtists.has(al.artists.id)) {
       let storedLocality = undefined;
-      
+
       if (al.localities?.administrative_areas?.countries) {
         storedLocality = {
           locality: al.localities,
