@@ -1,11 +1,8 @@
-import { Container } from "@mantine/core";
-import { getCityMusicData, CityData } from "./actions";
 import { DiscoverClient } from "@/components/discover/DiscoverClient";
-import { mockCityData } from "@/lib/mock-data";
-import { cache } from 'react';
-import { Suspense } from 'react';
-import { Metadata } from 'next';
 import { createClient } from '@/utils/supabase/server';
+import { Metadata } from 'next';
+import { cache, Suspense } from 'react';
+import { CityData, getCityMusicData } from "./actions";
 
 // Cached data fetching function with Next.js caching
 const getCachedCityData = cache(async (city: string): Promise<CityData> => {
@@ -13,16 +10,20 @@ const getCachedCityData = cache(async (city: string): Promise<CityData> => {
     const data = await getCityMusicData(city);
     return data;
   } catch (error) {
-    console.error('Error fetching city data:', error);
-    // Fall back to mock data if server action fails
-    return mockCityData;
+    // Return empty data structure if server action fails
+    return {
+      artists: [],
+      venues: [],
+      events: [],
+      promoters: []
+    };
   }
 });
 
 // Cached function to fetch popular cities
 const getCachedPopularCities = cache(async (): Promise<string[]> => {
   const supabase = await createClient();
-  
+
   try {
     // Get localities that have active artists
     const { data: artistLocalities } = await supabase
@@ -42,7 +43,7 @@ const getCachedPopularCities = cache(async (): Promise<string[]> => {
 
     // Combine and count occurrences of each locality
     const localityCounts = new Map<string, number>();
-    
+
     // Count artist localities
     artistLocalities?.forEach(al => {
       if (al.localities?.name) {
@@ -50,7 +51,7 @@ const getCachedPopularCities = cache(async (): Promise<string[]> => {
         localityCounts.set(al.localities.name, count + 1);
       }
     });
-    
+
     // Count promoter localities (add to existing counts)
     promoterLocalities?.forEach(pl => {
       if (pl.localities?.name) {
@@ -61,7 +62,7 @@ const getCachedPopularCities = cache(async (): Promise<string[]> => {
 
     // Sort by count (most active first) and return top cities
     const sortedCities = Array.from(localityCounts.entries())
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 6) // Get top 6 cities
       .map(([cityName]) => cityName);
 
@@ -79,13 +80,13 @@ interface DiscoverPageProps {
 
 // Generate dynamic metadata based on search params
 export async function generateMetadata({ searchParams }: DiscoverPageProps): Promise<Metadata> {
-  const {city} = await searchParams;
-  
+  const { city } = await searchParams;
+
   // Decode hyphenated city names back to spaces for display
-  const displayCity = city ? city.replace(/-/g, ' ').split(' ').map(word => 
+  const displayCity = city ? city.replace(/-/g, ' ').split(' ').map(word =>
     word.charAt(0).toUpperCase() + word.slice(1)
   ).join(' ') : null;
-  
+
   if (city) {
     return {
       title: `Music Scene in ${displayCity} | MusicPlatform`,
@@ -102,7 +103,7 @@ export async function generateMetadata({ searchParams }: DiscoverPageProps): Pro
       },
     };
   }
-  
+
   return {
     title: 'Discover Your City\'s Music Scene | MusicPlatform',
     description: 'Enter your city and explore local artists, venues, promoters, and the hottest upcoming events in your area.',
@@ -121,12 +122,10 @@ async function CityDataWrapper({ city }: { city: string }) {
     getCachedCityData(decodedCity),
     getCachedPopularCities()
   ]);
-  
-  const isEmpty = Object.values(cityData).flat().length === 0;
 
   return (
-    <DiscoverClient 
-      initialData={isEmpty ? mockCityData : cityData}
+    <DiscoverClient
+      initialData={cityData}
       initialCity={decodedCity}
       popularCities={popularCities}
     />
