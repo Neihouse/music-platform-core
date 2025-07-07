@@ -278,7 +278,7 @@ function fuzzySearch(query: string, fonts: GoogleFont[], limit: number = 20): Go
     }
     
     // Boost score for popular fonts (assuming they're at the beginning of the list)
-    const popularityBoost = Math.max(0, 100 - fonts.indexOf(font));
+    const popularityBoost = Math.max(0, 100 - index);
     score += popularityBoost;
     
     return { font, score };
