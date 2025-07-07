@@ -60,7 +60,7 @@ export function Header({ user, userProfile }: HeaderProps) {
               style={{ color: "var(--mantine-color-blue-6)" }}
             />
             <Text size="lg" fw={700}>
-              MusicApp
+              Myuzo
             </Text>
           </Group>
         </UnstyledButton>

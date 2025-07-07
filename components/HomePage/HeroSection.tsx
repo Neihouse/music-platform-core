@@ -69,7 +69,7 @@ export default function HeroSection() {
                         textShadow: isDark ? '0 1px 2px rgba(0, 0, 0, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.2)'
                     }}
                 >
-                    Stream exclusive tracks, connect with artists, and build your perfect playlist with MusicApp.
+                    Stream exclusive tracks, connect with artists, and build your perfect playlist with Myuzo.
                 </Text>
                 <Group mt="xl">
                     <Button
