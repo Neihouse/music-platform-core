@@ -255,7 +255,7 @@ function fuzzySearch(query: string, fonts: IndexedFont[], limit: number = 20): G
   const queryWords = queryLower.split(/\s+/).filter(word => word.length > 0);
   
   // Score each font based on how well it matches the query
-  const scoredFonts = fonts.map(font => {
+  const scoredFonts = fonts.map((font, index) => {
     const fontNameLower = font.familyLower; // Use cached lowercase version
     let score = 0;
     
