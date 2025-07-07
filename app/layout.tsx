@@ -1,23 +1,22 @@
 import { Header } from "@/components/Header";
-import { ConditionalLayout } from "@/components/ConditionalLayout";
+import { Playback } from "@/components/playback";
+import { GlobalPlayer } from "@/components/playback/GlobalPlayer";
+import { getUserProfile } from "@/db/queries/user";
+import { getUser } from "@/db/queries/users";
+import { theme } from "@/lib/theme";
+import { createClient } from "@/utils/supabase/server";
 import {
-  MantineProvider,
   AppShell,
-  ColorSchemeScript,
   AppShellHeader,
   AppShellMain,
+  ColorSchemeScript,
   mantineHtmlProps,
+  MantineProvider
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dropzone/styles.css";
-import "@mantine/notifications/styles.css";
-import { getUser } from "@/db/queries/users";
-import { getUserProfile } from "@/db/queries/user";
 import { Notifications } from "@mantine/notifications";
-import { theme } from "@/lib/theme";
-import { Playback } from "@/components/playback";
-import { GlobalPlayer } from "@/components/playback/GlobalPlayer";
-import { createClient } from "@/utils/supabase/server";
+import "@mantine/notifications/styles.css";
 
 
 export default async function RootLayout({
@@ -40,7 +39,7 @@ export default async function RootLayout({
       <head>
         <ColorSchemeScript defaultColorScheme="dark" />
       </head>
-      <body style={{ 
+      <body style={{
         backgroundColor: 'var(--mantine-color-dark-9)',
         color: 'var(--mantine-color-gray-0)',
         margin: 0,
@@ -52,9 +51,9 @@ export default async function RootLayout({
           <Playback>
             <Notifications />
             <AppShell
-              header={{ height: { base: 64, sm: 60 } }} 
+              header={{ height: { base: 64, sm: 60 } }}
               footer={{ height: 0 }}
-              padding="0" 
+              padding="0"
               styles={{
                 main: {
                   backgroundColor: 'var(--mantine-color-dark-9)',
@@ -76,13 +75,11 @@ export default async function RootLayout({
               </AppShellHeader>
 
               <AppShellMain>
-                <ConditionalLayout>
-                  {children}
-                </ConditionalLayout>
+                {children}
               </AppShellMain>
             </AppShell>
-            
-             <GlobalPlayer />
+
+            <GlobalPlayer />
           </Playback>
         </MantineProvider>
       </body>
