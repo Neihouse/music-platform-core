@@ -199,7 +199,39 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
   );
 
   return (
-    <Box style={{ background: 'var(--mantine-color-dark-9)', minHeight: '100vh' }}>
+    <Box style={{ 
+      position: 'relative',
+      background: 'linear-gradient(135deg, var(--mantine-color-dark-9) 0%, var(--mantine-color-dark-8) 100%)', 
+      minHeight: '100vh' 
+    }}>
+      {/* Background decorative elements */}
+      <Box
+        style={{
+          position: 'fixed',
+          top: '20%',
+          right: '10%',
+          width: rem(200),
+          height: rem(200),
+          background: 'radial-gradient(circle, rgba(51, 154, 240, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      />
+      <Box
+        style={{
+          position: 'fixed',
+          bottom: '20%',
+          left: '5%',
+          width: rem(150),
+          height: rem(150),
+          background: 'radial-gradient(circle, rgba(116, 192, 252, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      />
+
       {/* Hero Section */}
       <SearchHero onSearch={handleSearch} popularCities={popularCities} />
 
@@ -229,13 +261,13 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
             <Stack gap={4}>
               {/* City Header */}
               {currentCity && (
-                <Box  style={{ background: 'var(--mantine-color-dark-8)' }}>
+                <Box >
                   <Container size="xl" >
-                    <Group ta="center" justify="center" align="center" gap="md">
+                    <Group mb="sm" ta="center" justify="center" gap="md">
                       <ThemeIcon size="xl" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
                         <IconMapPin size={28} />
                       </ThemeIcon>
-                      <Text mb="md" size={rem(36)} fw={700} c="white">
+                      <Text size={rem(36)} fw={700} c="white">
                         Music in {capitalizeCity(currentCity)}
                       </Text>
                     </Group>

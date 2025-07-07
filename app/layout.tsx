@@ -1,17 +1,12 @@
-import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { ConditionalLayout } from "@/components/ConditionalLayout";
 import {
   MantineProvider,
   AppShell,
   ColorSchemeScript,
-  Group,
-  ScrollArea,
   AppShellHeader,
-  AppShellFooter,
   AppShellMain,
   mantineHtmlProps,
-  Container,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dropzone/styles.css";
@@ -24,8 +19,6 @@ import { Playback } from "@/components/playback";
 import { GlobalPlayer } from "@/components/playback/GlobalPlayer";
 import { createClient } from "@/utils/supabase/server";
 
-// Metadata needs to be in a separate file for Next.js 14
-// Create a new file app/metadata.ts for this configuration
 
 export default async function RootLayout({
   children,
@@ -52,7 +45,6 @@ export default async function RootLayout({
         color: 'var(--mantine-color-gray-0)',
         margin: 0,
         padding: 0,
-        overflowX: 'hidden', // Prevent horizontal scroll
         width: '100%',
         maxWidth: '100vw'
       }}>
@@ -60,9 +52,9 @@ export default async function RootLayout({
           <Playback>
             <Notifications />
             <AppShell
-              header={{ height: { base: 64, sm: 60 } }} // Responsive height for mobile
+              header={{ height: { base: 64, sm: 60 } }} 
               footer={{ height: 0 }}
-              padding="0" // Let AppShell handle the main padding automatically
+              padding="0" 
               styles={{
                 main: {
                   backgroundColor: 'var(--mantine-color-dark-9)',
@@ -70,7 +62,6 @@ export default async function RootLayout({
                   overflowX: 'hidden',
                   width: '100%',
                   maxWidth: '100vw',
-                  paddingBottom: '80px', // Only add bottom padding for GlobalPlayer
                   minHeight: '100vh',
                 },
                 header: {
@@ -91,8 +82,7 @@ export default async function RootLayout({
               </AppShellMain>
             </AppShell>
             
-            {/* Global Player - positioned outside AppShell */}
-            <GlobalPlayer />
+             <GlobalPlayer />
           </Playback>
         </MantineProvider>
       </body>

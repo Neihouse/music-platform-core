@@ -48,37 +48,13 @@ export function SearchHero({
   return (
     <Box
       style={{
-        background: 'linear-gradient(135deg, var(--mantine-color-dark-9) 0%, var(--mantine-color-dark-8) 100%)',
+        background: 'transparent',
         paddingTop: rem(120),
         paddingBottom: rem(80),
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Background decorative elements */}
-      <Box
-        style={{
-          position: 'absolute',
-          top: '20%',
-          right: '10%',
-          width: rem(200),
-          height: rem(200),
-          background: 'radial-gradient(circle, rgba(51, 154, 240, 0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-        }}
-      />
-      <Box
-        style={{
-          position: 'absolute',
-          bottom: '20%',
-          left: '5%',
-          width: rem(150),
-          height: rem(150),
-          background: 'radial-gradient(circle, rgba(116, 192, 252, 0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-        }}
-      />
-
       <Container size="lg">
         <Stack align="center" gap="xl">
           <Stack align="center" gap="md">

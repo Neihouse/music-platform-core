@@ -18,6 +18,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const fullWidthPages = [
     '/artists/', // Any artist page
     '/promoters/', // Any promoter page
+    '/discover', // Discover page
   ];
   
   const isFullWidth = fullWidthPages.some(path => pathname.includes(path));
@@ -27,10 +28,8 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
       <div style={{
         width: '100%',
         maxWidth: '100vw',
+        minHeight: '100vh',
         overflowX: 'hidden',
-        // padding: isSmallMobile ? '0.5rem' : isMobile ? '1rem' : '1.5rem',
-        // paddingTop: isSmallMobile ? '1rem' : '1.5rem', // Add top padding for header spacing
-        // paddingBottom: isSmallMobile ? '1rem' : '1.5rem',
       }}>
         {children}
       </div>
