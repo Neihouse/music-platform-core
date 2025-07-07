@@ -1,23 +1,23 @@
 "use client";
-import { 
-  Divider, 
-  Paper, 
-  PaperProps, 
-  Stack, 
-  Text, 
-  Alert 
+import { login, LoginData } from "@/app/login/actions";
+import {
+  Alert,
+  Divider,
+  Paper,
+  PaperProps,
+  Stack,
+  Text
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useState } from "react";
-import { login, LoginData } from "@/app/login/actions";
-import { SwitchAction } from "../SwitchAction";
 import { EmailAndPasswordInputs } from "../EmailAndPasswordInputs";
+import { SwitchAction } from "../SwitchAction";
 import { validateEmail } from "../validation";
 
 export function Login(props: PaperProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const form = useForm<LoginData>({
     initialValues: {
       email: "",
@@ -33,7 +33,7 @@ export function Login(props: PaperProps) {
   const handleLogin = async (values: LoginData) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       await login(values);
     } catch (err) {
@@ -51,7 +51,7 @@ export function Login(props: PaperProps) {
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
       <Text size="lg" fw={500}>
-        Welcome to Music Band
+        Welcome to Myuzo
       </Text>
 
       {/* TODO: Implement Google OAuth

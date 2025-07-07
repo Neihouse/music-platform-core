@@ -1,5 +1,8 @@
 "use client";
+import { signup, SignupData } from "@/app/login/actions";
 import {
+  ActionIcon,
+  Alert,
   Divider,
   Paper,
   PaperProps,
@@ -7,14 +10,11 @@ import {
   Text,
   TextInput,
   Tooltip,
-  ActionIcon,
-  Alert,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useState } from "react";
-import { signup, SignupData } from "@/app/login/actions";
-import { SwitchAction } from "../SwitchAction";
 import { EmailAndPasswordInputs } from "../EmailAndPasswordInputs";
+import { SwitchAction } from "../SwitchAction";
 import { validateEmail, validatePassword } from "../validation";
 
 export function Signup(props: PaperProps) {
@@ -37,7 +37,7 @@ export function Signup(props: PaperProps) {
   const handleSubmit = async (values: SignupData) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       await signup(values);
     } catch (err) {
@@ -50,7 +50,7 @@ export function Signup(props: PaperProps) {
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
       <Text size="lg" fw={500}>
-        Welcome to Music Band
+        Welcome to Myuzo
       </Text>
 
       {/* TODO: Implement Google OAuth
