@@ -3,8 +3,16 @@ import { Container, Box } from "@mantine/core";
 
 export default function SignupPage() {
   return (
-    <Container size="xs" py="xl">
-      <Box maw={400} mx="auto">
+    <Container 
+      size="xs" 
+      py="xl"
+      px={{ base: "xs", sm: "md" }}
+    >
+      <Box 
+        maw={{ base: "100%", sm: 400 }} 
+        mx="auto"
+        px={{ base: 0, sm: "md" }}
+      >
         <Signup />
       </Box>
     </Container>
