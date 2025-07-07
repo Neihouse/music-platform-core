@@ -14,9 +14,8 @@ import {
   ScrollArea,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
-import { searchFonts, getPopularFonts, getFontsByCategory } from "@/lib/fonts-secure";
 import { loadFont } from "@/lib/fonts-client";
+import { useFontFetch } from "./useFontFetch";
 
 // Google Font interface - simplified for our needs
 export interface GoogleFont {
@@ -65,48 +64,16 @@ export function FontSelect({
   disabled,
   size = "md",
 }: FontSelectProps) {
-  const [fonts, setFonts] = useState<GoogleFont[]>([]);
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedQuery] = useDebouncedValue(searchQuery, 300);
-  const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  // Load fonts from server - either popular fonts or search results
-  const fetchFonts = async (query?: string, category?: string | null) => {
-    setLoading(true);
-    try {
-      let result;
-      
-      if (query?.trim()) {
-        // Search for fonts based on query
-        result = await searchFonts(query, 50);
-      } else if (category) {
-        // Get fonts by category
-        result = await getFontsByCategory(category, 50);
-      } else {
-        // Get popular fonts
-        result = await getPopularFonts(50);
-      }
-      
-      if (result.success) {
-        setFonts(result.fonts);
-      } else {
-        throw new Error(result.error || 'Failed to fetch fonts');
-      }
-    } catch (error) {
-      console.error("Failed to fetch fonts:", error);
-      notifications.show({
-        title: "Font Loading Error",
-        message: "Failed to load fonts. Please try again.",
-        color: "orange",
-      });
-      // Clear fonts on error
-      setFonts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
+  
+  // Use custom hook for font fetching
+  const { fonts, loading } = useFontFetch({
+    searchQuery,
+    selectedCategory,
+    debounceMs: 300
+  });
 
   // Load font in the browser for preview - this is safe, no API key needed
   const loadFontForPreview = async (fontFamily: string) => {
@@ -149,16 +116,6 @@ export function FontSelect({
       font: font,
     }));
   }, [fonts]);
-
-  // Handle debounced search query changes
-  useEffect(() => {
-    fetchFonts(debouncedQuery, selectedCategory);
-  }, [debouncedQuery, selectedCategory]);
-
-  // Load initial fonts
-  useEffect(() => {
-    fetchFonts();
-  }, []);
 
   // Custom option renderer with font preview
   const renderOption = ({ option }: { option: any }) => {

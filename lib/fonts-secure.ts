@@ -25,6 +25,12 @@ export interface GoogleFont {
   files: Record<string, string>;
 }
 
+// Enhanced interface for indexed fonts to improve search performance
+interface IndexedFont extends GoogleFont {
+  familyLower: string; // Cached lowercase version
+  searchableText: string; // Cached searchable text
+}
+
 export interface FontSearchResult {
   success: boolean;
   font?: GoogleFont;
@@ -153,12 +159,27 @@ const getCachedFont = cache(async (fontName: string): Promise<FontSearchResult> 
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch font'
+      error: 'Failed to fetch font'
     };
   }
 });
 
-
+// Cached function to get indexed fonts for improved search performance
+const getCachedIndexedFonts = cache(async (): Promise<IndexedFont[]> => {
+  try {
+    const fonts = await getCachedAllFonts();
+    
+    // Create indexed version with cached lowercase strings
+    return fonts.map(font => ({
+      ...font,
+      familyLower: font.family.toLowerCase(),
+      searchableText: `${font.family} ${font.category}`.toLowerCase()
+    }));
+  } catch (error) {
+    console.error('Error indexing fonts:', error);
+    throw error;
+  }
+});
 
 // Server action to search for a single font
 export async function searchFont(fontName: string): Promise<FontSearchResult> {
@@ -175,7 +196,7 @@ export async function searchFont(fontName: string): Promise<FontSearchResult> {
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: 'Unknown error occurred'
     };
   }
 }
@@ -225,7 +246,7 @@ export async function getPopularFonts(limit: number = 10): Promise<FontsSearchRe
 }
 
 // Fuzzy search implementation
-function fuzzySearch(query: string, fonts: GoogleFont[], limit: number = 20): GoogleFont[] {
+function fuzzySearch(query: string, fonts: IndexedFont[], limit: number = 20): GoogleFont[] {
   if (!query.trim()) {
     return fonts.slice(0, limit);
   }
@@ -235,7 +256,7 @@ function fuzzySearch(query: string, fonts: GoogleFont[], limit: number = 20): Go
   
   // Score each font based on how well it matches the query
   const scoredFonts = fonts.map(font => {
-    const fontNameLower = font.family.toLowerCase();
+    const fontNameLower = font.familyLower; // Use cached lowercase version
     let score = 0;
     
     // Exact match gets highest score
@@ -311,7 +332,7 @@ export async function getFontsByCategory(category: string, limit: number = 20): 
     return {
       success: false,
       fonts: [],
-      error: error instanceof Error ? error.message : 'Failed to fetch fonts by category'
+      error: 'Failed to fetch fonts by category'
     };
   }
 }
@@ -324,8 +345,8 @@ export async function searchFonts(query: string, limit: number = 20): Promise<Fo
       return await getPopularFonts(limit);
     }
 
-    // Get all fonts from cache
-    const allFonts = await getCachedAllFonts();
+    // Get all indexed fonts from cache
+    const allFonts = await getCachedIndexedFonts();
     
     // Perform fuzzy search
     const matchingFonts = fuzzySearch(query, allFonts, limit);
@@ -353,7 +374,7 @@ export async function searchFonts(query: string, limit: number = 20): Promise<Fo
     return {
       success: false,
       fonts: [],
-      error: error instanceof Error ? error.message : 'Search failed'
+      error: 'Search failed'
     };
   }
 }
@@ -388,7 +409,7 @@ export async function debugFontSearch(fontName: string): Promise<{
       partialMatches: [],
       suggestions: [],
       totalFontsAvailable: 0,
-      error: error instanceof Error ? error.message : 'Debug search failed'
+      error: 'Debug search failed'
     };
   }
 }
@@ -439,7 +460,7 @@ export async function refreshFontCache(fontName?: string): Promise<FontsSearchRe
     return {
       success: false,
       fonts: [],
-      error: error instanceof Error ? error.message : 'Failed to refresh font cache'
+      error: 'Failed to refresh font cache'
     };
   }
 }
