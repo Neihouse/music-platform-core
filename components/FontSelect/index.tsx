@@ -13,10 +13,9 @@ import {
   Pill,
   ScrollArea,
 } from "@mantine/core";
-import { useDebouncedValue, useMediaQuery } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
-import { searchFonts, getPopularFonts } from "@/lib/fonts-secure";
+import { useDebouncedValue } from "@mantine/hooks";
 import { loadFont } from "@/lib/fonts-client";
+import { useFontFetch } from "./useFontFetch";
 
 // Google Font interface - simplified for our needs
 export interface GoogleFont {
@@ -65,80 +64,16 @@ export function FontSelect({
   disabled,
   size = "md",
 }: FontSelectProps) {
-  const [fonts, setFonts] = useState<GoogleFont[]>([]);
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedQuery] = useDebouncedValue(searchQuery, 300);
-  const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  // Mobile responsive hooks
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const isSmallMobile = useMediaQuery('(max-width: 480px)');
-
-  // Demo fonts fallback
-  const DEMO_FONTS: GoogleFont[] = [
-    {
-      family: "Inter",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "sans-serif"
-    },
-    {
-      family: "Roboto",
-      variants: ["regular", "500", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "sans-serif"
-    },
-    {
-      family: "Open Sans",
-      variants: ["regular", "600", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "sans-serif"
-    },
-    {
-      family: "Playfair Display",
-      variants: ["regular", "600", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "serif"
-    },
-    {
-      family: "Poppins",
-      variants: ["regular", "500", "600", "700"],
-      subsets: ["latin"],
-      files: { regular: "" },
-      category: "sans-serif"
-    }
-  ];
-
-  // Load fonts from secure server actions
-  const fetchFonts = async () => {
-    setLoading(true);
-    try {
-      const result = await getPopularFonts(100);
-      
-      if (result.success && result.fonts) {
-        setFonts(result.fonts);
-      } else {
-        throw new Error(result.error || 'Failed to fetch fonts');
-      }
-    } catch (error) {
-      console.error("Failed to fetch Google Fonts:", error);
-      notifications.show({
-        title: "Font Loading Error",
-        message: "Failed to load Google Fonts. Using demo fonts instead.",
-        color: "orange",
-      });
-      // Fallback to demo fonts
-      setFonts(DEMO_FONTS);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set());
+  
+  // Use custom hook for font fetching
+  const { fonts, loading } = useFontFetch({
+    searchQuery,
+    selectedCategory,
+    debounceMs: 300
+  });
 
   // Load font in the browser for preview - this is safe, no API key needed
   const loadFontForPreview = async (fontFamily: string) => {
@@ -160,22 +95,10 @@ export function FontSelect({
     }
   };
 
-  // Filter fonts based on category (search is handled server-side)
-  const filteredFonts = useMemo(() => {
-    let filtered = fonts;
-    
-    // Filter by category (if selected)
-    if (selectedCategory) {
-      filtered = filtered.filter(font => font.category === selectedCategory);
-    }
-    
-    return filtered;
-  }, [fonts, selectedCategory]);
-
-  // Load fonts for preview when filtered fonts change
+  // Load fonts for preview when fonts change
   useEffect(() => {
     // Load first few visible fonts to avoid loading too many at once
-    const fontsToLoad = filteredFonts.slice(0, 10);
+    const fontsToLoad = fonts.slice(0, 10);
     fontsToLoad.forEach(font => {
       if (!loadedFonts.has(font.family)) {
         setTimeout(() => {
@@ -183,45 +106,16 @@ export function FontSelect({
         }, 0);
       }
     });
-  }, [filteredFonts, loadedFonts]);
+  }, [fonts, loadedFonts]);
 
   // Convert fonts to select data format
   const selectData = useMemo(() => {
-    return filteredFonts.map(font => ({
+    return fonts.map(font => ({
       value: font.family,
       label: font.family,
       font: font,
     }));
-  }, [filteredFonts]);
-
-  // Handle debounced search query changes
-  useEffect(() => {
-    if (debouncedQuery.trim()) {
-      // Perform server-side search for better performance
-      setLoading(true);
-      searchFonts(debouncedQuery, 20)
-        .then(result => {
-          if (result.success && result.fonts) {
-            setFonts(result.fonts);
-          } else {
-            console.error('Font search error:', result.error);
-          }
-        })
-        .catch(error => {
-          console.error('Font search failed:', error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      // If no search query, load popular fonts
-      fetchFonts();
-    }
-  }, [debouncedQuery]);
-
-  useEffect(() => {
-    fetchFonts();
-  }, []);
+  }, [fonts]);
 
   // Custom option renderer with font preview
   const renderOption = ({ option }: { option: any }) => {
@@ -271,19 +165,39 @@ export function FontSelect({
   };
 
   return (
-    <Stack gap={isSmallMobile ? "xs" : "sm"}>
-      {/* Category filter pills - Hidden on small mobile for space */}
-      {!isSmallMobile && (
-        <Box>
-          <Text size="xs" c="dimmed" mb="xs">
-            Filter by category:
-          </Text>
-          <Group gap="xs" wrap="wrap">
-            <Pill 
-              size="sm" 
-              variant={selectedCategory === null ? "filled" : "light"}
-              style={{ cursor: "pointer" }}
-              onClick={() => setSelectedCategory(null)}
+    <Stack gap="xs">
+      {/* Category filter pills */}
+      <Box>
+        <Text size="xs" c="dimmed" mb="xs">
+          Filter by category:
+        </Text>
+        <Group gap="xs">
+          <Pill 
+            size="sm" 
+            variant={selectedCategory === null ? "filled" : "light"}
+            style={{ cursor: "pointer" }}
+            onClick={() => {
+              setSelectedCategory(null);
+              setSearchQuery(""); // Clear search when changing category
+            }}
+          >
+            All
+          </Pill>
+          {Object.entries(CATEGORY_COLORS).map(([category, color]) => (
+            <Pill
+              key={category}
+              size="sm"
+              variant={selectedCategory === category ? "filled" : "light"}
+              style={{ 
+                cursor: "pointer",
+                backgroundColor: selectedCategory === category ? color : undefined,
+                color: selectedCategory === category ? "white" : undefined,
+              }}
+              onClick={() => {
+                const newCategory = selectedCategory === category ? null : category;
+                setSelectedCategory(newCategory);
+                setSearchQuery(""); // Clear search when changing category
+              }}
             >
               All
             </Pill>
@@ -326,11 +240,14 @@ export function FontSelect({
           loading ? (
             <Group justify="center" p={isSmallMobile ? "sm" : "md"}>
               <Loader size="sm" />
-              <Text size="sm" c="dimmed">Loading fonts...</Text>
+              <Text size="sm" c="dimmed">
+                {searchQuery ? `Searching for "${searchQuery}"...` : "Loading fonts..."}
+              </Text>
             </Group>
           ) : (
-            <Text size="sm" c="dimmed" ta="center" p={isSmallMobile ? "sm" : "md"}>
-              No fonts found{debouncedQuery ? ` matching "${debouncedQuery}"` : ''}
+            <Text size="sm" c="dimmed" ta="center" p="md">
+              No fonts found
+              {searchQuery ? ` matching "${searchQuery}"` : ''}
               {selectedCategory ? ` in ${selectedCategory} category` : ''}
             </Text>
           )
