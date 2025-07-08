@@ -4,7 +4,7 @@ import { MultipleLocationsInput } from "@/components/LocationInput/MultipleLocat
 import { PromoterAvatarUpload } from "@/components/Upload/PromoterAvatarUpload";
 import { PromoterBannerUpload } from "@/components/Upload/PromoterBannerUpload";
 import { createClient } from "@/utils/supabase/client";
-import { StoredLocality } from "@/utils/supabase/global.types";
+import { Promoter, StoredLocality } from "@/utils/supabase/global.types";
 import {
   Button,
   Container,
@@ -431,11 +431,11 @@ export function PromoterForm(props: IPromoterFormProps) {
       // Check if user already has a promoter profile
       const { data: existingPromoter } = await supabase
         .from("promoters")
-        .select("id")
+        .select("*")
         .eq("user_id", user.user.id)
         .maybeSingle();
 
-      let promoter;
+      let promoter: Promoter
 
       if (existingPromoter) {
         // User already has a promoter profile, use existing one
