@@ -119,12 +119,13 @@ export default async function ArtistDashboardPage() {
   const { avatarUrl, bannerUrl } = artistImages;
 
   return (
-    <Container size="xl" py={{ base: "md", sm: "lg", md: "xl" }}>
+    <Container size="xl" py={{ base: "sm", sm: "md", md: "lg", lg: "xl" }} px={{ base: "xs", sm: "md" }}>
       {/* Hero Banner Section */}
       <Paper
-        radius="xl"
-        p={{ base: "md", sm: "lg", md: "xl" }}
-        mb={{ base: "lg", md: "xl" }}
+        radius="lg"
+        p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }}
+        mb={{ base: "md", sm: "lg", md: "xl" }}
+        hiddenFrom="sm"
         style={{
           background: bannerUrl
             ? `linear-gradient(135deg, rgba(139, 69, 19, 0.8) 0%, rgba(205, 133, 63, 0.8) 100%), url(${bannerUrl}) center/cover`
@@ -132,7 +133,105 @@ export default async function ArtistDashboardPage() {
           color: "white",
           position: "relative",
           overflow: "hidden",
-          minHeight: "250px",
+          minHeight: "180px",
+        }}
+      >
+        {/* Content for mobile */}
+        <Grid align="center" style={{ position: "relative", zIndex: 1 }}>
+          <GridCol span={12}>
+            <Stack gap="lg" align="center">
+              <Group gap="xl" align="center" justify="center" wrap="wrap">
+                <Avatar
+                  src={avatarUrl}
+                  size={60}
+                  radius="xl"
+                  style={{
+                    border: "4px solid rgba(255,255,255,0.3)",
+                    background: avatarUrl ? "transparent" : "linear-gradient(45deg, #ff6b6b, #4ecdc4)",
+                  }}
+                >
+                  {!avatarUrl && <IconSparkles size={24} />}
+                </Avatar>
+                <Stack gap="md" align="center">
+                  <Stack gap="xs" align="center">
+                    <Title
+                      order={1}
+                      size="1.2rem"
+                      fw={900}
+                      ta="center"
+                    >
+                      Welcome back, {artist.name}!
+                    </Title>
+                    <Badge
+                      size="sm"
+                      variant="light"
+                      color="orange"
+                      leftSection={<IconMusic size={16} />}
+                    >
+                      ARTIST
+                    </Badge>
+                  </Stack>
+                  <Group gap="md" justify="center" wrap="wrap">
+                    <Text size="xs" fw={500}>
+                      🎤 {showMetrics.total} Shows
+                    </Text>
+                    <Text size="xs" fw={500}>
+                      🎵 {trackMetrics.total} Tracks
+                    </Text>
+                  </Group>
+                  {artist.bio && (
+                    <Text
+                      size="xs"
+                      ta="center"
+                      style={{ maxWidth: "300px" }}
+                      lineClamp={2}
+                    >
+                      {artist.bio}
+                    </Text>
+                  )}
+                </Stack>
+              </Group>
+              <Stack gap="xs" w="100%">
+                <Button
+                  component={Link}
+                  href={`/artists/${nameToUrl(artist.name)}`}
+                  variant="light"
+                  size="xs"
+                  leftSection={<IconUser size={16} />}
+                  style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
+                  fullWidth
+                >
+                  View Profile
+                </Button>
+                <Button
+                  component={Link}
+                  href={`/artists/${nameToUrl(artist.name)}/edit`}
+                  size="xs"
+                  leftSection={<IconSparkles size={16} />}
+                  style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#8b4513" }}
+                  fullWidth
+                >
+                  Edit Profile
+                </Button>
+              </Stack>
+            </Stack>
+          </GridCol>
+        </Grid>
+      </Paper>
+
+      <Paper
+        radius="xl"
+        p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }}
+        mb={{ base: "md", sm: "lg", md: "xl" }}
+        visibleFrom="sm"
+        style={{
+          background: bannerUrl
+            ? `linear-gradient(135deg, rgba(139, 69, 19, 0.8) 0%, rgba(205, 133, 63, 0.8) 100%), url(${bannerUrl}) center/cover`
+            : "linear-gradient(135deg, #8b4513 0%, #cd853f 100%)",
+          color: "white",
+          position: "relative",
+          overflow: "hidden",
+          minHeight: "200px",
         }}
       >
         {/* Decorative elements - hide on mobile */}
@@ -175,6 +274,7 @@ export default async function ArtistDashboardPage() {
                     border: "4px solid rgba(255,255,255,0.3)",
                     background: avatarUrl ? "transparent" : "linear-gradient(45deg, #ff6b6b, #4ecdc4)",
                   }}
+                  visibleFrom="sm"
                   hiddenFrom="md"
                 >
                   {!avatarUrl && <IconSparkles size={32} />}
@@ -198,6 +298,7 @@ export default async function ArtistDashboardPage() {
                       size="1.8rem"
                       fw={900}
                       ta="center"
+                      visibleFrom="sm"
                       hiddenFrom="md"
                     >
                       Welcome back, {artist.name}!
@@ -216,6 +317,7 @@ export default async function ArtistDashboardPage() {
                       variant="light"
                       color="orange"
                       leftSection={<IconMusic size={16} />}
+                      visibleFrom="sm"
                       hiddenFrom="md"
                     >
                       ARTIST
@@ -230,14 +332,14 @@ export default async function ArtistDashboardPage() {
                       ARTIST
                     </Badge>
                   </Stack>
-                  <Group gap="md" justify="center">
-                    <Text size="md" fw={500} hiddenFrom="md">
+                  <Group gap="md" justify="center" wrap="wrap">
+                    <Text size="sm" fw={500} visibleFrom="sm" hiddenFrom="md">
                       🎤 {showMetrics.total} Performances
                     </Text>
                     <Text size="lg" fw={500} visibleFrom="md">
                       🎤 {showMetrics.total} Performances
                     </Text>
-                    <Text size="md" fw={500} hiddenFrom="md">
+                    <Text size="sm" fw={500} visibleFrom="sm" hiddenFrom="md">
                       🎵 {trackMetrics.total} Tracks
                     </Text>
                     <Text size="lg" fw={500} visibleFrom="md">
@@ -249,7 +351,9 @@ export default async function ArtistDashboardPage() {
                       <Text
                         size="sm"
                         ta="center"
-                        style={{ maxWidth: "600px" }}
+                        style={{ maxWidth: "500px" }}
+                        lineClamp={3}
+                        visibleFrom="sm"
                         hiddenFrom="md"
                       >
                         {artist.bio}
@@ -266,7 +370,7 @@ export default async function ArtistDashboardPage() {
                   )}
                 </Stack>
               </Group>
-              <Group gap="md" justify="center" w="100%">
+              <Group gap="md" justify="center" visibleFrom="sm">
                 <Button
                   component={Link}
                   href={`/artists/${nameToUrl(artist.name)}`}
@@ -274,7 +378,6 @@ export default async function ArtistDashboardPage() {
                   size="sm"
                   leftSection={<IconUser size={16} />}
                   style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
-                  fullWidth
                   hiddenFrom="md"
                 >
                   View Profile
@@ -285,7 +388,6 @@ export default async function ArtistDashboardPage() {
                   size="sm"
                   leftSection={<IconSparkles size={16} />}
                   style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#8b4513" }}
-                  fullWidth
                   hiddenFrom="md"
                 >
                   Edit Profile
@@ -318,22 +420,25 @@ export default async function ArtistDashboardPage() {
       </Paper>
 
       {/* Stats Grid */}
-      <Grid gutter={{ base: "md", md: "xl" }} mb={{ base: "lg", md: "xl" }}>
+      <Grid gutter={{ base: "sm", sm: "md", md: "lg", lg: "xl" }} mb={{ base: "md", sm: "lg", md: "xl" }}>
         <GridCol span={{ base: 6, sm: 6, md: 3 }}>
-          <Card p={{ base: "md", md: "xl" }} radius="lg" withBorder>
+          <Card p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }} radius="lg" withBorder>
             <Group justify="space-between" align="flex-start">
               <div>
                 <Text size="xs" tt="uppercase" fw={700} c="dimmed">
                   Promoters
                 </Text>
-                <Text fw={700} size="xl" hiddenFrom="md">
+                <Text fw={700} size="lg" hiddenFrom="sm">
                   {promotersWithAvatars.length}
                 </Text>
-                <Text fw={700} size="xl" visibleFrom="md">
+                <Text fw={700} size="xl" visibleFrom="sm">
                   {promotersWithAvatars.length}
                 </Text>
               </div>
-              <ThemeIcon size={40} radius="xl" variant="light" color="blue" hiddenFrom="md">
+              <ThemeIcon size={30} radius="xl" variant="light" color="blue" hiddenFrom="sm">
+                <IconUsers size={16} />
+              </ThemeIcon>
+              <ThemeIcon size={40} radius="xl" variant="light" color="blue" visibleFrom="sm" hiddenFrom="md">
                 <IconUsers size={20} />
               </ThemeIcon>
               <ThemeIcon size={60} radius="xl" variant="light" color="blue" visibleFrom="md">
@@ -344,23 +449,26 @@ export default async function ArtistDashboardPage() {
         </GridCol>
 
         <GridCol span={{ base: 6, sm: 6, md: 3 }}>
-          <Card p={{ base: "md", md: "xl" }} radius="lg" withBorder>
+          <Card p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }} radius="lg" withBorder>
             <Group justify="space-between" align="flex-start">
               <div>
                 <Text size="xs" tt="uppercase" fw={700} c="dimmed">
                   Total Shows
                 </Text>
-                <Text fw={700} size="xl" hiddenFrom="md">
+                <Text fw={700} size="lg" hiddenFrom="sm">
                   {showMetrics.total}
                 </Text>
-                <Text fw={700} size="xl" visibleFrom="md">
+                <Text fw={700} size="xl" visibleFrom="sm">
                   {showMetrics.total}
                 </Text>
                 <Text size="xs" c="dimmed">
                   {showMetrics.upcoming} upcoming
                 </Text>
               </div>
-              <ThemeIcon size={40} radius="xl" variant="light" color="green" hiddenFrom="md">
+              <ThemeIcon size={30} radius="xl" variant="light" color="green" hiddenFrom="sm">
+                <IconCalendarEvent size={16} />
+              </ThemeIcon>
+              <ThemeIcon size={40} radius="xl" variant="light" color="green" visibleFrom="sm" hiddenFrom="md">
                 <IconCalendarEvent size={20} />
               </ThemeIcon>
               <ThemeIcon size={60} radius="xl" variant="light" color="green" visibleFrom="md">
@@ -371,23 +479,26 @@ export default async function ArtistDashboardPage() {
         </GridCol>
 
         <GridCol span={{ base: 6, sm: 6, md: 3 }}>
-          <Card p={{ base: "md", md: "xl" }} radius="lg" withBorder>
+          <Card p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }} radius="lg" withBorder>
             <Group justify="space-between" align="flex-start">
               <div>
                 <Text size="xs" tt="uppercase" fw={700} c="dimmed">
                   Total Tracks
                 </Text>
-                <Text fw={700} size="xl" hiddenFrom="md">
+                <Text fw={700} size="lg" hiddenFrom="sm">
                   {trackMetrics.total}
                 </Text>
-                <Text fw={700} size="xl" visibleFrom="md">
+                <Text fw={700} size="xl" visibleFrom="sm">
                   {trackMetrics.total}
                 </Text>
                 <Text size="xs" c="dimmed">
                   {trackMetrics.recent} this month
                 </Text>
               </div>
-              <ThemeIcon size={40} radius="xl" variant="light" color="purple" hiddenFrom="md">
+              <ThemeIcon size={30} radius="xl" variant="light" color="purple" hiddenFrom="sm">
+                <IconMusic size={16} />
+              </ThemeIcon>
+              <ThemeIcon size={40} radius="xl" variant="light" color="purple" visibleFrom="sm" hiddenFrom="md">
                 <IconMusic size={20} />
               </ThemeIcon>
               <ThemeIcon size={60} radius="xl" variant="light" color="purple" visibleFrom="md">
@@ -398,23 +509,26 @@ export default async function ArtistDashboardPage() {
         </GridCol>
 
         <GridCol span={{ base: 6, sm: 6, md: 3 }}>
-          <Card p={{ base: "md", md: "xl" }} radius="lg" withBorder>
+          <Card p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }} radius="lg" withBorder>
             <Group justify="space-between" align="flex-start">
               <div>
                 <Text size="xs" tt="uppercase" fw={700} c="dimmed">
                   Total Listens
                 </Text>
-                <Text fw={700} size="xl" hiddenFrom="md">
+                <Text fw={700} size="lg" hiddenFrom="sm">
                   {totalListens.toLocaleString()}
                 </Text>
-                <Text fw={700} size="xl" visibleFrom="md">
+                <Text fw={700} size="xl" visibleFrom="sm">
                   {totalListens.toLocaleString()}
                 </Text>
                 <Text size="xs" c="dimmed">
                   Last 30 days
                 </Text>
               </div>
-              <ThemeIcon size={40} radius="xl" variant="light" color="orange" hiddenFrom="md">
+              <ThemeIcon size={30} radius="xl" variant="light" color="orange" hiddenFrom="sm">
+                <IconHeadphones size={16} />
+              </ThemeIcon>
+              <ThemeIcon size={40} radius="xl" variant="light" color="orange" visibleFrom="sm" hiddenFrom="md">
                 <IconHeadphones size={20} />
               </ThemeIcon>
               <ThemeIcon size={60} radius="xl" variant="light" color="orange" visibleFrom="md">
@@ -426,18 +540,48 @@ export default async function ArtistDashboardPage() {
       </Grid>
 
       {/* Content Grid */}
-      <Grid gutter={{ base: "md", md: "xl" }}>
+      <Grid gutter={{ base: "sm", sm: "md", md: "lg", lg: "xl" }}>
         {/* Upcoming Events */}
         <GridCol span={{ base: 12, lg: 6 }}>
-          <Card p={{ base: "md", md: "xl" }} radius="lg" withBorder h="100%">
-            <Group justify="space-between" mb="lg">
-              <Title order={3} hiddenFrom="md">Upcoming Events</Title>
-              <Title order={3} visibleFrom="md">Upcoming Events</Title>
+          <Card p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }} radius="lg" withBorder h="100%">
+            <Group justify="space-between" mb={{ base: "sm", sm: "md", md: "lg" }} wrap="nowrap">
+              <Title order={3} size="lg" hiddenFrom="sm">Upcoming Events</Title>
+              <Title order={3} size="xl" visibleFrom="sm">Upcoming Events</Title>
               <Button size="xs" variant="light">View All</Button>
             </Group>
 
             {upcomingEvents.length > 0 ? (
-              <Stack gap="md">
+              <Stack gap="xs" hiddenFrom="sm">
+                {upcomingEvents.slice(0, 3).map((event) => (
+                  <Paper key={event.id} p="xs" radius="md" withBorder>
+                    <Group justify="space-between" align="flex-start" wrap="nowrap">
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <Text fw={600} lineClamp={1} size="sm">{event.name}</Text>
+                        <Text size="xs" c="dimmed" lineClamp={1}>
+                          {event.venues?.name} • {event.date ? new Date(event.date).toLocaleDateString() : 'Date TBD'}
+                        </Text>
+                      </div>
+                      <Badge variant="light" color="green" size="xs">
+                        Upcoming
+                      </Badge>
+                    </Group>
+                  </Paper>
+                ))}
+              </Stack>
+            ) : (
+              <Center py="lg" hiddenFrom="sm">
+                <Stack align="center" gap="sm">
+                  <ThemeIcon size={40} radius="xl" variant="light" color="gray">
+                    <IconCalendarEvent size={20} />
+                  </ThemeIcon>
+                  <Text c="dimmed" ta="center" size="sm">No upcoming events</Text>
+                  <Button size="sm" variant="light">Find Events</Button>
+                </Stack>
+              </Center>
+            )}
+
+            {upcomingEvents.length > 0 ? (
+              <Stack gap="md" visibleFrom="sm">
                 {upcomingEvents.slice(0, 3).map((event) => (
                   <Paper key={event.id} p={{ base: "sm", md: "md" }} radius="md" withBorder>
                     <Group justify="space-between" align="flex-start" wrap="nowrap">
@@ -455,7 +599,7 @@ export default async function ArtistDashboardPage() {
                 ))}
               </Stack>
             ) : (
-              <Center py="xl">
+              <Center py="xl" visibleFrom="sm">
                 <Stack align="center" gap="md">
                   <ThemeIcon size={60} radius="xl" variant="light" color="gray">
                     <IconCalendarEvent size={30} />
@@ -478,27 +622,39 @@ export default async function ArtistDashboardPage() {
       </Grid>
 
       {/* Quick Actions */}
-      <Card p={{ base: "md", md: "xl" }} radius="lg" withBorder mt={{ base: "lg", md: "xl" }}>
-        <Title order={3} mb="lg">Quick Actions</Title>
-        <Stack gap="md" hiddenFrom="sm">
-          <Button leftSection={<IconMusic size={16} />} component={Link} href="/upload/tracks" fullWidth>
+      <Card p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }} radius="lg" withBorder mt={{ base: "md", sm: "lg", md: "xl" }}>
+        <Title order={3} mb={{ base: "sm", sm: "md", md: "lg" }} size="lg" hiddenFrom="sm">Quick Actions</Title>
+        <Title order={3} mb={{ base: "sm", sm: "md", md: "lg" }} size="xl" visibleFrom="sm">Quick Actions</Title>
+        <Stack gap="sm" hiddenFrom="sm">
+          <Button leftSection={<IconMusic size={16} />} component={Link} href="/upload/tracks" fullWidth size="sm">
             Upload Track
           </Button>
-          <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/artist/promoters" fullWidth>
+          <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/artist/promoters" fullWidth size="sm">
             Find Promoters
           </Button>
-          <Button variant="light" leftSection={<IconChartBar size={16} />} fullWidth>
+          <Button variant="light" leftSection={<IconChartBar size={16} />} fullWidth size="sm">
             View Analytics
           </Button>
         </Stack>
-        <Group visibleFrom="sm">
-          <Button leftSection={<IconMusic size={16} />} component={Link} href="/upload/tracks">
+        <Group visibleFrom="sm" gap="sm" wrap="wrap" hiddenFrom="md">
+          <Button leftSection={<IconMusic size={16} />} component={Link} href="/upload/tracks" size="sm">
             Upload Track
           </Button>
-          <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/artist/promoters">
+          <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/artist/promoters" size="sm">
             Find Promoters
           </Button>
-          <Button variant="light" leftSection={<IconChartBar size={16} />}>
+          <Button variant="light" leftSection={<IconChartBar size={16} />} size="sm">
+            View Analytics
+          </Button>
+        </Group>
+        <Group visibleFrom="md" gap="md" wrap="wrap">
+          <Button leftSection={<IconMusic size={16} />} component={Link} href="/upload/tracks" size="md">
+            Upload Track
+          </Button>
+          <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/artist/promoters" size="md">
+            Find Promoters
+          </Button>
+          <Button variant="light" leftSection={<IconChartBar size={16} />} size="md">
             View Analytics
           </Button>
         </Group>
