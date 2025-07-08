@@ -59,78 +59,70 @@ export default function ArtistPromotersClient({
   };
 
   return (
-    <Container size="xl" py={{ base: "md", sm: "xl" }}>
+    <Container
+      size="xl"
+      py={{ base: "md", sm: "lg", lg: "xl" }}
+      px={{ base: "sm", sm: "md" }}
+    >
       {/* Header */}
-      <Stack gap="xl" mb="xl">
-        <Group justify="space-between" align="flex-start" wrap="wrap" gap="md">
-          <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
-            <Group gap="md" wrap="nowrap" align="center">
-              <ThemeIcon
-                size={50}
-                radius="xl"
-                variant="light"
-                color="orange"
-                style={{ flexShrink: 0 }}
+      <Group
+        justify="space-between"
+        mb={{ base: "lg", sm: "xl" }}
+        align="flex-start"
+        wrap="wrap"
+      >
+        <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
+          <Group gap="md" wrap="nowrap">
+            <ThemeIcon
+              size={50}
+              radius="xl"
+              variant="light"
+              color="orange"
+            >
+              <IconUserPlus size={24} />
+            </ThemeIcon>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <Title
+                order={1}
+                fz={{ base: "xl", sm: "2rem", lg: "2.5rem" }}
+                lh={{ base: 1.2, sm: 1.1 }}
               >
-                <IconUserPlus size={24} />
-              </ThemeIcon>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <Title
-                  order={2}
-                  style={{ lineHeight: 1.2 }}
-                  hiddenFrom="sm"
-                >
-                  Connect with Promoters
-                </Title>
-                <Title
-                  order={1}
-                  style={{ lineHeight: 1.2 }}
-                  visibleFrom="sm"
-                >
-                  Connect with Promoters
-                </Title>
-                <Text
-                  c="dimmed"
-                  size="sm"
-                  style={{ lineHeight: 1.3 }}
-                  hiddenFrom="sm"
-                >
-                  {filterByArtistLocality
-                    ? `Shared localities${localityName ? ` (${localityName})` : ""}`
-                    : `Primary area${localityName ? ` (${localityName})` : ""}`
-                  }
-                </Text>
-                <Text
-                  c="dimmed"
-                  size="lg"
-                  style={{ lineHeight: 1.3 }}
-                  visibleFrom="sm"
-                >
-                  {filterByArtistLocality
-                    ? `Promoters in your shared localities${localityName ? ` (including ${localityName})` : ""}`
-                    : `Promoters in your primary area${localityName ? ` (${localityName})` : ""}`
-                  }
-                </Text>
-              </div>
-            </Group>
-          </Stack>
+                Connect with Promoters
+              </Title>
+              <Text
+                c="dimmed"
+                fz={{ base: "sm", sm: "md", lg: "lg" }}
+                lh={{ base: 1.3, sm: 1.4 }}
+              >
+                {filterByArtistLocality
+                  ? `Promoters in your shared localities${localityName ? ` (including ${localityName})` : ""}`
+                  : `Promoters in your primary area${localityName ? ` (${localityName})` : ""}`
+                }
+              </Text>
+            </div>
+          </Group>
+        </Stack>
 
-          <Button
-            component={Link}
-            href="/artist"
-            variant="light"
-            leftSection={<IconArrowLeft size={16} />}
-            size="sm"
-            style={{ flexShrink: 0 }}
-          >
-            <Text visibleFrom="sm">Back to Dashboard</Text>
-            <Text hiddenFrom="sm">Back</Text>
-          </Button>
-        </Group>
-      </Stack>
+        <Button
+          component={Link}
+          href="/artist"
+          variant="light"
+          leftSection={<IconArrowLeft size={16} />}
+          size="sm"
+          style={{ flexShrink: 0 }}
+        >
+          <Text visibleFrom="sm">Back to Dashboard</Text>
+          <Text hiddenFrom="sm">Back</Text>
+        </Button>
+      </Group>
 
       {/* Filter Controls */}
-      <Paper p={{ base: "sm", sm: "md" }} radius="lg" withBorder mb={{ base: "lg", sm: "xl" }}>
+      <Paper
+        p={{ base: "sm", sm: "md", lg: "lg" }}
+        radius="lg"
+        withBorder
+        mb={{ base: "lg", sm: "xl" }}
+      >
         <Stack gap="md">
           {/* Search Bar */}
           <Group gap="md" wrap="nowrap">
@@ -141,6 +133,13 @@ export default function ArtistPromotersClient({
               size="md"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.currentTarget.value)}
+              styles={{
+                input: {
+                  '@media (maxWidth: 48em)': {
+                    fontSize: '16px', // Prevents zoom on iOS
+                  }
+                }
+              }}
               rightSection={searchTerm && (
                 <IconX
                   size={16}
@@ -152,32 +151,34 @@ export default function ArtistPromotersClient({
           </Group>
 
           {/* Locality Filter Toggle */}
-          <Stack gap="xs">
-            <Group justify="space-between" wrap="nowrap" align="flex-start">
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <Text fw={500} size="sm">Show promoters in your localities only</Text>
-                <Text size="xs" c="dimmed" hiddenFrom="sm">
-                  {filterByArtistLocality
-                    ? "Shared localities only"
-                    : "All promoters"
-                  }
-                </Text>
-                <Text size="xs" c="dimmed" visibleFrom="sm">
-                  {filterByArtistLocality
-                    ? "Currently showing only promoters in your shared localities"
-                    : "Currently showing all promoters regardless of location"
-                  }
-                </Text>
-              </div>
-              <Switch
-                checked={filterByArtistLocality}
-                onChange={(event) => setFilterByArtistLocality(event.currentTarget.checked)}
-                size="md"
-                color="orange"
-                style={{ flexShrink: 0 }}
-              />
-            </Group>
-          </Stack>
+          <Group justify="space-between" wrap="nowrap">
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <Text
+                fw={500}
+                fz={{ base: "sm", sm: "md" }}
+                mb={{ base: 2, sm: 4 }}
+              >
+                Show promoters in your localities only
+              </Text>
+              <Text
+                fz={{ base: "xs", sm: "sm" }}
+                c="dimmed"
+                lh={{ base: 1.3, sm: 1.4 }}
+              >
+                {filterByArtistLocality
+                  ? "Currently showing only promoters in your shared localities"
+                  : "Currently showing all promoters regardless of location"
+                }
+              </Text>
+            </div>
+            <Switch
+              checked={filterByArtistLocality}
+              onChange={(event) => setFilterByArtistLocality(event.currentTarget.checked)}
+              size="md"
+              color="orange"
+              style={{ flexShrink: 0 }}
+            />
+          </Group>
         </Stack>
       </Paper>
 
@@ -186,8 +187,14 @@ export default function ArtistPromotersClient({
       {filteredPromoters.length > 0 ? (
         <SimpleGrid
           cols={{ base: 1, xs: 2, sm: 2, md: 3, lg: 4 }}
-          spacing={{ base: "sm", sm: "md", md: "lg" }}
-          verticalSpacing={{ base: "sm", sm: "md", md: "lg" }}
+          spacing={{ base: "sm", sm: "md", lg: "lg" }}
+          verticalSpacing={{ base: "sm", sm: "md", lg: "lg" }}
+          style={{
+            // Additional mobile optimizations
+            '@media (maxWidth: 30em)': {
+              gap: '0.75rem',
+            }
+          }}
         >
           {filteredPromoters.map((promoter) => (
             <PromoterCard key={promoter.id} promoter={promoter} getLocationText={getLocationText} />
@@ -195,12 +202,34 @@ export default function ArtistPromotersClient({
         </SimpleGrid>
       ) : (
         <Center py={{ base: "lg", sm: "xl" }}>
-          <Stack align="center" gap="md" maw={400}>
-            <ThemeIcon size={80} radius="xl" variant="light" color="gray">
+          <Stack
+            align="center"
+            gap="md"
+            maw={{ base: 300, sm: 400 }}
+            px={{ base: "sm", sm: 0 }}
+          >
+            <ThemeIcon
+              size={80}
+              radius="xl"
+              variant="light"
+              color="gray"
+            >
               <IconUser size={40} />
             </ThemeIcon>
-            <Title order={3} c="dimmed" ta="center">No Promoters Found</Title>
-            <Text c="dimmed" ta="center" size="md">
+            <Title
+              order={3}
+              c="dimmed"
+              fz={{ base: "lg", sm: "xl" }}
+              ta="center"
+            >
+              No Promoters Found
+            </Title>
+            <Text
+              c="dimmed"
+              ta="center"
+              fz={{ base: "sm", sm: "md" }}
+              lh={{ base: 1.4, sm: 1.5 }}
+            >
               {searchTerm
                 ? `No promoters found matching "${searchTerm}". Try a different search term.`
                 : filterByArtistLocality
@@ -209,12 +238,30 @@ export default function ArtistPromotersClient({
               }
             </Text>
             {searchTerm && (
-              <Button variant="light" onClick={() => setSearchTerm("")} size="md">
+              <Button
+                variant="light"
+                onClick={() => setSearchTerm("")}
+                size="sm"
+              >
                 Clear Search
               </Button>
             )}
+            {!searchTerm && filterByArtistLocality && (
+              <Button
+                variant="light"
+                onClick={() => setFilterByArtistLocality(false)}
+                size="sm"
+              >
+                Show All Local Promoters
+              </Button>
+            )}
             {!searchTerm && !filterByArtistLocality && (
-              <Button variant="light" component={Link} href="/promoters" size="md">
+              <Button
+                variant="light"
+                component={Link}
+                href="/promoters"
+                size="sm"
+              >
                 Browse All Promoters
               </Button>
             )}
@@ -230,25 +277,49 @@ export default function ArtistPromotersClient({
         style={{ background: "linear-gradient(45deg, #ff6b35, #f7931e)", color: "white" }}
       >
         <Stack align="center" gap="md">
-          <ThemeIcon size={60} radius="xl" variant="white" color="orange">
+          <ThemeIcon
+            size={60}
+            radius="xl"
+            variant="white"
+            color="orange"
+          >
             <IconSparkles size={30} />
           </ThemeIcon>
-          <Title order={2} ta="center" style={{ lineHeight: 1.3 }}>
-            <Text hiddenFrom="sm" component="span" inherit size="lg">
+          <Title
+            order={2}
+            ta="center"
+            fz={{ base: "lg", sm: "xl", lg: "2rem" }}
+            lh={{ base: 1.2, sm: 1.3 }}
+          >
+            <Text hiddenFrom="sm" component="span" inherit>
               Don't See the Right Promoter?
             </Text>
             <Text visibleFrom="sm" component="span" inherit>
               Don't See the Promoter You're Looking For?
             </Text>
           </Title>
-          <Text ta="center" opacity={0.9} style={{ lineHeight: 1.4 }}>
-            <Text hiddenFrom="sm" component="span" inherit size="md">
+          <Text
+            ta="center"
+            fz={{ base: "sm", sm: "md", lg: "lg" }}
+            opacity={0.9}
+            lh={{ base: 1.4, sm: 1.5 }}
+            maw={{ base: 280, sm: 400, lg: 500 }}
+          >
+            <Text hiddenFrom="sm" component="span" inherit>
               Encourage them to join our platform!
             </Text>
-            <Text visibleFrom="sm" component="span" inherit size="lg">
+            <Text visibleFrom="sm" component="span" inherit>
               Encourage them to join our platform and grow the local music scene together!
             </Text>
           </Text>
+          <Button
+            size="lg"
+            variant="white"
+            color="dark"
+            mt={{ base: "xs", sm: "sm" }}
+          >
+            Invite Promoter to Join
+          </Button>
         </Stack>
       </Paper>
     </Container>
@@ -264,7 +335,7 @@ function PromoterCard({
 }) {
   return (
     <Card
-      p={{ base: "md", sm: "lg" }}
+      p={{ base: "sm", sm: "md", lg: "lg" }}
       radius="xl"
       withBorder
       h="100%"
@@ -301,7 +372,7 @@ function PromoterCard({
             style={{
               lineClamp: 1,
               fontWeight: 700,
-              fontSize: '1.125rem',
+              fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
               textAlign: 'center'
             }}
           >
@@ -310,8 +381,17 @@ function PromoterCard({
 
           {/* Location */}
           <Group gap="xs" justify="center" wrap="nowrap">
-            <IconMapPin size={14} style={{ color: "var(--mantine-color-dimmed)", flexShrink: 0 }} />
-            <Text size="xs" c="dimmed" ta="center" lineClamp={1} style={{ minWidth: 0 }}>
+            <IconMapPin
+              size={14}
+              style={{ color: "var(--mantine-color-dimmed)", flexShrink: 0 }}
+            />
+            <Text
+              fz={{ base: "xs", sm: "sm" }}
+              c="dimmed"
+              ta="center"
+              lineClamp={1}
+              style={{ minWidth: 0 }}
+            >
               {getLocationText(promoter)}
             </Text>
           </Group>
@@ -320,7 +400,7 @@ function PromoterCard({
           {promoter.bio && (
             <>
               <Text
-                size="xs"
+                fz="xs"
                 c="dimmed"
                 ta="center"
                 lineClamp={2}
@@ -330,7 +410,7 @@ function PromoterCard({
                 {promoter.bio}
               </Text>
               <Text
-                size="sm"
+                fz="sm"
                 c="dimmed"
                 ta="center"
                 lineClamp={3}
@@ -344,7 +424,7 @@ function PromoterCard({
         </Stack>
 
         {/* Action Buttons */}
-        <Stack gap="xs" style={{ width: "100%" }}>
+        <Stack gap="xs" w="100%">
           <Button
             variant="light"
             size="sm"
