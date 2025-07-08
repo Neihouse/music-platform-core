@@ -2,6 +2,7 @@
 
 import { Box, Button, Stack, Text, ThemeIcon, useMantineColorScheme } from "@mantine/core";
 import { IconMapOff, IconPlus } from "@tabler/icons-react";
+import Link from "next/link";
 
 interface EmptyStateProps {
   cityName: string;
@@ -48,10 +49,11 @@ export function EmptyState({ cityName, onTryAgain, isLoggedIn }: EmptyStateProps
           {!isLoggedIn && (
             <>
               <Button
+                component={Link}
+                href="/signup"
                 leftSection={<IconPlus size={16} />}
                 variant="gradient"
                 gradient={{ from: 'blue', to: 'teal' }}
-                onClick={onTryAgain}
               >
                 Join & Build Scene
               </Button>

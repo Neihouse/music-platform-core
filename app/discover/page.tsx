@@ -113,14 +113,9 @@ export async function generateMetadata({ searchParams }: DiscoverPageProps): Pro
   };
 }
 
-async function CityDataWrapper({ city }: { city: string }) {
+async function CityDataWrapper({ city, isLoggedIn }: { city: string; isLoggedIn: boolean }) {
   // Decode hyphenated city names back to spaces for database lookup
   const decodedCity = city.replace(/-/g, ' ');
-
-  // Check user authentication status
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const isLoggedIn = !!user;
 
   const [cityData, popularCities] = await Promise.all([
     getCachedCityData(decodedCity),
@@ -148,7 +143,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
   if (selectedCity) {
     return (
       <Suspense fallback={<DiscoverClient isLoggedIn={isLoggedIn} />}>
-        <CityDataWrapper city={selectedCity} />
+        <CityDataWrapper city={selectedCity} isLoggedIn={isLoggedIn} />
       </Suspense>
     );
   }
