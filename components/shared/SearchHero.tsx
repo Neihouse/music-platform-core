@@ -135,38 +135,39 @@ export function SearchHero({
             </Group>
           </Box>
 
-          {/* Popular Cities */}
-          <Stack align="center" gap="sm">
-            <Group gap="xs" align="center">
-              <IconTrendingUp size={16} color="var(--mantine-color-dimmed)" />
-              <Text size="sm" c="dimmed" fw={500}>
-                Popular cities
-              </Text>
-            </Group>
-            <Group gap="xs" justify="center">
-              {popularCities.map((city) => (
-                <Pill
-                  key={city}
-                  size="md"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    color: 'var(--mantine-color-gray-3)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onClick={() => onSearch(city)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                  }}
-                >
-                  {city}
-                </Pill>
-              ))}
-            </Group>
-          </Stack>
+          {!!popularCities.length && (
+
+            <Stack align="center" gap="sm">
+              <Group gap="xs" align="center">
+                <IconTrendingUp size={16} color="var(--mantine-color-dimmed)" />
+                <Text size="sm" c="dimmed" fw={500}>
+                  Popular cities
+                </Text>
+              </Group>
+              <Group gap="xs" justify="center">
+                {popularCities.map((city) => (
+                  <Pill
+                    key={city}
+                    size="md"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      color: 'var(--mantine-color-gray-3)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onClick={() => onSearch(city)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }}
+                  >
+                    {city}
+                  </Pill>
+                ))}
+              </Group>
+            </Stack>)}
         </Stack>
       </Container>
     </Box>
