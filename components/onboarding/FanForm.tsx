@@ -1,21 +1,20 @@
 "use client";
 
+import { createFan } from "@/app/fans/create/actions";
 import {
   Button,
   Container,
   Group,
+  Paper,
+  Select,
   Stack,
   TextInput,
   Title,
-  Select,
-  Paper,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { createFan } from "@/app/fans/create/actions";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LocationInput } from "@/components/LocationInput";
+import { useState } from "react";
 
 export interface IFanFormProps { }
 
