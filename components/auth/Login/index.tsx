@@ -72,7 +72,6 @@ export function Login(props: PaperProps) {
         return;
       }
 
-      // Login successful, redirect to profile
       router.push("/");
       router.refresh(); // Ensure the page refreshes to update the auth state
     } catch (err) {

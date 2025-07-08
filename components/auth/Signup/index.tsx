@@ -86,7 +86,9 @@ export function Signup(props: PaperProps) {
         router.refresh();
       }
     } catch (err) {
-      console.error("Signup error:", err);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Signup error:", err);
+      }
       if (err instanceof TypeError && err.message.includes("fetch")) {
         setError("Network error. Please check your connection and try again.");
       } else {
