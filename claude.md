@@ -44,7 +44,7 @@ Key improvements include:
 
 ## Technology Stack
 - **Frontend**: Next.js 14, React, TypeScript
-- **UI Library**: Mantine v7
+- **UI Library**: Mantine v8
 - **Backend**: Supabase (PostgreSQL, Auth, Storage)
 - **Styling**: Mantine CSS-in-JS with responsive style props
 - **Deployment**: Vercel (recommended)
@@ -62,11 +62,11 @@ Key improvements include:
 - Implement `hiddenFrom`/`visibleFrom` for conditional layouts
 - Follow progressive enhancement principles
 - Test across mobile, tablet, and desktop breakpoints
-- **Always reference [Mantine v7 Style Props Documentation](https://v7.mantine.dev/styles/style-props/) when updating styles**
+- **Always reference [Mantine v8 Style Props Documentation](https://mantine.dev/styles/style-props/) when updating styles**
 
 ### Style Development Guidelines
-📋 **IMPORTANT**: Before making any style updates, always consult the official Mantine v7 Style Props documentation:
-- 🔗 **Reference**: https://v7.mantine.dev/styles/style-props/
+📋 **IMPORTANT**: Before making any style updates, always consult the official Mantine v8 Style Props documentation:
+- 🔗 **Reference**: https://mantine.dev/styles/style-props/
 - Use responsive style props syntax: `{{ base: "sm", sm: "md", lg: "xl" }}`
 - Understand which components support responsive props vs. requiring `hiddenFrom`/`visibleFrom`
 - Follow Mantine's breakpoint system: `xs`, `sm`, `md`, `lg`, `xl`
