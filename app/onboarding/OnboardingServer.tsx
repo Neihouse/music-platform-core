@@ -40,10 +40,10 @@ export default async function OnboardingPage() {
             </Text>
             <Button 
               component={Link} 
-              href="/dashboard"
+              href={userProfile.type === 'artist' ? '/artist' : userProfile.type === 'promoter' ? '/promoter' : '/discover'}
               leftSection={<IconArrowLeft size={16} />}
             >
-              Go to Dashboard
+              {userProfile.type === 'artist' ? 'Go to Artist Dashboard' : userProfile.type === 'promoter' ? 'Go to Promoter Dashboard' : 'Go to Discover'}
             </Button>
           </Stack>
         </Paper>

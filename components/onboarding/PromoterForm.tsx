@@ -389,7 +389,7 @@ export function PromoterForm(props: IPromoterFormProps) {
                             message: "Your promoter profile is now ready.",
                             color: "green",
                           });
-                          router.push("/dashboard");
+                          router.push("/promoter");
                         }}
                       >
                         Complete Setup

@@ -1,7 +1,7 @@
 import { ArtistForm } from "@/components/onboarding/ArtistForm";
 import { getArtist } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
-import { canCreateProfile } from "@/db/queries/user";
+import { canCreateProfile, getUserProfile } from "@/db/queries/user";
 import { createClient } from "@/utils/supabase/server";
 import { Container, Paper, Title, Text, Button, Stack } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
@@ -31,6 +31,7 @@ export default async function ArtistCreatePage({ }: IArtistCreatePageProps) {
   }
 
   const { canCreate, reason } = await canCreateProfile(supabase);
+  const userProfile = await getUserProfile(supabase);
   
   if (!canCreate) {
     return (
@@ -41,10 +42,10 @@ export default async function ArtistCreatePage({ }: IArtistCreatePageProps) {
             <Text>{reason}</Text>
             <Button 
               component={Link} 
-              href="/dashboard"
+              href={userProfile.type === 'promoter' ? '/promoter' : '/discover'}
               leftSection={<IconArrowLeft size={16} />}
             >
-              Go to Dashboard
+              {userProfile.type === 'promoter' ? 'Go to Promoter Dashboard' : 'Go to Discover'}
             </Button>
           </Stack>
         </Paper>

@@ -30,7 +30,7 @@ const FOOTER_DATA = {
     title: "For Artists",
     links: [
       { label: "Upload Music", href: "/upload/tracks" },
-      { label: "Artist Dashboard", href: "/dashboard" },
+      { label: "Artist Dashboard", href: "/artist" },
       { label: "Analytics", href: "/analytics" },
       { label: "Promotion Tools", href: "/promote" },
     ],

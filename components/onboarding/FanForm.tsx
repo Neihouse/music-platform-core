@@ -91,7 +91,8 @@ export function FanForm(props: IFanFormProps) {
     try {
       const fan = await createFan(displayName, preferredGenres);
       console.log("Fan profile created:", fan);
-      router.push("/dashboard");
+      // Fans don't have a specific dashboard, redirect to discover page
+      router.push("/discover");
     } catch (error) {
       notifications.show({
         title: "Error",
