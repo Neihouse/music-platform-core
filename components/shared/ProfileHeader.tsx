@@ -1,11 +1,11 @@
 "use client";
 
-import { Stack, Group, Text, Button, Avatar } from "@mantine/core";
+import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
+import StyledTitle from "@/components/StyledTitle";
+import { StoredLocality } from "@/utils/supabase/global.types";
+import { Avatar, Button, Group, Stack, Text } from "@mantine/core";
 import { IconEdit, IconMapPin } from "@tabler/icons-react";
 import Link from "next/link";
-import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
-import { StoredLocality } from "@/utils/supabase/global.types";
-import StyledTitle from "@/components/StyledTitle";
 
 interface ProfileHeaderProps {
   name: string;
@@ -22,7 +22,6 @@ interface ProfileHeaderProps {
 
 const ProfileHeader = ({
   name,
-  subtitle = "Singer-songwriter | Indie Pop",
   bio,
   avatarUrl,
   scrollProgress,
@@ -83,8 +82,6 @@ const ProfileHeader = ({
             {name}
           </StyledTitle>
         </div>
-
-        <Text size="lg" c="dimmed">{subtitle}</Text>
 
         {location && (
           <Group gap="xs" align="center">

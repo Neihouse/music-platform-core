@@ -1,18 +1,18 @@
 "use client";
 
+import { useMobileContentSection } from "@/lib/mobile-responsive-hooks";
 import {
+  Badge,
   Box,
   Container,
-  Title,
-  Text,
   Group,
-  Stack,
   ScrollArea,
+  Stack,
+  Text,
+  Title,
   rem,
-  Badge,
 } from "@mantine/core";
 import { ReactNode } from "react";
-import { useMobileContentSection } from "@/lib/mobile-responsive-hooks";
 
 interface ContentSectionProps {
   title: string;
@@ -34,16 +34,17 @@ export function ContentSection({
   spacing = 'lg',
 }: ContentSectionProps) {
   const { containerPadding, titleSize, gridStyle } = useMobileContentSection();
-  
+
   const content = scrollable ? (
     <ScrollArea
       style={{ width: '100%' }}
       scrollbars="x"
       offsetScrollbars={false}
     >
-      <Box style={{ 
-        display: 'flex', 
-        gap: rem(16), 
+      <Box style={{
+        display: 'flex',
+        gap: rem(16),
+        paddingTop: rem(12), // Add top padding to prevent clipping on hover
         paddingBottom: rem(16),
         paddingRight: rem(16),
         minWidth: 'fit-content'
@@ -52,15 +53,18 @@ export function ContentSection({
       </Box>
     </ScrollArea>
   ) : (
-    <Box style={gridStyle}>
+    <Box style={{
+      ...gridStyle,
+      paddingTop: rem(12) // Add top padding for grid layout too
+    }}>
       {children}
     </Box>
   );
 
   return (
-    <Box 
+    <Box
       py={spacing === 'xs' ? 'md' : spacing === 'sm' ? 'lg' : 'xl'}
-      style={{ 
+      style={{
         background: spacing === 'lg' ? 'rgba(0, 0, 0, 0.2)' : 'transparent',
         borderTop: spacing === 'lg' ? '1px solid var(--mantine-color-dark-6)' : 'none'
       }}
@@ -76,7 +80,7 @@ export function ContentSection({
                   size={rem(32)}
                   fw={700}
                   c="white"
-                  style={{ 
+                  style={{
                     letterSpacing: rem(-0.5),
                     fontSize: titleSize
                   }}

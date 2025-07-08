@@ -1,12 +1,19 @@
 import { EventCreateForm } from "@/components/events/EventCreateForm";
+import { getUserProfile } from "@/db/queries/user";
 import { createClient } from "@/utils/supabase/server";
-import * as React from "react";
+import { redirect } from "next/navigation";
 
-export interface IEventCreatePageProps {}
+export interface IEventCreatePageProps { }
 
-export default async function EventCreatePage({}: IEventCreatePageProps) {
+export default async function EventCreatePage({ }: IEventCreatePageProps) {
   const supabase = await createClient();
-  
+  const userProfile = await getUserProfile(supabase);
+
+  // Only allow promoters (collectives) to create events
+  if (userProfile?.type !== 'promoter') {
+    redirect('/events');
+  }
+
   // Fetch venues for the form
   const { data: venues } = await supabase
     .from("venues")

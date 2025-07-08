@@ -1,36 +1,34 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect, useCallback } from "react";
-import { 
-  Container, 
-  Box, 
-  LoadingOverlay,
-  Stack,
-  Text,
-  Group,
+import { CityData, getCityMusicData } from "@/app/discover/actions";
+import {
+  ArtistCard,
+  ContentSection,
+  EventCard,
+  SearchHero,
+  VenueCard,
+} from "@/components/shared";
+import { nameToUrl } from "@/lib/utils";
+import {
+  Box,
   Button,
-  ThemeIcon,
+  Container,
+  Group,
+  LoadingOverlay,
   Paper,
   rem,
+  Stack,
+  Text,
+  ThemeIcon,
 } from "@mantine/core";
-import { 
-  IconMapPin, 
-  IconRefresh, 
+import {
+  IconMapPin,
   IconMoodSad,
+  IconRefresh,
   IconSearch,
 } from "@tabler/icons-react";
-import { 
-  SearchHero, 
-  ContentSection, 
-  ArtistCard, 
-  VenueCard, 
-  EventCard, 
-   
-} from "@/components/shared";
-import { getCityMusicData, CityData } from "@/app/discover/actions";
-import { mockCityData } from "@/lib/mock-data";
-import { nameToUrl } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 interface DiscoverClientProps {
   initialData?: CityData | null;
@@ -68,7 +66,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
 
     setIsLoading(true);
     setError(null);
-    
+
     // Update current city state immediately
     setCurrentCity(trimmedQuery);
 
@@ -81,12 +79,12 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
     try {
       const data = await getCityMusicData(trimmedQuery);
       const hasData = Object.values(data).some(arr => arr.length > 0);
-      
-      setCityData(hasData ? data : mockCityData);
+
+      setCityData(data);
     } catch (err) {
       console.error('Error fetching city data:', err);
       setError('Failed to fetch city data');
-      setCityData(mockCityData);
+      setCityData(null);
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +100,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
     setCityData(null);
     setCurrentCity("");
     setError(null);
-    
+
     // Clear URL params
     const url = new URL(window.location.href);
     url.searchParams.delete('city');
@@ -115,7 +113,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
     if (city) {
       const decodedCity = city.replace(/-/g, ' ');
       const currentCityHyphenated = currentCity.toLowerCase().replace(/\s+/g, '-');
-      
+
       // Only fetch if this is a different city than what we currently have
       if (city !== currentCityHyphenated && decodedCity !== currentCity) {
         handleSearch(decodedCity);
@@ -134,21 +132,21 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
     <Container size="sm" py="xl">
       <Paper p="xl" radius="lg" style={{ textAlign: 'center', background: 'var(--mantine-color-dark-8)' }}>
         <Stack align="center" gap="lg">
-          <ThemeIcon 
-            size={rem(80)} 
-            radius="xl" 
-            variant="light" 
+          <ThemeIcon
+            size={rem(80)}
+            radius="xl"
+            variant="light"
             color="gray"
           >
             <IconMoodSad size={40} />
           </ThemeIcon>
-          
+
           <Stack align="center" gap="sm">
             <Text size="xl" fw={600} c="white">
               No music scene found
             </Text>
             <Text c="dimmed" ta="center" maw={400}>
-              We couldn't find any artists, venues, or events in {capitalizeCity(currentCity)}. 
+              We couldn't find any artists, venues, or events in {capitalizeCity(currentCity)}.
               Try searching for a different city or check back later.
             </Text>
           </Stack>
@@ -162,7 +160,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
             >
               Try again
             </Button>
-            
+
             <Button
               leftSection={<IconSearch size={16} />}
               onClick={handleReset}
@@ -178,16 +176,16 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
 
   const LoadingState = () => (
     <Box pos="relative" mih={400}>
-      <LoadingOverlay 
-        visible={true} 
-        overlayProps={{ 
-          radius: "sm", 
+      <LoadingOverlay
+        visible={true}
+        overlayProps={{
+          radius: "sm",
           blur: 2,
           opacity: 0.8
         }}
-        loaderProps={{ 
-          color: 'blue', 
-          type: 'dots' 
+        loaderProps={{
+          color: 'blue',
+          type: 'dots'
         }}
       />
       <Container size="xl" py="xl">
@@ -199,10 +197,10 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
   );
 
   return (
-    <Box style={{ 
+    <Box style={{
       position: 'relative',
-      background: 'linear-gradient(135deg, var(--mantine-color-dark-9) 0%, var(--mantine-color-dark-8) 100%)', 
-      minHeight: '100vh' 
+      background: 'linear-gradient(135deg, var(--mantine-color-dark-9) 0%, var(--mantine-color-dark-8) 100%)',
+      minHeight: '100vh'
     }}>
       {/* Background decorative elements */}
       <Box
@@ -306,6 +304,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                   title="🎤 Rising Artists"
                   subtitle="Discover the next big names in your local music scene"
                   badge={`${cityData.artists.length} artists`}
+                  scrollable
                 >
                   {cityData.artists.map((artist) => (
                     <ArtistCard
@@ -329,6 +328,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                   title="🏛️ Top Venues"
                   subtitle="The best places to catch live music in your city"
                   badge={`${cityData.venues.length} venues`}
+                  scrollable
                 >
                   {cityData.venues.map((venue) => (
                     <VenueCard
@@ -352,7 +352,8 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                   title="🎪 Active Promoters"
                   subtitle="The tastemakers bringing the best events to your city"
                   badge={`${cityData.promoters.length} promoters`}
-              >
+                  scrollable
+                >
                   {cityData.promoters.map((promoter) => (
                     <ArtistCard
                       key={promoter.id}

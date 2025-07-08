@@ -1,21 +1,21 @@
-import { Container, Title, Text, Paper, Stack, Button, Box, Grid, GridCol, Card, Group, Badge, Avatar, Center, ThemeIcon } from "@mantine/core";
-import { IconUser, IconCalendarEvent, IconUsers, IconMusic, IconTrendingUp, IconChartBar, IconSparkles, IconArrowLeft, IconHeadphones } from "@tabler/icons-react";
-import { createClient } from "@/utils/supabase/server";
-import { getUser } from "@/db/queries/users";
-import { getUserProfile } from "@/db/queries/user";
-import { getArtist, getArtistEvents, getArtistPromoters, getArtistTrackCount, getArtistShowCount } from "@/db/queries/artists";
-import { getArtistListensLastMonth } from "@/db/queries/tracks";
-import { getReceivedPromoterInvitations } from "@/db/queries/requests";
-import { getArtistImagesServer, getAvatarUrlServer, getPromoterImagesServer } from "@/lib/images/image-utils";
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { nameToUrl } from "@/lib/utils";
 import PromotersCard from "@/components/artist/PromotersCard";
+import { getArtist, getArtistEvents, getArtistPromoters, getArtistShowCount, getArtistTrackCount } from "@/db/queries/artists";
+import { getReceivedPromoterInvitations } from "@/db/queries/requests";
+import { getArtistListensLastMonth } from "@/db/queries/tracks";
+import { getUserProfile } from "@/db/queries/user";
+import { getUser } from "@/db/queries/users";
+import { getArtistImagesServer, getAvatarUrlServer, getPromoterImagesServer } from "@/lib/images/image-utils";
+import { nameToUrl } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/server";
+import { Avatar, Badge, Box, Button, Card, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
+import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconHeadphones, IconMusic, IconSparkles, IconUser, IconUsers } from "@tabler/icons-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function ArtistDashboardPage() {
   const supabase = await createClient();
   const user = await getUser(supabase);
-  
+
   // Redirect if not authenticated
   if (!user) {
     redirect("/login");
@@ -23,7 +23,7 @@ export default async function ArtistDashboardPage() {
 
   // Check if user has an artist profile
   const userProfile = await getUserProfile(supabase);
-  
+
   if (userProfile.type !== 'artist') {
     return (
       <Container size="md" py="xl">
@@ -35,14 +35,14 @@ export default async function ArtistDashboardPage() {
             <Title order={2} c="red">Access Denied</Title>
             <Text>This page is restricted to artist accounts only.</Text>
             <Text size="sm" c="dimmed">
-              {userProfile.type === 'promoter' 
+              {userProfile.type === 'promoter'
                 ? "You currently have a promoter profile. Each user can only have one profile type."
                 : "You need to create an artist profile to access this page."
               }
             </Text>
             <Group justify="center" gap="md">
-              <Button 
-                component={Link} 
+              <Button
+                component={Link}
                 href="/dashboard"
                 variant="light"
                 leftSection={<IconArrowLeft size={16} />}
@@ -50,8 +50,8 @@ export default async function ArtistDashboardPage() {
                 Go to Dashboard
               </Button>
               {userProfile.type === null && (
-                <Button 
-                  component={Link} 
+                <Button
+                  component={Link}
                   href="/artists/create"
                   leftSection={<IconSparkles size={16} />}
                 >
@@ -67,7 +67,7 @@ export default async function ArtistDashboardPage() {
 
   // Get artist data and metrics
   const artist = await getArtist(supabase);
-  
+
   if (!artist) {
     return (
       <Container size="md" py="xl">
@@ -109,7 +109,7 @@ export default async function ArtistDashboardPage() {
       ...invitation,
       promoter: {
         ...invitation.promoters,
-        avatarUrl: invitation.promoters?.avatar_img 
+        avatarUrl: invitation.promoters?.avatar_img
           ? await getPromoterImagesServer(supabase, invitation.promoters.id).then(images => images.avatarUrl)
           : null,
       }
@@ -126,7 +126,7 @@ export default async function ArtistDashboardPage() {
         p="xl"
         mb="xl"
         style={{
-          background: bannerUrl 
+          background: bannerUrl
             ? `linear-gradient(135deg, rgba(139, 69, 19, 0.8) 0%, rgba(205, 133, 63, 0.8) 100%), url(${bannerUrl}) center/cover`
             : "linear-gradient(135deg, #8b4513 0%, #cd853f 100%)",
           color: "white",
@@ -160,7 +160,7 @@ export default async function ArtistDashboardPage() {
             transform: "translate(-50%, 50%)",
           }}
         />
-        
+
         <Grid align="center" style={{ position: "relative", zIndex: 1 }}>
           <GridCol span={{ base: 12, md: 8 }}>
             <Group gap="xl">
@@ -326,7 +326,7 @@ export default async function ArtistDashboardPage() {
               <Title order={3}>Upcoming Events</Title>
               <Button size="xs" variant="light">View All</Button>
             </Group>
-            
+
             {upcomingEvents.length > 0 ? (
               <Stack gap="md">
                 {upcomingEvents.slice(0, 3).map((event) => (
@@ -361,7 +361,7 @@ export default async function ArtistDashboardPage() {
 
         {/* Promoters Overview */}
         <GridCol span={{ base: 12, lg: 6 }}>
-          <PromotersCard 
+          <PromotersCard
             promotersWithAvatars={promotersWithAvatars}
             invitationsWithAvatars={invitationsWithAvatars}
           />
@@ -372,7 +372,7 @@ export default async function ArtistDashboardPage() {
       <Card p="xl" radius="lg" withBorder mt="xl">
         <Title order={3} mb="lg">Quick Actions</Title>
         <Group>
-          <Button leftSection={<IconMusic size={16} />} component={Link} href="/upload">
+          <Button leftSection={<IconMusic size={16} />} component={Link} href="/upload/tracks">
             Upload Track
           </Button>
           <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/artist/promoters">

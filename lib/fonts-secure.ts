@@ -5,16 +5,14 @@
  * All Google Fonts API calls are handled server-side via server actions.
  * 
  * Caching Strategy:
- * - Uses React cache() function for per-request memoization
- * - Uses Next.js Data Cache with 1-hour revalidation for persistent caching
- * - Cache tags allow for manual invalidation via revalidateTag
+ * - Uses React cache() function for per-request memoization only
+ * - No persistent caching - always fetches fresh data from Google Fonts API
  * - Works properly in serverless environments
  */
 
 'use server';
 
 import { cache } from 'react';
-import { revalidateTag } from 'next/cache';
 
 // Core types
 export interface GoogleFont {
@@ -49,7 +47,7 @@ export interface FontsSearchResult {
 const getCachedAllFonts = cache(async (): Promise<GoogleFont[]> => {
   try {
     const apiKey = process.env.GOOGLE_FONTS_API_KEY;
-    
+
     if (!apiKey) {
       throw new Error('Google Fonts API key not configured');
     }
@@ -58,20 +56,17 @@ const getCachedAllFonts = cache(async (): Promise<GoogleFont[]> => {
     const response = await fetch(
       `https://www.googleapis.com/webfonts/v1/webfonts?key=${apiKey}&sort=popularity`,
       {
-        // Use Next.js Data Cache with revalidation every day for all fonts
-        next: { 
-          revalidate: 86400, // 24 hours
-          tags: ['google-fonts-all']
-        }
+        // Disable caching to always fetch fresh data
+        cache: 'no-store'
       }
     );
-    
+
     if (!response.ok) {
       throw new Error(`Google Fonts API error: ${response.status}`);
     }
 
     const data = await response.json();
-    
+
     if (!data.items || !Array.isArray(data.items)) {
       throw new Error('Invalid response format from Google Fonts API');
     }
@@ -95,7 +90,7 @@ const getCachedAllFonts = cache(async (): Promise<GoogleFont[]> => {
 const getCachedFont = cache(async (fontName: string): Promise<FontSearchResult> => {
   try {
     const apiKey = process.env.GOOGLE_FONTS_API_KEY;
-    
+
     if (!apiKey) {
       return {
         success: false,
@@ -114,14 +109,11 @@ const getCachedFont = cache(async (fontName: string): Promise<FontSearchResult> 
     const response = await fetch(
       `https://www.googleapis.com/webfonts/v1/webfonts?key=${apiKey}&family=${encodeURIComponent(fontName)}`,
       {
-        // Use Next.js Data Cache with revalidation every day for individual fonts
-        next: { 
-          revalidate: 86400, // 24 hours
-          tags: [`google-font-${fontName.toLowerCase().replace(/\s+/g, '-')}`]
-        }
+        // Disable caching to always fetch fresh data
+        cache: 'no-store'
       }
     );
-    
+
     if (!response.ok) {
       return {
         success: false,
@@ -168,7 +160,7 @@ const getCachedFont = cache(async (fontName: string): Promise<FontSearchResult> 
 const getCachedIndexedFonts = cache(async (): Promise<IndexedFont[]> => {
   try {
     const fonts = await getCachedAllFonts();
-    
+
     // Create indexed version with cached lowercase strings
     return fonts.map(font => ({
       ...font,
@@ -206,7 +198,7 @@ export async function getPopularFonts(limit: number = 10): Promise<FontsSearchRe
   try {
     // Get all fonts from cache (sorted by popularity)
     const allFonts = await getCachedAllFonts();
-    
+
     // Return the first 'limit' fonts (already sorted by popularity)
     const fonts = allFonts.slice(0, Math.min(limit, allFonts.length));
 
@@ -217,7 +209,7 @@ export async function getPopularFonts(limit: number = 10): Promise<FontsSearchRe
   } catch (error) {
     // Fallback to curated list if API fails
     const popularFontNames = [
-      'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 
+      'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat',
       'Poppins', 'Playfair Display', 'Source Sans Pro', 'Nunito', 'Raleway',
       'Merriweather', 'Oswald', 'Ubuntu', 'PT Sans', 'Libre Baskerville',
       'Fira Sans', 'Work Sans', 'Crimson Text', 'DM Sans', 'Space Grotesk',
@@ -253,12 +245,12 @@ function fuzzySearch(query: string, fonts: IndexedFont[], limit: number = 20): G
 
   const queryLower = query.toLowerCase();
   const queryWords = queryLower.split(/\s+/).filter(word => word.length > 0);
-  
+
   // Score each font based on how well it matches the query
   const scoredFonts = fonts.map((font, index) => {
     const fontNameLower = font.familyLower; // Use cached lowercase version
     let score = 0;
-    
+
     // Exact match gets highest score
     if (fontNameLower === queryLower) {
       score = 1000;
@@ -275,7 +267,7 @@ function fuzzySearch(query: string, fonts: IndexedFont[], limit: number = 20): G
     else {
       let wordMatches = 0;
       let partialMatches = 0;
-      
+
       for (const word of queryWords) {
         if (fontNameLower.includes(word)) {
           if (fontNameLower.startsWith(word)) {
@@ -294,17 +286,17 @@ function fuzzySearch(query: string, fonts: IndexedFont[], limit: number = 20): G
           }
         }
       }
-      
+
       score = wordMatches * 50 + partialMatches * 10;
     }
-    
+
     // Boost score for popular fonts (assuming they're at the beginning of the list)
     const popularityBoost = Math.max(0, 100 - index);
     score += popularityBoost;
-    
+
     return { font, score };
   });
-  
+
   // Sort by score descending and return top results
   return scoredFonts
     .filter(item => item.score > 0)
@@ -317,10 +309,10 @@ function fuzzySearch(query: string, fonts: IndexedFont[], limit: number = 20): G
 export async function getFontsByCategory(category: string, limit: number = 20): Promise<FontsSearchResult> {
   try {
     const allFonts = await getCachedAllFonts();
-    
+
     // Filter fonts by category
     const categoryFonts = allFonts.filter(font => font.category === category);
-    
+
     // Return the first 'limit' fonts
     const fonts = categoryFonts.slice(0, Math.min(limit, categoryFonts.length));
 
@@ -347,17 +339,17 @@ export async function searchFonts(query: string, limit: number = 20): Promise<Fo
 
     // Get all indexed fonts from cache
     const allFonts = await getCachedIndexedFonts();
-    
+
     // Perform fuzzy search
     const matchingFonts = fuzzySearch(query, allFonts, limit);
-    
+
     return {
       success: true,
       fonts: matchingFonts
     };
   } catch (error) {
     console.error('Font search error:', error);
-    
+
     // Fallback: try exact match search
     try {
       const exactResult = await getCachedFont(query);
@@ -370,7 +362,7 @@ export async function searchFonts(query: string, limit: number = 20): Promise<Fo
     } catch (fallbackError) {
       console.error('Fallback search also failed:', fallbackError);
     }
-    
+
     return {
       success: false,
       fonts: [],
@@ -431,7 +423,7 @@ export async function generateFontCDNUrl(
 
   const encodedFamily = encodeURIComponent(fontFamily);
   const weightString = weights.join(';');
-  
+
   const params = new URLSearchParams();
   params.append('family', `${encodedFamily}:wght@${weightString}`);
   params.append('subset', subsets.join(','));
@@ -443,18 +435,11 @@ export async function generateFontCDNUrl(
 // Function to manually refresh the font cache using revalidateTag
 export async function refreshFontCache(fontName?: string): Promise<FontsSearchResult> {
   try {
-    if (fontName) {
-      // Revalidate specific font cache
-      revalidateTag(`google-font-${fontName.toLowerCase().replace(/\s+/g, '-')}`);
-    } else {
-      // Revalidate all font caches
-      revalidateTag('google-fonts-all');
-    }
-    
+    // Note: Cache refresh is no longer applicable as caching has been disabled
     return {
       success: true,
       fonts: [],
-      error: 'Cache refreshed. Fonts will be refetched on next request.'
+      error: 'No caching enabled - fonts are always fetched fresh from the API.'
     };
   } catch (error) {
     return {

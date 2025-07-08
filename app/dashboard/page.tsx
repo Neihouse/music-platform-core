@@ -1,15 +1,15 @@
 import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 import {
-  Container,
-  Title,
   Button,
-  Group,
   Card,
-  Text,
+  Container,
+  Group,
   Stack,
+  Text,
+  Title,
 } from "@mantine/core";
-import { IconUpload, IconMusic } from "@tabler/icons-react";
+import { IconMusic, IconUpload } from "@tabler/icons-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -39,7 +39,7 @@ export default async function DashboardPage() {
             <Button
               leftSection={<IconUpload size={20} />}
               component={Link}
-              href="/upload"
+              href="/upload/tracks"
             >
               Upload Track
             </Button>

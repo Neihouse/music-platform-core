@@ -13,16 +13,18 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isSmallMobile = useMediaQuery('(max-width: 480px)');
-  
+
   // Pages that should NOT have the container wrapper (full-width pages)
   const fullWidthPages = [
     '/artists/', // Any artist page
     '/promoters/', // Any promoter page
     '/discover', // Discover page
+    '/login', // Login page
+    '/signup', // Signup page
   ];
-  
+
   const isFullWidth = fullWidthPages.some(path => pathname.includes(path));
-  
+
   if (isFullWidth) {
     return (
       <div style={{
@@ -35,13 +37,13 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
       </div>
     );
   }
-  
+
   return (
-    <Container 
-      size={1200} 
+    <Container
+      size={1200}
       // px={isSmallMobile ? "0.5rem" : "1rem"} 
       // py={isSmallMobile ? "1rem" : "1.5rem"} 
-      style={{ 
+      style={{
         backgroundColor: 'var(--mantine-color-dark-9)',
         // Remove the minHeight calculation since AppShell.Main handles header offset automatically
         color: 'var(--mantine-color-gray-0)',

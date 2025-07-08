@@ -1,20 +1,20 @@
 "use client";
 
 import {
+  ActionIcon,
   Container,
   Group,
   Text,
-  ActionIcon,
-} from '@mantine/core'
+} from '@mantine/core';
 import {
   IconBrandGithub,
-  IconBrandTwitter,
   IconBrandInstagram,
+  IconBrandTwitter,
   IconHeadphones,
   IconMicrophone,
   IconMusic,
   IconPlaylist
-} from '@tabler/icons-react'
+} from '@tabler/icons-react';
 
 const FOOTER_DATA = {
   discover: {
@@ -29,7 +29,7 @@ const FOOTER_DATA = {
   artists: {
     title: "For Artists",
     links: [
-      { label: "Upload Music", href: "/upload" },
+      { label: "Upload Music", href: "/upload/tracks" },
       { label: "Artist Dashboard", href: "/dashboard" },
       { label: "Analytics", href: "/analytics" },
       { label: "Promotion Tools", href: "/promote" },

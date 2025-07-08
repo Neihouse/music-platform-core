@@ -1,11 +1,11 @@
 import { NavLink, Stack } from "@mantine/core";
 import {
+  IconHeart,
   IconHome,
+  IconPlaylist,
   IconSearch,
   IconUpload,
-  IconHeart,
   IconUser,
-  IconPlaylist,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,7 +20,7 @@ export function NavLinks({ onLinkClick }: NavLinksProps) {
   const links = [
     { icon: IconHome, label: "Home", href: "/" },
     { icon: IconSearch, label: "Discover", href: "/discover" },
-    { icon: IconUpload, label: "Upload", href: "/upload" },
+    { icon: IconUpload, label: "Upload", href: "/upload/tracks" },
     { icon: IconHeart, label: "Favorites", href: "/favorites" },
     { icon: IconPlaylist, label: "Playlists", href: "/playlists" },
     { icon: IconUser, label: "Profile", href: "/profile" },
