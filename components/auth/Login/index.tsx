@@ -1,5 +1,5 @@
 "use client";
-import { login, LoginData } from "@/app/login/actions";
+import { createClient } from "@/utils/supabase/client";
 import {
   Alert,
   Divider,
@@ -9,14 +9,22 @@ import {
   Text
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { EmailAndPasswordInputs } from "../EmailAndPasswordInputs";
 import { SwitchAction } from "../SwitchAction";
 import { validateEmail } from "../validation";
 
+export interface LoginData {
+  email: string;
+  password: string;
+}
+
 export function Login(props: PaperProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const supabase = createClient();
 
   const form = useForm<LoginData>({
     initialValues: {
@@ -35,12 +43,44 @@ export function Login(props: PaperProps) {
     setError(null);
 
     try {
-      await login(values);
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (authError) {
+        // Provide user-friendly error messages
+        if (authError.message.includes("Invalid login credentials")) {
+          setError("Invalid email or password. Please check your credentials and try again.");
+        } else if (authError.message.includes("Email not confirmed")) {
+          setError("Please check your email and click the confirmation link before logging in.");
+        } else if (authError.message.includes("Too many requests")) {
+          setError("Too many login attempts. Please wait a moment before trying again.");
+        } else if (authError.message.includes("Network error") || authError.message.includes("fetch")) {
+          setError("Network error. Please check your connection and try again.");
+        } else if (authError.message.includes("Invalid API key")) {
+          setError("Service temporarily unavailable. Please try again later.");
+        } else {
+          setError(authError.message || "An error occurred during login. Please try again.");
+        }
+        return;
+      }
+
+      // Verify session was created successfully
+      if (!data.session) {
+        setError("Failed to create session. Please try again.");
+        return;
+      }
+
+      // Login successful, redirect to profile
+      router.push("/");
+      router.refresh(); // Ensure the page refreshes to update the auth state
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
-      if (errorMessage.includes("Invalid login credentials")) {
-        setError("Invalid email or password");
+      console.error("Login error:", err);
+      if (err instanceof TypeError && err.message.includes("fetch")) {
+        setError("Network error. Please check your connection and try again.");
       } else {
+        const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
         setError(errorMessage);
       }
     } finally {
