@@ -1,12 +1,11 @@
 "use client";
 
-import { Card, Group, Title, Button, Stack, Avatar, Text, Badge, Paper, Center, ThemeIcon } from "@mantine/core";
-import { IconUsers, IconUserPlus, IconCheck, IconX } from "@tabler/icons-react";
-import { useState } from "react";
 import { acceptPromoterInvitation, declinePromoterInvitation } from "@/app/artist/actions";
+import { Avatar, Button, Card, Center, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconCheck, IconUserPlus, IconUsers, IconX } from "@tabler/icons-react";
 import Link from "next/link";
-import { nameToUrl } from "@/lib/utils";
+import { useState } from "react";
 
 interface Promoter {
   id: string;
@@ -84,12 +83,12 @@ export default function PromotersCard({ promotersWithAvatars, invitationsWithAva
   };
 
   return (
-    <Card p="xl" radius="lg" withBorder h="100%">
-      <Group justify="space-between" mb="lg">
+    <Card p={{ base: "md", md: "xl" }} radius="lg" withBorder h="100%">
+      <Group justify="space-between" mb="lg" wrap="nowrap">
         <Title order={3}>Your Promoters</Title>
         <Button size="xs" variant="light" component={Link} href="/artist/promoters">View All</Button>
       </Group>
-      
+
       {/* Show pending invitations first */}
       {invitationsWithAvatars.length > 0 && (
         <Stack gap="md" mb={promotersWithAvatars.length > 0 ? "lg" : 0}>
@@ -100,22 +99,24 @@ export default function PromotersCard({ promotersWithAvatars, invitationsWithAva
             </Text>
           </Group>
           {invitationsWithAvatars.slice(0, 2).map((invitation) => (
-            <Paper key={invitation.id} p="md" radius="md" withBorder bg="blue.0">
-              <Group>
-                <Avatar
-                  src={invitation.promoter.avatarUrl}
-                  size="md"
-                  radius="xl"
-                >
-                  {invitation.promoter.name?.[0]}
-                </Avatar>
-                <div style={{ flex: 1 }}>
-                  <Text fw={600}>{invitation.promoter.name}</Text>
-                  <Text size="sm" c="dimmed" lineClamp={1}>
-                    Wants you to join their collective
-                  </Text>
-                </div>
-                <Stack gap="xs">
+            <Paper key={invitation.id} p={{ base: "sm", md: "md" }} radius="md" withBorder bg="blue.0">
+              <Stack gap="sm">
+                <Group gap="sm" wrap="nowrap">
+                  <Avatar
+                    src={invitation.promoter.avatarUrl}
+                    size="md"
+                    radius="xl"
+                  >
+                    {invitation.promoter.name?.[0]}
+                  </Avatar>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <Text fw={600} lineClamp={1}>{invitation.promoter.name}</Text>
+                    <Text size="sm" c="dimmed" lineClamp={1}>
+                      Wants you to join their collective
+                    </Text>
+                  </div>
+                </Group>
+                <Group gap="xs" justify="flex-end">
                   <Button
                     size="xs"
                     color="green"
@@ -137,8 +138,8 @@ export default function PromotersCard({ promotersWithAvatars, invitationsWithAva
                   >
                     Decline
                   </Button>
-                </Stack>
-              </Group>
+                </Group>
+              </Stack>
             </Paper>
           ))}
         </Stack>
@@ -156,8 +157,8 @@ export default function PromotersCard({ promotersWithAvatars, invitationsWithAva
             </Group>
           )}
           {promotersWithAvatars.slice(0, 3).map((promoter) => (
-            <Paper key={promoter.id} p="md" radius="md" withBorder>
-              <Group>
+            <Paper key={promoter.id} p={{ base: "sm", md: "md" }} radius="md" withBorder>
+              <Group gap="sm" wrap="nowrap">
                 <Avatar
                   src={promoter.avatarUrl}
                   size="md"
@@ -165,8 +166,8 @@ export default function PromotersCard({ promotersWithAvatars, invitationsWithAva
                 >
                   {promoter.name?.[0]}
                 </Avatar>
-                <div style={{ flex: 1 }}>
-                  <Text fw={600}>{promoter.name}</Text>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <Text fw={600} lineClamp={1}>{promoter.name}</Text>
                   <Text size="sm" c="dimmed" lineClamp={1}>
                     {promoter.bio || "No bio available"}
                   </Text>

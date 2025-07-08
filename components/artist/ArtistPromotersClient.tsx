@@ -1,11 +1,10 @@
 "use client";
 
-import { Container, Title, Text, SimpleGrid, Card, Group, Stack, Avatar, Button, Center, ThemeIcon, TextInput, Paper, Switch } from "@mantine/core";
-import { IconUser, IconMapPin, IconSearch, IconX, IconUserPlus, IconSparkles, IconArrowLeft } from "@tabler/icons-react";
-import Link from "next/link";
 import { nameToUrl } from "@/lib/utils";
+import { Avatar, Button, Card, Center, Container, Group, Paper, SimpleGrid, Stack, Switch, Text, TextInput, ThemeIcon, Title } from "@mantine/core";
+import { IconArrowLeft, IconMapPin, IconSearch, IconSparkles, IconUser, IconUserPlus, IconX } from "@tabler/icons-react";
+import Link from "next/link";
 import { useState } from "react";
-import { StyledTitle } from "../StyledTitle";
 
 interface Promoter {
   id: string;
@@ -30,19 +29,19 @@ interface ArtistPromotersClientProps {
   localityName?: string;
 }
 
-export default function ArtistPromotersClient({ 
-  localityPromoters, 
-  artistLocalityPromoters, 
-  localityName 
+export default function ArtistPromotersClient({
+  localityPromoters,
+  artistLocalityPromoters,
+  localityName
 }: ArtistPromotersClientProps) {
   const [filterByArtistLocality, setFilterByArtistLocality] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Determine which promoters to show based on the toggle
   const basePromoters = filterByArtistLocality ? artistLocalityPromoters : localityPromoters;
-  
+
   // Filter by search term
-  const filteredPromoters = basePromoters.filter(promoter => 
+  const filteredPromoters = basePromoters.filter(promoter =>
     promoter.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     promoter.bio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     getLocationText(promoter).toLowerCase().includes(searchTerm.toLowerCase())
@@ -59,82 +58,114 @@ export default function ArtistPromotersClient({
   };
 
   return (
-    <Container size="xl" py="xl">
+    <Container size="xl" py={{ base: "md", md: "xl" }}>
       {/* Header */}
-      <Group justify="space-between" mb="xl" align="flex-start">
-        <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
-          <Group gap="md" wrap="nowrap">
-            <ThemeIcon size={50} radius="xl" variant="light" color="orange">
-              <IconUserPlus size={24} />
-            </ThemeIcon>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <Title order={1}>Connect with Promoters</Title>
-              <Text c="dimmed" size="lg">
-                {filterByArtistLocality 
-                  ? `Promoters in your shared localities${localityName ? ` (including ${localityName})` : ""}`
-                  : `Promoters in your primary area${localityName ? ` (${localityName})` : ""}`
-                }
-              </Text>
-            </div>
-          </Group>
-        </Stack>
-        
-        <Button 
-          component={Link} 
-          href="/artist" 
+      <Stack gap="md" mb={{ base: "lg", md: "xl" }}>
+        <Group gap="md" wrap="nowrap">
+          <ThemeIcon size={40} radius="xl" variant="light" color="orange" hiddenFrom="md">
+            <IconUserPlus size={20} />
+          </ThemeIcon>
+          <ThemeIcon size={50} radius="xl" variant="light" color="orange" visibleFrom="md">
+            <IconUserPlus size={24} />
+          </ThemeIcon>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Title order={1}>Connect with Promoters</Title>
+            <Text c="dimmed" size="md" lineClamp={2} hiddenFrom="md">
+              {filterByArtistLocality
+                ? `Promoters in your shared localities${localityName ? ` (including ${localityName})` : ""}`
+                : `Promoters in your primary area${localityName ? ` (${localityName})` : ""}`
+              }
+            </Text>
+            <Text c="dimmed" size="lg" visibleFrom="md">
+              {filterByArtistLocality
+                ? `Promoters in your shared localities${localityName ? ` (including ${localityName})` : ""}`
+                : `Promoters in your primary area${localityName ? ` (${localityName})` : ""}`
+              }
+            </Text>
+          </div>
+        </Group>
+
+        <Button
+          component={Link}
+          href="/artist"
           variant="light"
           leftSection={<IconArrowLeft size={16} />}
           size="sm"
-          style={{ flexShrink: 0 }}
+          fullWidth
+          hiddenFrom="sm"
+        >
+          Back to Dashboard
+        </Button>
+        <Button
+          component={Link}
+          href="/artist"
+          variant="light"
+          leftSection={<IconArrowLeft size={16} />}
+          size="md"
+          visibleFrom="sm"
         >
           <Text visibleFrom="sm">Back to Dashboard</Text>
           <Text hiddenFrom="sm">Back</Text>
         </Button>
-      </Group>
+      </Stack>
 
       {/* Filter Controls */}
-      <Paper p="md" radius="lg" withBorder mb="xl">
+      <Paper p={{ base: "sm", md: "md" }} radius="lg" withBorder mb={{ base: "lg", md: "xl" }}>
         <Stack gap="md">
           {/* Search Bar */}
-          <Group gap="md" wrap="nowrap">
-            <IconSearch size={20} style={{ flexShrink: 0 }} />
-            <TextInput
-              placeholder="Search for promoters by name, bio, or location..."
-              style={{ flex: 1 }}
-              size="md"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.currentTarget.value)}
-              rightSection={searchTerm && (
-                <IconX 
-                  size={16} 
-                  style={{ cursor: 'pointer' }} 
-                  onClick={() => setSearchTerm("")}
-                />
-              )}
-            />
-          </Group>
+          <Stack gap="xs">
+            <Group gap="md" wrap="nowrap">
+              <IconSearch size={20} style={{ flexShrink: 0 }} />
+              <TextInput
+                placeholder="Search promoters..."
+                style={{ flex: 1 }}
+                size="md"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.currentTarget.value)}
+                rightSection={searchTerm && (
+                  <IconX
+                    size={16}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSearchTerm("")}
+                  />
+                )}
+              />
+            </Group>
+            <Text size="xs" c="dimmed" hiddenFrom="sm">
+              Search by name, bio, or location
+            </Text>
+          </Stack>
 
           {/* Locality Filter Toggle */}
-          <Group justify="space-between" wrap="nowrap">
-            <div>
-              <Text fw={500} size="sm">Show promoters in your localities only</Text>
-              <Text size="xs" c="dimmed">
-                {filterByArtistLocality 
-                  ? "Currently showing only promoters in your shared localities" 
-                  : "Currently showing all promoters regardless of location"
-                }
-              </Text>
-            </div>
-            <Switch
-              checked={filterByArtistLocality}
-              onChange={(event) => setFilterByArtistLocality(event.currentTarget.checked)}
-              size="md"
-              color="orange"
-            />
-          </Group>
+          <Stack gap="xs">
+            <Group justify="space-between" wrap="nowrap" align="flex-start">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Text fw={500} size="sm">Show promoters in your localities only</Text>
+                <Text size="xs" c="dimmed" lineClamp={2} hiddenFrom="md">
+                  {filterByArtistLocality
+                    ? "Currently showing only promoters in your shared localities"
+                    : "Currently showing all promoters regardless of location"
+                  }
+                </Text>
+                <Text size="xs" c="dimmed" visibleFrom="md">
+                  {filterByArtistLocality
+                    ? "Currently showing only promoters in your shared localities"
+                    : "Currently showing all promoters regardless of location"
+                  }
+                </Text>
+              </div>
+              <Switch
+                checked={filterByArtistLocality}
+                onChange={(event) => setFilterByArtistLocality(event.currentTarget.checked)}
+                size="md"
+                color="orange"
+                style={{ flexShrink: 0 }}
+              />
+            </Group>
+          </Stack>
         </Stack>
       </Paper>
-     
+
 
       {/* Promoters Grid */}
       {filteredPromoters.length > 0 ? (
@@ -151,7 +182,7 @@ export default function ArtistPromotersClient({
             </ThemeIcon>
             <Title order={3} c="dimmed">No Promoters Found</Title>
             <Text c="dimmed" ta="center">
-              {searchTerm 
+              {searchTerm
                 ? `No promoters found matching "${searchTerm}". Try a different search term.`
                 : filterByArtistLocality
                   ? "No promoters found in your shared localities. Try unchecking the locality filter."
@@ -178,13 +209,16 @@ export default function ArtistPromotersClient({
       )}
 
       {/* Call to Action */}
-      <Paper p="xl" radius="xl" mt="xl" style={{ background: "linear-gradient(45deg, #ff6b35, #f7931e)", color: "white" }}>
+      <Paper p={{ base: "lg", md: "xl" }} radius="xl" mt={{ base: "lg", md: "xl" }} style={{ background: "linear-gradient(45deg, #ff6b35, #f7931e)", color: "white" }}>
         <Stack align="center" gap="md">
           <ThemeIcon size={60} radius="xl" variant="white" color="orange">
             <IconSparkles size={30} />
           </ThemeIcon>
           <Title order={2} ta="center">Don't See the Promoter You're Looking For?</Title>
-          <Text ta="center" size="lg" opacity={0.9}>
+          <Text ta="center" size="lg" opacity={0.9} hiddenFrom="sm">
+            Encourage them to join our platform!
+          </Text>
+          <Text ta="center" size="lg" opacity={0.9} visibleFrom="sm">
             Encourage them to join our platform and grow the local music scene together!
           </Text>
           <Button size="lg" variant="white" color="dark">
@@ -196,11 +230,11 @@ export default function ArtistPromotersClient({
   );
 }
 
-function PromoterCard({ 
-  promoter, 
-  getLocationText 
-}: { 
-  promoter: Promoter; 
+function PromoterCard({
+  promoter,
+  getLocationText
+}: {
+  promoter: Promoter;
   getLocationText: (promoter: Promoter) => string;
 }) {
   return (
@@ -226,29 +260,38 @@ function PromoterCard({
         {/* Avatar */}
         <Avatar
           src={promoter.avatarUrl}
+          size={60}
+          radius="xl"
+          style={{
+            border: "3px solid var(--mantine-color-orange-3)",
+          }}
+          hiddenFrom="sm"
+        >
+          {promoter.name?.[0]?.toUpperCase()}
+        </Avatar>
+        <Avatar
+          src={promoter.avatarUrl}
           size={80}
           radius="xl"
           style={{
             border: "3px solid var(--mantine-color-orange-3)",
           }}
+          visibleFrom="sm"
         >
           {promoter.name?.[0]?.toUpperCase()}
         </Avatar>
-        
+
         {/* Promoter Info */}
         <Stack gap="xs" align="center" style={{ flex: 1 }}>
-          <StyledTitle 
-            selectedFont="Inter"
-            style={{ 
-              lineClamp: 1, 
-              fontWeight: 700, 
-              fontSize: '1.125rem',
-              textAlign: 'center' 
-            }}
+          <Text
+            fw={700}
+            size="lg"
+            ta="center"
+            lineClamp={1}
           >
             {promoter.name}
-          </StyledTitle>
-          
+          </Text>
+
           {/* Location */}
           <Group gap="xs" justify="center">
             <IconMapPin size={14} style={{ color: "var(--mantine-color-dimmed)" }} />
@@ -256,10 +299,15 @@ function PromoterCard({
               {getLocationText(promoter)}
             </Text>
           </Group>
-          
+
           {/* Bio */}
           {promoter.bio && (
-            <Text size="sm" c="dimmed" ta="center" lineClamp={3} style={{ flex: 1 }}>
+            <Text size="sm" c="dimmed" ta="center" lineClamp={2} style={{ flex: 1 }} hiddenFrom="sm">
+              {promoter.bio}
+            </Text>
+          )}
+          {promoter.bio && (
+            <Text size="sm" c="dimmed" ta="center" lineClamp={3} style={{ flex: 1 }} visibleFrom="sm">
               {promoter.bio}
             </Text>
           )}
