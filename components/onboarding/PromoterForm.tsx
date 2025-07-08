@@ -524,7 +524,6 @@ export function PromoterForm(props: IPromoterFormProps) {
         color: "red",
       });
 
-      console.error("Error creating promoter:", error);
     } finally {
       setLoading(false);
     }
