@@ -24,7 +24,7 @@ export const theme = createTheme({
     // Dark theme colors to match the design
     dark: [
       "#C1C2C5",
-      "#A6A7AB", 
+      "#A6A7AB",
       "#909296",
       "#5C5F66",
       "#373A40",
@@ -69,6 +69,25 @@ export const theme = createTheme({
     Container: {
       defaultProps: {
         size: "lg",
+      },
+    },
+    // Mantine 8.x configuration for compatibility
+    Portal: {
+      defaultProps: {
+        // Keep old behavior - disable reuseTargetNode if z-index issues occur
+        reuseTargetNode: false,
+      },
+    },
+    Switch: {
+      defaultProps: {
+        // Disable new thumb indicator to keep old visual style
+        withThumbIndicator: false,
+      },
+    },
+    Popover: {
+      defaultProps: {
+        // Keep old behavior - disable hideDetached to prevent auto-closing
+        hideDetached: false,
       },
     },
   },
