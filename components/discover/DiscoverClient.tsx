@@ -304,6 +304,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                   title="🎤 Rising Artists"
                   subtitle="Discover the next big names in your local music scene"
                   badge={`${cityData.artists.length} artists`}
+                  scrollable
                 >
                   {cityData.artists.map((artist) => (
                     <ArtistCard
@@ -327,6 +328,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                   title="🏛️ Top Venues"
                   subtitle="The best places to catch live music in your city"
                   badge={`${cityData.venues.length} venues`}
+                  scrollable
                 >
                   {cityData.venues.map((venue) => (
                     <VenueCard
@@ -350,6 +352,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
                   title="🎪 Active Promoters"
                   subtitle="The tastemakers bringing the best events to your city"
                   badge={`${cityData.promoters.length} promoters`}
+                  scrollable
                 >
                   {cityData.promoters.map((promoter) => (
                     <ArtistCard
