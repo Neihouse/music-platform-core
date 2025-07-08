@@ -59,16 +59,41 @@ export function BannerUpload({
         const bannerFilename = await fetchExistingBanner(entityId);
 
         if (bannerFilename) {
+          // Check if the file exists in storage before getting the URL
           const supabase = await createClient();
-          const { data: publicUrlData } = supabase.storage
+          const { data, error } = await supabase.storage
             .from(config.storageBucket)
-            .getPublicUrl(`${config.storageFolder}/${bannerFilename}`);
+            .list(config.storageFolder, {
+              search: bannerFilename
+            });
 
-          const url = publicUrlData.publicUrl;
-          setImageUrl(url);
-          setCurrentBannerFilename(bannerFilename);
+          if (error) {
+            console.error("Error checking file existence:", error);
+            return;
+          }
 
+          // Check if the file was found in the storage bucket
+          const fileExists = data && data.some(file => file.name === bannerFilename);
 
+          if (fileExists) {
+            const { data: publicUrlData } = supabase.storage
+              .from(config.storageBucket)
+              .getPublicUrl(`${config.storageFolder}/${bannerFilename}`);
+
+            const url = publicUrlData.publicUrl;
+            setImageUrl(url);
+            setCurrentBannerFilename(bannerFilename);
+
+            if (onBannerUploaded) {
+              onBannerUploaded(url);
+            }
+          } else {
+            console.warn(`Banner file ${bannerFilename} not found in storage`);
+            // Optionally, you could clear the banner filename from the database here
+            // if (updateEntityBanner) {
+            //   await updateEntityBanner(entityId, null);
+            // }
+          }
         }
       } catch (error) {
         console.error("Error fetching existing banner:", error);
