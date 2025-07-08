@@ -62,21 +62,37 @@ export default function ArtistPromotersClient({
       {/* Header */}
       <Stack gap="md" mb={{ base: "lg", md: "xl" }}>
         <Group gap="md" wrap="nowrap">
-          <ThemeIcon size={40} radius="xl" variant="light" color="orange" hiddenFrom="md">
+          <ThemeIcon
+            size={40}
+            radius="xl"
+            variant="light"
+            color="orange"
+            hiddenFrom="md"
+          >
             <IconUserPlus size={20} />
           </ThemeIcon>
-          <ThemeIcon size={50} radius="xl" variant="light" color="orange" visibleFrom="md">
+          <ThemeIcon
+            size={50}
+            radius="xl"
+            variant="light"
+            color="orange"
+            visibleFrom="md"
+          >
             <IconUserPlus size={24} />
           </ThemeIcon>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <Title order={1}>Connect with Promoters</Title>
-            <Text c="dimmed" size="md" lineClamp={2} hiddenFrom="md">
-              {filterByArtistLocality
-                ? `Promoters in your shared localities${localityName ? ` (including ${localityName})` : ""}`
-                : `Promoters in your primary area${localityName ? ` (${localityName})` : ""}`
-              }
-            </Text>
-            <Text c="dimmed" size="lg" visibleFrom="md">
+            <Title
+              order={1}
+              fz={{ base: "xl", sm: "1.75rem", md: "2rem" }}
+              lh={{ base: 1.2, md: 1.3 }}
+            >
+              Connect with Promoters
+            </Title>
+            <Text
+              c="dimmed"
+              fz={{ base: "sm", md: "lg" }}
+              lineClamp={2}
+            >
               {filterByArtistLocality
                 ? `Promoters in your shared localities${localityName ? ` (including ${localityName})` : ""}`
                 : `Promoters in your primary area${localityName ? ` (${localityName})` : ""}`
@@ -104,13 +120,12 @@ export default function ArtistPromotersClient({
           size="md"
           visibleFrom="sm"
         >
-          <Text visibleFrom="sm">Back to Dashboard</Text>
-          <Text hiddenFrom="sm">Back</Text>
+          Back to Dashboard
         </Button>
       </Stack>
 
       {/* Filter Controls */}
-      <Paper p={{ base: "sm", md: "md" }} radius="lg" withBorder mb={{ base: "lg", md: "xl" }}>
+      <Paper p={{ base: "sm", sm: "md", lg: "lg" }} radius="lg" withBorder mb={{ base: "lg", md: "xl" }}>
         <Stack gap="md">
           {/* Search Bar */}
           <Stack gap="xs">
@@ -131,7 +146,11 @@ export default function ArtistPromotersClient({
                 )}
               />
             </Group>
-            <Text size="xs" c="dimmed" hiddenFrom="sm">
+            <Text
+              fz="xs"
+              c="dimmed"
+              hiddenFrom="sm"
+            >
               Search by name, bio, or location
             </Text>
           </Stack>
@@ -140,14 +159,12 @@ export default function ArtistPromotersClient({
           <Stack gap="xs">
             <Group justify="space-between" wrap="nowrap" align="flex-start">
               <div style={{ flex: 1, minWidth: 0 }}>
-                <Text fw={500} size="sm">Show promoters in your localities only</Text>
-                <Text size="xs" c="dimmed" lineClamp={2} hiddenFrom="md">
-                  {filterByArtistLocality
-                    ? "Currently showing only promoters in your shared localities"
-                    : "Currently showing all promoters regardless of location"
-                  }
-                </Text>
-                <Text size="xs" c="dimmed" visibleFrom="md">
+                <Text fw={500} fz="sm">Show promoters in your localities only</Text>
+                <Text
+                  fz="xs"
+                  c="dimmed"
+                  lineClamp={2}
+                >
                   {filterByArtistLocality
                     ? "Currently showing only promoters in your shared localities"
                     : "Currently showing all promoters regardless of location"
@@ -193,15 +210,36 @@ export default function ArtistPromotersClient({
             px={{ base: "sm", sm: 0 }}
           >
             <ThemeIcon
+              size={60}
+              radius="xl"
+              variant="light"
+              color="gray"
+              hiddenFrom="sm"
+            >
+              <IconUser size={30} />
+            </ThemeIcon>
+            <ThemeIcon
               size={80}
               radius="xl"
               variant="light"
               color="gray"
+              visibleFrom="sm"
             >
               <IconUser size={40} />
             </ThemeIcon>
-            <Title order={3} c="dimmed">No Promoters Found</Title>
-            <Text c="dimmed" ta="center">
+            <Title
+              order={3}
+              c="dimmed"
+              fz={{ base: "lg", sm: "xl" }}
+              ta="center"
+            >
+              No Promoters Found
+            </Title>
+            <Text
+              c="dimmed"
+              ta="center"
+              fz={{ base: "sm", sm: "md" }}
+            >
               {searchTerm
                 ? `No promoters found matching "${searchTerm}". Try a different search term.`
                 : filterByArtistLocality
@@ -253,10 +291,7 @@ export default function ArtistPromotersClient({
             <IconSparkles size={30} />
           </ThemeIcon>
           <Title order={2} ta="center">Don't See the Promoter You're Looking For?</Title>
-          <Text ta="center" size="lg" opacity={0.9} hiddenFrom="sm">
-            Encourage them to join our platform!
-          </Text>
-          <Text ta="center" size="lg" opacity={0.9} visibleFrom="sm">
+          <Text ta="center" fz={{ base: "md", sm: "lg" }} style={{ opacity: 0.9 }} lineClamp={2}>
             Encourage them to join our platform and grow the local music scene together!
           </Text>
           <Button
@@ -365,7 +400,7 @@ function PromoterCard({
           )}
         </Stack>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Simplified without responsive text */}
         <Stack gap="xs" w="100%">
           <Button
             variant="light"
@@ -375,8 +410,7 @@ function PromoterCard({
             component={Link}
             href={`/promoters/${nameToUrl(promoter.name)}`}
           >
-            <Text visibleFrom="xs">View Profile</Text>
-            <Text hiddenFrom="xs">Profile</Text>
+            View Profile
           </Button>
           <Button
             size="sm"
@@ -384,8 +418,7 @@ function PromoterCard({
             leftSection={<IconUserPlus size={16} />}
             color="orange"
           >
-            <Text visibleFrom="xs">Request to Join</Text>
-            <Text hiddenFrom="xs">Request</Text>
+            Request to Join
           </Button>
         </Stack>
       </Stack>
