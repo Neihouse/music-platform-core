@@ -2,10 +2,10 @@
 
 import { getAvatarUrl } from "@/lib/images/image-utils-client";
 import { createClient } from "@/utils/supabase/client";
-import { Card, Button, Group, Text, Title, Stack, Avatar } from "@mantine/core";
+import { Avatar, Button, Card, Group, Stack, Text, Title } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
-import { notifications } from "@mantine/notifications";
 import { useMediaQuery } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { IconUpload, IconUser, IconX } from "@tabler/icons-react";
 import * as React from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -67,16 +67,40 @@ export function AvatarUpload({
         const avatarFilename = await fetchExistingAvatar(entityId);
 
         if (avatarFilename) {
-          const url = await getAvatarUrl(avatarFilename)
-          setImageUrl(url);
-          setCurrentAvatarFilename(avatarFilename);
+          // Check if the file exists in storage before getting the URL
+          const supabase = await createClient();
+          const { data, error } = await supabase.storage
+            .from(config.storageBucket)
+            .list(config.storageFolder, {
+              search: avatarFilename
+            });
 
-          if (onAvatarUploaded) {
-            onAvatarUploaded(url);
+          if (error) {
+            console.error("Error checking file existence:", error);
+            return;
+          }
+
+          // Check if the file was found in the storage bucket
+          const fileExists = data && data.some(file => file.name === avatarFilename);
+
+          if (fileExists) {
+            const url = await getAvatarUrl(avatarFilename);
+            setImageUrl(url);
+            setCurrentAvatarFilename(avatarFilename);
+
+            if (onAvatarUploaded) {
+              onAvatarUploaded(url);
+            }
+          } else {
+            console.warn(`Avatar file ${avatarFilename} not found in storage`);
+            // Optionally, you could clear the avatar filename from the database here
+            // if (updateEntityAvatar) {
+            //   await updateEntityAvatar(entityId, null);
+            // }
           }
         }
       } catch (error) {
-      console.error("Error fetching existing avatar:", error);
+        console.error("Error fetching existing avatar:", error);
       }
     }
 

@@ -1,21 +1,20 @@
 "use client";
 
+import { createFan } from "@/app/fans/create/actions";
 import {
   Button,
   Container,
   Group,
+  Paper,
+  Select,
   Stack,
   TextInput,
   Title,
-  Select,
-  Paper,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { createFan } from "@/app/fans/create/actions";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LocationInput } from "@/components/LocationInput";
+import { useState } from "react";
 
 export interface IFanFormProps { }
 
@@ -91,7 +90,8 @@ export function FanForm(props: IFanFormProps) {
     try {
       const fan = await createFan(displayName, preferredGenres);
       console.log("Fan profile created:", fan);
-      router.push("/dashboard");
+      // Fans don't have a specific dashboard, redirect to discover page
+      router.push("/discover");
     } catch (error) {
       notifications.show({
         title: "Error",

@@ -1,11 +1,11 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { Card, Button, Group, Text, Title, Stack } from "@mantine/core";
+import { Button, Card, Group, Stack, Text, Title } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
-import { notifications } from "@mantine/notifications";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconUpload, IconPhoto, IconX } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+import { IconPhoto, IconUpload, IconX } from "@tabler/icons-react";
 import * as React from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -59,16 +59,41 @@ export function BannerUpload({
         const bannerFilename = await fetchExistingBanner(entityId);
 
         if (bannerFilename) {
+          // Check if the file exists in storage before getting the URL
           const supabase = await createClient();
-          const { data: publicUrlData } = supabase.storage
+          const { data, error } = await supabase.storage
             .from(config.storageBucket)
-            .getPublicUrl(`${config.storageFolder}/${bannerFilename}`);
+            .list(config.storageFolder, {
+              search: bannerFilename
+            });
 
-          const url = publicUrlData.publicUrl;
-          setImageUrl(url);
-          setCurrentBannerFilename(bannerFilename);
+          if (error) {
+            console.error("Error checking file existence:", error);
+            return;
+          }
 
+          // Check if the file was found in the storage bucket
+          const fileExists = data && data.some(file => file.name === bannerFilename);
 
+          if (fileExists) {
+            const { data: publicUrlData } = supabase.storage
+              .from(config.storageBucket)
+              .getPublicUrl(`${config.storageFolder}/${bannerFilename}`);
+
+            const url = publicUrlData.publicUrl;
+            setImageUrl(url);
+            setCurrentBannerFilename(bannerFilename);
+
+            if (onBannerUploaded) {
+              onBannerUploaded(url);
+            }
+          } else {
+            console.warn(`Banner file ${bannerFilename} not found in storage`);
+            // Optionally, you could clear the banner filename from the database here
+            // if (updateEntityBanner) {
+            //   await updateEntityBanner(entityId, null);
+            // }
+          }
         }
       } catch (error) {
         console.error("Error fetching existing banner:", error);
@@ -178,7 +203,7 @@ export function BannerUpload({
     setUploadState("pending");
     try {
       const supabase = await createClient();
-      
+
       // Delete the file from storage if it exists
       if (currentBannerFilename) {
         const { error: storageError } = await supabase.storage
@@ -250,6 +275,7 @@ export function BannerUpload({
           .remove([`${config.storageFolder}/${currentBannerFilename}`]);
       }
 
+      console.log("Uploading new banner with filename:", filename);
       // Upload new banner with UUID filename
       const { data, error } = await supabase.storage
         .from(config.storageBucket)

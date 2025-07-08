@@ -1,19 +1,19 @@
-import { Container, Title, Text, Paper, Stack, Button, Box, Grid, GridCol, Card, Group, Badge, Avatar, Center, ThemeIcon } from "@mantine/core";
-import { IconUser, IconCalendarEvent, IconUsers, IconMusic, IconTrendingUp, IconChartBar, IconSparkles, IconArrowLeft } from "@tabler/icons-react";
-import { createClient } from "@/utils/supabase/server";
-import { getUser } from "@/db/queries/users";
-import { getUserProfile } from "@/db/queries/user";
-import { getPromoter, getPromoterEvents, getPromoterArtists, getPromoterTrackCount, getPromoterShowCount } from "@/db/queries/promoters";
+import { getPromoter, getPromoterArtists, getPromoterEvents, getPromoterShowCount, getPromoterTrackCount } from "@/db/queries/promoters";
 import { getSentRequests } from "@/db/queries/requests";
-import { getPromoterImagesServer, getAvatarUrlServer } from "@/lib/images/image-utils";
-import { redirect } from "next/navigation";
-import Link from "next/link";
+import { getUserProfile } from "@/db/queries/user";
+import { getUser } from "@/db/queries/users";
+import { getAvatarUrlServer, getPromoterImagesServer } from "@/lib/images/image-utils";
 import { nameToUrl } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/server";
+import { Avatar, Badge, Box, Button, Card, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
+import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconMusic, IconSparkles, IconTrendingUp, IconUser, IconUsers } from "@tabler/icons-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function PromoterDashboardPage() {
   const supabase = await createClient();
   const user = await getUser(supabase);
-  
+
   // Redirect if not authenticated
   if (!user) {
     redirect("/login");
@@ -21,8 +21,8 @@ export default async function PromoterDashboardPage() {
 
   // Check if user has a promoter profile
   const userProfile = await getUserProfile(supabase);
-  
- 
+
+
   if (userProfile.type !== 'promoter') {
     return (
       <Container size="md" py="xl">
@@ -34,23 +34,23 @@ export default async function PromoterDashboardPage() {
             <Title order={2} c="red">Access Denied</Title>
             <Text>This page is restricted to promoter accounts only.</Text>
             <Text size="sm" c="dimmed">
-              {userProfile.type === 'artist' 
+              {userProfile.type === 'artist'
                 ? "You currently have an artist profile. Each user can only have one profile type."
                 : "You need to create a promoter profile to access this page."
               }
             </Text>
             <Group justify="center" gap="md">
-              <Button 
-                component={Link} 
-                href="/dashboard"
+              <Button
+                component={Link}
+                href={userProfile.type === 'artist' ? '/artist' : '/discover'}
                 variant="light"
                 leftSection={<IconArrowLeft size={16} />}
               >
-                Go to Dashboard
+                {userProfile.type === 'artist' ? 'Go to Artist Dashboard' : 'Go to Discover'}
               </Button>
               {userProfile.type === null && (
-                <Button 
-                  component={Link} 
+                <Button
+                  component={Link}
                   href="/promoters/create"
                   leftSection={<IconSparkles size={16} />}
                 >
@@ -66,7 +66,7 @@ export default async function PromoterDashboardPage() {
 
   // Get promoter data and metrics
   const promoter = await getPromoter(supabase);
-  
+
   if (!promoter) {
     return (
       <Container size="md" py="xl">
@@ -102,8 +102,8 @@ export default async function PromoterDashboardPage() {
   );
 
   // Count pending invites to artists
-  const pendingInvites = sentRequests.filter(request => 
-    request.status === "pending" && 
+  const pendingInvites = sentRequests.filter(request =>
+    request.status === "pending" &&
     request.invited_to_entity === "promoter" &&
     request.invitee_entity === "artist"
   ).length;
@@ -118,7 +118,7 @@ export default async function PromoterDashboardPage() {
         p="xl"
         mb="xl"
         style={{
-          background: bannerUrl 
+          background: bannerUrl
             ? `linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%), url(${bannerUrl}) center/cover`
             : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
@@ -152,7 +152,7 @@ export default async function PromoterDashboardPage() {
             transform: "translate(-50%, 50%)",
           }}
         />
-        
+
         <Grid align="center" style={{ position: "relative", zIndex: 1 }}>
           <GridCol span={{ base: 12, md: 8 }}>
             <Group gap="xl">
@@ -318,7 +318,7 @@ export default async function PromoterDashboardPage() {
               <Title order={3}>Upcoming Events</Title>
               <Button size="xs" variant="light">View All</Button>
             </Group>
-            
+
             {upcomingEvents.length > 0 ? (
               <Stack gap="md">
                 {upcomingEvents.slice(0, 3).map((event) => (
@@ -358,7 +358,7 @@ export default async function PromoterDashboardPage() {
               <Stack gap={4}>
                 <Title order={3}>Your Artists</Title>
                 <Text size="sm" c="dimmed">
-                  {pendingInvites > 0 
+                  {pendingInvites > 0
                     ? `${pendingInvites} pending invite${pendingInvites === 1 ? '' : 's'}`
                     : "All artists in your collective"
                   }
@@ -368,7 +368,7 @@ export default async function PromoterDashboardPage() {
                 View All
               </Button>
             </Group>
-            
+
             {artistsWithAvatars.length > 0 ? (
               <Stack gap="md">
                 {artistsWithAvatars.slice(0, 3).map((artist) => (

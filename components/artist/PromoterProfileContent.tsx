@@ -1,37 +1,34 @@
 "use client";
 
+import { nameToUrl } from "@/lib/utils";
+import { Promoter, PromotersLocality } from "@/utils/supabase/global.types";
 import {
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Card,
   Container,
   Grid,
   GridCol,
   Group,
-  Stack,
-  Title,
-  Text,
-  Badge,
-  Button,
-  Card,
-  Avatar,
   Paper,
-  Center,
+  Stack,
+  Text,
   ThemeIcon,
-  Box,
+  Title
 } from "@mantine/core";
-import { useEffect } from "react";
 import {
-  IconUsers,
-  IconCalendarEvent,
-  IconMusic,
-  IconMapPin,
-  IconMail,
-  IconPhone,
-  IconSparkles,
   IconBolt,
+  IconCalendarEvent,
+  IconMapPin,
+  IconMusic,
+  IconSparkles,
   IconUserPlus,
+  IconUsers
 } from "@tabler/icons-react";
-import { nameToUrl } from "@/lib/utils";
 import Link from "next/link";
-import { Promoter, PromotersLocality } from "@/utils/supabase/global.types";
+import { useEffect } from "react";
 
 
 export interface PromoterProfileContentProps {
@@ -42,13 +39,13 @@ export interface PromoterProfileContentProps {
 }
 
 export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl, avatarUrl }: PromoterProfileContentProps) {
-  
+
   // Load the promoter's selected font - simplified approach
   useEffect(() => {
     const selectedFont = promoter.selectedFont;
     if (selectedFont) {
       const fontName = selectedFont.replace(/ /g, '+');
-      
+
       // Check if font is already loaded
       const existingLink = document.querySelector(`link[href*="${fontName}"]`);
       if (!existingLink) {
@@ -68,7 +65,7 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
         p="xl"
         mb="xl"
         style={{
-          background: bannerUrl 
+          background: bannerUrl
             ? `linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%), url(${bannerUrl}) center/cover`
             : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
@@ -102,7 +99,7 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
             transform: "translate(-50%, 50%)",
           }}
         />
-        
+
         <Grid align="center" style={{ position: "relative", zIndex: 1 }}>
           <GridCol span={{ base: 12, md: 8 }}>
             <Group gap="xl">
@@ -119,13 +116,13 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
               </Avatar>
               <Stack gap="md">
                 <Group gap="md">
-                  <Title 
-                    order={1} 
-                    size="3rem" 
+                  <Title
+                    order={1}
+                    size="3rem"
                     fw={900}
                     style={{
-                      fontFamily: promoter.selectedFont 
-                        ? `"${promoter.selectedFont}", sans-serif` 
+                      fontFamily: promoter.selectedFont
+                        ? `"${promoter.selectedFont}", sans-serif`
                         : undefined,
                     }}
                   >
@@ -200,28 +197,6 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
               </Title>
             </Group>
             <Stack gap="md">
-              {promoter.email && (
-                <Group gap="md">
-                  <ThemeIcon size="lg" variant="light" color="blue" radius="xl">
-                    <IconMail size={20} />
-                  </ThemeIcon>
-                  <div>
-                    <Text size="sm" c="dimmed">Email</Text>
-                    <Text fw={600}>{promoter.email}</Text>
-                  </div>
-                </Group>
-              )}
-              {promoter.phone && (
-                <Group gap="md">
-                  <ThemeIcon size="lg" variant="light" color="green" radius="xl">
-                    <IconPhone size={20} />
-                  </ThemeIcon>
-                  <div>
-                    <Text size="sm" c="dimmed">Phone</Text>
-                    <Text fw={600}>{promoter.phone}</Text>
-                  </div>
-                </Group>
-              )}
               {promoterLocalities && promoterLocalities.length > 0 && (
                 <Group gap="md">
                   <ThemeIcon size="lg" variant="light" color="orange" radius="xl">
@@ -307,17 +282,17 @@ export function PromoterProfileContent({ promoter, promoterLocalities, bannerUrl
             Connect with {promoter.name} and become part of their artist network. Submit a request to join their collective and start collaborating on amazing events!
           </Text>
           <Group gap="md">
-            <Button 
-              size="lg" 
-              variant="white" 
+            <Button
+              size="lg"
+              variant="white"
               color="dark"
               leftSection={<IconUserPlus size={20} />}
             >
               Request to Join Collective
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               color="white"
               component={Link}
               href={`/promoters/${nameToUrl(promoter.name)}`}

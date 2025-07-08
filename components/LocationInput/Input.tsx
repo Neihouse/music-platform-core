@@ -1,9 +1,9 @@
 "use client";
-import { useState, useRef, useEffect, useMemo } from "react";
-import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { TextInput } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconMapPin } from "@tabler/icons-react";
+import { useMapsLibrary } from "@vis.gl/react-google-maps";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export interface IInputProps {
   onPlaceSelect?: (place: google.maps.places.PlaceResult) => void;
@@ -28,7 +28,7 @@ export function Input({ onPlaceSelect, options, searchFullAddress = false }: IIn
     useState<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const places = useMapsLibrary("places");
-  
+
   // Mobile responsive hooks
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isSmallMobile = useMediaQuery('(max-width: 480px)');
@@ -56,12 +56,21 @@ export function Input({ onPlaceSelect, options, searchFullAddress = false }: IIn
     });
   }, [onPlaceSelect, placeAutocomplete]);
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      // Prevent form submission when Enter is pressed in the location input
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+
   return (
     <TextInput
       ref={inputRef}
       placeholder={searchFullAddress ? "Enter full address" : "Enter your city"}
       leftSection={<IconMapPin size={16} />}
       size={isSmallMobile ? "sm" : "md"}
+      onKeyDown={handleKeyDown}
       style={{
         width: '100%',
         maxWidth: isMobile ? '100%' : '400px'
