@@ -1,11 +1,11 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { Card, Button, Group, Text, Title, Stack } from "@mantine/core";
+import { Button, Card, Group, Stack, Text, Title } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
-import { notifications } from "@mantine/notifications";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconUpload, IconPhoto, IconX } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+import { IconPhoto, IconUpload, IconX } from "@tabler/icons-react";
 import * as React from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -178,7 +178,7 @@ export function BannerUpload({
     setUploadState("pending");
     try {
       const supabase = await createClient();
-      
+
       // Delete the file from storage if it exists
       if (currentBannerFilename) {
         const { error: storageError } = await supabase.storage
@@ -250,6 +250,7 @@ export function BannerUpload({
           .remove([`${config.storageFolder}/${currentBannerFilename}`]);
       }
 
+      console.log("Uploading new banner with filename:", filename);
       // Upload new banner with UUID filename
       const { data, error } = await supabase.storage
         .from(config.storageBucket)
