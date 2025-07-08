@@ -66,11 +66,9 @@ const getCachedPopularCities = cache(async (): Promise<string[]> => {
       .slice(0, 6) // Get top 6 cities
       .map(([cityName]) => cityName);
 
-    return sortedCities.length > 0 ? sortedCities : ['New York', 'Los Angeles', 'Chicago', 'Austin', 'Nashville', 'Miami'];
+    return sortedCities
   } catch (error) {
-    console.error('Error fetching popular cities:', error);
-    // Fall back to default cities if there's an error
-    return ['New York', 'Los Angeles', 'Chicago', 'Austin', 'Nashville', 'Miami'];
+    throw new Error('Failed to fetch popular cities');
   }
 });
 
