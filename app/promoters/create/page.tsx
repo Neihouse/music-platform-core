@@ -1,18 +1,17 @@
 import { PromoterForm } from "@/components/onboarding/PromoterForm";
+import { getUserProfile } from "@/db/queries/user";
 import { getUser } from "@/db/queries/users";
-import { canCreateProfile } from "@/db/queries/user";
 import { createClient } from "@/utils/supabase/server";
-import { Container, Paper, Title, Text, Button, Stack } from "@mantine/core";
+import { Button, Container, Paper, Stack, Text, Title } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
-import * as React from "react";
 
-export interface IPromoterOnboardingPageProps {}
+export interface IPromoterOnboardingPageProps { }
 
-export default async function PromoterOnboardingPage({}: IPromoterOnboardingPageProps) {
+export default async function PromoterOnboardingPage({ }: IPromoterOnboardingPageProps) {
   const supabase = await createClient();
   const user = await getUser(supabase);
-  
+
   if (!user) {
     return (
       <Container size="md" py="xl">
@@ -29,21 +28,23 @@ export default async function PromoterOnboardingPage({}: IPromoterOnboardingPage
     );
   }
 
-  const { canCreate, reason } = await canCreateProfile(supabase);
-  
-  if (!canCreate) {
+  // Check if user already has a profile
+  const userProfile = await getUserProfile(supabase);
+
+  // If user is already a promoter, redirect to their edit page
+  if (userProfile.type === 'promoter') {
     return (
       <Container size="md" py="xl">
         <Paper withBorder radius="md" p="lg" shadow="md">
           <Stack gap="md" ta="center">
-            <Title order={2} c="red">Cannot Create Promoter Profile</Title>
-            <Text>{reason}</Text>
-            <Button 
-              component={Link} 
-              href="/dashboard"
+            <Title order={2} c="blue">Promoter Profile Exists</Title>
+            <Text>You already have a promoter profile. You can edit it here.</Text>
+            <Button
+              component={Link}
+              href={`/promoters/${userProfile.name}/edit`}
               leftSection={<IconArrowLeft size={16} />}
             >
-              Go to Dashboard
+              Edit Your Profile
             </Button>
           </Stack>
         </Paper>
