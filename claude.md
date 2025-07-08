@@ -65,12 +65,14 @@ Key improvements include:
 - **Always reference [Mantine v8 Style Props Documentation](https://mantine.dev/styles/style-props/) when updating styles**
 
 ### Style Development Guidelines
-📋 **IMPORTANT**: Before making any style updates, always consult the official Mantine v8 Style Props documentation:
-- 🔗 **Reference**: https://mantine.dev/styles/style-props/
+📋 **IMPORTANT**: Before making any style updates, always consult the official Mantine v8 documentation:
+- 🔗 **Style Props Reference**: https://mantine.dev/styles/style-props/
+- 🔗 **Responsive Style Props**: https://mantine.dev/styles/responsive/#responsive-style-props
 - Use responsive style props syntax: `{{ base: "sm", sm: "md", lg: "xl" }}`
 - Understand which components support responsive props vs. requiring `hiddenFrom`/`visibleFrom`
 - Follow Mantine's breakpoint system: `xs`, `sm`, `md`, `lg`, `xl`
 - Implement mobile-first responsive design patterns
+- **Prefer responsive style props over duplicate components** to reduce code duplication
 
 ### Performance Considerations
 - Minimize responsive style prop usage for better performance

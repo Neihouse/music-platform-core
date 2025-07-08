@@ -113,9 +113,10 @@ export async function generateMetadata({ searchParams }: DiscoverPageProps): Pro
   };
 }
 
-async function CityDataWrapper({ city }: { city: string }) {
+async function CityDataWrapper({ city, isLoggedIn }: { city: string; isLoggedIn: boolean }) {
   // Decode hyphenated city names back to spaces for database lookup
   const decodedCity = city.replace(/-/g, ' ');
+
   const [cityData, popularCities] = await Promise.all([
     getCachedCityData(decodedCity),
     getCachedPopularCities()
@@ -126,6 +127,7 @@ async function CityDataWrapper({ city }: { city: string }) {
       initialData={cityData}
       initialCity={decodedCity}
       popularCities={popularCities}
+      isLoggedIn={isLoggedIn}
     />
   );
 }
@@ -133,10 +135,15 @@ async function CityDataWrapper({ city }: { city: string }) {
 export default async function DiscoverPage({ searchParams }: DiscoverPageProps) {
   const selectedCity = (await searchParams).city || "";
 
+  // Check user authentication status
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isLoggedIn = !!user;
+
   if (selectedCity) {
     return (
-      <Suspense fallback={<DiscoverClient />}>
-        <CityDataWrapper city={selectedCity} />
+      <Suspense fallback={<DiscoverClient isLoggedIn={isLoggedIn} />}>
+        <CityDataWrapper city={selectedCity} isLoggedIn={isLoggedIn} />
       </Suspense>
     );
   }
@@ -144,5 +151,5 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
   // Fetch popular cities for the default discover page
   const popularCities = await getCachedPopularCities();
 
-  return <DiscoverClient popularCities={popularCities} />;
+  return <DiscoverClient popularCities={popularCities} isLoggedIn={isLoggedIn} />;
 }

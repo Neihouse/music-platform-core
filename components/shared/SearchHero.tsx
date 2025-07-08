@@ -48,16 +48,37 @@ export function SearchHero({
     <Box
       style={{
         background: 'transparent',
-        paddingTop: rem(120),
-        paddingBottom: rem(80),
+        paddingTop: rem(80), // Reduced from 120 for mobile
+        paddingBottom: rem(60), // Reduced from 80 for mobile
         position: 'relative',
         overflow: 'hidden',
       }}
+      pt={{ base: rem(80), sm: rem(100), md: rem(120) }}
+      pb={{ base: rem(60), sm: rem(70), md: rem(80) }}
     >
-      <Container size="lg">
+      <Container size="lg" px={{ base: "md", sm: "lg" }}>
         <Stack align="center" gap="xl">
           <Stack align="center" gap="md">
+            {/* Mobile Title */}
             <Title
+              hiddenFrom="sm"
+              order={1}
+              size="xl"
+              fw={700}
+              ta="center"
+              c="white"
+              style={{
+                letterSpacing: rem(-0.5),
+                lineHeight: 1.2,
+                fontSize: 'clamp(1.8rem, 6vw, 2.5rem)'
+              }}
+            >
+              {title}
+            </Title>
+
+            {/* Desktop Title */}
+            <Title
+              visibleFrom="sm"
               order={1}
               size={rem(48)}
               fw={700}
@@ -70,7 +91,23 @@ export function SearchHero({
             >
               {title}
             </Title>
+
+            {/* Mobile Subtitle */}
             <Text
+              hiddenFrom="sm"
+              size="md"
+              c="dimmed"
+              ta="center"
+              maw={600}
+              px="sm"
+              style={{ lineHeight: 1.6 }}
+            >
+              {subtitle}
+            </Text>
+
+            {/* Desktop Subtitle */}
+            <Text
+              visibleFrom="sm"
               size="lg"
               c="dimmed"
               ta="center"
@@ -82,7 +119,7 @@ export function SearchHero({
           </Stack>
 
           {/* Search Bar */}
-          <Box w="100%" maw={600}>
+          <Box w="100%" maw={600} px={{ base: "md", sm: 0 }}>
             <Group gap="sm" style={{
               background: 'var(--mantine-color-dark-7)',
               borderRadius: rem(50),
@@ -120,7 +157,23 @@ export function SearchHero({
                   }}
                 />
               </Box>
+              {/* Mobile Search Button */}
               <ActionIcon
+                hiddenFrom="sm"
+                size={40}
+                radius="xl"
+                variant="gradient"
+                gradient={{ from: 'blue', to: 'cyan' }}
+                onClick={handleSearch}
+                style={{
+                  boxShadow: '0 4px 16px rgba(51, 154, 240, 0.3)',
+                }}
+              >
+                <IconSearch size={18} />
+              </ActionIcon>
+              {/* Desktop Search Button */}
+              <ActionIcon
+                visibleFrom="sm"
                 size={48}
                 radius="xl"
                 variant="gradient"
@@ -136,7 +189,6 @@ export function SearchHero({
           </Box>
 
           {!!popularCities.length && (
-
             <Stack align="center" gap="sm">
               <Group gap="xs" align="center">
                 <IconTrendingUp size={16} color="var(--mantine-color-dimmed)" />
@@ -144,7 +196,32 @@ export function SearchHero({
                   Popular cities
                 </Text>
               </Group>
-              <Group gap="xs" justify="center">
+              {/* Mobile Popular Cities */}
+              <Group hiddenFrom="sm" gap="xs" justify="center" px="md">
+                {popularCities.slice(0, 4).map((city) => (
+                  <Pill
+                    key={city}
+                    size="sm"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      color: 'var(--mantine-color-gray-3)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onClick={() => onSearch(city)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }}
+                  >
+                    {city}
+                  </Pill>
+                ))}
+              </Group>
+              {/* Desktop Popular Cities */}
+              <Group visibleFrom="sm" gap="xs" justify="center">
                 {popularCities.map((city) => (
                   <Pill
                     key={city}
@@ -167,7 +244,8 @@ export function SearchHero({
                   </Pill>
                 ))}
               </Group>
-            </Stack>)}
+            </Stack>
+          )}
         </Stack>
       </Container>
     </Box>
