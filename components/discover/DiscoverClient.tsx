@@ -204,9 +204,9 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
       {/* Error State */}
       {error && !isLoading && (
         <Container size="sm" py={{ base: "md", sm: "lg", md: "xl" }}>
-          <Paper 
-            p={{ base: "md", sm: "lg", md: "xl" }} 
-            radius="lg" 
+          <Paper
+            p={{ base: "md", sm: "lg", md: "xl" }}
+            radius="lg"
             style={{ textAlign: 'center', background: 'var(--mantine-color-red-9)' }}
           >
             <Text c="red.2" size="lg" fw={600} hiddenFrom="sm">
@@ -249,17 +249,17 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
                       <ThemeIcon size="lg" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
                         <IconMapPin size={20} />
                       </ThemeIcon>
-                      <Text 
-                        size="xl" 
-                        fw={700} 
-                        c="white" 
+                      <Text
+                        size="xl"
+                        fw={700}
+                        c="white"
                         ta="center"
                         style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)' }}
                       >
                         Music in {capitalizeCity(currentCity)}
                       </Text>
                     </Stack>
-                    
+
                     {/* Desktop City Header */}
                     <Group visibleFrom="sm" ta="center" justify="center" gap="md">
                       <ThemeIcon size="xl" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>

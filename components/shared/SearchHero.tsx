@@ -75,7 +75,7 @@ export function SearchHero({
             >
               {title}
             </Title>
-            
+
             {/* Desktop Title */}
             <Title
               visibleFrom="sm"
@@ -91,7 +91,7 @@ export function SearchHero({
             >
               {title}
             </Title>
-            
+
             {/* Mobile Subtitle */}
             <Text
               hiddenFrom="sm"
@@ -104,7 +104,7 @@ export function SearchHero({
             >
               {subtitle}
             </Text>
-            
+
             {/* Desktop Subtitle */}
             <Text
               visibleFrom="sm"
