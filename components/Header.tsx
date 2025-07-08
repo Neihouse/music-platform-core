@@ -98,7 +98,7 @@ export function Header({ user, userProfile }: HeaderProps) {
 
             <Button
               component={Link}
-              href="/upload"
+              href="/upload/tracks"
               variant="subtle"
               leftSection={<IconUpload size={16} />}
               size="sm"
@@ -217,7 +217,7 @@ export function Header({ user, userProfile }: HeaderProps) {
 
             <Button
               component={Link}
-              href="/upload"
+              href="/upload/tracks"
               variant="subtle"
               leftSection={<IconUpload size={16} />}
               fullWidth

@@ -2,27 +2,23 @@
 
 import { TrackUpload } from "@/components/Upload/TrackUpload";
 import {
-	Container,
-	Title,
-	Text,
-	Paper,
-	Group,
-	ThemeIcon,
 	Box,
-	rem,
 	Button,
-	Divider
+	Container,
+	Divider,
+	Group,
+	Paper,
+	rem,
+	Text,
+	ThemeIcon,
+	Title
 } from "@mantine/core";
-import { Dropzone } from '@mantine/dropzone';
+import { useMediaQuery } from "@mantine/hooks";
 import {
-	IconMusic,
 	IconArrowLeft,
-	IconUpload,
-	IconX,
-	IconFileMusic
+	IconMusic
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { useMediaQuery } from "@mantine/hooks";
 
 export default function UploadTrackPage() {
 	const isMobile = useMediaQuery("(max-width: 48em)");
@@ -32,13 +28,13 @@ export default function UploadTrackPage() {
 			<Group mb={isMobile ? rem(30) : rem(40)} align="center" wrap="nowrap" style={{ overflow: 'auto' }}>
 				<Button
 					component={Link}
-					href="/upload"
+					href="/dashboard"
 					variant="subtle"
 					leftSection={<IconArrowLeft size={16} />}
 					size={isMobile ? "sm" : "md"}
 					px={isMobile ? "xs" : "md"}
 				>
-					Back to upload options
+					Back to dashboard
 				</Button>
 
 				<Divider orientation="vertical" />
