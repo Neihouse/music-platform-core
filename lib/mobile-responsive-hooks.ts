@@ -6,7 +6,7 @@ import { useMediaQuery } from '@mantine/hooks';
 export const useMobileCardSize = (size: 'sm' | 'md' | 'lg' = 'md') => {
   const isMobile = useMediaQuery('(max-width: 480px)');
   const isTablet = useMediaQuery('(max-width: 768px)');
-  
+
   const getCardDimensions = () => {
     if (isMobile) {
       return {
@@ -60,7 +60,7 @@ export const useMobileCardSize = (size: 'sm' | 'md' | 'lg' = 'md') => {
 export const useMobileContentSection = () => {
   const isMobile = useMediaQuery('(max-width: 480px)');
   const isTablet = useMediaQuery('(max-width: 768px)');
-  
+
   const getContainerPadding = () => {
     if (isMobile) return 'md';
     if (isTablet) return 'lg';
@@ -75,9 +75,9 @@ export const useMobileContentSection = () => {
 
   const getGridStyle = () => ({
     display: 'grid',
-    gridTemplateColumns: isMobile 
-      ? '1fr 1fr' 
-      : isTablet 
+    gridTemplateColumns: isMobile
+      ? '1fr 1fr'
+      : isTablet
         ? 'repeat(auto-fill, minmax(200px, 1fr))'
         : 'repeat(auto-fill, minmax(240px, 1fr))',
     gap: isMobile ? '0.5rem' : isTablet ? '0.75rem' : '1rem',
@@ -91,5 +91,43 @@ export const useMobileContentSection = () => {
     gridStyle: getGridStyle(),
     isMobile,
     isTablet,
+  };
+};
+
+/**
+ * Hook for mobile-optimized promoters page responsive behavior
+ */
+export const usePromotersPageMobile = () => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isSmallMobile = useMediaQuery('(max-width: 480px)');
+
+  return {
+    isMobile,
+    isSmallMobile,
+
+    // Grid configuration
+    getGridCols: () => ({
+      base: 1,
+      xs: isSmallMobile ? 1 : 2,
+      sm: 2,
+      md: 3,
+      lg: 4
+    }),
+
+    // Spacing
+    getContainerPadding: () => isMobile ? { base: "md", sm: "lg" } : { base: "lg", sm: "xl" },
+    getStackGap: () => isMobile ? "md" : "xl",
+    getCardPadding: () => isMobile ? "sm" : "lg",
+
+    // Typography
+    getTitleOrder: () => isMobile ? 2 : 1,
+    getSubtitleSize: () => isMobile ? "sm" : "lg",
+
+    // Search
+    getSearchPlaceholder: () => isMobile ? "Search promoters..." : "Search for promoters by name, bio, or location...",
+
+    // Card sizing
+    getAvatarSize: () => isMobile ? 70 : 80,
+    getBioLineClamp: () => isMobile ? 2 : 3,
   };
 };
