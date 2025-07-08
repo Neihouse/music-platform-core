@@ -71,6 +71,25 @@ export const theme = createTheme({
         size: "lg",
       },
     },
+    // Mantine 8.x configuration for compatibility
+    Portal: {
+      defaultProps: {
+        // Keep old behavior - disable reuseTargetNode if z-index issues occur
+        reuseTargetNode: false,
+      },
+    },
+    Switch: {
+      defaultProps: {
+        // Disable new thumb indicator to keep old visual style
+        withThumbIndicator: false,
+      },
+    },
+    Popover: {
+      defaultProps: {
+        // Keep old behavior - disable hideDetached to prevent auto-closing
+        hideDetached: false,
+      },
+    },
   },
   other: { transitionDuration: 200, headerHeight: 60, footerHeight: 60 },
   breakpoints: {
