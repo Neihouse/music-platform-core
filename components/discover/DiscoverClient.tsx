@@ -32,9 +32,10 @@ interface DiscoverClientProps {
   initialData?: CityData | null;
   initialCity?: string;
   popularCities?: string[];
+  isLoggedIn?: boolean;
 }
 
-export function DiscoverClient({ initialData, initialCity, popularCities }: DiscoverClientProps) {
+export function DiscoverClient({ initialData, initialCity, popularCities, isLoggedIn }: DiscoverClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cityData, setCityData] = useState<CityData | null>(initialData || null);
@@ -192,6 +193,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
               <EmptyState
                 cityName={capitalizeCity(currentCity)}
                 onTryAgain={handleReset}
+                isLoggedIn={isLoggedIn ?? null}
               />
             </Container>
           ) : (
