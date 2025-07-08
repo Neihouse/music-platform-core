@@ -120,12 +120,11 @@ export default async function ArtistDashboardPage() {
 
   return (
     <Container size="xl" py={{ base: "sm", sm: "md", md: "lg", lg: "xl" }} px={{ base: "xs", sm: "md" }}>
-      {/* Hero Banner Section */}
+      {/* Hero Banner Section - Consolidated Responsive Design */}
       <Paper
-        radius="lg"
-        p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }}
+        radius="xl"
+        p={{ base: "md", sm: "lg", md: "xl" }}
         mb={{ base: "md", sm: "lg", md: "xl" }}
-        hiddenFrom="sm"
         style={{
           background: bannerUrl
             ? `linear-gradient(135deg, rgba(139, 69, 19, 0.8) 0%, rgba(205, 133, 63, 0.8) 100%), url(${bannerUrl}) center/cover`
@@ -133,14 +132,43 @@ export default async function ArtistDashboardPage() {
           color: "white",
           position: "relative",
           overflow: "hidden",
-          minHeight: "180px",
         }}
+        mih={{ base: 200, sm: 240, md: 280 }}
       >
-        {/* Content for mobile */}
+        {/* Decorative elements - Progressive enhancement */}
+        <Box
+          pos="absolute"
+          top={0}
+          right={0}
+          w={{ base: 120, sm: 150, md: 200 }}
+          h={{ base: 120, sm: 150, md: 200 }}
+          bg="rgba(255,255,255,0.1)"
+          style={{
+            borderRadius: "50%",
+            transform: "translate(50%, -50%)",
+          }}
+          visibleFrom="xs"
+        />
+        <Box
+          pos="absolute"
+          bottom={0}
+          left={0}
+          w={{ base: 100, sm: 120, md: 150 }}
+          h={{ base: 100, sm: 120, md: 150 }}
+          bg="rgba(255,255,255,0.05)"
+          style={{
+            borderRadius: "50%",
+            transform: "translate(-50%, 50%)",
+          }}
+          visibleFrom="xs"
+        />
+
         <Grid align="center" style={{ position: "relative", zIndex: 1 }}>
           <GridCol span={12}>
             <Stack gap="lg" align="center">
+              {/* Avatar and Title Section */}
               <Group gap="xl" align="center" justify="center" wrap="wrap">
+                {/* Mobile Avatar */}
                 <Avatar
                   src={avatarUrl}
                   size={60}
@@ -149,123 +177,12 @@ export default async function ArtistDashboardPage() {
                     border: "4px solid rgba(255,255,255,0.3)",
                     background: avatarUrl ? "transparent" : "linear-gradient(45deg, #ff6b6b, #4ecdc4)",
                   }}
+                  hiddenFrom="sm"
                 >
-                  {!avatarUrl && <IconSparkles size={24} />}
+                  <IconSparkles size={24} />
                 </Avatar>
-                <Stack gap="md" align="center">
-                  <Stack gap="xs" align="center">
-                    <Title
-                      order={1}
-                      size="1.2rem"
-                      fw={900}
-                      ta="center"
-                    >
-                      Welcome back, {artist.name}!
-                    </Title>
-                    <Badge
-                      size="sm"
-                      variant="light"
-                      color="orange"
-                      leftSection={<IconMusic size={16} />}
-                    >
-                      ARTIST
-                    </Badge>
-                  </Stack>
-                  <Group gap="md" justify="center" wrap="wrap">
-                    <Text size="xs" fw={500}>
-                      🎤 {showMetrics.total} Shows
-                    </Text>
-                    <Text size="xs" fw={500}>
-                      🎵 {trackMetrics.total} Tracks
-                    </Text>
-                  </Group>
-                  {artist.bio && (
-                    <Text
-                      size="xs"
-                      ta="center"
-                      style={{ maxWidth: "300px" }}
-                      lineClamp={2}
-                    >
-                      {artist.bio}
-                    </Text>
-                  )}
-                </Stack>
-              </Group>
-              <Stack gap="xs" w="100%">
-                <Button
-                  component={Link}
-                  href={`/artists/${nameToUrl(artist.name)}`}
-                  variant="light"
-                  size="xs"
-                  leftSection={<IconUser size={16} />}
-                  style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
-                  fullWidth
-                >
-                  View Profile
-                </Button>
-                <Button
-                  component={Link}
-                  href={`/artists/${nameToUrl(artist.name)}/edit`}
-                  size="xs"
-                  leftSection={<IconSparkles size={16} />}
-                  style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#8b4513" }}
-                  fullWidth
-                >
-                  Edit Profile
-                </Button>
-              </Stack>
-            </Stack>
-          </GridCol>
-        </Grid>
-      </Paper>
 
-      <Paper
-        radius="xl"
-        p={{ base: "sm", sm: "md", md: "lg", lg: "xl" }}
-        mb={{ base: "md", sm: "lg", md: "xl" }}
-        visibleFrom="sm"
-        style={{
-          background: bannerUrl
-            ? `linear-gradient(135deg, rgba(139, 69, 19, 0.8) 0%, rgba(205, 133, 63, 0.8) 100%), url(${bannerUrl}) center/cover`
-            : "linear-gradient(135deg, #8b4513 0%, #cd853f 100%)",
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-          minHeight: "200px",
-        }}
-      >
-        {/* Decorative elements - hide on mobile */}
-        <Box
-          visibleFrom="sm"
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: "200px",
-            height: "200px",
-            background: "rgba(255,255,255,0.1)",
-            borderRadius: "50%",
-            transform: "translate(50%, -50%)",
-          }}
-        />
-        <Box
-          visibleFrom="sm"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "150px",
-            height: "150px",
-            background: "rgba(255,255,255,0.05)",
-            borderRadius: "50%",
-            transform: "translate(-50%, 50%)",
-          }}
-        />
-
-        <Grid align="center" style={{ position: "relative", zIndex: 1 }}>
-          <GridCol span={12}>
-            <Stack gap="lg" align="center">
-              <Group gap="xl" align="center" justify="center" wrap="wrap">
+                {/* Small Desktop Avatar */}
                 <Avatar
                   src={avatarUrl}
                   size={80}
@@ -277,8 +194,10 @@ export default async function ArtistDashboardPage() {
                   visibleFrom="sm"
                   hiddenFrom="md"
                 >
-                  {!avatarUrl && <IconSparkles size={32} />}
+                  <IconSparkles size={32} />
                 </Avatar>
+
+                {/* Large Desktop Avatar */}
                 <Avatar
                   src={avatarUrl}
                   size={120}
@@ -289,10 +208,23 @@ export default async function ArtistDashboardPage() {
                   }}
                   visibleFrom="md"
                 >
-                  {!avatarUrl && <IconSparkles size={48} />}
+                  <IconSparkles size={48} />
                 </Avatar>
+
                 <Stack gap="md" align="center">
                   <Stack gap="xs" align="center">
+                    {/* Mobile Title */}
+                    <Title
+                      order={1}
+                      size="1.2rem"
+                      fw={900}
+                      ta="center"
+                      hiddenFrom="sm"
+                    >
+                      Welcome back, {artist.name}!
+                    </Title>
+
+                    {/* Small Desktop Title */}
                     <Title
                       order={1}
                       size="1.8rem"
@@ -303,6 +235,8 @@ export default async function ArtistDashboardPage() {
                     >
                       Welcome back, {artist.name}!
                     </Title>
+
+                    {/* Large Desktop Title */}
                     <Title
                       order={1}
                       size="3rem"
@@ -312,6 +246,19 @@ export default async function ArtistDashboardPage() {
                     >
                       Welcome back, {artist.name}!
                     </Title>
+
+                    {/* Mobile Badge */}
+                    <Badge
+                      size="sm"
+                      variant="light"
+                      color="orange"
+                      leftSection={<IconMusic size={16} />}
+                      hiddenFrom="sm"
+                    >
+                      ARTIST
+                    </Badge>
+
+                    {/* Small Desktop Badge */}
                     <Badge
                       size="md"
                       variant="light"
@@ -322,6 +269,8 @@ export default async function ArtistDashboardPage() {
                     >
                       ARTIST
                     </Badge>
+
+                    {/* Large Desktop Badge */}
                     <Badge
                       size="lg"
                       variant="light"
@@ -332,36 +281,71 @@ export default async function ArtistDashboardPage() {
                       ARTIST
                     </Badge>
                   </Stack>
+
+                  {/* Metrics Group */}
                   <Group gap="md" justify="center" wrap="wrap">
-                    <Text size="sm" fw={500} visibleFrom="sm" hiddenFrom="md">
-                      🎤 {showMetrics.total} Performances
-                    </Text>
-                    <Text size="lg" fw={500} visibleFrom="md">
-                      🎤 {showMetrics.total} Performances
-                    </Text>
-                    <Text size="sm" fw={500} visibleFrom="sm" hiddenFrom="md">
-                      🎵 {trackMetrics.total} Tracks
-                    </Text>
-                    <Text size="lg" fw={500} visibleFrom="md">
-                      🎵 {trackMetrics.total} Tracks
-                    </Text>
+                    {/* Mobile Metrics */}
+                    <Group gap="sm" justify="center" wrap="wrap" hiddenFrom="sm">
+                      <Text size="xs" fw={500}>
+                        🎤 {showMetrics.total} {showMetrics.total === 1 ? 'Show' : 'Shows'}
+                      </Text>
+                      <Text size="xs" fw={500}>
+                        � {trackMetrics.total} {trackMetrics.total === 1 ? 'Track' : 'Tracks'}
+                      </Text>
+                    </Group>
+
+                    {/* Small Desktop Metrics */}
+                    <Group gap="md" justify="center" wrap="wrap" visibleFrom="sm" hiddenFrom="md">
+                      <Text size="sm" fw={500}>
+                        🎤 {showMetrics.total} Performances
+                      </Text>
+                      <Text size="sm" fw={500}>
+                        🎵 {trackMetrics.total} Tracks
+                      </Text>
+                    </Group>
+
+                    {/* Large Desktop Metrics */}
+                    <Group gap="md" justify="center" wrap="wrap" visibleFrom="md">
+                      <Text size="lg" fw={500}>
+                        🎤 {showMetrics.total} Performances
+                      </Text>
+                      <Text size="lg" fw={500}>
+                        🎵 {trackMetrics.total} Tracks
+                      </Text>
+                    </Group>
                   </Group>
+
+                  {/* Bio Section */}
                   {artist.bio && (
                     <>
+                      {/* Mobile Bio */}
+                      <Text
+                        size="xs"
+                        ta="center"
+                        maw={300}
+                        lineClamp={2}
+                        hiddenFrom="sm"
+                      >
+                        {artist.bio}
+                      </Text>
+
+                      {/* Small Desktop Bio */}
                       <Text
                         size="sm"
                         ta="center"
-                        style={{ maxWidth: "500px" }}
+                        maw={500}
                         lineClamp={3}
                         visibleFrom="sm"
                         hiddenFrom="md"
                       >
                         {artist.bio}
                       </Text>
+
+                      {/* Large Desktop Bio */}
                       <Text
                         size="md"
                         ta="center"
-                        style={{ maxWidth: "600px" }}
+                        maw={600}
                         visibleFrom="md"
                       >
                         {artist.bio}
@@ -370,50 +354,80 @@ export default async function ArtistDashboardPage() {
                   )}
                 </Stack>
               </Group>
-              <Group gap="md" justify="center" visibleFrom="sm">
-                <Button
-                  component={Link}
-                  href={`/artists/${nameToUrl(artist.name)}`}
-                  variant="light"
-                  size="sm"
-                  leftSection={<IconUser size={16} />}
-                  style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
-                  hiddenFrom="md"
-                >
-                  View Profile
-                </Button>
-                <Button
-                  component={Link}
-                  href={`/artists/${nameToUrl(artist.name)}/edit`}
-                  size="sm"
-                  leftSection={<IconSparkles size={16} />}
-                  style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#8b4513" }}
-                  hiddenFrom="md"
-                >
-                  Edit Profile
-                </Button>
-                <Button
-                  component={Link}
-                  href={`/artists/${nameToUrl(artist.name)}`}
-                  variant="light"
-                  size="lg"
-                  leftSection={<IconUser size={16} />}
-                  style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
-                  visibleFrom="md"
-                >
-                  View Public Profile
-                </Button>
-                <Button
-                  component={Link}
-                  href={`/artists/${nameToUrl(artist.name)}/edit`}
-                  size="lg"
-                  leftSection={<IconSparkles size={16} />}
-                  style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#8b4513" }}
-                  visibleFrom="md"
-                >
-                  Edit Profile
-                </Button>
-              </Group>
+
+              {/* Action Buttons */}
+              <Stack gap="xs" w="100%">
+                {/* Mobile Buttons */}
+                <Stack gap="xs" hiddenFrom="sm">
+                  <Button
+                    component={Link}
+                    href={`/artists/${nameToUrl(artist.name)}`}
+                    variant="light"
+                    size="xs"
+                    leftSection={<IconUser size={16} />}
+                    style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
+                    fullWidth
+                  >
+                    View Profile
+                  </Button>
+                  <Button
+                    component={Link}
+                    href={`/artists/${nameToUrl(artist.name)}/edit`}
+                    size="xs"
+                    leftSection={<IconSparkles size={16} />}
+                    style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#8b4513" }}
+                    fullWidth
+                  >
+                    Edit Profile
+                  </Button>
+                </Stack>
+
+                {/* Small Desktop Buttons */}
+                <Group gap="md" justify="center" visibleFrom="sm" hiddenFrom="md">
+                  <Button
+                    component={Link}
+                    href={`/artists/${nameToUrl(artist.name)}`}
+                    variant="light"
+                    size="sm"
+                    leftSection={<IconUser size={16} />}
+                    style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
+                  >
+                    View Profile
+                  </Button>
+                  <Button
+                    component={Link}
+                    href={`/artists/${nameToUrl(artist.name)}/edit`}
+                    size="sm"
+                    leftSection={<IconSparkles size={16} />}
+                    style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#8b4513" }}
+                  >
+                    Edit Profile
+                  </Button>
+                </Group>
+
+                {/* Large Desktop Buttons */}
+                <Group gap="md" justify="center" visibleFrom="md">
+                  <Button
+                    component={Link}
+                    href={`/artists/${nameToUrl(artist.name)}`}
+                    variant="light"
+                    size="lg"
+                    leftSection={<IconUser size={16} />}
+                    style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
+                  >
+                    View Public Profile
+                  </Button>
+                  <Button
+                    component={Link}
+                    href={`/artists/${nameToUrl(artist.name)}/edit`}
+                    size="lg"
+                    leftSection={<IconSparkles size={16} />}
+                    style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#8b4513" }}
+                  >
+                    Edit Profile
+                  </Button>
+                </Group>
+              </Stack>
             </Stack>
           </GridCol>
         </Grid>
