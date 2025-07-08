@@ -1,39 +1,40 @@
 "use client";
 
-import {
-  Stack,
-  Group,
-  Title,
-  Badge,
-  ThemeIcon,
-  Box,
-  Grid,
-  Divider,
-  rem,
-} from "@mantine/core";
-import { 
-  IconMapPin, 
-  IconMicrophone, 
-  IconUsers, 
-  IconBuilding, 
-  IconCalendarEvent,
-} from "@tabler/icons-react";
 import { CityData } from "@/app/discover/actions";
-import { LoadingAnimation } from "@/components/discover/LoadingAnimation";
-import { EmptyState } from "@/components/discover/EmptyState";
 import { ArtistCard } from "@/components/discover/ArtistCard";
-import { VenueCard } from "@/components/discover/VenueCard";
-import { PromoterCard } from "@/components/discover/PromoterCard";
+import { EmptyState } from "@/components/discover/EmptyState";
 import { EventCard } from "@/components/discover/EventCard";
+import { LoadingAnimation } from "@/components/discover/LoadingAnimation";
+import { PromoterCard } from "@/components/discover/PromoterCard";
+import { VenueCard } from "@/components/discover/VenueCard";
+import {
+  Badge,
+  Box,
+  Divider,
+  Grid,
+  Group,
+  rem,
+  Stack,
+  ThemeIcon,
+  Title,
+} from "@mantine/core";
+import {
+  IconBuilding,
+  IconCalendarEvent,
+  IconMapPin,
+  IconMicrophone,
+  IconUsers,
+} from "@tabler/icons-react";
 
 interface CityResultsProps {
   cityData: CityData | null;
   cityName: string;
   isLoading: boolean;
   onReset: () => void;
+  isLoggedIn: boolean | null;
 }
 
-export function CityResults({ cityData, cityName, isLoading, onReset }: CityResultsProps) {
+export function CityResults({ cityData, cityName, isLoading, onReset, isLoggedIn }: CityResultsProps) {
   if (isLoading) {
     return <LoadingAnimation cityName={cityName} />;
   }
@@ -41,13 +42,13 @@ export function CityResults({ cityData, cityName, isLoading, onReset }: CityResu
   if (!cityData) return null;
 
   // Check if all data arrays are empty
-  const hasData = cityData.artists.length > 0 || 
-                  cityData.venues.length > 0 || 
-                  cityData.promoters.length > 0 || 
-                  cityData.events.length > 0;
+  const hasData = cityData.artists.length > 0 ||
+    cityData.venues.length > 0 ||
+    cityData.promoters.length > 0 ||
+    cityData.events.length > 0;
 
   if (!hasData) {
-    return <EmptyState cityName={cityName} onTryAgain={onReset} />;
+    return <EmptyState cityName={cityName} onTryAgain={onReset} isLoggedIn={isLoggedIn} />;
   }
 
   return (
@@ -73,7 +74,7 @@ export function CityResults({ cityData, cityName, isLoading, onReset }: CityResu
               {cityData.events.length} events
             </Badge>
           </Group>
-          
+
           <Grid>
             {cityData.events.map((event) => (
               <Grid.Col key={event.id} span={{ base: 12, md: 6, lg: 4 }}>
@@ -98,7 +99,7 @@ export function CityResults({ cityData, cityName, isLoading, onReset }: CityResu
               {cityData.artists.length} artists
             </Badge>
           </Group>
-          
+
           <Grid>
             {cityData.artists.map((artist) => (
               <Grid.Col key={artist.id} span={{ base: 12, md: 6, lg: 4 }}>
@@ -123,7 +124,7 @@ export function CityResults({ cityData, cityName, isLoading, onReset }: CityResu
               {cityData.venues.length} venues
             </Badge>
           </Group>
-          
+
           <Grid>
             {cityData.venues.map((venue) => (
               <Grid.Col key={venue.id} span={{ base: 12, md: 6, lg: 4 }}>
@@ -148,7 +149,7 @@ export function CityResults({ cityData, cityName, isLoading, onReset }: CityResu
               {cityData.promoters.length} promoters
             </Badge>
           </Group>
-          
+
           <Grid>
             {cityData.promoters.map((promoter) => (
               <Grid.Col key={promoter.id} span={{ base: 12, md: 6, lg: 4 }}>
