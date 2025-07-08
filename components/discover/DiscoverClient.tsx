@@ -14,21 +14,19 @@ import {
   Button,
   Container,
   Group,
-  LoadingOverlay,
   Paper,
   rem,
   Stack,
   Text,
-  ThemeIcon,
+  ThemeIcon
 } from "@mantine/core";
 import {
-  IconMapPin,
-  IconMoodSad,
-  IconRefresh,
-  IconSearch,
+  IconMapPin
 } from "@tabler/icons-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { EmptyState } from "./EmptyState";
+import { LoadingAnimation } from "./LoadingAnimation";
 
 interface DiscoverClientProps {
   initialData?: CityData | null;
@@ -128,74 +126,6 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
 
   const hasData = cityData && Object.values(cityData).some(arr => arr.length > 0);
 
-  const EmptyState = () => (
-    <Container size="sm" py="xl">
-      <Paper p="xl" radius="lg" style={{ textAlign: 'center', background: 'var(--mantine-color-dark-8)' }}>
-        <Stack align="center" gap="lg">
-          <ThemeIcon
-            size={rem(80)}
-            radius="xl"
-            variant="light"
-            color="gray"
-          >
-            <IconMoodSad size={40} />
-          </ThemeIcon>
-
-          <Stack align="center" gap="sm">
-            <Text size="xl" fw={600} c="white">
-              No music scene found
-            </Text>
-            <Text c="dimmed" ta="center" maw={400}>
-              We couldn't find any artists, venues, or events in {capitalizeCity(currentCity)}.
-              Try searching for a different city or check back later.
-            </Text>
-          </Stack>
-
-          <Group>
-            <Button
-              leftSection={<IconRefresh size={16} />}
-              onClick={handleRetry}
-              variant="gradient"
-              gradient={{ from: 'blue', to: 'cyan' }}
-            >
-              Try again
-            </Button>
-
-            <Button
-              leftSection={<IconSearch size={16} />}
-              onClick={handleReset}
-              variant="light"
-            >
-              Search again
-            </Button>
-          </Group>
-        </Stack>
-      </Paper>
-    </Container>
-  );
-
-  const LoadingState = () => (
-    <Box pos="relative" mih={400}>
-      <LoadingOverlay
-        visible={true}
-        overlayProps={{
-          radius: "sm",
-          blur: 2,
-          opacity: 0.8
-        }}
-        loaderProps={{
-          color: 'blue',
-          type: 'dots'
-        }}
-      />
-      <Container size="xl" py="xl">
-        <Text ta="center" c="dimmed" size="lg">
-          Discovering the music scene in {capitalizeCity(currentCity)}...
-        </Text>
-      </Container>
-    </Box>
-  );
-
   return (
     <Box style={{
       position: 'relative',
@@ -234,7 +164,11 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
       <SearchHero onSearch={handleSearch} popularCities={popularCities} />
 
       {/* Loading State */}
-      {isLoading && <LoadingState />}
+      {isLoading && (
+        <Container size="xl" py="xl">
+          <LoadingAnimation cityName={capitalizeCity(currentCity)} />
+        </Container>
+      )}
 
       {/* Error State */}
       {error && !isLoading && (
@@ -254,7 +188,12 @@ export function DiscoverClient({ initialData, initialCity, popularCities }: Disc
       {!isLoading && !error && currentCity && (
         <>
           {!hasData ? (
-            <EmptyState />
+            <Container size="xl" py="xl">
+              <EmptyState
+                cityName={capitalizeCity(currentCity)}
+                onTryAgain={handleReset}
+              />
+            </Container>
           ) : (
             <Stack gap={4}>
               {/* City Header */}
