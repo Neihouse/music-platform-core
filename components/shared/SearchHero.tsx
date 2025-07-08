@@ -1,19 +1,18 @@
 "use client";
 
 import {
+  ActionIcon,
   Box,
   Container,
-  Title,
+  Group,
+  Pill,
+  Stack,
   Text,
   TextInput,
-  Button,
-  Group,
-  Stack,
-  rem,
-  ActionIcon,
-  Pill,
+  Title,
+  rem
 } from "@mantine/core";
-import { IconSearch, IconMapPin, IconTrendingUp } from "@tabler/icons-react";
+import { IconSearch, IconTrendingUp } from "@tabler/icons-react";
 import { useState } from "react";
 
 interface SearchHeroProps {
@@ -24,11 +23,11 @@ interface SearchHeroProps {
   subtitle?: string;
 }
 
-export function SearchHero({ 
-  onSearch, 
+export function SearchHero({
+  onSearch,
   popularCities = ['New York', 'Los Angeles', 'Chicago', 'Austin', 'Nashville', 'Miami'],
-  placeholder = "Search for cities, artists, venues...",
-  title = "Discover Music",
+  placeholder = "Your city...",
+  title = "Discover Your Local Music Scene",
   subtitle = "Explore local scenes, artists, and venues in cities around the world"
 }: SearchHeroProps) {
   const [searchValue, setSearchValue] = useState("");
@@ -84,16 +83,16 @@ export function SearchHero({
 
           {/* Search Bar */}
           <Box w="100%" maw={600}>
-            <Group gap="sm" style={{ 
+            <Group gap="sm" style={{
               background: 'var(--mantine-color-dark-7)',
               borderRadius: rem(50),
               padding: rem(8),
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
               border: '1px solid var(--mantine-color-dark-5)',
             }}>
-              <Box style={{ 
-                flex: 1, 
-                display: 'flex', 
+              <Box style={{
+                flex: 1,
+                display: 'flex',
                 alignItems: 'center',
                 gap: rem(12),
                 paddingLeft: rem(16),
