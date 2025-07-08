@@ -133,8 +133,23 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
       background: 'linear-gradient(135deg, var(--mantine-color-dark-9) 0%, var(--mantine-color-dark-8) 100%)',
       minHeight: '100vh'
     }}>
-      {/* Background decorative elements */}
+      {/* Background decorative elements - responsive sizing */}
       <Box
+        hiddenFrom="sm"
+        style={{
+          position: 'fixed',
+          top: '15%',
+          right: '5%',
+          width: rem(100),
+          height: rem(100),
+          background: 'radial-gradient(circle, rgba(51, 154, 240, 0.08) 0%, transparent 70%)',
+          borderRadius: '50%',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      />
+      <Box
+        visibleFrom="sm"
         style={{
           position: 'fixed',
           top: '20%',
@@ -148,6 +163,21 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
         }}
       />
       <Box
+        hiddenFrom="sm"
+        style={{
+          position: 'fixed',
+          bottom: '25%',
+          left: '2%',
+          width: rem(80),
+          height: rem(80),
+          background: 'radial-gradient(circle, rgba(116, 192, 252, 0.08) 0%, transparent 70%)',
+          borderRadius: '50%',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      />
+      <Box
+        visibleFrom="sm"
         style={{
           position: 'fixed',
           bottom: '20%',
@@ -166,21 +196,33 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
 
       {/* Loading State */}
       {isLoading && (
-        <Container size="xl" py="xl">
+        <Container size="xl" py={{ base: "md", sm: "lg", md: "xl" }}>
           <LoadingAnimation cityName={capitalizeCity(currentCity)} />
         </Container>
       )}
 
       {/* Error State */}
       {error && !isLoading && (
-        <Container size="sm" py="xl">
-          <Paper p="xl" radius="lg" style={{ textAlign: 'center', background: 'var(--mantine-color-red-9)' }}>
-            <Text c="red.2" size="lg" fw={600}>
+        <Container size="sm" py={{ base: "md", sm: "lg", md: "xl" }}>
+          <Paper 
+            p={{ base: "md", sm: "lg", md: "xl" }} 
+            radius="lg" 
+            style={{ textAlign: 'center', background: 'var(--mantine-color-red-9)' }}
+          >
+            <Text c="red.2" size="lg" fw={600} hiddenFrom="sm">
               {error}
             </Text>
-            <Button mt="md" onClick={handleRetry} variant="light" color="red">
-              Try again
-            </Button>
+            <Text c="red.2" size="xl" fw={600} visibleFrom="sm">
+              {error}
+            </Text>
+            <Group justify="center" mt="md">
+              <Button onClick={handleRetry} variant="light" color="red" size="sm" hiddenFrom="sm">
+                Try again
+              </Button>
+              <Button onClick={handleRetry} variant="light" color="red" size="md" visibleFrom="sm">
+                Try again
+              </Button>
+            </Group>
           </Paper>
         </Container>
       )}
@@ -189,7 +231,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
       {!isLoading && !error && currentCity && (
         <>
           {!hasData ? (
-            <Container size="xl" py="xl">
+            <Container size="xl" py={{ base: "md", sm: "lg", md: "xl" }}>
               <EmptyState
                 cityName={capitalizeCity(currentCity)}
                 onTryAgain={handleReset}
@@ -197,12 +239,29 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
               />
             </Container>
           ) : (
-            <Stack gap={4}>
+            <Stack gap="sm">
               {/* City Header */}
               {currentCity && (
-                <Box >
-                  <Container size="xl" >
-                    <Group mb="sm" ta="center" justify="center" gap="md">
+                <Box py={{ base: "md", sm: "lg", md: "xl" }}>
+                  <Container size="xl" px={{ base: "md", sm: "lg" }}>
+                    {/* Mobile City Header */}
+                    <Stack hiddenFrom="sm" align="center" gap="sm">
+                      <ThemeIcon size="lg" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
+                        <IconMapPin size={20} />
+                      </ThemeIcon>
+                      <Text 
+                        size="xl" 
+                        fw={700} 
+                        c="white" 
+                        ta="center"
+                        style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)' }}
+                      >
+                        Music in {capitalizeCity(currentCity)}
+                      </Text>
+                    </Stack>
+                    
+                    {/* Desktop City Header */}
+                    <Group visibleFrom="sm" ta="center" justify="center" gap="md">
                       <ThemeIcon size="xl" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
                         <IconMapPin size={28} />
                       </ThemeIcon>
