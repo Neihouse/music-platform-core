@@ -428,43 +428,65 @@ export function PromoterForm(props: IPromoterFormProps) {
         throw new Error("User not authenticated");
       }
 
-      // Check if user can create a promoter profile
-      const { data: existingProfile } = await supabase
-        .from("artists")
-        .select("id")
-        .eq("user_id", user.user.id)
-        .maybeSingle();
-
+      // Check if user already has a promoter profile
       const { data: existingPromoter } = await supabase
         .from("promoters")
         .select("id")
         .eq("user_id", user.user.id)
         .maybeSingle();
 
-      if (existingProfile || existingPromoter) {
-        throw new Error("User already has a promoter profile. Each user can only have one profile type.");
+      let promoter;
+
+      if (existingPromoter) {
+        // User already has a promoter profile, use existing one
+        promoter = existingPromoter;
+        console.log("Using existing promoter:", promoter);
+
+        notifications.show({
+          title: "Profile Already Exists",
+          message: "You already have a promoter profile. Let's add your images.",
+          color: "blue",
+        });
+      } else {
+        // Check if user has an artist profile (can't have both)
+        const { data: existingArtist } = await supabase
+          .from("artists")
+          .select("id")
+          .eq("user_id", user.user.id)
+          .maybeSingle();
+
+        if (existingArtist) {
+          throw new Error("User already has an artist profile. Each user can only have one profile type.");
+        }
+
+        // Create new promoter profile
+        const { data: newPromoter, error: promoterError } = await supabase
+          .from("promoters")
+          .insert({
+            name,
+            bio,
+            selectedFont: form.values.fontFamily || null,
+            user_id: user.user.id,
+          })
+          .select()
+          .single();
+
+        if (promoterError) {
+          throw new Error(`Failed to create promoter: ${promoterError.message}`);
+        }
+
+        promoter = newPromoter;
+        console.log("Promoter created:", promoter);
+
+        notifications.show({
+          title: "Success",
+          message: "Promoter profile created! Now let's add your images.",
+          color: "green",
+        });
       }
 
-      // Create the promoter
-      const { data: promoter, error: promoterError } = await supabase
-        .from("promoters")
-        .insert({
-          name,
-          bio,
-          selectedFont: form.values.fontFamily || null,
-          user_id: user.user.id,
-        })
-        .select()
-        .single();
-
-      if (promoterError) {
-        throw new Error(`Failed to create promoter: ${promoterError.message}`);
-      }
-
-      console.log("Promoter created:", promoter);
-
-      // Add all localities to the promoter
-      if (localities.length > 0) {
+      // Add localities only if creating a new promoter
+      if (!existingPromoter && localities.length > 0) {
         const localityInserts = localities.map(locality => ({
           promoter: promoter.id,
           locality: locality.locality.id,
@@ -496,31 +518,11 @@ export function PromoterForm(props: IPromoterFormProps) {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : `${error}`;
 
-      // Check if the error is about user already having a promoter profile
-      if (errorMessage.includes("User already has a promoter profile") ||
-        errorMessage.includes("Each user can only have one profile type")) {
-
-        notifications.show({
-          title: "Profile Already Exists",
-          message: "You already have a promoter profile. Redirecting to image upload...",
-          color: "blue",
-        });
-
-        // Set a placeholder promoter ID to enable upload sections
-        // In a real app, you'd fetch the actual promoter ID from the backend
-        setPromoterId("existing-promoter-id");
-
-        // Trigger the transition to upload sections after a brief delay
-        setTimeout(() => {
-          setShowUploadSections(true);
-        }, 800);
-      } else {
-        notifications.show({
-          title: "Error",
-          message: errorMessage,
-          color: "red",
-        });
-      }
+      notifications.show({
+        title: "Error",
+        message: errorMessage,
+        color: "red",
+      });
 
       console.error("Error creating promoter:", error);
     } finally {
