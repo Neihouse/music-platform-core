@@ -1,5 +1,5 @@
 "use client";
-import { signup, SignupData } from "@/app/login/actions";
+import { createClient } from "@/utils/supabase/client";
 import {
   ActionIcon,
   Alert,
@@ -12,14 +12,23 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { EmailAndPasswordInputs } from "../EmailAndPasswordInputs";
 import { SwitchAction } from "../SwitchAction";
 import { validateEmail, validatePassword } from "../validation";
 
+export interface SignupData {
+  email: string;
+  name: string;
+  password: string;
+}
+
 export function Signup(props: PaperProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const supabase = createClient();
 
   const form = useForm<SignupData>({
     initialValues: {
@@ -39,9 +48,51 @@ export function Signup(props: PaperProps) {
     setError(null);
 
     try {
-      await signup(values);
+      const { data, error: authError } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            name: values.name,
+          },
+        },
+      });
+
+      if (authError) {
+        // Provide user-friendly error messages
+        if (authError.message.includes("User already registered")) {
+          setError("An account with this email already exists. Please try logging in instead.");
+        } else if (authError.message.includes("Password should be at least")) {
+          setError("Password is too weak. Please choose a stronger password.");
+        } else if (authError.message.includes("Invalid email")) {
+          setError("Please enter a valid email address.");
+        } else if (authError.message.includes("Network error") || authError.message.includes("fetch")) {
+          setError("Network error. Please check your connection and try again.");
+        } else {
+          setError(authError.message || "An error occurred during signup. Please try again.");
+        }
+        return;
+      }
+
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        setError("Please check your email and click the confirmation link to complete your registration.");
+        return;
+      }
+
+      // Signup successful
+      if (data.session) {
+        router.push("/onboarding");
+        router.refresh();
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      console.error("Signup error:", err);
+      if (err instanceof TypeError && err.message.includes("fetch")) {
+        setError("Network error. Please check your connection and try again.");
+      } else {
+        const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
