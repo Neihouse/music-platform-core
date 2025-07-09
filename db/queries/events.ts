@@ -31,6 +31,7 @@ export async function getEventByName(supabase: TypedClient, eventName: string) {
     .from("events")
     .select(`
       *,
+      name,
       venues (
         id,
         name,
@@ -41,7 +42,7 @@ export async function getEventByName(supabase: TypedClient, eventName: string) {
     .ilike("name", `%${eventName}%`)
     .single();
 
-  console.log("event: ", event)
+  console.log("event: ", event, "error: ", error);
 
   if (error) {
     throw new Error(`Failed to get event: ${error.message}`);
