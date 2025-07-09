@@ -156,7 +156,7 @@ export function PosterUpload({
                     <Dropzone
                         loading={uploadState === "pending"}
                         onDrop={onDrop}
-                        accept={["image/png", "image/jpeg", "image/webp"]}
+                        accept={["image/png", "image/jpeg", "image/webp", "image/avif"]}
                         maxSize={maxFileSize}
                         maxFiles={1}
                         style={{
