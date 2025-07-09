@@ -6,7 +6,7 @@ import { notifications } from "@mantine/notifications";
 import { IconUser, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { ArtistSearchInput } from "./ArtistSearchInput";
-import { ArtistSearchResult } from "./actions";
+import { ArtistSearchResult } from "./queries";
 
 interface IArtistSearchProps {
 	onArtistsChange: (artists: ArtistSearchResult[]) => void;
