@@ -349,6 +349,7 @@ export type Database = {
           id: string
           locality: string | null
           name: string
+          poster_img: string | null
           user_id: string | null
           venue: string | null
         }
@@ -359,6 +360,7 @@ export type Database = {
           id?: string
           locality?: string | null
           name: string
+          poster_img?: string | null
           user_id?: string | null
           venue?: string | null
         }
@@ -369,6 +371,7 @@ export type Database = {
           id?: string
           locality?: string | null
           name?: string
+          poster_img?: string | null
           user_id?: string | null
           venue?: string | null
         }
@@ -1023,7 +1026,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_legitimate_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
