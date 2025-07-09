@@ -21,6 +21,7 @@ import { useForm } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconCalendar, IconMapPin, IconPhoto, IconUsers } from "@tabler/icons-react";
+import crypto from "crypto";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -101,6 +102,24 @@ export function EventForm({ }: IEventFormProps) {
         throw new Error(`Failed to create event: ${eventError.message}`);
       }
 
+      // Generate hash from event name and created_at
+      const hashInput = `${event.name}${event.created_at}`;
+      const hash = crypto.createHash('sha256').update(hashInput).digest('hex').substring(0, 6);
+
+      // Update the event with the generated hash
+      const { error: hashUpdateError } = await supabase
+        .from('events')
+        .update({ hash })
+        .eq('id', event.id);
+
+      if (hashUpdateError) {
+        console.error('Error updating event with hash:', hashUpdateError);
+        // Don't throw error here, just log it - the event was created successfully
+      }
+
+      // Update the local event object with the hash for later use
+      event.hash = hash;
+
       // Create artist-event relationships if artists are selected
       if (selectedArtists.length > 0) {
         const artistEventData = selectedArtists.map(artist => ({
@@ -150,8 +169,8 @@ export function EventForm({ }: IEventFormProps) {
   };
 
   const handleSkipPoster = () => {
-    // Navigate to the created event without poster
-    router.push(`/promoter/events/${createdEvent.id}`);
+    // Navigate to the created event without poster using hash
+    router.push(`/events/${createdEvent.hash}`);
   };
 
   const handleBackToForm = () => {

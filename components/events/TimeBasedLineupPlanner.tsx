@@ -1,55 +1,42 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import {
-	Paper,
-	Title,
-	Button,
-	Group,
-	Stack,
-	Text,
-	Modal,
-	TextInput,
-	Avatar,
-	Card,
-	Badge,
-	ActionIcon,
-	Container,
-	Flex,
-	Box,
-	Select,
-	ScrollArea,
-	Tooltip,
-	Menu,
-	Divider,
-	Switch,
-	NumberInput,
-} from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { 
-	IconPlus, 
-	IconClock, 
-	IconTrash, 
-	IconEdit, 
-	IconLock,
-	IconDeviceFloppy,
-	IconRestore,
-	IconMail,
-	IconDownload,
-	IconRefresh,
-	IconGripVertical
-} from "@tabler/icons-react";
-import {
-	getEventStagesAction,
+	assignArtistToStageAction,
 	createEventStageAction,
 	getEventStageArtistsAction,
-	assignArtistToStageAction,
-	updateArtistStageAssignmentAction,
+	getEventStagesAction,
 	removeArtistFromStageAction
-} from "@/app/events/[eventName]/lineup/actions";
-import { createClient } from "@/utils/supabase/client";
+} from "@/app/events/[eventHash]/lineup/actions";
 import StyledTitle from "@/components/StyledTitle";
+import { createClient } from "@/utils/supabase/client";
+import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
+import {
+	Avatar,
+	Button,
+	Container,
+	Group,
+	Modal,
+	NumberInput,
+	Paper,
+	ScrollArea,
+	Select,
+	Stack,
+	Switch,
+	Text,
+	TextInput,
+	Title
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import {
+	IconDeviceFloppy,
+	IconDownload,
+	IconLock,
+	IconMail,
+	IconPlus,
+	IconRefresh,
+	IconTrash
+} from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 
 interface Artist {
 	id: string;
@@ -109,7 +96,7 @@ interface TimeBasedLineupPlannerProps {
 // Generate time slots for the day (18:00 to 06:00 next day)
 const generateTimeSlots = (): TimeSlot[] => {
 	const slots: TimeSlot[] = [];
-	
+
 	// Evening slots (18:00 - 23:45)
 	for (let hour = 18; hour < 24; hour++) {
 		for (let minute = 0; minute < 60; minute += 15) {
@@ -120,7 +107,7 @@ const generateTimeSlots = (): TimeSlot[] => {
 			});
 		}
 	}
-	
+
 	// Early morning slots (00:00 - 06:00)
 	for (let hour = 0; hour < 7; hour++) {
 		for (let minute = 0; minute < 60; minute += 15) {
@@ -131,7 +118,7 @@ const generateTimeSlots = (): TimeSlot[] => {
 			});
 		}
 	}
-	
+
 	return slots;
 };
 
@@ -176,11 +163,11 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 					startTime: extractTimeFromTimestamp(assignment.set_start),
 					endTime: extractTimeFromTimestamp(assignment.set_end),
 					duration: calculateDuration(
-						extractTimeFromTimestamp(assignment.set_start), 
+						extractTimeFromTimestamp(assignment.set_start),
 						extractTimeFromTimestamp(assignment.set_end)
 					)
 				}));
-			
+
 			setScheduledSlots(slots);
 		} catch (error) {
 			console.error("Failed to load event data:", error);
@@ -206,10 +193,10 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	const getSlotForStageAndTime = (stageId: string, time: string): ScheduledSlot | null => {
 		return scheduledSlots.find(slot => {
 			if (slot.stage !== stageId) return false;
-			
+
 			const slotStart = slot.startTime;
 			const slotEnd = slot.endTime;
-			
+
 			// Check if the current time falls within this slot
 			return time >= slotStart && time < slotEnd;
 		}) || null;
@@ -226,7 +213,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 
 	const handleSlotClick = (slot: ScheduledSlot) => {
 		if (isLocked) return;
-		
+
 		setSelectedSlot({
 			id: slot.id,
 			artist: slot.artist,
@@ -239,7 +226,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 
 	const handleEmptySlotClick = (stageId: string, time: string) => {
 		if (isLocked) return;
-		
+
 		setNewSlotData({
 			artistId: '',
 			stageId,
@@ -269,11 +256,11 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 				console.error('Invalid droppable ID format:', destination.droppableId);
 				return;
 			}
-			
+
 			const stageId = dropParts[0];
 			const time = dropParts[1];
 			const artist = availableUnassignedArtists.find((a: Artist) => a.id === draggableId);
-			
+
 			if (!artist || !stageId || !time) {
 				console.error('Missing required data:', { artist: !!artist, stageId, time });
 				return;
@@ -289,7 +276,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 			const endTime = addMinutesToTime(time, 60); // Default 1 hour
 			const startTimestamp = convertTimeToTimestamp(time);
 			const endTimestamp = convertTimeToTimestamp(endTime);
-			
+
 			console.log('Assigning artist:', {
 				artistId: artist.id,
 				eventId: event.id,
@@ -299,7 +286,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 				startTimestamp,
 				endTimestamp
 			});
-			
+
 			try {
 				const assignment = await assignArtistToStageAction({
 					artist: artist.id,
@@ -331,20 +318,20 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 			console.error('Invalid time format:', time);
 			return '00:00';
 		}
-		
+
 		const timeParts = time.split(':');
 		if (timeParts.length !== 2) {
 			console.error('Invalid time format:', time);
 			return '00:00';
 		}
-		
+
 		const [hours, mins] = timeParts.map(Number);
-		
+
 		if (isNaN(hours) || isNaN(mins)) {
 			console.error('Invalid time values:', time, 'parsed as:', hours, mins);
 			return '00:00';
 		}
-		
+
 		const totalMinutes = hours * 60 + mins + minutes;
 		const newHours = Math.floor(totalMinutes / 60) % 24;
 		const newMins = totalMinutes % 60;
@@ -353,12 +340,12 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 
 	const getAvatarUrl = (artist: Artist): string | undefined => {
 		if (!artist.avatar_img) return undefined;
-		
+
 		const supabase = createClient();
 		const { data } = supabase.storage
 			.from("avatars")
 			.getPublicUrl(artist.avatar_img);
-		
+
 		return data.publicUrl;
 	};
 
@@ -368,7 +355,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 			const today = new Date().toISOString().split('T')[0];
 			return `${today}T${time}:00`;
 		}
-		
+
 		// Use the event's date
 		const eventDate = new Date(event.date).toISOString().split('T')[0];
 		return `${eventDate}T${time}:00`;
@@ -376,13 +363,13 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 
 	const extractTimeFromTimestamp = (timestamp: string): string => {
 		if (!timestamp) return '00:00';
-		
+
 		// Handle both full timestamps and just time strings
 		if (timestamp.includes('T')) {
 			const timePart = timestamp.split('T')[1];
 			return timePart.substring(0, 5); // HH:MM format
 		}
-		
+
 		// If it's already just a time string, return as is
 		return timestamp.substring(0, 5);
 	};
@@ -494,316 +481,270 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 		<DragDropContext onDragEnd={handleDragEnd}>
 			<Container size="100%" px={0}>
 				<Stack gap="lg">
-				{/* Header */}
-				<Paper shadow="sm" p="xl" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-					<Group justify="space-between" align="center">
-						<div style={{ color: 'white' }}>
-							<StyledTitle 
-								selectedFont="Inter"
-								style={{ color: 'white' }}
-							>
-								{event.name}
-							</StyledTitle>
-							{event.date && (
-								<Text size="lg" c="white" opacity={0.9}>
-									{new Date(event.date).toLocaleDateString('en-US', { 
-										year: 'numeric', 
-										month: '2-digit', 
-										day: '2-digit' 
-									})}
+					{/* Header */}
+					<Paper shadow="sm" p="xl" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+						<Group justify="space-between" align="center">
+							<div style={{ color: 'white' }}>
+								<StyledTitle
+									selectedFont="Inter"
+									style={{ color: 'white' }}
+								>
+									{event.name}
+								</StyledTitle>
+								{event.date && (
+									<Text size="lg" c="white" opacity={0.9}>
+										{new Date(event.date).toLocaleDateString('en-US', {
+											year: 'numeric',
+											month: '2-digit',
+											day: '2-digit'
+										})}
+									</Text>
+								)}
+							</div>
+							<Group gap="md">
+								<Switch
+									label="Lock"
+									checked={isLocked}
+									onChange={(e) => setIsLocked(e.currentTarget.checked)}
+									size="md"
+									color="yellow"
+									thumbIcon={isLocked ? <IconLock size={12} /> : undefined}
+									styles={{
+										label: { color: 'white' },
+										track: { backgroundColor: isLocked ? '#ffd43b' : 'rgba(255,255,255,0.3)' }
+									}}
+								/>
+								<Text size="sm" c="white" opacity={0.8}>
+									Autosaved <IconDeviceFloppy size={14} style={{ marginLeft: 4 }} />
 								</Text>
-							)}
-						</div>
-						<Group gap="md">
-							<Switch
-								label="Lock"
-								checked={isLocked}
-								onChange={(e) => setIsLocked(e.currentTarget.checked)}
-								size="md"
-								color="yellow"
-								thumbIcon={isLocked ? <IconLock size={12} /> : undefined}
-								styles={{
-									label: { color: 'white' },
-									track: { backgroundColor: isLocked ? '#ffd43b' : 'rgba(255,255,255,0.3)' }
-								}}
-							/>
-							<Text size="sm" c="white" opacity={0.8}>
-								Autosaved <IconDeviceFloppy size={14} style={{ marginLeft: 4 }} />
+							</Group>
+						</Group>
+					</Paper>
+
+					{/* Controls */}
+					<Paper shadow="sm" p="md">
+						<Group justify="space-between">
+							<Group gap="xs">
+								<Button
+									leftSection={<IconPlus size={16} />}
+									onClick={open}
+									disabled={isLocked}
+									variant="filled"
+								>
+									Add Stage
+								</Button>
+								<Button variant="outline" leftSection={<IconRefresh size={16} />} onClick={handleUndo}>
+									Undo
+								</Button>
+								<Button variant="outline" onClick={handleRedo}>
+									Redo
+								</Button>
+								<Button variant="outline" onClick={handleReset}>
+									Reset
+								</Button>
+								<Button variant="outline" leftSection={<IconDownload size={16} />} onClick={handleExport}>
+									Export
+								</Button>
+								<Button variant="outline" leftSection={<IconMail size={16} />} onClick={handleEmailArtists}>
+									Email Artists
+								</Button>
+							</Group>
+							<Text size="sm" c="dimmed">
+								{scheduledSlotsCount} slots scheduled
 							</Text>
 						</Group>
-					</Group>
-				</Paper>
+					</Paper>
 
-				{/* Controls */}
-				<Paper shadow="sm" p="md">
-					<Group justify="space-between">
-						<Group gap="xs">
-							<Button
-								leftSection={<IconPlus size={16} />}
-								onClick={open}
-								disabled={isLocked}
-								variant="filled"
-							>
-								Add Stage
-							</Button>
-							<Button variant="outline" leftSection={<IconRefresh size={16} />} onClick={handleUndo}>
-								Undo
-							</Button>
-							<Button variant="outline" onClick={handleRedo}>
-								Redo
-							</Button>
-							<Button variant="outline" onClick={handleReset}>
-								Reset
-							</Button>
-							<Button variant="outline" leftSection={<IconDownload size={16} />} onClick={handleExport}>
-								Export
-							</Button>
-							<Button variant="outline" leftSection={<IconMail size={16} />} onClick={handleEmailArtists}>
-								Email Artists
-							</Button>
-						</Group>
-						<Text size="sm" c="dimmed">
-							{scheduledSlotsCount} slots scheduled
-						</Text>
-					</Group>
-				</Paper>
-
-				{/* Artist Pool */}
-				<Paper shadow="sm" p="md">
-					<Title order={4} mb="md">Available Artists</Title>
-					<Droppable droppableId="available-artists" direction="horizontal" isDropDisabled>
-						{(provided) => (
-							<div {...provided.droppableProps} ref={provided.innerRef}>
-								<ScrollArea>
-									<Group gap="xs">
-										{availableUnassignedArtists.map((artist, index) => (
-											<Draggable key={artist.id} draggableId={artist.id} index={index}>
-												{(provided, snapshot) => (
-													<div
-														ref={provided.innerRef}
-														{...provided.draggableProps}
-														{...provided.dragHandleProps}
-														style={{
-															...provided.draggableProps.style,
-															cursor: isLocked ? 'default' : 'grab',
-															opacity: snapshot.isDragging ? 0.5 : 1,
-															display: 'inline-flex',
-															alignItems: 'center',
-															gap: '6px',
-															padding: '6px 12px',
-															borderRadius: '20px',
-															backgroundColor: '#f1f3f4',
-															border: '1px solid #e0e0e0',
-															fontSize: '14px',
-															fontWeight: 500,
-														}}
-													>
-														<Avatar src={getAvatarUrl(artist)} size={20}>
-															{artist.name.charAt(0)}
-														</Avatar>
-														<span>
-															{artist.name.substring(0, 2).toUpperCase()} {artist.name} {artist.genre || ''}
-														</span>
-													</div>
-												)}
-											</Draggable>
-										))}
-									</Group>
-								</ScrollArea>
-								{provided.placeholder}
-							</div>
-						)}
-					</Droppable>
-				</Paper>
-
-				{/* Schedule Grid */}
-				<Paper shadow="sm" p="md">
-					<ScrollArea h={600}>
-						<div style={{ minWidth: '100%' }}>
-							{/* Header row with stage names */}
-							<div style={{ 
-								display: 'grid', 
-								gridTemplateColumns: `80px repeat(${stages.length}, 1fr)`,
-								gap: '1px',
-								backgroundColor: '#f8f9fa',
-								marginBottom: '1px'
-							}}>
-								<div style={{ 
-									padding: '12px 8px', 
-									backgroundColor: 'white',
-									fontWeight: 600,
-									fontSize: '14px',
-									borderRight: '1px solid #dee2e6'
-								}}>
-									Time
+					{/* Artist Pool */}
+					<Paper shadow="sm" p="md">
+						<Title order={4} mb="md">Available Artists</Title>
+						<Droppable droppableId="available-artists" direction="horizontal" isDropDisabled>
+							{(provided) => (
+								<div {...provided.droppableProps} ref={provided.innerRef}>
+									<ScrollArea>
+										<Group gap="xs">
+											{availableUnassignedArtists.map((artist, index) => (
+												<Draggable key={artist.id} draggableId={artist.id} index={index}>
+													{(provided, snapshot) => (
+														<div
+															ref={provided.innerRef}
+															{...provided.draggableProps}
+															{...provided.dragHandleProps}
+															style={{
+																...provided.draggableProps.style,
+																cursor: isLocked ? 'default' : 'grab',
+																opacity: snapshot.isDragging ? 0.5 : 1,
+																display: 'inline-flex',
+																alignItems: 'center',
+																gap: '6px',
+																padding: '6px 12px',
+																borderRadius: '20px',
+																backgroundColor: '#f1f3f4',
+																border: '1px solid #e0e0e0',
+																fontSize: '14px',
+																fontWeight: 500,
+															}}
+														>
+															<Avatar src={getAvatarUrl(artist)} size={20}>
+																{artist.name.charAt(0)}
+															</Avatar>
+															<span>
+																{artist.name.substring(0, 2).toUpperCase()} {artist.name} {artist.genre || ''}
+															</span>
+														</div>
+													)}
+												</Draggable>
+											))}
+										</Group>
+									</ScrollArea>
+									{provided.placeholder}
 								</div>
-								{stages.map((stage) => (
+							)}
+						</Droppable>
+					</Paper>
+
+					{/* Schedule Grid */}
+					<Paper shadow="sm" p="md">
+						<ScrollArea h={600}>
+							<div style={{ minWidth: '100%' }}>
+								{/* Header row with stage names */}
+								<div style={{
+									display: 'grid',
+									gridTemplateColumns: `80px repeat(${stages.length}, 1fr)`,
+									gap: '1px',
+									backgroundColor: '#f8f9fa',
+									marginBottom: '1px'
+								}}>
+									<div style={{
+										padding: '12px 8px',
+										backgroundColor: 'white',
+										fontWeight: 600,
+										fontSize: '14px',
+										borderRight: '1px solid #dee2e6'
+									}}>
+										Time
+									</div>
+									{stages.map((stage) => (
+										<div
+											key={stage.id}
+											style={{
+												padding: '12px 8px',
+												backgroundColor: 'white',
+												fontWeight: 600,
+												fontSize: '14px',
+												textAlign: 'center',
+												borderRight: '1px solid #dee2e6'
+											}}
+										>
+											{stage.name}
+										</div>
+									))}
+								</div>
+
+								{/* Time slots grid */}
+								{timeSlots.map((timeSlot, index) => (
 									<div
-										key={stage.id}
+										key={timeSlot.time}
 										style={{
-											padding: '12px 8px',
-											backgroundColor: 'white',
-											fontWeight: 600,
-											fontSize: '14px',
-											textAlign: 'center',
-											borderRight: '1px solid #dee2e6'
+											display: 'grid',
+											gridTemplateColumns: `80px repeat(${stages.length}, 1fr)`,
+											gap: '1px',
+											backgroundColor: '#f8f9fa',
+											marginBottom: '1px'
 										}}
 									>
-										{stage.name}
+										{/* Time column */}
+										<div style={{
+											padding: '8px',
+											backgroundColor: 'white',
+											fontSize: '12px',
+											fontWeight: 500,
+											color: '#666',
+											borderRight: '1px solid #dee2e6',
+											display: 'flex',
+											alignItems: 'center'
+										}}>
+											{timeSlot.time}
+										</div>
+
+										{/* Stage columns */}
+										{stages.map((stage) => {
+											const slot = getSlotForStageAndTime(stage.id, timeSlot.time);
+											const shouldShow = slot && shouldShowSlot(slot, timeSlot.time);
+											const dropId = `${stage.id}__${timeSlot.time}`;
+
+											return (
+												<Droppable key={dropId} droppableId={dropId}>
+													{(provided, snapshot) => (
+														<div
+															ref={provided.innerRef}
+															{...provided.droppableProps}
+															style={{
+																minHeight: '32px',
+																backgroundColor: snapshot.isDraggingOver
+																	? '#e3f2fd'
+																	: slot ? '#f5f5f5' : 'white',
+																borderRight: '1px solid #dee2e6',
+																position: 'relative',
+																cursor: slot && !isLocked ? 'pointer' : 'default'
+															}}
+															onClick={() => {
+																if (slot) {
+																	handleSlotClick(slot);
+																} else if (!isLocked) {
+																	handleEmptySlotClick(stage.id, timeSlot.time);
+																}
+															}}
+														>
+															{shouldShow && (
+																<div
+																	style={{
+																		position: 'absolute',
+																		top: 0,
+																		left: 0,
+																		right: 0,
+																		height: `${getSlotHeightInRows(slot) * 33}px`, // 32px + 1px gap
+																		backgroundColor: '#e3f2fd',
+																		border: '2px solid #2196f3',
+																		borderRadius: '4px',
+																		padding: '4px 8px',
+																		zIndex: 1,
+																		overflow: 'hidden',
+																		display: 'flex',
+																		alignItems: 'center',
+																		gap: '4px'
+																	}}
+																>
+																	<Avatar src={getAvatarUrl(slot.artist)} size={20}>
+																		{slot.artist.name.charAt(0)}
+																	</Avatar>
+																	<div style={{ flex: 1, minWidth: 0 }}>
+																		<Text size="xs" fw={600} truncate>
+																			{slot.artist.name.substring(0, 2).toUpperCase()} {slot.artist.name}
+																		</Text>
+																		<Text size="xs" c="dimmed" truncate>
+																			{slot.startTime} - {slot.endTime}
+																		</Text>
+																	</div>
+																</div>
+															)}
+															{provided.placeholder}
+														</div>
+													)}
+												</Droppable>
+											);
+										})}
 									</div>
 								))}
 							</div>
+						</ScrollArea>
+					</Paper>
 
-							{/* Time slots grid */}
-							{timeSlots.map((timeSlot, index) => (
-								<div
-									key={timeSlot.time}
-									style={{
-										display: 'grid',
-										gridTemplateColumns: `80px repeat(${stages.length}, 1fr)`,
-										gap: '1px',
-										backgroundColor: '#f8f9fa',
-										marginBottom: '1px'
-									}}
-								>
-									{/* Time column */}
-									<div style={{
-										padding: '8px',
-										backgroundColor: 'white',
-										fontSize: '12px',
-										fontWeight: 500,
-										color: '#666',
-										borderRight: '1px solid #dee2e6',
-										display: 'flex',
-										alignItems: 'center'
-									}}>
-										{timeSlot.time}
-									</div>
-
-									{/* Stage columns */}
-									{stages.map((stage) => {
-										const slot = getSlotForStageAndTime(stage.id, timeSlot.time);
-										const shouldShow = slot && shouldShowSlot(slot, timeSlot.time);
-										const dropId = `${stage.id}__${timeSlot.time}`;
-										
-										return (
-											<Droppable key={dropId} droppableId={dropId}>
-												{(provided, snapshot) => (
-													<div
-														ref={provided.innerRef}
-														{...provided.droppableProps}
-														style={{
-															minHeight: '32px',
-															backgroundColor: snapshot.isDraggingOver 
-																? '#e3f2fd' 
-																: slot ? '#f5f5f5' : 'white',
-															borderRight: '1px solid #dee2e6',
-															position: 'relative',
-															cursor: slot && !isLocked ? 'pointer' : 'default'
-														}}
-														onClick={() => {
-															if (slot) {
-																handleSlotClick(slot);
-															} else if (!isLocked) {
-																handleEmptySlotClick(stage.id, timeSlot.time);
-															}
-														}}
-													>
-														{shouldShow && (
-															<div
-																style={{
-																	position: 'absolute',
-																	top: 0,
-																	left: 0,
-																	right: 0,
-																	height: `${getSlotHeightInRows(slot) * 33}px`, // 32px + 1px gap
-																	backgroundColor: '#e3f2fd',
-																	border: '2px solid #2196f3',
-																	borderRadius: '4px',
-																	padding: '4px 8px',
-																	zIndex: 1,
-																	overflow: 'hidden',
-																	display: 'flex',
-																	alignItems: 'center',
-																	gap: '4px'
-																}}
-															>
-																<Avatar src={getAvatarUrl(slot.artist)} size={20}>
-																	{slot.artist.name.charAt(0)}
-																</Avatar>
-																<div style={{ flex: 1, minWidth: 0 }}>
-																	<Text size="xs" fw={600} truncate>
-																		{slot.artist.name.substring(0, 2).toUpperCase()} {slot.artist.name}
-																	</Text>
-																	<Text size="xs" c="dimmed" truncate>
-																		{slot.startTime} - {slot.endTime}
-																	</Text>
-																</div>
-															</div>
-														)}
-														{provided.placeholder}
-													</div>
-												)}
-											</Droppable>
-										);
-									})}
-								</div>
-							))}
-						</div>
-					</ScrollArea>
-				</Paper>
-
-				{/* Slot Details Panel */}
-				<Paper shadow="sm" p="md">
-					<Title order={4} mb="md">Slot Details</Title>
-					{selectedSlot ? (
-						<Group align="flex-start">
-							<Avatar src={getAvatarUrl(selectedSlot.artist)} size={40}>
-								{selectedSlot.artist.name.charAt(0)}
-							</Avatar>
-							<div>
-								<Text fw={600}>{selectedSlot.artist.name}</Text>
-								<Text size="sm" c="dimmed">
-									{selectedSlot.startTime} - {selectedSlot.endTime}
-								</Text>
-								<Text size="sm" c="dimmed">
-									Stage: {stages.find(s => s.id === selectedSlot.stage)?.name}
-								</Text>
-							</div>
-						</Group>
-					) : (
-						<Text c="dimmed" style={{ fontStyle: 'italic' }}>
-							Click on a scheduled slot to edit details
-						</Text>
-					)}
-				</Paper>
-
-				{/* Add Stage Modal */}
-				<Modal opened={opened} onClose={close} title="Add New Stage">
-					<Stack gap="md">
-						<TextInput
-							label="Stage Name"
-							placeholder="Enter stage name"
-							value={newStageName}
-							onChange={(e) => setNewStageName(e.currentTarget.value)}
-						/>
-						
-						<Group justify="flex-end">
-							<Button variant="outline" onClick={close}>
-								Cancel
-							</Button>
-							<Button onClick={handleAddStage} disabled={!newStageName.trim()}>
-								Add Stage
-							</Button>
-						</Group>
-					</Stack>
-				</Modal>
-
-				{/* Slot Details Modal */}
-				<Modal opened={slotDetailsOpened} onClose={closeSlotDetails} title="Edit Slot Details">
-					{selectedSlot && (
-						<Stack gap="md">
-							<Group>
+					{/* Slot Details Panel */}
+					<Paper shadow="sm" p="md">
+						<Title order={4} mb="md">Slot Details</Title>
+						{selectedSlot ? (
+							<Group align="flex-start">
 								<Avatar src={getAvatarUrl(selectedSlot.artist)} size={40}>
 									{selectedSlot.artist.name.charAt(0)}
 								</Avatar>
@@ -812,109 +753,155 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 									<Text size="sm" c="dimmed">
 										{selectedSlot.startTime} - {selectedSlot.endTime}
 									</Text>
+									<Text size="sm" c="dimmed">
+										Stage: {stages.find(s => s.id === selectedSlot.stage)?.name}
+									</Text>
 								</div>
 							</Group>
-							
+						) : (
+							<Text c="dimmed" style={{ fontStyle: 'italic' }}>
+								Click on a scheduled slot to edit details
+							</Text>
+						)}
+					</Paper>
+
+					{/* Add Stage Modal */}
+					<Modal opened={opened} onClose={close} title="Add New Stage">
+						<Stack gap="md">
 							<TextInput
-								label="Start Time"
-								value={selectedSlot.startTime}
-								onChange={(e) => setSelectedSlot(prev => prev ? {
-									...prev,
-									startTime: e.currentTarget.value
-								} : null)}
+								label="Stage Name"
+								placeholder="Enter stage name"
+								value={newStageName}
+								onChange={(e) => setNewStageName(e.currentTarget.value)}
 							/>
-							
-							<TextInput
-								label="End Time"
-								value={selectedSlot.endTime}
-								onChange={(e) => setSelectedSlot(prev => prev ? {
-									...prev,
-									endTime: e.currentTarget.value
-								} : null)}
-							/>
-							
-							<Group justify="space-between">
-								<Button
-									variant="light"
-									color="red"
-									leftSection={<IconTrash size={16} />}
-									onClick={() => handleRemoveSlot(selectedSlot.id)}
-								>
-									Remove Slot
+
+							<Group justify="flex-end">
+								<Button variant="outline" onClick={close}>
+									Cancel
 								</Button>
-								<Group>
-									<Button variant="outline" onClick={closeSlotDetails}>
-										Cancel
-									</Button>
-									<Button onClick={() => {
-										// TODO: Save changes
-										closeSlotDetails();
-									}}>
-										Save Changes
-									</Button>
-								</Group>
+								<Button onClick={handleAddStage} disabled={!newStageName.trim()}>
+									Add Stage
+								</Button>
 							</Group>
 						</Stack>
-					)}
-				</Modal>
+					</Modal>
 
-				{/* New Slot Modal */}
-				<Modal opened={newSlotModal} onClose={closeNewSlot} title="Schedule Artist">
-					<Stack gap="md">
-						<Select
-							label="Artist"
-							placeholder="Select an artist"
-							value={newSlotData.artistId}
-							onChange={(value) => setNewSlotData(prev => ({ ...prev, artistId: value || '' }))}
-							data={availableUnassignedArtists.map(artist => ({
-								value: artist.id,
-								label: artist.name
-							}))}
-							searchable
-						/>
-						
-						<Select
-							label="Stage"
-							placeholder="Select a stage"
-							value={newSlotData.stageId}
-							onChange={(value) => setNewSlotData(prev => ({ ...prev, stageId: value || '' }))}
-							data={stages.map(stage => ({
-								value: stage.id,
-								label: stage.name
-							}))}
-						/>
-						
-						<TextInput
-							label="Start Time"
-							value={newSlotData.startTime}
-							onChange={(e) => setNewSlotData(prev => ({ ...prev, startTime: e.currentTarget.value }))}
-							placeholder="HH:MM"
-						/>
-						
-						<NumberInput
-							label="Duration (minutes)"
-							value={newSlotData.duration}
-							onChange={(value) => setNewSlotData(prev => ({ ...prev, duration: Number(value) || 60 }))}
-							min={15}
-							max={480}
-							step={15}
-						/>
-						
-						<Group justify="flex-end">
-							<Button variant="outline" onClick={closeNewSlot}>
-								Cancel
-							</Button>
-							<Button 
-								onClick={handleAddSlot} 
-								disabled={!newSlotData.artistId || !newSlotData.stageId || !newSlotData.startTime}
-							>
-								Schedule Artist
-							</Button>
-						</Group>
-					</Stack>
-				</Modal>
-			</Stack>
-		</Container>
+					{/* Slot Details Modal */}
+					<Modal opened={slotDetailsOpened} onClose={closeSlotDetails} title="Edit Slot Details">
+						{selectedSlot && (
+							<Stack gap="md">
+								<Group>
+									<Avatar src={getAvatarUrl(selectedSlot.artist)} size={40}>
+										{selectedSlot.artist.name.charAt(0)}
+									</Avatar>
+									<div>
+										<Text fw={600}>{selectedSlot.artist.name}</Text>
+										<Text size="sm" c="dimmed">
+											{selectedSlot.startTime} - {selectedSlot.endTime}
+										</Text>
+									</div>
+								</Group>
+
+								<TextInput
+									label="Start Time"
+									value={selectedSlot.startTime}
+									onChange={(e) => setSelectedSlot(prev => prev ? {
+										...prev,
+										startTime: e.currentTarget.value
+									} : null)}
+								/>
+
+								<TextInput
+									label="End Time"
+									value={selectedSlot.endTime}
+									onChange={(e) => setSelectedSlot(prev => prev ? {
+										...prev,
+										endTime: e.currentTarget.value
+									} : null)}
+								/>
+
+								<Group justify="space-between">
+									<Button
+										variant="light"
+										color="red"
+										leftSection={<IconTrash size={16} />}
+										onClick={() => handleRemoveSlot(selectedSlot.id)}
+									>
+										Remove Slot
+									</Button>
+									<Group>
+										<Button variant="outline" onClick={closeSlotDetails}>
+											Cancel
+										</Button>
+										<Button onClick={() => {
+											// TODO: Save changes
+											closeSlotDetails();
+										}}>
+											Save Changes
+										</Button>
+									</Group>
+								</Group>
+							</Stack>
+						)}
+					</Modal>
+
+					{/* New Slot Modal */}
+					<Modal opened={newSlotModal} onClose={closeNewSlot} title="Schedule Artist">
+						<Stack gap="md">
+							<Select
+								label="Artist"
+								placeholder="Select an artist"
+								value={newSlotData.artistId}
+								onChange={(value) => setNewSlotData(prev => ({ ...prev, artistId: value || '' }))}
+								data={availableUnassignedArtists.map(artist => ({
+									value: artist.id,
+									label: artist.name
+								}))}
+								searchable
+							/>
+
+							<Select
+								label="Stage"
+								placeholder="Select a stage"
+								value={newSlotData.stageId}
+								onChange={(value) => setNewSlotData(prev => ({ ...prev, stageId: value || '' }))}
+								data={stages.map(stage => ({
+									value: stage.id,
+									label: stage.name
+								}))}
+							/>
+
+							<TextInput
+								label="Start Time"
+								value={newSlotData.startTime}
+								onChange={(e) => setNewSlotData(prev => ({ ...prev, startTime: e.currentTarget.value }))}
+								placeholder="HH:MM"
+							/>
+
+							<NumberInput
+								label="Duration (minutes)"
+								value={newSlotData.duration}
+								onChange={(value) => setNewSlotData(prev => ({ ...prev, duration: Number(value) || 60 }))}
+								min={15}
+								max={480}
+								step={15}
+							/>
+
+							<Group justify="flex-end">
+								<Button variant="outline" onClick={closeNewSlot}>
+									Cancel
+								</Button>
+								<Button
+									onClick={handleAddSlot}
+									disabled={!newSlotData.artistId || !newSlotData.stageId || !newSlotData.startTime}
+								>
+									Schedule Artist
+								</Button>
+							</Group>
+						</Stack>
+					</Modal>
+				</Stack>
+			</Container>
 		</DragDropContext>
 	);
 }

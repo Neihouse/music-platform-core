@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Button, Group, Text, Paper, Stack, Title, Anchor } from "@mantine/core";
-import { IconMapPin, IconEdit, IconCheck, IconX, IconPlus } from "@tabler/icons-react";
-import { updateEventVenue } from "@/app/events/[eventName]/actions";
+import { updateEventVenue } from "@/app/events/[eventHash]/actions";
 import { VenueSearch } from "@/components/VenueSearch";
+import { Anchor, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { IconCheck, IconEdit, IconMapPin, IconPlus, IconX } from "@tabler/icons-react";
 import Link from "next/link";
+import { useState } from "react";
 
 interface Venue {
   id: string;
@@ -122,7 +122,7 @@ export function VenueSelector({ event, availableVenues }: VenueSelectorProps) {
       <Group justify="space-between" align="flex-start">
         <Stack gap="xs" style={{ flex: 1 }}>
           <Title order={3} size="h4">Event Venue</Title>
-          
+
           {event.venues ? (
             <Group gap="xs">
               <IconMapPin size={16} />

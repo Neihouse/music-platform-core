@@ -1,22 +1,22 @@
 "use client";
 
-import { useState } from 'react';
+import { generateEventPoster } from '@/app/events/[eventHash]/poster-actions';
 import {
-  Paper,
-  Title,
-  Text,
-  Button,
-  Stack,
-  Group,
-  Select,
-  Loader,
-  Image,
   Alert,
+  Button,
+  Group,
+  Image,
+  Loader,
   Modal,
-  Textarea
+  Paper,
+  Select,
+  Stack,
+  Text,
+  Textarea,
+  Title
 } from '@mantine/core';
-import { IconWand, IconDownload, IconRefresh, IconPhoto } from '@tabler/icons-react';
-import { generateEventPoster } from '@/app/events/[eventName]/poster-actions';
+import { IconDownload, IconRefresh, IconWand } from '@tabler/icons-react';
+import { useState } from 'react';
 
 interface Event {
   id: string;
@@ -198,7 +198,7 @@ export function PosterGenerator({ event }: PosterGeneratorProps) {
         {generatedPoster && (
           <Stack gap="md">
             <Title order={3}>Generated Poster</Title>
-            
+
             <Paper withBorder p="md">
               <Stack gap="md" align="center">
                 <Image
@@ -207,7 +207,7 @@ export function PosterGenerator({ event }: PosterGeneratorProps) {
                   style={{ maxWidth: '400px', width: '100%' }}
                   fallbackSrc="/artist-not-found.svg"
                 />
-                
+
                 <Group>
                   <Button
                     leftSection={<IconDownload size={16} />}
@@ -216,9 +216,9 @@ export function PosterGenerator({ event }: PosterGeneratorProps) {
                     Download Poster
                   </Button>
                 </Group>
-                
+
                 <Text size="sm" c="dimmed" ta="center">
-                  Style: {generatedPoster.metadata.style} | 
+                  Style: {generatedPoster.metadata.style} |
                   Colors: {generatedPoster.metadata.colorScheme}
                 </Text>
               </Stack>
