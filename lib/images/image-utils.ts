@@ -10,7 +10,7 @@ export async function getAvatarUrlServer(avatarFilename: string): Promise<string
 
   try {
     const supabase = await createServerClient();
-    
+
     // Check if the file exists first
     const { data: fileData, error } = await supabase.storage
       .from("avatars")
@@ -18,15 +18,15 @@ export async function getAvatarUrlServer(avatarFilename: string): Promise<string
         limit: 1,
         search: avatarFilename
       });
-    
+
     if (error || !fileData || fileData.length === 0) {
       return null;
     }
-    
+
     const { data } = supabase.storage
       .from("avatars")
       .getPublicUrl(avatarFilename);
-    
+
     return data.publicUrl;
   } catch {
     return null;
@@ -41,7 +41,7 @@ export async function getAvatarUrlServer(avatarFilename: string): Promise<string
 export async function getBannerUrlServer(bannerFilename: string): Promise<string | null> {
   try {
     const supabase = await createServerClient();
-    
+
     // Check if the file exists first
     const { data: fileData, error } = await supabase.storage
       .from("images")
@@ -49,15 +49,15 @@ export async function getBannerUrlServer(bannerFilename: string): Promise<string
         limit: 1,
         search: bannerFilename
       });
-    
+
     if (error || !fileData || fileData.length === 0) {
       return null;
     }
-    
+
     const { data } = supabase.storage
       .from("images")
       .getPublicUrl(`banners/${bannerFilename}`);
-    
+
     return data.publicUrl;
   } catch {
     return null;
@@ -72,7 +72,7 @@ export async function getBannerUrlServer(bannerFilename: string): Promise<string
 export async function getPosterUrlServer(posterFilename: string): Promise<string | null> {
   try {
     const supabase = await createServerClient();
-    
+
     // Check if the file exists first
     const { data: fileData, error } = await supabase.storage
       .from("posters")
@@ -80,15 +80,15 @@ export async function getPosterUrlServer(posterFilename: string): Promise<string
         limit: 1,
         search: posterFilename
       });
-    
+
     if (error || !fileData || fileData.length === 0) {
       return null;
     }
-    
+
     const { data } = supabase.storage
       .from("posters")
       .getPublicUrl(posterFilename);
-    
+
     return data.publicUrl;
   } catch {
     return null;
@@ -116,11 +116,11 @@ export async function getArtistImagesServer(supabase: TypedClient, artistId: str
       return { avatarUrl: null, bannerUrl: null };
     }
 
-    const avatarUrl = artist.avatar_img 
+    const avatarUrl = artist.avatar_img
       ? await getAvatarUrlServer(artist.avatar_img)
       : null;
-    
-    const bannerUrl = artist.banner_img 
+
+    const bannerUrl = artist.banner_img
       ? await getBannerUrlServer(artist.banner_img)
       : null;
 
@@ -152,11 +152,11 @@ export async function getPromoterImagesServer(supabase: TypedClient, promoterId:
       return { avatarUrl: null, bannerUrl: null };
     }
 
-    const avatarUrl = promoter.avatar_img 
+    const avatarUrl = promoter.avatar_img
       ? await getAvatarUrlServer(promoter.avatar_img)
       : null;
-    
-    const bannerUrl = promoter.banner_img 
+
+    const bannerUrl = promoter.banner_img
       ? await getBannerUrlServer(promoter.banner_img)
       : null;
 

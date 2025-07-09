@@ -1,11 +1,11 @@
+import EventsGrid from "@/components/events/EventsGrid";
+import EventsHeader from "@/components/events/EventsHeader";
 import { getEvents } from "@/db/queries/events";
 import { getUserProfile } from "@/db/queries/user";
 import { createClient } from "@/utils/supabase/server";
 import { Button, Container, Paper, Stack, Text, Title } from "@mantine/core";
 import { IconCalendar } from "@tabler/icons-react";
 import Link from "next/link";
-import EventsGrid from "@/components/events/EventsGrid";
-import EventsHeader from "@/components/events/EventsHeader";
 
 export default async function EventsPage() {
   const supabase = await createClient();
