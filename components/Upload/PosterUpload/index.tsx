@@ -266,8 +266,7 @@ export function PosterUpload({
             }
 
             // Generate a random UUID for the filename
-            const fileExt = file.name.split('.').pop();
-            const filename = `${uuidv4()}.${fileExt}`;
+            const filename = uuidv4();
 
             const supabase = createClient();
 
@@ -278,7 +277,6 @@ export function PosterUpload({
                     .remove([`${config.storageFolder ? `${config.storageFolder}/` : ''}${currentPosterFilename}`]);
             }
 
-            console.log("Uploading new poster with filename:", filename);
             // Upload new poster with UUID filename
             const { data, error } = await supabase.storage
                 .from(config.storageBucket)
@@ -288,7 +286,6 @@ export function PosterUpload({
                 });
 
             if (error) {
-                console.error("Error uploading file:", error);
                 notifications.show({
                     title: "Upload Error",
                     message: error.message,
@@ -322,7 +319,6 @@ export function PosterUpload({
 
             setUploadState("success");
         } catch (error: any) {
-            console.error("Error uploading file:", error);
             notifications.show({
                 title: "Upload Error",
                 message: error.message || String(error),
