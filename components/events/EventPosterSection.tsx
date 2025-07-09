@@ -2,9 +2,8 @@
 
 import { EventPosterUpload } from "@/components/Upload";
 import { getPosterUrl } from "@/lib/images/image-utils-client";
-import { AspectRatio, Box, Button, Group, Image, Modal, Stack, Text } from "@mantine/core";
-import { IconEdit, IconPhoto, IconUpload, IconWand } from "@tabler/icons-react";
-import Link from "next/link";
+import { AspectRatio, Box, Button, Image, Modal, Stack, Text } from "@mantine/core";
+import { IconEdit, IconPhoto, IconUpload } from "@tabler/icons-react";
 import { useState } from "react";
 
 interface EventPosterSectionProps {
@@ -89,26 +88,6 @@ export function EventPosterSection({ event, className, style, isEventCreator = f
                                 <IconUpload size={48} opacity={0.7} />
                                 <Text size="lg" fw={500}>Upload Poster</Text>
                                 <Text size="sm" opacity={0.8}>Click to upload a poster for this event</Text>
-
-                                {event.hash && (
-                                    <Group gap="xs" mt="sm">
-                                        <Button
-                                            component={Link}
-                                            href={`/events/${event.hash}/poster-generator`}
-                                            variant="outline"
-                                            size="xs"
-                                            leftSection={<IconWand size={14} />}
-                                            style={{
-                                                color: 'white',
-                                                borderColor: 'rgba(255, 255, 255, 0.3)',
-                                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            Generate with AI
-                                        </Button>
-                                    </Group>
-                                )}
                             </Stack>
                         </Box>
                     ) : (
@@ -149,21 +128,6 @@ export function EventPosterSection({ event, className, style, isEventCreator = f
                             eventId={event.id}
                             onPosterUploaded={handlePosterUploaded}
                         />
-
-                        {event.hash && (
-                            <Group justify="center" gap="md" pt="md" style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}>
-                                <Text size="sm" c="dimmed">Or</Text>
-                                <Button
-                                    component={Link}
-                                    href={`/events/${event.hash}/poster-generator`}
-                                    variant="light"
-                                    leftSection={<IconWand size={16} />}
-                                    onClick={() => setShowUploadModal(false)}
-                                >
-                                    Generate with AI
-                                </Button>
-                            </Group>
-                        )}
                     </Stack>
                 </Modal>
             )}
