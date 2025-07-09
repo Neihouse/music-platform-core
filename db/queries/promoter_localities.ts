@@ -1,6 +1,7 @@
 "use server";
 
 import { TypedClient } from "@/utils/supabase/global.types";
+import { getUser } from "./users";
 
 export async function getPromoterLocalities(
   supabase: TypedClient,
@@ -37,10 +38,10 @@ export async function updatePromoterLocalities(
   promoterId: string,
   localityIds: string[]
 ) {
-  
+
   // Verify user authentication and promoter ownership
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -51,11 +52,11 @@ export async function updatePromoterLocalities(
     .eq("id", promoterId)
     .single();
 
-  if (!existingPromoter || existingPromoter.user_id !== user.user.id) {
+  if (!existingPromoter || existingPromoter.user_id !== user.id) {
     throw new Error("Unauthorized to update this promoter");
   }
 
-   // First, remove all existing localities for this promoter
+  // First, remove all existing localities for this promoter
   const { error: deleteError } = await supabase
     .from("promoters_localities")
     .delete()

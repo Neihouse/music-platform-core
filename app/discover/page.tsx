@@ -1,4 +1,5 @@
 import { DiscoverClient } from "@/components/discover/DiscoverClient";
+import { getUser } from "@/db/queries/users";
 import { createClient } from '@/utils/supabase/server';
 import { Metadata } from 'next';
 import { cache, Suspense } from 'react';
@@ -138,7 +139,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
 
   // Check user authentication status
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
   const isLoggedIn = !!user;
 
   if (selectedCity) {

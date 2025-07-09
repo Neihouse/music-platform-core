@@ -1,16 +1,17 @@
-import { createClient } from "@/utils/supabase/server";
-import { getPromoter, getArtistsByPromoterLocalities } from "@/db/queries/promoters";
-import { getArtistsByLocality, getAllArtists } from "@/db/queries/artists";
-import { getSentRequests } from "@/db/queries/requests";
-import { getArtistImagesServer } from "@/lib/images/image-utils";
-import { redirect } from "next/navigation";
 import PromoterArtistsClient from "@/components/promoter/PromoterArtistsClient";
+import { getAllArtists, getArtistsByLocality } from "@/db/queries/artists";
+import { getArtistsByPromoterLocalities, getPromoter } from "@/db/queries/promoters";
+import { getSentRequests } from "@/db/queries/requests";
+import { getUser } from "@/db/queries/users";
+import { getArtistImagesServer } from "@/lib/images/image-utils";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function PromoterArtistsPage() {
   const supabase = await createClient();
-  
+
   // Get current user and verify they are a promoter
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
   if (!user) {
     redirect("/login");
   }
@@ -23,9 +24,9 @@ export default async function PromoterArtistsPage() {
   // Get artists in the same locality as the promoter (original logic)
   const localityId = promoter?.promoters_localities?.[0]?.localities?.id;
   const localArtists = await getArtistsByLocality(
-    supabase, 
-    localityId, 
-    undefined, 
+    supabase,
+    localityId,
+    undefined,
     undefined
   );
 

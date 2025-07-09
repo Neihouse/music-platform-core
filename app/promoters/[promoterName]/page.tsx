@@ -1,11 +1,12 @@
-import { getPromoterByName, getPromoterEvents, getPromoterArtists, getPromoterPastEvents } from "@/db/queries/promoters";
-import { getPromoterPopularTracks } from "@/db/queries/tracks";
+import PromoterProfileContent from "@/components/PromoterProfileContent";
 import { getPromoterLocalities } from "@/db/queries/promoter_localities";
-import { getPromoterImagesServer, getArtistImagesServer } from "@/lib/images/image-utils";
+import { getPromoterArtists, getPromoterByName, getPromoterEvents, getPromoterPastEvents } from "@/db/queries/promoters";
+import { getPromoterPopularTracks } from "@/db/queries/tracks";
+import { getUser } from "@/db/queries/users";
+import { getArtistImagesServer, getPromoterImagesServer } from "@/lib/images/image-utils";
+import { urlToName } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
-import { urlToName } from "@/lib/utils";
-import PromoterProfileContent from "@/components/PromoterProfileContent";
 
 interface PromoterPageProps {
   params: Promise<{ promoterName: string }>;
@@ -15,13 +16,13 @@ export default async function PromoterPage({ params }: PromoterPageProps) {
   try {
     const { promoterName } = await params;
     const supabase = await createClient();
-    
+
     // Get current user and promoter data
-    const [{ data: { user } }, promoter] = await Promise.all([
-      supabase.auth.getUser(),
+    const [user, promoter] = await Promise.all([
+      getUser(supabase),
       getPromoterByName(supabase, urlToName(promoterName))
     ]);
-    
+
     if (!promoter) {
       notFound();
     }

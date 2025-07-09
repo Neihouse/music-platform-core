@@ -1,9 +1,10 @@
 "use server";
 import { TypedClient } from "@/utils/supabase/global.types";
+import { getUser } from "./users";
 
 export async function getUserEntities(supabase: TypedClient) {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -14,28 +15,28 @@ export async function getUserEntities(supabase: TypedClient) {
       supabase
         .from("artists")
         .select("*")
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .maybeSingle(),
 
       // Get promoter if exists
       supabase
         .from("promoters")
         .select("*")
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .maybeSingle(),
 
       // Get venue if exists
       supabase
         .from("venues")
         .select("*")
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .maybeSingle(),
 
       // Get fan if exists
       supabase
         .from("fans")
         .select("*")
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .maybeSingle(),
     ]);
 

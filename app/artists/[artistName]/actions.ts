@@ -1,9 +1,10 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
 import { createArtist, deleteArtistLocation, getArtist, updateArtist, updateArtistExternalLinks, updateArtistLocalities } from "@/db/queries/artists";
 import { canCreateProfile } from "@/db/queries/user";
+import { getUser } from "@/db/queries/users";
 import { StoredLocality } from "@/utils/supabase/global.types";
+import { createClient } from "@/utils/supabase/server";
 
 export async function submitArtist(
   name: string,
@@ -13,9 +14,9 @@ export async function submitArtist(
 ) {
   const supabase = await createClient();
 
-  const { data: user } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
 
-  if (!user || !user.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -32,7 +33,7 @@ export async function submitArtist(
         name,
         bio,
         administrative_area_id: administrativeArea.id,
-        user_id: user.user.id,
+        user_id: user.id,
         country_id: country.id,
         selectedFont,
       },
@@ -54,7 +55,7 @@ export async function submitArtist(
       name,
       bio,
       administrative_area_id: administrativeArea.id,
-      user_id: user.user.id,
+      user_id: user.id,
       country_id: country.id,
       selectedFont,
     },
@@ -66,9 +67,9 @@ export async function submitArtist(
 export async function onDeleteArtistLocation(artistId: string) {
   const supabase = await createClient();
 
-  const { data: user } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
 
-  if (!user || !user.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -82,9 +83,9 @@ export async function onDeleteArtistLocation(artistId: string) {
 
 export async function updateExternalLinks(externalLinks: string[]) {
   const supabase = await createClient();
-  const { data: user } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
 
-  if (!user || !user.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -98,9 +99,9 @@ export async function updateExternalLinks(externalLinks: string[]) {
 
 export async function updateArtistLocalitiesAction(localityIds: string[]) {
   const supabase = await createClient();
-  const { data: user } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
 
-  if (!user || !user.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 

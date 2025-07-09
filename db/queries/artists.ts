@@ -1,6 +1,7 @@
 "use server";
-import { Artist, StoredLocality, Track, TypedClient, Locality, AdministrativeArea, Country } from "@/utils/supabase/global.types";
 import { Database } from "@/utils/supabase/database.types";
+import { AdministrativeArea, Artist, Country, Locality, StoredLocality, TypedClient } from "@/utils/supabase/global.types";
+import { getUser } from "./users";
 
 export async function createArtist(
   supabase: TypedClient,
@@ -56,8 +57,8 @@ export type ArtistWithLocation = Artist & {
 };
 
 export async function getArtist(supabase: TypedClient): Promise<ArtistWithLocation | null> {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -89,7 +90,7 @@ export async function getArtist(supabase: TypedClient): Promise<ArtistWithLocati
       administrative_areas(*),
       countries(*)
     `)
-    .eq("user_id", user.user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if (!artist && !error) {
@@ -102,7 +103,7 @@ export async function getArtist(supabase: TypedClient): Promise<ArtistWithLocati
 
   // Build stored locality from the first locality relationship (if any)
   let storedLocality: StoredLocality | undefined = undefined;
-  
+
   if (artist?.artists_localities && artist.artists_localities.length > 0) {
     const firstLocality = artist.artists_localities[0];
     if (firstLocality.localities?.administrative_areas?.countries) {
@@ -178,7 +179,7 @@ export async function getArtistByName(
 
   // Build stored locality from the first locality relationship (if any)
   let storedLocality: StoredLocality | undefined = undefined;
-  
+
   if (artist?.artists_localities && artist.artists_localities.length > 0) {
     const firstLocality = artist.artists_localities[0];
     if (firstLocality.localities?.administrative_areas?.countries) {
@@ -290,7 +291,7 @@ export async function updateArtistExternalLinks(
   artistId: string,
   externalLinks: string[]
 ): Promise<void> {
-  
+
   const { error } = await supabase
     .from("artists")
     .update({ external_links: externalLinks })
@@ -389,7 +390,7 @@ export async function getArtistsByLocality(
   if (administrativeAreaId) {
     query = query.eq("administrative_area_id", administrativeAreaId);
   }
-  
+
   // Filter by country
   else if (countryId) {
     query = query.eq("country_id", countryId);

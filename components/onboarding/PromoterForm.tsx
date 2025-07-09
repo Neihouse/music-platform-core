@@ -3,6 +3,7 @@
 import { MultipleLocationsInput } from "@/components/LocationInput/MultipleLocationsInput";
 import { PromoterAvatarUpload } from "@/components/Upload/PromoterAvatarUpload";
 import { PromoterBannerUpload } from "@/components/Upload/PromoterBannerUpload";
+import { getUserClient } from "@/db/queries/users-client";
 import { createClient } from "@/utils/supabase/client";
 import { Promoter, StoredLocality } from "@/utils/supabase/global.types";
 import {
@@ -422,9 +423,9 @@ export function PromoterForm(props: IPromoterFormProps) {
 
     try {
       // Get current user
-      const { data: user, error: userError } = await supabase.auth.getUser();
+      const user = await getUserClient(supabase);
 
-      if (userError || !user?.user) {
+      if (!user) {
         throw new Error("User not authenticated");
       }
 
@@ -432,7 +433,7 @@ export function PromoterForm(props: IPromoterFormProps) {
       const { data: existingPromoter } = await supabase
         .from("promoters")
         .select("*")
-        .eq("user_id", user.user.id)
+        .eq("user_id", user.id)
         .maybeSingle();
 
       let promoter: Promoter
@@ -452,7 +453,7 @@ export function PromoterForm(props: IPromoterFormProps) {
         const { data: existingArtist } = await supabase
           .from("artists")
           .select("id")
-          .eq("user_id", user.user.id)
+          .eq("user_id", user.id)
           .maybeSingle();
 
         if (existingArtist) {
@@ -466,7 +467,7 @@ export function PromoterForm(props: IPromoterFormProps) {
             name,
             bio,
             selectedFont: form.values.fontFamily || null,
-            user_id: user.user.id,
+            user_id: user.id,
           })
           .select()
           .single();

@@ -77,8 +77,8 @@ export async function userHasProfile(supabase: TypedClient): Promise<boolean> {
 }
 
 export async function canCreateProfile(supabase: TypedClient): Promise<{ canCreate: boolean; reason?: string }> {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     return { canCreate: false, reason: "User not authenticated" };
   }
 

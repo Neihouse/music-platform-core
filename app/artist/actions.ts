@@ -1,14 +1,15 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { acceptRequest, denyRequest } from "@/db/queries/requests";
 import { getArtist } from "@/db/queries/artists";
+import { acceptRequest, denyRequest } from "@/db/queries/requests";
+import { getUser } from "@/db/queries/users";
+import { createClient } from "@/utils/supabase/server";
 
 export async function acceptPromoterInvitation(requestId: string) {
   const supabase = await createClient();
-  
+
   // Get current user and verify they are an artist
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
   if (!user) {
     throw new Error("User not authenticated");
   }
@@ -21,7 +22,7 @@ export async function acceptPromoterInvitation(requestId: string) {
   try {
     // Accept the request (this will automatically create the promoter-artist relationship)
     const request = await acceptRequest(supabase, requestId);
-    
+
     return { success: true, request };
   } catch (error) {
     console.error("Error accepting promoter invitation:", error);
@@ -31,9 +32,9 @@ export async function acceptPromoterInvitation(requestId: string) {
 
 export async function declinePromoterInvitation(requestId: string) {
   const supabase = await createClient();
-  
+
   // Get current user and verify they are an artist
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
   if (!user) {
     throw new Error("User not authenticated");
   }

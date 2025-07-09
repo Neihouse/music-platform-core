@@ -1,15 +1,16 @@
-import { createClient } from "@/utils/supabase/server";
-import { getArtist, getPromotersByArtistLocalities } from "@/db/queries/artists";
-import { getPromotersByLocality, getAllPromoters } from "@/db/queries/promoters";
-import { getPromoterImagesServer } from "@/lib/images/image-utils";
-import { redirect } from "next/navigation";
 import ArtistPromotersClient from "@/components/artist/ArtistPromotersClient";
+import { getArtist, getPromotersByArtistLocalities } from "@/db/queries/artists";
+import { getAllPromoters, getPromotersByLocality } from "@/db/queries/promoters";
+import { getUser } from "@/db/queries/users";
+import { getPromoterImagesServer } from "@/lib/images/image-utils";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function ArtistPromotersPage() {
   const supabase = await createClient();
-  
+
   // Get current user and verify they are an artist
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
   if (!user) {
     redirect("/login");
   }
@@ -22,9 +23,9 @@ export default async function ArtistPromotersPage() {
   // Get promoters in the same locality as the artist (original logic)
   const localityId = artist?.storedLocality?.locality?.id;
   const localPromoters = localityId ? await getPromotersByLocality(
-    supabase, 
-    localityId, 
-    undefined, 
+    supabase,
+    localityId,
+    undefined,
     undefined
   ) : [];
 

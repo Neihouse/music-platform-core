@@ -1,12 +1,13 @@
-import { notFound } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
-import { getVenueByName } from "@/db/queries/venues";
 import { VenueDetailView } from "@/components/VenueDetail/VenueDetailView";
+import { getUser } from "@/db/queries/users";
+import { getVenueByName } from "@/db/queries/venues";
 import { urlToName } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/server";
+import { notFound } from "next/navigation";
 import {
   getVenueEvents,
-  getVenuePromoters,
   getVenueGallery,
+  getVenuePromoters,
 } from "./actions";
 
 interface VenuePageProps {
@@ -18,16 +19,16 @@ interface VenuePageProps {
 export default async function VenuePage({ params }: VenuePageProps) {
   const { venueName } = await params;
   const decodedVenueName = urlToName(venueName);
-  
+
   const supabase = await createClient();
-  
+
   try {
     // Get current user and venue details
-    const [{ data: userData }, venue] = await Promise.all([
-      supabase.auth.getUser(),
+    const [user, venue] = await Promise.all([
+      getUser(supabase),
       getVenueByName(supabase, decodedVenueName)
     ]);
-    
+
     if (!venue) {
       notFound();
     }
@@ -41,7 +42,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
     ]);
 
     // Check if current user is the venue owner
-    const isOwner = userData?.user?.id === venue.user_id;
+    const isOwner = user?.id === venue.user_id;
 
     return (
       <VenueDetailView
