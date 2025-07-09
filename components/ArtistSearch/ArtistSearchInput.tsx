@@ -10,12 +10,14 @@ export interface IArtistSearchInputProps {
     onArtistSelect: (artist: ArtistSearchResult) => void;
     placeholder?: string;
     disabled?: boolean;
+    selectedArtists?: ArtistSearchResult[];
 }
 
 export function ArtistSearchInput({
     onArtistSelect,
     placeholder = "Search for artists...",
     disabled = false,
+    selectedArtists = [],
 }: IArtistSearchInputProps) {
     const [searchValue, setSearchValue] = useState("");
     const [debouncedSearch] = useDebouncedValue(searchValue, 300);
@@ -73,14 +75,17 @@ export function ArtistSearchInput({
         }
     }, [debouncedSearch]);
 
-    // Convert artists to autocomplete data format
+    // Convert artists to autocomplete data format, filtering out already selected artists
     const autocompleteData = useMemo(() => {
-        return artists.map(artist => ({
+        const selectedArtistIds = selectedArtists.map(artist => artist.id);
+        const filteredArtists = artists.filter(artist => !selectedArtistIds.includes(artist.id));
+
+        return filteredArtists.map(artist => ({
             value: artist.name,
             label: artist.name,
             artist: artist,
         }));
-    }, [artists]);
+    }, [artists, selectedArtists]);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
