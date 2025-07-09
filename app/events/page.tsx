@@ -36,7 +36,7 @@ export default async function EventsPage() {
                   <Text c="dimmed">Create your first event to get started with lineup planning</Text>
                   <Button
                     component={Link}
-                    href="/events/create"
+                    href="/promoter/events/create"
                     leftSection={<IconPlus size={16} />}
                   >
                     Create Your First Event

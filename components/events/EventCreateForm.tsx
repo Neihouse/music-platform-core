@@ -222,7 +222,7 @@ export function EventForm({ }: IEventFormProps) {
                     fw={500}
                     c={colorScheme === 'dark' ? 'white' : 'dark.8'}
                   >
-                    Event Date (Optional)
+                    Date (Optional)
                   </Text>
                 </Group>
                 <Text size="sm" c="dimmed" mb="md">
@@ -270,7 +270,7 @@ export function EventForm({ }: IEventFormProps) {
                     fw={500}
                     c={colorScheme === 'dark' ? 'white' : 'dark.8'}
                   >
-                    Event Poster (Optional)
+                    Poster (Optional)
                   </Text>
                 </Group>
                 <Text size="sm" c="dimmed" mb="md">
@@ -306,7 +306,7 @@ export function EventForm({ }: IEventFormProps) {
                     fw={500}
                     c={colorScheme === 'dark' ? 'white' : 'dark.8'}
                   >
-                    Event Address
+                    Address
                   </Text>
                 </Group>
                 <Text size="sm" c="dimmed" mb="md">
