@@ -50,7 +50,7 @@
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
     "prettier": "3.5.3",
-    "supabase": "^v2.26.9",
+    "supabase": "^v2.30.4",
     "tailwindcss": "3.4.1",
     "typescript": "5.3.3"
   }
