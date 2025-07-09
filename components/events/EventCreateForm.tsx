@@ -15,15 +15,17 @@ import {
   Title,
   useMantineColorScheme
 } from "@mantine/core";
+import { Calendar } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { IconMapPin, IconPhoto } from "@tabler/icons-react";
+import { IconCalendar, IconMapPin, IconPhoto } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface EventFormData {
   name: string;
+  date: Date | null;
 }
 
 export interface IEventFormProps {
@@ -48,6 +50,7 @@ export function EventForm({ }: IEventFormProps) {
   const form = useForm({
     initialValues: {
       name: "",
+      date: null as Date | null,
     },
     validate: {
       name: (value: string) =>
@@ -119,6 +122,7 @@ export function EventForm({ }: IEventFormProps) {
         .from('events')
         .insert({
           name: values.name,
+          date: values.date ? values.date.toISOString() : null,
           address: selectedPlace.fullAddress || `${selectedPlace.locality.name}, ${selectedPlace.administrativeArea.name}, ${selectedPlace.country.name}`,
           locality: selectedPlace.locality.id,
           poster_img: posterUrl,
@@ -203,6 +207,54 @@ export function EventForm({ }: IEventFormProps) {
               }}
             />
 
+            {/* Event Date Section */}
+            <Paper
+              p={isMobile ? "sm" : "md"}
+              bg={colorScheme === 'dark' ? 'dark.6' : 'blue.0'}
+              radius={isMobile ? "sm" : "md"}
+              withBorder
+            >
+              <Stack gap={isMobile ? "sm" : "md"}>
+                <Group>
+                  <IconCalendar size={20} />
+                  <Text
+                    size={isMobile ? "sm" : "md"}
+                    fw={500}
+                    c={colorScheme === 'dark' ? 'white' : 'dark.8'}
+                  >
+                    Event Date (Optional)
+                  </Text>
+                </Group>
+                <Text size="sm" c="dimmed" mb="md">
+                  Select the date when your event will take place.
+                </Text>
+                {form.values.date && (
+                  <Group justify="space-between" mb="sm">
+                    <Text size="sm" c="blue.6">
+                      Selected: {form.values.date.toLocaleDateString()}
+                    </Text>
+                    <Text
+                      size="sm"
+                      c="red.6"
+                      style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                      onClick={() => form.setFieldValue('date', null)}
+                    >
+                      Clear
+                    </Text>
+                  </Group>
+                )}
+                <Group justify="center">
+                  <Calendar
+                    size={isMobile ? "sm" : "md"}
+                    getDayProps={(date) => ({
+                      selected: form.values.date ? new Date(date).toDateString() === form.values.date.toDateString() : false,
+                      onClick: () => form.setFieldValue('date', new Date(date))
+                    })}
+                  />
+                </Group>
+              </Stack>
+            </Paper>
+
             {/* Poster Upload Section */}
             <Paper
               p={isMobile ? "sm" : "md"}
@@ -260,12 +312,14 @@ export function EventForm({ }: IEventFormProps) {
                 <Text size="sm" c="dimmed" mb="md">
                   Select the specific location where your event will take place.
                 </Text>
-                <LocationInput
-                  onPlaceSelect={setSelectedPlace}
-                  onRemovePlace={async () => setSelectedPlace(undefined)}
-                  storedLocality={selectedPlace}
-                  searchFullAddress={true}
-                />
+                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                  <LocationInput
+                    onPlaceSelect={setSelectedPlace}
+                    onRemovePlace={async () => setSelectedPlace(undefined)}
+                    storedLocality={selectedPlace}
+                    searchFullAddress={true}
+                  />
+                </div>
               </Stack>
             </Paper>
 
