@@ -1,38 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import {
-	Paper,
-	Title,
-	Button,
-	Group,
-	Stack,
-	Text,
-	Modal,
-	TextInput,
-	Avatar,
-	Card,
-	Badge,
-	ActionIcon,
-	SimpleGrid,
-	Container,
-	Flex,
-	Box,
-	Select,
-} from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { IconPlus, IconClock, IconTrash, IconEdit } from "@tabler/icons-react";
-import {
-	getEventStagesAction,
+	assignArtistToStageAction,
 	createEventStageAction,
 	getEventStageArtistsAction,
-	assignArtistToStageAction,
-	updateArtistStageAssignmentAction,
-	removeArtistFromStageAction
-} from "@/app/events/[eventName]/lineup/actions";
-import { VenueSearch } from "@/components/VenueSearch";
+	getEventStagesAction,
+	removeArtistFromStageAction,
+	updateArtistStageAssignmentAction
+} from "@/app/events/[eventHash]/lineup/actions";
 import StyledTitle from "@/components/StyledTitle";
+import { VenueSearch } from "@/components/VenueSearch";
+import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
+import {
+	ActionIcon,
+	Avatar,
+	Box,
+	Button,
+	Card,
+	Container,
+	Group,
+	Modal,
+	Paper,
+	SimpleGrid,
+	Stack,
+	Text,
+	TextInput,
+	Title
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { IconClock, IconPlus, IconTrash } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 
 interface Artist {
 	id: string;
@@ -245,7 +242,7 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 				<Paper shadow="sm" p="md">
 					<Group justify="space-between" align="center">
 						<div>
-							<StyledTitle 
+							<StyledTitle
 								selectedFont="Inter"
 							>
 								{event.name}
@@ -389,7 +386,7 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 							value={newStageName}
 							onChange={(e) => setNewStageName(e.currentTarget.value)}
 						/>
-						
+
 						{availableVenues.length > 0 && (
 							<div>
 								<label style={{ fontSize: '14px', fontWeight: 500, marginBottom: '8px', display: 'block' }}>
@@ -403,14 +400,14 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 								/>
 							</div>
 						)}
-						
+
 						<Text size="sm" c="dimmed">
-							{event.venue ? 
+							{event.venue ?
 								"If no venue is selected, the event's main venue will be used." :
 								"Please ensure the event has a venue assigned, or select one for this stage."
 							}
 						</Text>
-						
+
 						<Group justify="flex-end">
 							<Button variant="outline" onClick={close}>
 								Cancel

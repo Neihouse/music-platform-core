@@ -344,7 +344,7 @@ export default async function PromoterDashboardPage() {
                     <IconCalendarEvent size={30} />
                   </ThemeIcon>
                   <Text c="dimmed" ta="center">No upcoming events</Text>
-                  <Button size="sm" variant="light">Create Event</Button>
+                  <Button component={Link} href="/promoter/events/create" size="sm" variant="light">Create Event</Button>
                 </Stack>
               </Center>
             )}
@@ -410,7 +410,7 @@ export default async function PromoterDashboardPage() {
       <Card p="xl" radius="lg" withBorder mt="xl">
         <Title order={3} mb="lg">Quick Actions</Title>
         <Group>
-          <Button leftSection={<IconCalendarEvent size={16} />}>
+          <Button component={Link} href="/promoter/events/create" leftSection={<IconCalendarEvent size={16} />}>
             Create Event
           </Button>
           <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/promoter/artists">

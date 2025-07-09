@@ -43,6 +43,7 @@ export interface LocalEvent {
   artists: string[];
   price?: string;
   banner_img?: string;
+  hash: string;
 }
 
 export interface CityData {
@@ -116,6 +117,7 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
         name,
         date,
         venue,
+        hash,
         venues!inner(name),
         events_artists!inner(
           artist,
@@ -175,6 +177,7 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
       date: event.date || new Date().toISOString(),
       venue: event.venues?.name || 'TBA',
       artists: event.events_artists?.map((ea: any) => ea.artists?.name).filter(Boolean) || [],
+      hash: event.hash,
       // price removed - should come from real event data when pricing feature is implemented
     }));
 

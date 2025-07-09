@@ -1,8 +1,8 @@
-import { createClient } from "@/utils/supabase/server";
+"use server";
 import { TablesInsert, TablesUpdate } from "@/utils/supabase/database.types";
+import { TypedClient } from "@/utils/supabase/global.types";
 
-export async function getEventById(eventId: string) {
-  const supabase = await createClient();
+export async function getEventById(supabase: TypedClient, eventId: string) {
 
   const { data: event, error } = await supabase
     .from("events")
@@ -25,8 +25,33 @@ export async function getEventById(eventId: string) {
   return event;
 }
 
-export async function getEventByName(eventName: string) {
-  const supabase = await createClient();
+export async function getEventByName(supabase: TypedClient, eventName: string) {
+
+  const { data: event, error } = await supabase
+    .from("events")
+    .select(`
+      *,
+      name,
+      venues (
+        id,
+        name,
+        address,
+        capacity
+      )
+    `)
+    .ilike("name", `%${eventName}%`)
+    .single();
+
+  console.log("event: ", event, "error: ", error);
+
+  if (error) {
+    throw new Error(`Failed to get event: ${error.message}`);
+  }
+
+  return event;
+}
+
+export async function getEventByHash(supabase: TypedClient, eventHash: string) {
 
   const { data: event, error } = await supabase
     .from("events")
@@ -39,7 +64,7 @@ export async function getEventByName(eventName: string) {
         capacity
       )
     `)
-    .ilike("name", eventName)
+    .eq("hash", eventHash)
     .single();
 
   if (error) {
@@ -49,8 +74,7 @@ export async function getEventByName(eventName: string) {
   return event;
 }
 
-export async function getEvents() {
-  const supabase = await createClient();
+export async function getEvents(supabase: TypedClient) {
 
   const { data: events, error } = await supabase
     .from("events")
@@ -72,9 +96,9 @@ export async function getEvents() {
 }
 
 export async function createEvent(
+  supabase: TypedClient,
   eventData: Omit<TablesInsert<"events">, "id" | "created_at">
 ) {
-  const supabase = await createClient();
 
   const { data: event, error } = await supabase
     .from("events")
@@ -90,10 +114,10 @@ export async function createEvent(
 }
 
 export async function updateEvent(
+  supabase: TypedClient,
   eventId: string,
   eventData: TablesUpdate<"events">
 ) {
-  const supabase = await createClient();
 
   const { data: event, error } = await supabase
     .from("events")
@@ -109,8 +133,7 @@ export async function updateEvent(
   return event;
 }
 
-export async function deleteEvent(eventId: string) {
-  const supabase = await createClient();
+export async function deleteEvent(supabase: TypedClient, eventId: string) {
 
   const { error } = await supabase
     .from("events")
@@ -122,8 +145,7 @@ export async function deleteEvent(eventId: string) {
   }
 }
 
-export async function getEventStages(eventId: string) {
-  const supabase = await createClient();
+export async function getEventStages(supabase: TypedClient, eventId: string) {
 
   const { data: stages, error } = await supabase
     .from("event_stage")
@@ -145,9 +167,9 @@ export async function getEventStages(eventId: string) {
 }
 
 export async function createEventStage(
+  supabase: TypedClient,
   stageData: TablesInsert<"event_stage">
 ) {
-  const supabase = await createClient();
 
   const { data: stage, error } = await supabase
     .from("event_stage")
@@ -162,8 +184,7 @@ export async function createEventStage(
   return stage;
 }
 
-export async function getEventStageArtists(eventId: string, stageId?: string) {
-  const supabase = await createClient();
+export async function getEventStageArtists(supabase: TypedClient, eventId: string, stageId?: string) {
 
   let query = supabase
     .from("event_stage_artists")
@@ -192,9 +213,9 @@ export async function getEventStageArtists(eventId: string, stageId?: string) {
 }
 
 export async function assignArtistToStage(
+  supabase: TypedClient,
   assignmentData: TablesInsert<"event_stage_artists">
 ) {
-  const supabase = await createClient();
 
   const { data: assignment, error } = await supabase
     .from("event_stage_artists")
@@ -217,10 +238,10 @@ export async function assignArtistToStage(
 }
 
 export async function updateArtistStageAssignment(
+  supabase: TypedClient,
   assignmentId: string,
   updateData: TablesUpdate<"event_stage_artists">
 ) {
-  const supabase = await createClient();
 
   const { data: assignment, error } = await supabase
     .from("event_stage_artists")
@@ -243,8 +264,7 @@ export async function updateArtistStageAssignment(
   return assignment;
 }
 
-export async function removeArtistFromStage(assignmentId: string) {
-  const supabase = await createClient();
+export async function removeArtistFromStage(supabase: TypedClient, assignmentId: string) {
 
   const { error } = await supabase
     .from("event_stage_artists")

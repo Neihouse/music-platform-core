@@ -1,0 +1,29 @@
+/* Event Poster Styles */
+.poster-desktop {
+    max-width: 400px;
+}
+
+.poster-mobile {
+    max-width: 300px;
+    width: 100%;
+}
+
+/* Poster hover effects */
+.poster-desktop:hover,
+.poster-mobile:hover {
+    transform: scale(1.02);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+    .poster-desktop {
+        display: none;
+    }
+}
+
+@media (min-width: 769px) {
+    .poster-mobile {
+        display: none;
+    }
+}

@@ -1,22 +1,22 @@
 "use client"
 
 import {
-  Card,
-  Stack,
-  Group,
-  Title,
   Badge,
-  ThemeIcon,
-  Text,
-  Button,
   Box,
+  Button,
+  Card,
+  Group,
   rem,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
 } from "@mantine/core";
 import {
   IconCalendarEvent,
   IconMapPin,
-  IconTicket,
   IconMicrophone,
+  IconTicket,
 } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -25,6 +25,7 @@ interface EventCardProps {
     id: string;
     name: string;
     date: string | null;
+    hash?: string;
     venues: {
       id: string;
       name: string;
@@ -87,15 +88,15 @@ export default function EventCard({ event }: EventCardProps) {
               transparent 100%)`,
           }}
         />
-        
+
         {/* Clean icon without background circle */}
-        <IconMicrophone 
-          size={40} 
-          color="white" 
-          style={{ 
+        <IconMicrophone
+          size={40}
+          color="white"
+          style={{
             filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.3))",
             opacity: 0.9
-          }} 
+          }}
         />
       </Box>
 
@@ -129,7 +130,7 @@ export default function EventCard({ event }: EventCardProps) {
 
         <Button
           component={Link}
-          href={`/events/${event.name?.toLowerCase().replace(/\s+/g, '-')}`}
+          href={`/events/${event.hash}`}
           variant="light"
           color="indigo"
           size="sm"

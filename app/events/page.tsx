@@ -1,6 +1,5 @@
 import { getEvents } from "@/db/queries/events";
 import { getUserProfile } from "@/db/queries/user";
-import { nameToUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { Button, Card, Container, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { IconCalendar, IconMapPin, IconPlus, IconUsers } from "@tabler/icons-react";
@@ -9,7 +8,7 @@ import Link from "next/link";
 export default async function EventsPage() {
   const supabase = await createClient();
   const userProfile = await getUserProfile(supabase);
-  const events = await getEvents();
+  const events = await getEvents(supabase);
 
   return (
     <Container size="xl">
@@ -36,7 +35,7 @@ export default async function EventsPage() {
                   <Text c="dimmed">Create your first event to get started with lineup planning</Text>
                   <Button
                     component={Link}
-                    href="/events/create"
+                    href="/promoter/events/create"
                     leftSection={<IconPlus size={16} />}
                   >
                     Create Your First Event
@@ -85,14 +84,14 @@ export default async function EventsPage() {
                     <Button
                       variant="outline"
                       component={Link}
-                      href={`/events/${nameToUrl(event.name)}`}
+                      href={`/events/${event.hash}`}
                       size="sm"
                     >
                       View Details
                     </Button>
                     <Button
                       component={Link}
-                      href={`/events/${nameToUrl(event.name)}/lineup`}
+                      href={`/events/${event.hash}/lineup`}
                       leftSection={<IconUsers size={14} />}
                       size="sm"
                     >

@@ -1,13 +1,13 @@
 "use client";
 
+import { StoredLocality } from "@/utils/supabase/global.types";
+import { Box, Loader, Pill } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { submitPlace } from "./actions";
 import { Input } from "./Input";
 import { PlacesApiProvider } from "./PlacesApiProvider";
-import { StoredLocality } from "@/utils/supabase/global.types";
-import { Loader, Pill, Box } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
 
 
 interface ILocationInputProps {
@@ -19,18 +19,18 @@ interface ILocationInputProps {
 
 export function LocationInput({ onPlaceSelect, onRemovePlace, storedLocality, searchFullAddress = false }: ILocationInputProps) {
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Mobile responsive hooks
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isSmallMobile = useMediaQuery('(max-width: 480px)');
-  
-  const formattedAddress = storedLocality 
+
+  const formattedAddress = storedLocality
     ? (storedLocality.fullAddress || `${storedLocality?.locality?.name}, ${storedLocality?.administrativeArea?.name}, ${storedLocality?.country?.name}`)
     : undefined
 
   return (
     <PlacesApiProvider>
-      <Box style={{ width: '100%' }}>
+      <Box>
         {renderGroup(isLoading, formattedAddress)}
       </Box>
     </PlacesApiProvider>
@@ -54,7 +54,7 @@ export function LocationInput({ onPlaceSelect, onRemovePlace, storedLocality, se
     return (
       <Pill
         size={isSmallMobile ? "md" : "lg"}
-        withRemoveButton 
+        withRemoveButton
         color="blue"
         onRemove={handleRemovePlace}
         style={{

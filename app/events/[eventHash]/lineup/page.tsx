@@ -1,21 +1,20 @@
 import { TimeBasedLineupPlanner } from "@/components/events/TimeBasedLineupPlanner";
-import { getEventByName } from "@/db/queries/events";
+import { getEventByHash } from "@/db/queries/events";
 import { createClient } from "@/utils/supabase/server";
-import { urlToName } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
 interface LineupPlannerPageProps {
   params: Promise<{
-    eventName: string;
+    eventHash: string;
   }>;
 }
 
 export default async function LineupPlannerPage({ params }: LineupPlannerPageProps) {
   try {
-    const eventName = urlToName((await params).eventName);
-    const event = await getEventByName(eventName);
+    const eventHash = (await params).eventHash;
     const supabase = await createClient();
-    
+    const event = await getEventByHash(supabase, eventHash);
+
     // Fetch available artists for the lineup
     const { data: artists } = await supabase
       .from("artists")
@@ -29,9 +28,9 @@ export default async function LineupPlannerPage({ params }: LineupPlannerPagePro
       .order("name");
 
     return (
-      <TimeBasedLineupPlanner 
-        event={event} 
-        availableArtists={artists || []} 
+      <TimeBasedLineupPlanner
+        event={event}
+        availableArtists={artists || []}
         availableVenues={venues || []}
       />
     );
