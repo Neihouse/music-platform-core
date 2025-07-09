@@ -12,29 +12,45 @@ import {
   Title,
   rem
 } from "@mantine/core";
-import { IconSearch, IconTrendingUp } from "@tabler/icons-react";
-import { useState } from "react";
+import { IconSearch, IconTrendingUp, IconX } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 
 interface SearchHeroProps {
   onSearch: (query: string) => void;
+  onClear?: () => void;
   popularCities?: string[];
   placeholder?: string;
   title?: string;
   subtitle?: string;
+  currentValue?: string;
 }
 
 export function SearchHero({
   onSearch,
+  onClear,
   popularCities = ['New York', 'Los Angeles', 'Chicago', 'Austin', 'Nashville', 'Miami'],
   placeholder = "Your city...",
   title = "Discover Your Local Music Scene",
-  subtitle = "Explore local scenes, artists, and venues in cities around the world"
+  subtitle = "Explore local scenes, artists, and venues in cities around the world",
+  currentValue = ""
 }: SearchHeroProps) {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState(currentValue);
+
+  // Update searchValue when currentValue prop changes
+  useEffect(() => {
+    setSearchValue(currentValue);
+  }, [currentValue]);
 
   const handleSearch = () => {
     if (searchValue.trim()) {
       onSearch(searchValue.trim());
+    }
+  };
+
+  const handleClear = () => {
+    setSearchValue("");
+    if (onClear) {
+      onClear();
     }
   };
 
@@ -43,6 +59,8 @@ export function SearchHero({
       handleSearch();
     }
   };
+
+  const hasValue = searchValue.trim().length > 0;
 
   return (
     <Box
@@ -157,33 +175,33 @@ export function SearchHero({
                   }}
                 />
               </Box>
-              {/* Mobile Search Button */}
+              {/* Mobile Search/Clear Button */}
               <ActionIcon
                 hiddenFrom="sm"
                 size={40}
                 radius="xl"
                 variant="gradient"
                 gradient={{ from: 'blue', to: 'cyan' }}
-                onClick={handleSearch}
+                onClick={hasValue ? handleClear : handleSearch}
                 style={{
                   boxShadow: '0 4px 16px rgba(51, 154, 240, 0.3)',
                 }}
               >
-                <IconSearch size={18} />
+                {hasValue ? <IconX size={18} /> : <IconSearch size={18} />}
               </ActionIcon>
-              {/* Desktop Search Button */}
+              {/* Desktop Search/Clear Button */}
               <ActionIcon
                 visibleFrom="sm"
                 size={48}
                 radius="xl"
                 variant="gradient"
                 gradient={{ from: 'blue', to: 'cyan' }}
-                onClick={handleSearch}
+                onClick={hasValue ? handleClear : handleSearch}
                 style={{
                   boxShadow: '0 4px 16px rgba(51, 154, 240, 0.3)',
                 }}
               >
-                <IconSearch size={20} />
+                {hasValue ? <IconX size={20} /> : <IconSearch size={20} />}
               </ActionIcon>
             </Group>
           </Box>

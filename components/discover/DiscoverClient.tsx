@@ -199,7 +199,12 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
       />
 
       {/* Hero Section */}
-      <SearchHero onSearch={handleSearch} popularCities={popularCities} />
+      <SearchHero
+        onSearch={handleSearch}
+        onClear={handleReset}
+        currentValue={currentCity ? capitalizeCity(currentCity) : ""}
+        popularCities={popularCities}
+      />
 
       {/* Loading State */}
       {isLoading && (
