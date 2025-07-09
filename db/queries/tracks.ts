@@ -1,7 +1,7 @@
+import { Track, TypedClient } from "@/utils/supabase/global.types";
 import { IAudioMetadata } from "music-metadata";
 import { getArtist } from "./artists";
 import { createArtistTrack } from "./artists_tracks";
-import { TypedClient, Track } from "@/utils/supabase/global.types";
 
 export async function createTrack(
   supabase: TypedClient,
@@ -62,10 +62,27 @@ export async function getTrackPlayURL(supabase: TypedClient, trackId: string) {
   if (!trackId) {
     throw new Error("Track ID is required");
   }
-  const user = await supabase.auth.getUser();
 
+  let user = await supabase.auth.getUser();
+
+  // If user is not authenticated, sign them in anonymously
   if (!user || !user.data.user) {
-    throw new Error("User not authenticated");
+    const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
+
+    if (anonError) {
+      throw new Error("Failed to authenticate anonymously: " + anonError.message);
+    }
+
+    if (!anonData.user) {
+      throw new Error("Anonymous authentication failed");
+    }
+
+    // Get the user data after anonymous sign in
+    user = await supabase.auth.getUser();
+
+    if (!user || !user.data.user) {
+      throw new Error("Failed to get anonymous user data");
+    }
   }
 
   const {
@@ -302,7 +319,7 @@ export async function getArtistTracksWithPlayCounts(supabase: TypedClient, artis
   return data?.map(item => {
     const track = item.tracks as any;
     if (!track) return null;
-    
+
     return {
       ...track,
       plays: track.play_count?.length ? track.play_count[0].count || 0 : 0
