@@ -54,7 +54,7 @@ export interface CityData {
 
 export async function getCityMusicData(cityName: string): Promise<CityData> {
   const supabase = await createClient();
-  
+
   try {
     // First, try to find the locality by name with more precise matching
     const normalizedCityName = cityName.trim().toLowerCase();
@@ -63,9 +63,9 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
       .select('id, name')
       .ilike('name', normalizedCityName)
       .limit(1);
-    
+
     const localityId = localities?.[0]?.id;
-    
+
     if (!localityId) {
       // Return empty data if city not found
       return {
@@ -76,21 +76,23 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
       };
     }
 
-    // Fetch artists in the city
-    const { data: artists } = await supabase
-      .from('artists')
+    // Fetch artists in the city by joining through artists_localities
+    const { data: artistsData } = await supabase
+      .from('artists_localities')
       .select(`
-        id,
-        name,
-        bio,
-        avatar_img,
-        banner_img,
-        selectedFont,
-        administrative_area_id,
-        localities!inner(id, name)
+        artists (
+          id,
+          name,
+          bio,
+          avatar_img,
+          banner_img,
+          selectedFont
+        )
       `)
-      .eq('localities.id', localityId)
+      .eq('locality', localityId)
       .limit(6);
+
+    const artists = artistsData?.map(al => al.artists).filter(Boolean) || [];
 
     // Fetch venues in the city
     const { data: venues } = await supabase
@@ -107,7 +109,7 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
       .limit(6);
 
     // Fetch events in the city
-    const { data: events } = await supabase
+    const { data: eventsData } = await supabase
       .from('events')
       .select(`
         id,
@@ -125,18 +127,25 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
       .order('date', { ascending: true })
       .limit(6);
 
-    // Fetch promoters (this might need to be adjusted based on your schema)
-    const { data: promoters } = await supabase
-      .from('promoters')
+    const events = eventsData || [];
+
+    // Fetch promoters in the city by joining through promoters_localities
+    const { data: promotersData } = await supabase
+      .from('promoters_localities')
       .select(`
-        id,
-        name,
-        bio,
-        avatar_img,
-        banner_img,
-        selectedFont
+        promoters (
+          id,
+          name,
+          bio,
+          avatar_img,
+          banner_img,
+          selectedFont
+        )
       `)
+      .eq('locality', localityId)
       .limit(4);
+
+    const promoters = promotersData?.map(pl => pl.promoters).filter(Boolean) || [];
 
     // Transform the data to match our interface
     const transformedArtists: LocalArtist[] = (artists || []).map((artist: any) => ({
