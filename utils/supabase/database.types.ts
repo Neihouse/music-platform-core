@@ -346,6 +346,7 @@ export type Database = {
           address: string | null
           created_at: string
           date: string | null
+          hash: string | null
           id: string
           locality: string | null
           name: string
@@ -357,6 +358,7 @@ export type Database = {
           address?: string | null
           created_at?: string
           date?: string | null
+          hash?: string | null
           id?: string
           locality?: string | null
           name: string
@@ -368,6 +370,7 @@ export type Database = {
           address?: string | null
           created_at?: string
           date?: string | null
+          hash?: string | null
           id?: string
           locality?: string | null
           name?: string
