@@ -1,5 +1,6 @@
 "use client";
 
+import { ArtistSearch, ArtistSearchResult } from "@/components/ArtistSearch";
 import { LocationInput } from "@/components/LocationInput";
 import { ImageUpload } from "@/components/Upload/ImageUpload";
 import { createClient } from "@/utils/supabase/client";
@@ -19,7 +20,7 @@ import { Calendar } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { IconCalendar, IconMapPin, IconPhoto } from "@tabler/icons-react";
+import { IconCalendar, IconMapPin, IconPhoto, IconUsers } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -41,6 +42,7 @@ export function EventForm({ }: IEventFormProps) {
   const [selectedPlace, setSelectedPlace] = useState<StoredLocality | undefined>();
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [posterUrl, setPosterUrl] = useState<string>("");
+  const [selectedArtists, setSelectedArtists] = useState<ArtistSearchResult[]>([]);
 
   // Responsive breakpoints
   const isMobile = useMediaQuery('(max-width: 480px)');
@@ -135,9 +137,36 @@ export function EventForm({ }: IEventFormProps) {
         throw new Error(`Failed to create event: ${eventError.message}`);
       }
 
+      // Create artist-event relationships if artists are selected
+      if (selectedArtists.length > 0) {
+        const artistEventData = selectedArtists.map(artist => ({
+          event: event.id,
+          artist: artist.id,
+          // Start and end times can be null for now, can be set later
+          start_time: null,
+          end_time: null,
+        }));
+
+        const { error: artistEventError } = await supabase
+          .from('events_artists')
+          .insert(artistEventData);
+
+        if (artistEventError) {
+          console.error('Error linking artists to event:', artistEventError);
+          // Don't throw error here, just log it - the event was created successfully
+          notifications.show({
+            title: "Warning",
+            message: "Event created but some artists couldn't be added. You can add them later.",
+            color: "orange",
+          });
+        }
+      }
+
       notifications.show({
         title: "Success",
-        message: "Event created successfully!",
+        message: selectedArtists.length > 0
+          ? `Event created successfully with ${selectedArtists.length} artist${selectedArtists.length > 1 ? 's' : ''}!`
+          : "Event created successfully!",
         color: "green",
       });
 
@@ -146,6 +175,7 @@ export function EventForm({ }: IEventFormProps) {
       setSelectedPlace(undefined);
       setPosterFile(null);
       setPosterUrl("");
+      setSelectedArtists([]);
 
       // Navigate to the created event
       router.push(`/promoter/events/${event.id}`);
@@ -288,6 +318,40 @@ export function EventForm({ }: IEventFormProps) {
                   label="Drag poster image here or click to select"
                   maxSizeMB={10}
                 />
+              </Stack>
+            </Paper>
+
+            {/* Artist Selection Section */}
+            <Paper
+              p={isMobile ? "sm" : "md"}
+              bg={colorScheme === 'dark' ? 'dark.6' : 'green.0'}
+              radius={isMobile ? "sm" : "md"}
+              withBorder
+            >
+              <Stack gap={isMobile ? "sm" : "md"}>
+                <Group>
+                  <IconUsers size={20} />
+                  <Text
+                    size={isMobile ? "sm" : "md"}
+                    fw={500}
+                    c={colorScheme === 'dark' ? 'white' : 'dark.8'}
+                  >
+                    Artists (Optional)
+                  </Text>
+                </Group>
+                <Text size="sm" c="dimmed" mb="md">
+                  Search and add artists who will be performing at your event.
+                </Text>
+                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                  <div style={{ width: '100%', maxWidth: isMobile ? '100%' : '500px' }}>
+                    <ArtistSearch
+                      onArtistsChange={setSelectedArtists}
+                      selectedArtists={selectedArtists}
+                      maxArtists={20}
+                      placeholder="Search and add artists..."
+                    />
+                  </div>
+                </div>
               </Stack>
             </Paper>
 
