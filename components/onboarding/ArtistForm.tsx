@@ -295,7 +295,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
 
       notifications.show({
         title: "Success",
-        message: "Profile created successfully!",
+        message: artist ? "Profile updated successfully!" : "Profile created successfully!",
         color: "green",
       });
 
