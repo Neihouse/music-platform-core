@@ -8,41 +8,41 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function CreateEventPage() {
-    const supabase = await createClient();
-    const user = await getUser(supabase);
+	const supabase = await createClient();
+	const user = await getUser(supabase);
 
-    // Redirect if not authenticated
-    if (!user) {
-        redirect('/login');
-    }
+	// Redirect if not authenticated
+	if (!user) {
+		redirect('/login');
+	}
 
-    // Check if user has a promoter profile
-    const userProfile = await getUserProfile(supabase);
+	// Check if user has a promoter profile
+	const userProfile = await getUserProfile(supabase);
 
-    if (userProfile.type !== 'promoter') {
-        return (
-            <Container size="md" py="xl">
-                <Paper withBorder radius="md" p="lg" shadow="md">
-                    <Stack gap="md" ta="center">
-                        <Center>
-                            <IconUser size={48} stroke={1.5} color="gray" />
-                        </Center>
-                        <Title order={2} size="h3">
-                            Promoter Access Required
-                        </Title>
-                        <Text c="dimmed" size="sm">
-                            Only promoters can create events. Please create a promoter profile to access this feature.
-                        </Text>
-                        <Button component={Link} href="/onboarding" variant="light">
-                            Create Promoter Profile
-                        </Button>
-                    </Stack>
-                </Paper>
-            </Container>
-        );
-    }
+	if (userProfile.type !== 'promoter') {
+		return (
+			<Container size="md" py="xl">
+				<Paper withBorder radius="md" p="lg" shadow="md">
+					<Stack gap="md" ta="center">
+						<Center>
+							<IconUser size={48} stroke={1.5} color="gray" />
+						</Center>
+						<Title order={2} size="h3">
+							Promoter Access Required
+						</Title>
+						<Text c="dimmed" size="sm">
+							Only promoters can create events. Please create a promoter profile to access this feature.
+						</Text>
+						<Button component={Link} href="/onboarding" variant="light">
+							Create Promoter Profile
+						</Button>
+					</Stack>
+				</Paper>
+			</Container>
+		);
+	}
 
-    return (
-        <EventForm />
-    );
+	return (
+		<EventForm />
+	);
 }
