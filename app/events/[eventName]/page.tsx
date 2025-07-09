@@ -1,13 +1,13 @@
-import { getEventByName } from "@/db/queries/events";
-import { getAvailableVenues } from "./actions";
 import { VenueSelector } from "@/components/events/VenueSelector";
-import { PosterGenerator } from "@/components/events/PosterGenerator";
 import StyledTitle from "@/components/StyledTitle";
-import { notFound } from "next/navigation";
-import { Paper, Title, Text, Button, Group, Stack, Container, Box } from "@mantine/core";
-import { IconUsers, IconCalendar, IconPhoto } from "@tabler/icons-react";
-import { urlToName, nameToUrl } from "@/lib/utils";
+import { getEventByName } from "@/db/queries/events";
+import { nameToUrl, urlToName } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/server";
+import { Box, Button, Container, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { IconCalendar, IconPhoto, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getAvailableVenues } from "./actions";
 
 interface EventDetailPageProps {
   params: Promise<{
@@ -17,8 +17,11 @@ interface EventDetailPageProps {
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   try {
+
     const eventName = urlToName((await params).eventName);
-    const event = await getEventByName(eventName);
+    console.log("Fetching event details for:", eventName);
+    const supabase = await createClient();
+    const event = await getEventByName(supabase, eventName);
     const availableVenues = await getAvailableVenues();
 
     return (
@@ -46,12 +49,12 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
           <Paper shadow="sm" p="xl">
             <Stack gap="md">
-              <StyledTitle 
+              <StyledTitle
                 selectedFont="Inter"
               >
                 {event.name}
               </StyledTitle>
-              
+
               <Group gap="xl">
                 {event.date && (
                   <Group gap="xs">
@@ -60,7 +63,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   </Group>
                 )}
               </Group>
-              
+
               {event.address && (
                 <Text c="dimmed">{event.address}</Text>
               )}
@@ -75,7 +78,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <Text c="dimmed">
                 Use the lineup planner to organize artists across different stages for your event.
               </Text>
-              
+
               <Group>
                 <Button
                   component={Link}

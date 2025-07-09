@@ -9,7 +9,7 @@ import Link from "next/link";
 export default async function EventsPage() {
   const supabase = await createClient();
   const userProfile = await getUserProfile(supabase);
-  const events = await getEvents();
+  const events = await getEvents(supabase);
 
   return (
     <Container size="xl">
