@@ -80,6 +80,69 @@ Key improvements include:
 - Implement proper image optimization
 - Follow Next.js performance best practices
 
+### Database Query Guidelines
+🔍 **CRITICAL**: Always check existing queries before creating new ones:
+- Use existing functions in `/db/queries/` directory
+- Check `/db/queries/tracks.ts` for track-related queries like `getTracks()`, `getTopTracks()`, etc.
+- Check `/db/queries/artists.ts` for artist-related queries  
+- Check `/db/queries/promoters.ts` for promoter-related queries
+- **DO NOT duplicate query logic** - reuse existing functions
+- Transform data in action files (e.g., `/app/*/actions.ts`) rather than creating new queries
+- Follow the pattern: Query functions return raw data, Action functions transform for UI consumption
+
+### Code Duplication Prevention
+⚠️ **AVOID DUPLICATE CODE**:
+- Always check if functionality already exists before implementing
+- Use existing components from `/components/shared/` like `MusicGrid`, `ArtistCard`, etc.
+- Reuse existing query functions from `/db/queries/`
+- Transform data in actions rather than creating new database queries
+- Check this documentation and existing code patterns before starting new features
+
+### Server Actions vs Server Functions
+🏗️ **Important Architectural Pattern**:
+- **Server Actions** (`'use server'`): Use for client-side form submissions and user interactions only
+- **Server Functions**: Use for RSC (React Server Component) data fetching - no `'use server'` needed
+- **File Organization**:
+  - `/app/*/actions.ts` - Server actions for client interactions
+  - `/app/*/data.ts` - Server functions for RSC data fetching
+- **Client Components**: Cannot directly call server functions - data must be passed as props from RSC
+
+### Data Flow Architecture 
+🔄 **Critical Data Flow Pattern**:
+1. **RSC (Server Components)**: Fetch data using cached server functions from `/data.ts`
+2. **Pass data as props**: Always pass server-fetched data to client components as props
+3. **Client Components**: Never directly call server functions - receive data via props only
+4. **Server Actions**: Only for user interactions (forms, buttons) - never for initial data fetching
+5. **Parallel Fetching**: Use `Promise.all()` for multiple independent data sources
+
+**Example Structure**:
+```
+/app/page/
+  ├── page.tsx        # RSC - fetches data, passes to client
+  ├── actions.ts      # Server actions for user interactions
+  └── data.ts         # Server functions for RSC data fetching
+```
+
+### File Organization & Caching Patterns
+📁 **Cache Implementation Pattern**:
+- Use Next.js `cache()` wrapper for data fetching functions in RSCs
+- Create cached versions like `getCachedCityData`, `getCachedPopularCities` for performance
+- Cache functions should handle errors gracefully and return fallback data
+- Use `Promise.all()` for parallel data fetching when possible
+
+Example pattern:
+```typescript
+const getCachedDataFunction = cache(async (params: string): Promise<DataType> => {
+  try {
+    const data = await serverFunction(params);
+    return data;
+  } catch (error) {
+    // Return fallback data structure
+    return { /* empty/default data */ };
+  }
+});
+```
+
 ## Getting Started
 
 ### Prerequisites

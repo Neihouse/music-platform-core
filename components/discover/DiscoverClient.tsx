@@ -5,6 +5,8 @@ import {
   ArtistCard,
   ContentSection,
   EventCard,
+  MusicGrid,
+  MusicTrack,
   SearchHero,
   VenueCard,
 } from "@/components/shared";
@@ -33,13 +35,15 @@ interface DiscoverClientProps {
   initialCity?: string;
   popularCities?: string[];
   isLoggedIn?: boolean;
+  initialFeaturedTracks?: MusicTrack[];
 }
 
-export function DiscoverClient({ initialData, initialCity, popularCities, isLoggedIn }: DiscoverClientProps) {
+export function DiscoverClient({ initialData, initialCity, popularCities, isLoggedIn, initialFeaturedTracks }: DiscoverClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cityData, setCityData] = useState<CityData | null>(initialData || null);
   const [currentCity, setCurrentCity] = useState(initialCity || "");
+  const [featuredTracks, setFeaturedTracks] = useState<MusicTrack[]>(initialFeaturedTracks || []);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,13 +55,19 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
       .join(' ');
   };
 
-  // Initialize with props data
+  // Initialize with props data - separate effects to avoid dependency issues
   useEffect(() => {
     if (initialData && initialCity && !cityData) {
       setCityData(initialData);
       setCurrentCity(initialCity);
     }
-  }, [initialData, initialCity, cityData]);
+  }, [initialData, initialCity]); // Remove cityData from dependency array
+
+  useEffect(() => {
+    if (initialFeaturedTracks && initialFeaturedTracks.length > 0) {
+      setFeaturedTracks(initialFeaturedTracks);
+    }
+  }, [initialFeaturedTracks]); // Separate effect for featured tracks
 
   const handleSearch = useCallback(async (searchQuery: string) => {
     const trimmedQuery = searchQuery.trim();
@@ -192,7 +202,12 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
       />
 
       {/* Hero Section */}
-      <SearchHero onSearch={handleSearch} popularCities={popularCities} />
+      <SearchHero
+        onSearch={handleSearch}
+        onClear={handleReset}
+        currentValue={currentCity ? capitalizeCity(currentCity) : ""}
+        popularCities={popularCities}
+      />
 
       {/* Loading State */}
       {isLoading && (
@@ -224,6 +239,17 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
               </Button>
             </Group>
           </Paper>
+        </Container>
+      )}
+
+      {/* Featured Tracks - when no city is selected */}
+      {!isLoading && !error && !currentCity && featuredTracks.length > 0 && (
+        <Container size="xl" py={{ base: "md", sm: "lg", md: "xl" }}>
+          <MusicGrid
+            tracks={featuredTracks}
+            title="🎵 Featured Tracks"
+            maxItems={12}
+          />
         </Container>
       )}
 

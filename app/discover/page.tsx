@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server';
 import { Metadata } from 'next';
 import { cache, Suspense } from 'react';
 import { CityData, getCityMusicData } from "./actions";
+import { getFeaturedTracks } from "./data";
 
 // Cached data fetching function with Next.js caching
 const getCachedCityData = cache(async (city: string): Promise<CityData> => {
@@ -149,7 +150,10 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
   }
 
   // Fetch popular cities for the default discover page
-  const popularCities = await getCachedPopularCities();
+  const [popularCities, featuredTracks] = await Promise.all([
+    getCachedPopularCities(),
+    getFeaturedTracks()
+  ]);
 
-  return <DiscoverClient popularCities={popularCities} isLoggedIn={isLoggedIn} />;
+  return <DiscoverClient popularCities={popularCities} isLoggedIn={isLoggedIn} initialFeaturedTracks={featuredTracks} />;
 }
