@@ -1,9 +1,10 @@
 import { MusicTrack } from '@/components/shared';
 import { getTracks } from '@/db/queries/tracks';
 import { createClient } from '@/utils/supabase/server';
+import { cache } from 'react';
 
-// Server-side data fetching function for RSC usage
-export async function getFeaturedTracks(): Promise<MusicTrack[]> {
+// Cached server-side data fetching function for RSC usage
+export const getFeaturedTracks = cache(async (): Promise<MusicTrack[]> => {
     const supabase = await createClient();
 
     try {
@@ -22,4 +23,4 @@ export async function getFeaturedTracks(): Promise<MusicTrack[]> {
         console.error('Error fetching featured tracks:', error);
         return [];
     }
-}
+});

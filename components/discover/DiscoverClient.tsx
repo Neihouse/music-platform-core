@@ -55,16 +55,19 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
       .join(' ');
   };
 
-  // Initialize with props data
+  // Initialize with props data - separate effects to avoid dependency issues
   useEffect(() => {
     if (initialData && initialCity && !cityData) {
       setCityData(initialData);
       setCurrentCity(initialCity);
     }
+  }, [initialData, initialCity]); // Remove cityData from dependency array
+
+  useEffect(() => {
     if (initialFeaturedTracks && initialFeaturedTracks.length > 0) {
       setFeaturedTracks(initialFeaturedTracks);
     }
-  }, [initialData, initialCity, cityData, initialFeaturedTracks]);
+  }, [initialFeaturedTracks]); // Separate effect for featured tracks
 
   const handleSearch = useCallback(async (searchQuery: string) => {
     const trimmedQuery = searchQuery.trim();
