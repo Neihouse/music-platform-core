@@ -102,11 +102,11 @@ export function PromoterForm(props: IPromoterFormProps) {
         bg={colorScheme === 'dark' ? 'dark.7' : 'white'}
         withBorder
       >        <form
-        onSubmit={form.onSubmit((values) => {
+        onSubmit={form.onSubmit(async (values) => {
           if (!validateForm()) {
             return;
           }
-          return submitPromoterForm(
+          await submitPromoterForm(
             values.name,
             values.bio,
             selectedLocalities,

@@ -119,7 +119,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
         withBorder
       >
         <form
-          onSubmit={form.onSubmit((values) => {
+          onSubmit={form.onSubmit(async (values) => {
             if (!selectedPlace) {
               notifications.show({
                 title: "Location Required",
@@ -128,7 +128,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
               });
               return;
             }
-            submitArtistBasics();
+            await submitArtistBasics();
           })}
         >
           <Stack gap={isMobile ? "md" : isTablet ? "lg" : "xl"}>
