@@ -1,7 +1,6 @@
 import { VenueSelector } from "@/components/events/VenueSelector";
 import StyledTitle from "@/components/StyledTitle";
-import { getEventByName, getEvents } from "@/db/queries/events";
-import { nameToUrl, urlToName } from "@/lib/utils";
+import { getEventByHash, getEvents } from "@/db/queries/events";
 import { createClient } from "@/utils/supabase/server";
 import { Box, Button, Container, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { IconCalendar, IconPhoto, IconUsers } from "@tabler/icons-react";
@@ -11,17 +10,17 @@ import { getAvailableVenues } from "./actions";
 
 interface EventDetailPageProps {
   params: Promise<{
-    eventName: string;
+    eventHash: string;
   }>;
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   try {
 
-    const eventName = urlToName((await params).eventName);
-    console.log("Fetching event details for:", eventName);
+    const eventHash = (await params).eventHash;
+    console.log("Fetching event details for hash:", eventHash);
     const supabase = await createClient();
-    const event = await getEventByName(supabase, eventName);
+    const event = await getEventByHash(supabase, eventHash);
     const availableVenues = await getAvailableVenues();
     const events = await getEvents(supabase);
 
@@ -83,7 +82,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <Group>
                 <Button
                   component={Link}
-                  href={`/events/${nameToUrl(event.name)}/lineup`}
+                  href={`/events/${event.hash}/lineup`}
                   leftSection={<IconUsers size={16} />}
                   size="lg"
                 >

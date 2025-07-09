@@ -51,6 +51,29 @@ export async function getEventByName(supabase: TypedClient, eventName: string) {
   return event;
 }
 
+export async function getEventByHash(supabase: TypedClient, eventHash: string) {
+
+  const { data: event, error } = await supabase
+    .from("events")
+    .select(`
+      *,
+      venues (
+        id,
+        name,
+        address,
+        capacity
+      )
+    `)
+    .eq("hash", eventHash)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to get event: ${error.message}`);
+  }
+
+  return event;
+}
+
 export async function getEvents(supabase: TypedClient) {
 
   const { data: events, error } = await supabase

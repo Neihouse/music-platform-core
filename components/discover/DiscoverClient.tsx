@@ -317,7 +317,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
                       artists={event.artists}
                       price={event.price}
                       imageUrl={event.banner_img}
-                      onClick={() => router.push(`/events/${nameToUrl(event.name)}`)}
+                      onClick={() => router.push(`/events/${event.hash}`)}
                       onGetTickets={() => console.log('Get tickets:', event.id)}
                     />
                   ))}
