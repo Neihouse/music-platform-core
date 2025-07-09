@@ -1,6 +1,6 @@
 import { VenueSelector } from "@/components/events/VenueSelector";
 import StyledTitle from "@/components/StyledTitle";
-import { getEventByName } from "@/db/queries/events";
+import { getEventByName, getEvents } from "@/db/queries/events";
 import { nameToUrl, urlToName } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { Box, Button, Container, Group, Paper, Stack, Text, Title } from "@mantine/core";
@@ -23,6 +23,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     const supabase = await createClient();
     const event = await getEventByName(supabase, eventName);
     const availableVenues = await getAvailableVenues();
+    const events = await getEvents(supabase);
 
     return (
       <Container size="lg">
