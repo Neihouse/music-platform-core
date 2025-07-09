@@ -1,8 +1,10 @@
+import EventsGrid from "@/components/events/EventsGrid";
+import EventsHeader from "@/components/events/EventsHeader";
 import { getEvents } from "@/db/queries/events";
 import { getUserProfile } from "@/db/queries/user";
 import { createClient } from "@/utils/supabase/server";
-import { Button, Card, Container, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
-import { IconCalendar, IconMapPin, IconPlus, IconUsers } from "@tabler/icons-react";
+import { Button, Container, Paper, Stack, Text, Title } from "@mantine/core";
+import { IconCalendar } from "@tabler/icons-react";
 import Link from "next/link";
 
 export default async function EventsPage() {
@@ -11,19 +13,10 @@ export default async function EventsPage() {
   const events = await getEvents(supabase);
 
   return (
-    <Container size="xl">
-      <Stack gap="lg">
-        <Group justify="space-between" align="center">
-          {userProfile?.type === 'promoter' && events.length > 0 && (
-            <Button
-              component={Link}
-              href="/events/create"
-              leftSection={<IconPlus size={16} />}
-            >
-              Create Event
-            </Button>
-          )}
-        </Group>
+    <Container size="xl" py={{ base: "md", sm: "xl" }}>
+      <Stack gap="xl">
+        {/* Header Section */}
+        <EventsHeader events={events} />
 
         {events.length === 0 ? (
           <Paper shadow="sm" p="xl" style={{ textAlign: "center" }}>
@@ -36,7 +29,6 @@ export default async function EventsPage() {
                   <Button
                     component={Link}
                     href="/promoter/events/create"
-                    leftSection={<IconPlus size={16} />}
                   >
                     Create Your First Event
                   </Button>
@@ -52,56 +44,7 @@ export default async function EventsPage() {
             </Stack>
           </Paper>
         ) : (
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-            {events.map((event) => (
-              <Card key={event.id} shadow="sm" padding="lg" radius="md" withBorder>
-                <Stack gap="md">
-                  <div>
-                    <Title order={3} size="h4" mb="xs">
-                      {event.name}
-                    </Title>
-
-                    {event.date && (
-                      <Group gap="xs" mb="xs">
-                        <IconCalendar size={16} />
-                        <Text size="sm" c="dimmed">
-                          {new Date(event.date).toLocaleDateString()}
-                        </Text>
-                      </Group>
-                    )}
-
-                    {event.venues && (
-                      <Group gap="xs">
-                        <IconMapPin size={16} />
-                        <Text size="sm" c="dimmed">
-                          {event.venues.name}
-                        </Text>
-                      </Group>
-                    )}
-                  </div>
-
-                  <Group justify="space-between" mt="auto">
-                    <Button
-                      variant="outline"
-                      component={Link}
-                      href={`/events/${event.hash}`}
-                      size="sm"
-                    >
-                      View Details
-                    </Button>
-                    <Button
-                      component={Link}
-                      href={`/events/${event.hash}/lineup`}
-                      leftSection={<IconUsers size={14} />}
-                      size="sm"
-                    >
-                      Lineup Planner
-                    </Button>
-                  </Group>
-                </Stack>
-              </Card>
-            ))}
-          </SimpleGrid>
+          <EventsGrid events={events} />
         )}
       </Stack>
     </Container>
