@@ -10,7 +10,7 @@ export interface IArtistSearchInputProps {
     onArtistSelect: (artist: ArtistSearchResult) => void;
     placeholder?: string;
     disabled?: boolean;
-    selectedArtists?: ArtistSearchResult[];
+    selectedArtists?: string[];
 }
 
 export function ArtistSearchInput({
@@ -73,12 +73,9 @@ export function ArtistSearchInput({
         if (debouncedSearch.trim() !== "") {
             performSearch();
         }
-    }, [debouncedSearch]);
-
-    // Convert artists to autocomplete data format, filtering out already selected artists
+    }, [debouncedSearch]);    // Convert artists to autocomplete data format, filtering out already selected artists
     const autocompleteData = useMemo(() => {
-        const selectedArtistIds = selectedArtists.map(artist => artist.id);
-        const filteredArtists = artists.filter(artist => !selectedArtistIds.includes(artist.id));
+        const filteredArtists = artists.filter(artist => !selectedArtists.includes(artist.name));
 
         return filteredArtists.map(artist => ({
             value: artist.name,
@@ -97,19 +94,27 @@ export function ArtistSearchInput({
 
     const handleSelect = (value: string) => {
         const selectedData = autocompleteData.find(item => item.value === value);
+
+        setSearchValue(""); // Clear search input after selection
         if (selectedData) {
             onArtistSelect(selectedData.artist);
-            console.log("Selected artist:", selectedData.artist);
-            setSearchValue(""); // Clear search input after selection
         }
     };
 
 
+    const getValue = () => {
+        if (selectedArtists.includes(searchValue)) {
+            setSearchValue(""); // Clear search input if the artist is already selected
+            return ""; // Clear search input if the artist is already selected
+
+        }
+        return searchValue;
+    }
 
     return (
         <Autocomplete
-            value={searchValue}
-            onChange={setSearchValue}
+            value={getValue()}
+            onChange={setSearchValue} // Clear search input on change
             onOptionSubmit={handleSelect}
             data={autocompleteData}
             placeholder={placeholder}

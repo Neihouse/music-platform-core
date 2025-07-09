@@ -122,7 +122,7 @@ export function ArtistSearch({
 				onArtistSelect={handleArtistSelect}
 				placeholder={placeholder}
 				disabled={disabled || selectedArtists.length >= maxArtists}
-				selectedArtists={selectedArtists}
+				selectedArtists={selectedArtists.map(artist => artist.name)}
 			/>
 
 			{/* Selected Artists List */}
