@@ -65,6 +65,37 @@ export async function getBannerUrlServer(bannerFilename: string): Promise<string
 }
 
 /**
+ * Get the poster URL using the stored filename (server-side)
+ * @param posterFilename The filename stored in the entity table
+ * @returns The public URL for the poster image or null if doesn't exist
+ */
+export async function getPosterUrlServer(posterFilename: string): Promise<string | null> {
+  try {
+    const supabase = await createServerClient();
+    
+    // Check if the file exists first
+    const { data: fileData, error } = await supabase.storage
+      .from("posters")
+      .list("", {
+        limit: 1,
+        search: posterFilename
+      });
+    
+    if (error || !fileData || fileData.length === 0) {
+      return null;
+    }
+    
+    const { data } = supabase.storage
+      .from("posters")
+      .getPublicUrl(posterFilename);
+    
+    return data.publicUrl;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Get artist avatar and banner URLs from the database (server-side)
  * @param supabase Supabase client
  * @param artistId The artist ID
