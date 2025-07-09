@@ -1,16 +1,17 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { getUser } from "@/db/queries/users";
 import { TablesInsert } from "@/utils/supabase/database.types";
+import { createClient } from "@/utils/supabase/server";
 
 export async function createEvent(
   eventData: Omit<TablesInsert<"events">, "id" | "created_at">
 ) {
   const supabase = await createClient();
 
-  const { data: user } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
 
-  if (!user || !user.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -33,9 +34,9 @@ export async function addStageToEvent(
 ) {
   const supabase = await createClient();
 
-  const { data: user } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
 
-  if (!user || !user.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 

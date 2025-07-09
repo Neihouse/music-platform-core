@@ -1,13 +1,14 @@
 "use server";
 
+import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 
 export async function createFan(displayName: string, preferredGenres: string) {
   const supabase = await createClient();
 
-  const { data: user } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
 
-  if (!user || !user.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -20,7 +21,7 @@ export async function createFan(displayName: string, preferredGenres: string) {
   const { data: fan, error } = await supabase
     .from("fans")
     .upsert({
-      user_id: user.user.id,
+      user_id: user.id,
       display_name: displayName,
       preferred_genres: preferredGenres,
       type: "fan",
@@ -33,7 +34,7 @@ export async function createFan(displayName: string, preferredGenres: string) {
     console.error("Database error:", error);
     // For now, return a mock response since we're just demonstrating the UI flow
     return {
-      user_id: user.user.id,
+      user_id: user.id,
       display_name: displayName,
       preferred_genres: preferredGenres,
       type: "fan",

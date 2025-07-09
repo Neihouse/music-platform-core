@@ -1,14 +1,15 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { createRequest, getRequestBetweenUsers, cancelRequest } from "@/db/queries/requests";
 import { getPromoter } from "@/db/queries/promoters";
+import { cancelRequest, createRequest, getRequestBetweenUsers } from "@/db/queries/requests";
+import { getUser } from "@/db/queries/users";
+import { createClient } from "@/utils/supabase/server";
 
 export async function inviteArtistAction(artistId: string, artistUserId: string) {
   const supabase = await createClient();
-  
+
   // Get current user and verify they are a promoter
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
   if (!user) {
     throw new Error("User not authenticated");
   }
@@ -43,9 +44,9 @@ export async function inviteArtistAction(artistId: string, artistUserId: string)
 
 export async function cancelInviteAction(requestId: string) {
   const supabase = await createClient();
-  
+
   // Get current user and verify they are a promoter
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
   if (!user) {
     throw new Error("User not authenticated");
   }
@@ -66,9 +67,9 @@ export async function cancelInviteAction(requestId: string) {
 
 export async function checkExistingInvite(artistUserId: string) {
   const supabase = await createClient();
-  
+
   // Get current user and verify they are a promoter
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
   if (!user) {
     throw new Error("User not authenticated");
   }
@@ -80,12 +81,12 @@ export async function checkExistingInvite(artistUserId: string) {
 
   try {
     return await getRequestBetweenUsers(
-          supabase,
-          user.id,
-          artistUserId,
-          "promoter",
-          promoter.id
-        );
+      supabase,
+      user.id,
+      artistUserId,
+      "promoter",
+      promoter.id
+    );
 
   } catch (error) {
     console.error("Error checking existing invite:", error);

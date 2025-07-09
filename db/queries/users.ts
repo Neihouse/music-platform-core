@@ -7,7 +7,7 @@ export async function getUser(supabase: TypedClient) {
     error,
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (!user || user.is_anonymous) {
     return null;
   }
 

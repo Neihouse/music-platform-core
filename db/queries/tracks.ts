@@ -2,6 +2,7 @@ import { Track, TypedClient } from "@/utils/supabase/global.types";
 import { IAudioMetadata } from "music-metadata";
 import { getArtist } from "./artists";
 import { createArtistTrack } from "./artists_tracks";
+import { getUser } from "./users";
 
 export async function createTrack(
   supabase: TypedClient,
@@ -56,49 +57,6 @@ export async function createTrack(
   } catch (error) {
     throw new Error("Error inserting track: " + error);
   }
-}
-
-export async function getTrackPlayURL(supabase: TypedClient, trackId: string) {
-  if (!trackId) {
-    throw new Error("Track ID is required");
-  }
-
-  let user = await supabase.auth.getUser();
-
-  // If user is not authenticated, sign them in anonymously
-  if (!user || !user.data.user) {
-    const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
-
-    if (anonError) {
-      throw new Error("Failed to authenticate anonymously: " + anonError.message);
-    }
-
-    if (!anonData.user) {
-      throw new Error("Anonymous authentication failed");
-    }
-
-    // Get the user data after anonymous sign in
-    user = await supabase.auth.getUser();
-
-    if (!user || !user.data.user) {
-      throw new Error("Failed to get anonymous user data");
-    }
-  }
-
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from("tracks").getPublicUrl(trackId);
-
-  const { data, error } = await supabase.from("track_plays").insert({
-    track: trackId,
-    user: user.data.user.id,
-  });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return publicUrl;
 }
 
 export async function getTracks(supabase: TypedClient) {
@@ -168,12 +126,12 @@ export async function deleteTrack(supabase: TypedClient, trackId: string) {
     throw new Error("Track ID is required");
   }
 
-  const user = await supabase.auth.getUser();
-  if (!user || !user.data.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
-  const userId = user.data.user.id;
+  const userId = user.id;
 
   // Check if the user owns this track (through artist ownership)
   const { data: trackOwnership, error: ownershipError } = await supabase
@@ -239,12 +197,12 @@ export async function checkTrackOwnership(supabase: TypedClient, trackId: string
     return false;
   }
 
-  const user = await supabase.auth.getUser();
-  if (!user || !user.data.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     return false;
   }
 
-  const userId = user.data.user.id;
+  const userId = user.id;
 
   try {
     const { data: trackOwnership, error } = await supabase

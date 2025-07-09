@@ -1,10 +1,11 @@
 "use server";
 import { TablesInsert } from "@/utils/supabase/database.types";
 import { TypedClient } from "@/utils/supabase/global.types";
+import { getUser } from "./users";
 
 export async function getPromoter(supabase: TypedClient) {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     throw new Error("User not authenticated");
   }
   const { data: promoter, error } = await supabase
@@ -26,7 +27,7 @@ export async function getPromoter(supabase: TypedClient) {
         )
       )
     `)
-    .eq("user_id", user.user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if (error) {
@@ -90,8 +91,8 @@ export async function createPromoter(
   supabase: TypedClient,
   promoterData: TablesInsert<"promoters">
 ) {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -202,8 +203,8 @@ export async function updatePromoter(
   promoterId: string,
   promoterData: Partial<TablesInsert<"promoters">>
 ) {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -214,7 +215,7 @@ export async function updatePromoter(
     .eq("id", promoterId)
     .single();
 
-  if (!existingPromoter || existingPromoter.user_id !== user.user.id) {
+  if (!existingPromoter || existingPromoter.user_id !== user.id) {
     throw new Error("Unauthorized to update this promoter");
   }
 

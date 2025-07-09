@@ -1,7 +1,8 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { getUser } from "@/db/queries/users";
 import { StoredLocality } from "@/utils/supabase/global.types";
+import { createClient } from "@/utils/supabase/server";
 
 export async function createVenue(
   venueName: string,
@@ -13,9 +14,9 @@ export async function createVenue(
 ) {
   const supabase = await createClient();
 
-  const { data: user } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
 
-  if (!user || !user.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 

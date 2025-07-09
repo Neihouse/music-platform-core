@@ -1,15 +1,16 @@
 "use server";
 import { TypedClient } from "@/utils/supabase/global.types";
+import { getUser } from "./users";
 
 export async function getVenue(supabase: TypedClient) {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     throw new Error("User not authenticated");
   }
   const { data: venue, error } = await supabase
     .from("venues")
     .select("*")
-    .eq("user_id", user.user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if (error) {
@@ -34,7 +35,7 @@ export async function getVenueById(supabase: TypedClient, venueId: string) {
 }
 
 export async function getVenueByName(supabase: TypedClient, venueName: string) {
-  
+
   // First try exact match
   let { data: venue, error } = await supabase
     .from("venues")
@@ -54,7 +55,7 @@ export async function getVenueByName(supabase: TypedClient, venueName: string) {
       .select("*")
       .ilike("name", venueName)
       .maybeSingle();
-    
+
     venue = result.data;
     error = result.error;
   }
@@ -67,7 +68,7 @@ export async function getVenueByName(supabase: TypedClient, venueName: string) {
       .select("*")
       .ilike("name", `%${venueName}%`)
       .maybeSingle();
-    
+
     venue = result.data;
     error = result.error;
   }

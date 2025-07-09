@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { getTrackById } from "@/db/queries/tracks";
+import { getTrackPlayURL } from "@/db/queries/tracks-client";
 import PlayerContext, { PlayerState, Track } from "@/lib/PlayerContext";
-import { getTrackPlayURL, getTrackById } from "@/db/queries/tracks";
 import { createClient } from "@/utils/supabase/client";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface IPlaybackProps {
   children: React.ReactNode;
@@ -12,7 +13,7 @@ export function Playback({ children }: IPlaybackProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentTrackRef = useRef<Track | null>(null);
   const supabase = createClient();
-  
+
   const [playerState, setPlayerState] = useState<PlayerState>({
     currentTrack: null,
     isPlaying: false,
@@ -39,17 +40,17 @@ export function Playback({ children }: IPlaybackProps) {
     };
 
     const handleLoadedMetadata = () => {
-      setPlayerState(prev => ({ 
-        ...prev, 
+      setPlayerState(prev => ({
+        ...prev,
         duration: audio.duration || 0,
-        isLoading: false 
+        isLoading: false
       }));
     };
 
     const handleTimeUpdate = () => {
-      setPlayerState(prev => ({ 
-        ...prev, 
-        currentTime: audio.currentTime || 0 
+      setPlayerState(prev => ({
+        ...prev,
+        currentTime: audio.currentTime || 0
       }));
     };
 
@@ -62,19 +63,19 @@ export function Playback({ children }: IPlaybackProps) {
     };
 
     const handleEnded = () => {
-      setPlayerState(prev => ({ 
-        ...prev, 
-        isPlaying: false, 
-        currentTime: 0 
+      setPlayerState(prev => ({
+        ...prev,
+        isPlaying: false,
+        currentTime: 0
       }));
     };
 
     const handleError = () => {
-      setPlayerState(prev => ({ 
-        ...prev, 
+      setPlayerState(prev => ({
+        ...prev,
         isPlaying: false,
         isLoading: false,
-        error: 'Failed to load audio' 
+        error: 'Failed to load audio'
       }));
     };
 
@@ -102,7 +103,7 @@ export function Playback({ children }: IPlaybackProps) {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
       audio.removeEventListener('volumechange', handleVolumeChange);
-      
+
       // Cleanup audio element
       audio.pause();
       audio.src = '';
@@ -115,7 +116,7 @@ export function Playback({ children }: IPlaybackProps) {
 
     try {
       setPlayerState(prev => ({ ...prev, isLoading: true, error: null }));
-      
+
       // If it's the same track and we're paused, just resume
       if (currentTrackRef.current?.id === trackId) {
         if (audioRef.current.paused) {
@@ -136,7 +137,7 @@ export function Playback({ children }: IPlaybackProps) {
         getTrackById(supabase, trackId),
         getTrackPlayURL(supabase, trackId)
       ]);
-      
+
       if (!playUrl) {
         throw new Error('Failed to get track URL');
       }
@@ -166,7 +167,7 @@ export function Playback({ children }: IPlaybackProps) {
 
       // Play the track
       await audioRef.current.play();
-      
+
     } catch (error) {
       console.error('Error playing track:', error);
       setPlayerState(prev => ({

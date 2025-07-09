@@ -1,5 +1,6 @@
 "use server";
 import { TypedClient } from "@/utils/supabase/global.types";
+import { getUser } from "./users";
 
 export type UserProfile = {
   type: 'artist' | 'promoter' | null;
@@ -10,8 +11,8 @@ export type UserProfile = {
 
 export async function getUserProfile(supabase: TypedClient): Promise<UserProfile> {
   try {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user || !user.user) {
+    const user = await getUser(supabase);
+    if (!user) {
       return {
         type: null,
         avatar_img: null,
@@ -24,7 +25,7 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
     const { data: artist, error: artistError } = await supabase
       .from("artists")
       .select("id, name, avatar_img")
-      .eq("user_id", user.user.id)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     if (!artistError && artist) {
@@ -40,7 +41,7 @@ export async function getUserProfile(supabase: TypedClient): Promise<UserProfile
     const { data: promoter, error: promoterError } = await supabase
       .from("promoters")
       .select("id, name, avatar_img")
-      .eq("user_id", user.user.id)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     if (!promoterError && promoter) {
@@ -76,17 +77,17 @@ export async function userHasProfile(supabase: TypedClient): Promise<boolean> {
 }
 
 export async function canCreateProfile(supabase: TypedClient): Promise<{ canCreate: boolean; reason?: string }> {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     return { canCreate: false, reason: "User not authenticated" };
   }
 
   const existingProfile = await getUserProfile(supabase);
-  
+
   if (existingProfile.type !== null) {
-    return { 
-      canCreate: false, 
-      reason: `User already has a ${existingProfile.type} profile. Each user can only have one profile type.` 
+    return {
+      canCreate: false,
+      reason: `User already has a ${existingProfile.type} profile. Each user can only have one profile type.`
     };
   }
 

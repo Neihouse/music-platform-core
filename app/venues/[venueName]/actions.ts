@@ -1,7 +1,8 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { getUser } from "@/db/queries/users";
 import { StoredLocality } from "@/utils/supabase/global.types";
+import { createClient } from "@/utils/supabase/server";
 
 export async function getVenueEvents(venueId: string, type: "upcoming" | "past") {
   const supabase = await createClient();
@@ -90,9 +91,9 @@ export async function updateVenue(
 ) {
   const supabase = await createClient();
 
-  const { data: user } = await supabase.auth.getUser();
+  const user = await getUser(supabase);
 
-  if (!user || !user.user) {
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -107,7 +108,7 @@ export async function updateVenue(
 
   // If location is provided, update address and location references
   if (updates.location) {
-    updateData.address = updates.location.fullAddress || 
+    updateData.address = updates.location.fullAddress ||
       `${updates.location.locality.name}, ${updates.location.administrativeArea.name}, ${updates.location.country.name}`;
     updateData.administrative_area = updates.location.administrativeArea.id;
     updateData.locality = updates.location.locality.id;
@@ -117,7 +118,7 @@ export async function updateVenue(
     .from("venues")
     .update(updateData)
     .eq("id", venueId)
-    .eq("user_id", user.user.id) // Ensure only the owner can update
+    .eq("user_id", user.id) // Ensure only the owner can update
     .select()
     .single();
 

@@ -1,14 +1,15 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { getUser } from "@/db/queries/users";
 import { nameToUrl } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function updateEventVenue(eventId: string, venueId: string | null) {
   const supabase = await createClient();
 
-  const { data: user } = await supabase.auth.getUser();
-  if (!user || !user.user) {
+  const user = await getUser(supabase);
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -25,7 +26,7 @@ export async function updateEventVenue(eventId: string, venueId: string | null) 
 
   // Revalidate the event page to show updated data
   revalidatePath(`/events/${nameToUrl(event.name)}`);
-  
+
   return event;
 }
 
