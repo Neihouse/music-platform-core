@@ -103,7 +103,6 @@ export function ArtistSearchInput({
 
     return (
         <Autocomplete
-            clearable
             value={searchValue}
             onChange={setSearchValue}
             onOptionSubmit={handleSelect}
