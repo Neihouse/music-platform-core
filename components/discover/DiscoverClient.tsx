@@ -5,6 +5,8 @@ import {
   ArtistCard,
   ContentSection,
   EventCard,
+  MusicGrid,
+  MusicTrack,
   SearchHero,
   VenueCard,
 } from "@/components/shared";
@@ -33,13 +35,15 @@ interface DiscoverClientProps {
   initialCity?: string;
   popularCities?: string[];
   isLoggedIn?: boolean;
+  initialFeaturedTracks?: MusicTrack[];
 }
 
-export function DiscoverClient({ initialData, initialCity, popularCities, isLoggedIn }: DiscoverClientProps) {
+export function DiscoverClient({ initialData, initialCity, popularCities, isLoggedIn, initialFeaturedTracks }: DiscoverClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cityData, setCityData] = useState<CityData | null>(initialData || null);
   const [currentCity, setCurrentCity] = useState(initialCity || "");
+  const [featuredTracks, setFeaturedTracks] = useState<MusicTrack[]>(initialFeaturedTracks || []);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +61,10 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
       setCityData(initialData);
       setCurrentCity(initialCity);
     }
-  }, [initialData, initialCity, cityData]);
+    if (initialFeaturedTracks && initialFeaturedTracks.length > 0) {
+      setFeaturedTracks(initialFeaturedTracks);
+    }
+  }, [initialData, initialCity, cityData, initialFeaturedTracks]);
 
   const handleSearch = useCallback(async (searchQuery: string) => {
     const trimmedQuery = searchQuery.trim();
@@ -224,6 +231,17 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
               </Button>
             </Group>
           </Paper>
+        </Container>
+      )}
+
+      {/* Featured Tracks - when no city is selected */}
+      {!isLoading && !error && !currentCity && featuredTracks.length > 0 && (
+        <Container size="xl" py={{ base: "md", sm: "lg", md: "xl" }}>
+          <MusicGrid
+            tracks={featuredTracks}
+            title="🎵 Featured Tracks"
+            maxItems={12}
+          />
         </Container>
       )}
 
