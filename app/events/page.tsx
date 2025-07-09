@@ -14,7 +14,7 @@ export default async function EventsPage() {
 
   return (
     <Container size="xl" py={{ base: "md", sm: "xl" }}>
-      <Stack gap={{ base: "md", sm: "xl" }}>
+      <Stack gap="xl">
         {/* Header Section */}
         <EventsHeader events={events} />
 

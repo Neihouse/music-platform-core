@@ -204,20 +204,16 @@ function EventCard({ event }: EventCardProps) {
     // Mobile version - just clickable poster with minimal info
     if (isMobile) {
         return (
-            <Grid.Col span={6}>
-                <Card
+            <Grid.Col span={6} p={0}>
+                <Box
                     component={Link}
                     href={`/events/${event.hash}`}
-                    shadow="sm"
-                    radius="md"
-                    p={10}
+                    pos="relative"
                     style={{
-                        overflow: 'hidden',
+                        display: 'block',
                         transition: 'all 0.2s ease',
                         cursor: 'pointer',
-                        background: `linear-gradient(145deg, ${colorPalette.light}10 0%, ${colorPalette.primary}05 100%)`,
                         textDecoration: 'none',
-                        border: 'none',
                     }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'scale(0.98)';
@@ -226,70 +222,89 @@ function EventCard({ event }: EventCardProps) {
                         e.currentTarget.style.transform = 'scale(1)';
                     }}
                 >
-                    <Stack gap={4}>
-                        {/* Compact Poster */}
-                        <Box pos="relative">
-                            <AspectRatio ratio={3 / 4}>
-                                {posterUrl ? (
-                                    <Image
-                                        src={posterUrl}
-                                        alt={`${event.name} poster`}
-                                        style={{
-                                            objectFit: 'cover',
-                                            borderRadius: '6px',
-                                        }}
-                                        fallbackSrc="/artist-not-found.svg"
-                                    />
-                                ) : (
-                                    <Box
-                                        style={{
-                                            background: colorPalette.gradient,
-                                            borderRadius: '6px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: colorPalette.text,
-                                        }}
-                                    >
-                                        <IconPhoto size={20} opacity={0.7} />
-                                    </Box>
-                                )}
-                            </AspectRatio>
+                    <AspectRatio ratio={3 / 4}>
+                        {posterUrl ? (
+                            <Image
+                                src={posterUrl}
+                                alt={`${event.name} poster`}
+                                style={{
+                                    objectFit: 'cover',
+                                    borderRadius: '8px',
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                                fallbackSrc="/artist-not-found.svg"
+                            />
+                        ) : (
+                            <Box
+                                style={{
+                                    background: colorPalette.gradient,
+                                    borderRadius: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: colorPalette.text,
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
+                                <IconPhoto size={24} opacity={0.7} />
+                            </Box>
+                        )}
+                    </AspectRatio>
 
-                            {/* Small Date Badge */}
-                            {eventDate && (
-                                <Badge
-                                    size="xs"
-                                    variant="filled"
-                                    style={{
-                                        position: 'absolute',
-                                        top: 4,
-                                        right: 4,
-                                        background: `${colorPalette.primary}E6`,
-                                        color: colorPalette.text,
-                                        borderRadius: '4px',
-                                        fontSize: '0.6rem',
-                                        lineHeight: 1,
-                                        padding: '2px 4px',
-                                        minHeight: 'auto',
-                                        height: 'auto',
-                                    }}
-                                >
-                                    {eventDate.getDate()}
-                                </Badge>
-                            )}
+                    {/* Small Date Badge */}
+                    {eventDate && (
+                        <Badge
+                            size="xs"
+                            variant="filled"
+                            style={{
+                                position: 'absolute',
+                                top: 6,
+                                right: 6,
+                                background: `${colorPalette.primary}E6`,
+                                color: colorPalette.text,
+                                borderRadius: '4px',
+                                fontSize: '0.6rem',
+                                lineHeight: 1,
+                                padding: '2px 4px',
+                                minHeight: 'auto',
+                                height: 'auto',
+                                zIndex: 10,
+                            }}
+                        >
+                            {eventDate.getDate()}
+                        </Badge>
+                    )}
+
+                    {/* Venue overlay at bottom */}
+                    {event.venues && (
+                        <Box
+                            style={{
+                                position: 'absolute',
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                                borderRadius: '0 0 8px 8px',
+                                padding: '8px',
+                                zIndex: 10,
+                            }}
+                        >
+                            <Text
+                                size="xs"
+                                c="white"
+                                lineClamp={1}
+                                style={{
+                                    fontSize: '0.65rem',
+                                    textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                                }}
+                            >
+                                {event.venues.name}
+                            </Text>
                         </Box>
-
-                        {/* Minimal Event Info */}
-                        <div>
-                            {event.venues && (
-                                <Text size="xs" c="dimmed" lineClamp={1} style={{ fontSize: '0.6rem' }}>
-                                    {event.venues.name}
-                                </Text>
-                            )}
-                        </div>
-                    </Stack>
-                </Card>
+                    )}
+                </Box>
             </Grid.Col>
         );
     }
