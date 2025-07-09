@@ -1,7 +1,7 @@
-"use server";
+"use client";
 
-import { getAvatarUrlServer } from "@/lib/images/image-utils";
-import { createClient } from "@/utils/supabase/server";
+import { getAvatarUrl } from "@/lib/images/image-utils-client";
+import { createClient } from "@/utils/supabase/client";
 
 export interface ArtistSearchResult {
     id: string;
@@ -12,7 +12,7 @@ export interface ArtistSearchResult {
 }
 
 export async function searchArtists(query: string): Promise<ArtistSearchResult[]> {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     if (!query || query.trim().length === 0) {
         return [];
@@ -32,18 +32,16 @@ export async function searchArtists(query: string): Promise<ArtistSearchResult[]
     }
 
     // Process avatar URLs
-    const artistsWithAvatars = await Promise.all(
-        (artists || []).map(async (artist) => ({
-            ...artist,
-            avatarUrl: artist.avatar_img ? await getAvatarUrlServer(artist.avatar_img) : null,
-        }))
-    );
+    const artistsWithAvatars = (artists || []).map((artist) => ({
+        ...artist,
+        avatarUrl: artist.avatar_img ? getAvatarUrl(artist.avatar_img) : null,
+    }));
 
     return artistsWithAvatars;
 }
 
 export async function getAllArtistsAction(): Promise<ArtistSearchResult[]> {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     const { data: artists, error } = await supabase
         .from("artists")
@@ -57,12 +55,10 @@ export async function getAllArtistsAction(): Promise<ArtistSearchResult[]> {
     }
 
     // Process avatar URLs
-    const artistsWithAvatars = await Promise.all(
-        (artists || []).map(async (artist) => ({
-            ...artist,
-            avatarUrl: artist.avatar_img ? await getAvatarUrlServer(artist.avatar_img) : null,
-        }))
-    );
+    const artistsWithAvatars = (artists || []).map((artist) => ({
+        ...artist,
+        avatarUrl: artist.avatar_img ? getAvatarUrl(artist.avatar_img) : null,
+    }));
 
     return artistsWithAvatars;
 }

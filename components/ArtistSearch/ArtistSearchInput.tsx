@@ -4,7 +4,7 @@ import { Autocomplete, Avatar, Group, Loader, Text } from "@mantine/core";
 import { useDebouncedValue, useMediaQuery } from "@mantine/hooks";
 import { IconSearch, IconUser } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
-import { ArtistSearchResult, getAllArtistsAction, searchArtists } from "./actions";
+import { ArtistSearchResult, getAllArtistsAction, searchArtists } from "./queries";
 
 export interface IArtistSearchInputProps {
     onArtistSelect: (artist: ArtistSearchResult) => void;
