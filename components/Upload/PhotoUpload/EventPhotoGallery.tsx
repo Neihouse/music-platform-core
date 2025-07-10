@@ -1,6 +1,6 @@
 "use client";
 
-import { EventPhotoUpload, PhotoItem } from "@/components/Upload";
+import { PhotoItem } from "@/components/Upload";
 import {
     ActionIcon,
     Badge,
@@ -16,14 +16,12 @@ import {
     Title
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
 import { IconChevronLeft, IconChevronRight, IconEye, IconPhoto, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 
 interface EventPhotoGalleryProps {
     eventId: string;
     eventName: string;
-    isEventOwner?: boolean;
     /** Whether this component is being used as a fullscreen page */
     fullscreen?: boolean;
     /** Whether to hide the container wrapper for embedded usage */
@@ -33,12 +31,10 @@ interface EventPhotoGalleryProps {
 export function EventPhotoGallery({
     eventId,
     eventName,
-    isEventOwner = false,
     fullscreen = false,
     embedded = false
 }: EventPhotoGalleryProps) {
     const [photos, setPhotos] = useState<PhotoItem[]>([]);
-    const [uploading, setUploading] = useState(false);
     const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 
     // Mobile responsive hooks
@@ -55,22 +51,6 @@ export function EventPhotoGallery({
 
     const handlePhotosUpdated = (updatedPhotos: PhotoItem[]) => {
         setPhotos(updatedPhotos);
-
-        // Show notification when photos are added/removed
-        if (updatedPhotos.length > photos.length) {
-            const addedCount = updatedPhotos.length - photos.length;
-            notifications.show({
-                title: "Photos Added",
-                message: `${addedCount} photo${addedCount > 1 ? 's' : ''} uploaded successfully!`,
-                color: "green",
-            });
-        } else if (updatedPhotos.length < photos.length) {
-            notifications.show({
-                title: "Photo Removed",
-                message: "Photo deleted successfully",
-                color: "blue",
-            });
-        }
     };
 
     const openPhotoModal = (index: number) => {
@@ -178,82 +158,41 @@ export function EventPhotoGallery({
                                 <Badge variant="light" color="blue" size={fullscreen ? "md" : "sm"}>
                                     {photos.length} photo{photos.length !== 1 ? 's' : ''}
                                 </Badge>
-                                {isEventOwner && (
-                                    <Badge variant="light" color="green" size={fullscreen ? "md" : "sm"}>
-                                        You can upload photos
-                                    </Badge>
-                                )}
                             </Group>
                         </div>
                     </Group>
                 </Card>
             )}
 
-            {/* Photo Upload Component or Gallery Display */}
-            {isEventOwner ? (
-                <EventPhotoUpload
-                    eventId={eventId}
-                    onPhotosUploaded={handlePhotosUpdated}
-                />
-            ) : (
-                <Card p={fullscreen ? "xl" : "lg"} withBorder>
-                    {photos.length > 0 ? (
-                        <Stack gap="lg">
-                            <Group justify="space-between" align="center">
-                                <div>
-                                    <Title order={4}>Event Gallery</Title>
-                                    <Text size="sm" c="dimmed">
-                                        Check out photos from this event
-                                    </Text>
-                                </div>
-                                <Text size="sm" fw={500}>
-                                    {photos.length} photo{photos.length !== 1 ? 's' : ''}
-                                </Text>
-                            </Group>
-                            <PhotoGrid photos={photos} />
-                        </Stack>
-                    ) : (
-                        <Stack align="center" gap="md" py="xl">
-                            <IconPhoto size={48} color="var(--mantine-color-gray-5)" />
-                            <Text size="lg" c="dimmed" ta="center">
-                                No photos have been uploaded for this event yet.
-                            </Text>
-                            <Text size="sm" c="dimmed" ta="center">
-                                Check back later to see photos from this event!
-                            </Text>
-                        </Stack>
-                    )}
-                </Card>
-            )}
-
-            {/* Read-only photo grid for owner view when photos exist */}
-            {isEventOwner && photos.length > 0 && (
-                <Card p={fullscreen ? "xl" : "lg"} withBorder>
+            {/* Photo Gallery Display */}
+            <Card p={fullscreen ? "xl" : "lg"} withBorder>
+                {photos.length > 0 ? (
                     <Stack gap="lg">
                         <Group justify="space-between" align="center">
-                            <Title order={4}>Current Event Photos</Title>
+                            <div>
+                                <Title order={4}>Event Gallery</Title>
+                                <Text size="sm" c="dimmed">
+                                    Check out photos from this event
+                                </Text>
+                            </div>
                             <Text size="sm" fw={500}>
                                 {photos.length} photo{photos.length !== 1 ? 's' : ''}
                             </Text>
                         </Group>
                         <PhotoGrid photos={photos} />
                     </Stack>
-                </Card>
-            )}
-
-            {/* Usage Tips */}
-            {isEventOwner && !embedded && (
-                <Card p="md" bg="gray.0" withBorder>
-                    <Title order={5} mb="sm">Photo Upload Tips</Title>
-                    <Stack gap="xs">
-                        <Text size="sm">• Upload up to 20 photos per event</Text>
-                        <Text size="sm">• Supported formats: JPEG, PNG, WebP, AVIF</Text>
-                        <Text size="sm">• Maximum file size: 10MB per photo</Text>
-                        <Text size="sm">• Click on photos to view them in full size</Text>
-                        <Text size="sm">• Use the trash icon to delete photos</Text>
+                ) : (
+                    <Stack align="center" gap="md" py="xl">
+                        <IconPhoto size={48} color="var(--mantine-color-gray-5)" />
+                        <Text size="lg" c="dimmed" ta="center">
+                            No photos have been uploaded for this event yet.
+                        </Text>
+                        <Text size="sm" c="dimmed" ta="center">
+                            Check back later to see photos from this event!
+                        </Text>
                     </Stack>
-                </Card>
-            )}
+                )}
+            </Card>
         </Stack>
     );
 

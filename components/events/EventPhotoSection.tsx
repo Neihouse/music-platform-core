@@ -36,10 +36,10 @@ export function EventPhotoSection({ event, isEventCreator = false }: EventPhotoS
                     eventId={event.id}
                     eventName={event.name}
                     onConfirm={() => {
-                        console.log(`Photo upload confirmed for event ${event.name}`);
+                        // Photo upload confirmed
                     }}
                     onCancel={() => {
-                        console.log(`Photo upload cancelled for event ${event.name}`);
+                        // Photo upload cancelled
                     }}
                 />
             );
@@ -49,7 +49,6 @@ export function EventPhotoSection({ event, isEventCreator = false }: EventPhotoS
                 <EventPhotoGallery
                     eventId={event.id}
                     eventName={event.name}
-                    isEventOwner={false}
                     embedded={true}
                 />
             );

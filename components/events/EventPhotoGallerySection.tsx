@@ -61,14 +61,9 @@ export function EventPhotoGallerySection({ event, refreshTrigger }: EventPhotoGa
     // Show the photo gallery
     return (
         <div key={key}>
-            {/* Debug info */}
-            <Text size="xs" c="dimmed" mb="xs">
-                Debug: Event ID: {event.id}, Event Started: {eventHasStarted.toString()}
-            </Text>
             <EventPhotoGallery
                 eventId={event.id}
                 eventName={event.name}
-                isEventOwner={false}
                 embedded={true}
             />
         </div>

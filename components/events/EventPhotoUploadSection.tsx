@@ -38,11 +38,11 @@ export function EventPhotoUploadSection({
                 eventId={event.id}
                 eventName={event.name}
                 onConfirm={() => {
-                    console.log(`Photo upload confirmed for event ${event.name}`);
+                    // Photo upload confirmed
                     onPhotosConfirmed?.();
                 }}
                 onCancel={() => {
-                    console.log(`Photo upload cancelled for event ${event.name}`);
+                    // Photo upload cancelled
                 }}
             />
         );
