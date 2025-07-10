@@ -9,17 +9,29 @@ export interface PhotoItem {
 }
 
 /**
- * Fetches all photos for a specific event
+ * Fetches all photos for a specific event using the new folder structure
  * @param supabase - The Supabase client
  * @param eventId - The ID of the event to fetch photos for
  * @returns Array of PhotoItem objects with public URLs
  */
 export async function getPhotosByEvent(supabase: TypedClient, eventId: string): Promise<PhotoItem[]> {
     try {
-        // First, get all photo records from the database for this event
+        // First, get the event to access its hash
+        const { data: event, error: eventError } = await supabase
+            .from("events")
+            .select("hash")
+            .eq("id", eventId)
+            .single();
+
+        if (eventError || !event?.hash) {
+            console.error("Error fetching event hash:", eventError);
+            return [];
+        }
+
+        // Get all photo records from the database for this event
         const { data: photos, error } = await supabase
             .from("event_photos")
-            .select("id, created_at")
+            .select("id, user, created_at")
             .eq("event", eventId)
             .order("created_at", { ascending: true });
 
@@ -32,15 +44,17 @@ export async function getPhotosByEvent(supabase: TypedClient, eventId: string): 
             return [];
         }
 
-        // Get the actual files from storage and map them to PhotoItem format
+        // Get the actual files from storage using the new folder structure
         const photoItems: PhotoItem[] = [];
 
         for (const photo of photos) {
             try {
-                // The photo.id should be the filename in storage
+                // Build the path using the new folder structure: eventHash/userId/filename
+                const folderPath = photo.user ? `${event.hash}/${photo.user}/${photo.id}` : photo.id;
+
                 const { data: publicUrlData } = supabase.storage
                     .from("event-photos")
-                    .getPublicUrl(photo.id);
+                    .getPublicUrl(folderPath);
 
                 if (publicUrlData.publicUrl) {
                     photoItems.push({

@@ -6,6 +6,7 @@ import { EventPhotoUploadWithControls } from "./EventPhotoUploadWithControls";
 interface EventPhotoUploadSectionProps {
     event: {
         id?: string;
+        hash?: string | null;
         name: string;
         date?: string | null;
     };
@@ -32,10 +33,11 @@ export function EventPhotoUploadSection({
     }
 
     // Only show upload interface for event creators when event has started
-    if (isEventCreator && event.id) {
+    if (isEventCreator && event.id && event.hash) {
         return (
             <EventPhotoUploadWithControls
                 eventId={event.id}
+                eventHash={event.hash}
                 eventName={event.name}
                 onConfirm={() => {
                     // Photo upload confirmed

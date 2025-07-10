@@ -5,29 +5,31 @@ import { createClient } from "@/utils/supabase/client";
 import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 interface EventPhotoUploadWithControlsProps {
     eventId: string;
+    eventHash: string;
     eventName: string;
     onConfirm?: () => void;
     onCancel?: () => void;
 }
 
 // Custom config for staging photos (not saved to DB immediately)
-const stagingPhotoConfig: PhotoUploadConfig = {
+const getStagingPhotoConfig = (eventHash: string, userId: string): PhotoUploadConfig => ({
     storageBucket: "event-photos",
-    storageFolder: "staging", // Temporary staging folder
+    storageFolder: `staging/${eventHash}`, // Staging folder for the event
     title: "", // Empty to avoid duplicate title
     description: "", // Empty to avoid duplicate description
     maxFileSize: 10 * 1024 * 1024, // 10MB
     multiple: true,
     maxPhotos: 20,
-};
+});
 
 export function EventPhotoUploadWithControls({
     eventId,
+    eventHash,
     eventName,
     onConfirm,
     onCancel,
@@ -35,6 +37,24 @@ export function EventPhotoUploadWithControls({
     const [stagingPhotos, setStagingPhotos] = useState<PhotoItem[]>([]);
     const [hasChanges, setHasChanges] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+    // Get current user ID
+    React.useEffect(() => {
+        const getCurrentUser = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user && !user.is_anonymous) {
+                setCurrentUserId(user.id);
+            }
+        };
+        getCurrentUser();
+    }, []);
+
+    const stagingPhotoConfig = React.useMemo(() => {
+        if (!currentUserId) return null;
+        return getStagingPhotoConfig(eventHash, currentUserId);
+    }, [eventHash, currentUserId]);
 
     const handlePhotosUpdated = (updatedPhotos: PhotoItem[]) => {
         setStagingPhotos(updatedPhotos);
@@ -42,7 +62,7 @@ export function EventPhotoUploadWithControls({
     };
 
     const handleConfirm = async () => {
-        if (stagingPhotos.length === 0) return;
+        if (stagingPhotos.length === 0 || !currentUserId) return;
 
         setIsConfirming(true);
 
@@ -56,17 +76,17 @@ export function EventPhotoUploadWithControls({
                 // Copy from staging to final location
                 const { data: fileData, error: downloadError } = await supabase.storage
                     .from("event-photos")
-                    .download(`staging/${photo.filename}`);
+                    .download(`staging/${eventHash}/${photo.filename}`);
 
                 if (downloadError) {
                     console.error("Error downloading staging photo:", downloadError);
                     continue;
                 }
 
-                // Upload to final location
+                // Upload to final location (approved photos go to eventHash/userId/)
                 const { error: uploadError } = await supabase.storage
                     .from("event-photos")
-                    .upload(newFilename, fileData, {
+                    .upload(`${eventHash}/${currentUserId}/${newFilename}`, fileData, {
                         cacheControl: "3600",
                         contentType: fileData.type,
                     });
@@ -82,6 +102,7 @@ export function EventPhotoUploadWithControls({
                     .insert({
                         id: newFilename,
                         event: eventId,
+                        user: currentUserId,
                     });
 
                 if (dbError) {
@@ -92,7 +113,7 @@ export function EventPhotoUploadWithControls({
                 // Delete staging file
                 await supabase.storage
                     .from("event-photos")
-                    .remove([`staging/${photo.filename}`]);
+                    .remove([`staging/${eventHash}/${photo.filename}`]);
             }
 
             notifications.show({
@@ -125,11 +146,11 @@ export function EventPhotoUploadWithControls({
     };
 
     const handleCancel = async () => {
-        if (hasChanges) {
+        if (hasChanges && currentUserId) {
             // Clean up staging files
             try {
                 const supabase = createClient();
-                const filesToDelete = stagingPhotos.map(photo => `staging/${photo.filename}`);
+                const filesToDelete = stagingPhotos.map(photo => `staging/${eventHash}/${photo.filename}`);
                 await supabase.storage
                     .from("event-photos")
                     .remove(filesToDelete);
@@ -161,10 +182,14 @@ export function EventPhotoUploadWithControls({
                 </div>
 
                 {/* Upload Component */}
-                <PhotoUpload
-                    config={stagingPhotoConfig}
-                    onPhotosUpdated={handlePhotosUpdated}
-                />
+                {stagingPhotoConfig ? (
+                    <PhotoUpload
+                        config={stagingPhotoConfig}
+                        onPhotosUpdated={handlePhotosUpdated}
+                    />
+                ) : (
+                    <Text c="dimmed" ta="center">Loading...</Text>
+                )}
 
                 {/* Action Buttons */}
                 {hasChanges && (

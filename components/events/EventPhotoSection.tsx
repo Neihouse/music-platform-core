@@ -7,6 +7,7 @@ import { EventPhotoUploadWithControls } from "./EventPhotoUploadWithControls";
 interface EventPhotoSectionProps {
     event: {
         id?: string;
+        hash?: string | null;
         name: string;
         date?: string | null;
     };
@@ -28,12 +29,13 @@ export function EventPhotoSection({ event, isEventCreator = false }: EventPhotoS
     }
 
     // If event has started and we have an event ID, show the appropriate component
-    if (event.id) {
+    if (event.id && event.hash) {
         if (isEventCreator) {
             // Event creator can upload photos
             return (
                 <EventPhotoUploadWithControls
                     eventId={event.id}
+                    eventHash={event.hash}
                     eventName={event.name}
                     onConfirm={() => {
                         // Photo upload confirmed
