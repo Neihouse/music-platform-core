@@ -1,7 +1,8 @@
 "use client";
 
-import { EventPhotoGallery, EventPhotoUpload } from "@/components/Upload";
+import { EventPhotoGallery } from "@/components/Upload";
 import { EventPhotoPlaceholder } from "./EventPhotoPlaceholder";
+import { EventPhotoUploadWithControls } from "./EventPhotoUploadWithControls";
 
 interface EventPhotoSectionProps {
     event: {
@@ -31,10 +32,14 @@ export function EventPhotoSection({ event, isEventCreator = false }: EventPhotoS
         if (isEventCreator) {
             // Event creator can upload photos
             return (
-                <EventPhotoUpload
+                <EventPhotoUploadWithControls
                     eventId={event.id}
-                    onPhotosUploaded={(photos) => {
-                        console.log(`${photos.length} photos updated for event ${event.name}`);
+                    eventName={event.name}
+                    onConfirm={() => {
+                        console.log(`Photo upload confirmed for event ${event.name}`);
+                    }}
+                    onCancel={() => {
+                        console.log(`Photo upload cancelled for event ${event.name}`);
                     }}
                 />
             );

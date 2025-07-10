@@ -1,4 +1,5 @@
-import { EventPhotoSection } from "@/components/events/EventPhotoSection";
+import { EventPhotoGallerySection } from "@/components/events/EventPhotoGallerySection";
+import { EventPhotoUploadSection } from "@/components/events/EventPhotoUploadSection";
 import { EventPosterSection } from "@/components/events/EventPosterSection";
 import { VenueSelector } from "@/components/events/VenueSelector";
 import StyledTitle from "@/components/StyledTitle";
@@ -45,8 +46,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   isEventCreator={isEventCreator}
                 />
 
-                {/* Event Photo Gallery */}
-                <EventPhotoSection
+                {/* Event Photo Upload */}
+                <EventPhotoUploadSection
                   event={event}
                   isEventCreator={isEventCreator}
                 />
@@ -115,6 +116,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
                 {/* Venue Selection */}
                 {isEventCreator && <VenueSelector event={event} availableVenues={availableVenues} />}
+
+                {/* Event Photo Gallery */}
+                <EventPhotoGallerySection event={event} />
 
                 {/* Event Management */}
                 {isEventCreator && (
@@ -189,8 +193,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               />
             </Center>
 
-            {/* Mobile Event Photo Gallery */}
-            <EventPhotoSection
+            {/* Mobile Event Photo Upload */}
+            <EventPhotoUploadSection
               event={event}
               isEventCreator={isEventCreator}
             />
@@ -246,6 +250,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
             {/* Mobile Venue Selection */}
             {isEventCreator && <VenueSelector event={event} availableVenues={availableVenues} />}
+
+            {/* Mobile Event Photo Gallery */}
+            <EventPhotoGallerySection event={event} />
 
             {/* Mobile Event Management */}
             {isEventCreator && (
