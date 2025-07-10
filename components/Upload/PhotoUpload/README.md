@@ -11,7 +11,11 @@ A React component for uploading and managing photos for events.
 - Mobile-responsive design
 - Integrates with Supabase storage and database
 
-## Usage
+## Components
+
+### EventPhotoUpload
+
+Basic upload component for event photos.
 
 ```tsx
 import { EventPhotoUpload } from "@/components/Upload";
@@ -22,12 +26,51 @@ function EventDetails({ eventId }: { eventId: string }) {
   };
 
   return (
-    <div>
-      <EventPhotoUpload 
-        eventId={eventId}
-        onPhotosUploaded={handlePhotosUploaded}
-      />
-    </div>
+    <EventPhotoUpload 
+      eventId={eventId}
+      onPhotosUploaded={handlePhotosUploaded}
+    />
+  );
+}
+```
+
+### EventPhotoGallery
+
+Complete gallery component with responsive grid and full-screen modal viewing.
+
+```tsx
+import { EventPhotoGallery } from "@/components/Upload";
+
+// Standard usage
+function EventPage({ eventId, eventName, isOwner }: Props) {
+  return (
+    <EventPhotoGallery 
+      eventId={eventId}
+      eventName={eventName}
+      isEventOwner={isOwner}
+    />
+  );
+}
+
+// Fullscreen usage
+function PhotoGalleryPage({ eventId, eventName }: Props) {
+  return (
+    <EventPhotoGallery 
+      eventId={eventId}
+      eventName={eventName}
+      fullscreen
+    />
+  );
+}
+
+// Embedded usage (no container wrapper)
+function EmbeddedGallery({ eventId, eventName }: Props) {
+  return (
+    <EventPhotoGallery 
+      eventId={eventId}
+      eventName={eventName}
+      embedded
+    />
   );
 }
 ```
@@ -40,6 +83,58 @@ function EventDetails({ eventId }: { eventId: string }) {
 |------|------|-------------|
 | `eventId` | `string` (optional) | The event ID. If not provided, component works in preview mode |
 | `onPhotosUploaded` | `(photos: PhotoItem[]) => void` (optional) | Callback when photos are uploaded or updated |
+
+### EventPhotoGalleryProps
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `eventId` | `string` | The event ID |
+| `eventName` | `string` | Display name for the event |
+| `isEventOwner` | `boolean` (optional) | Whether the user can upload photos |
+| `fullscreen` | `boolean` (optional) | Optimizes layout for fullscreen usage |
+| `embedded` | `boolean` (optional) | Removes container wrapper for embedded usage |
+
+## Responsive Design
+
+The photo grid automatically adjusts columns based on screen size:
+
+### Standard Mode
+- **Mobile (base)**: 2 columns
+- **Small screens (xs)**: 2 columns  
+- **Tablets (sm)**: 3 columns
+- **Desktop (md)**: 4 columns
+- **Large desktop (lg)**: 4 columns
+
+### Fullscreen Mode
+- **Mobile (base)**: 2 columns
+- **Small screens (xs)**: 3 columns
+- **Tablets (sm)**: 4 columns
+- **Desktop (md)**: 5 columns
+- **Large desktop (lg)**: 6 columns
+- **Extra large (xl)**: 7 columns
+
+## Features
+
+### Photo Grid
+- Responsive grid layout
+- Square aspect ratio photos
+- Hover effects with scale and shadow
+- Click to open full-size modal
+
+### Modal Viewer
+- Full-screen photo viewing
+- Navigation between photos (left/right arrows)
+- Photo counter display
+- Keyboard navigation support
+- Click outside to close
+
+### Upload Management
+- Drag & drop multiple files
+- Progress indication
+- Error handling
+- Success notifications
+- File type validation
+- Size limits
 
 ## Storage Structure
 
