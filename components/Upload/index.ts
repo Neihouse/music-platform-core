@@ -8,6 +8,9 @@ export type { BannerUploadConfig, IBannerUploadProps } from "./BannerUpload";
 export { PosterUpload } from "./PosterUpload";
 export type { IPosterUploadProps, PosterUploadConfig } from "./PosterUpload";
 
+export { PhotoUpload } from "./PhotoUpload";
+export type { IPhotoUploadProps, PhotoItem, PhotoUploadConfig } from "./PhotoUpload";
+
 // Entity-specific avatar uploads
 export { ArtistAvatarUpload } from "./ArtistArtUpload/ArtistAvatarUpload";
 export type { IArtistAvatarUploadProps } from "./ArtistArtUpload/ArtistAvatarUpload";
@@ -23,4 +26,11 @@ export type { IPromoterBannerUploadProps } from "./PromoterBannerUpload";
 // Entity-specific poster uploads
 export { EventPosterUpload } from "./PosterUpload/EventPosterUpload";
 export type { IEventPosterUploadProps } from "./PosterUpload/EventPosterUpload";
+
+// Entity-specific photo uploads
+export { EventPhotoUpload } from "./PhotoUpload/EventPhotoUpload";
+export type { IEventPhotoUploadProps } from "./PhotoUpload/EventPhotoUpload";
+
+// Complete gallery components
+export { default as EventPhotoGallery } from "./PhotoUpload/EventPhotoGallery";
 
