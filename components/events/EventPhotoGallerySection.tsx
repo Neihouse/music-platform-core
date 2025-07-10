@@ -1,7 +1,6 @@
 "use client";
 
-import { EventPhotoGallery } from "@/components/Upload";
-import { PhotoItem } from "@/components/Upload";
+import { EventPhotoGallery, PhotoItem } from "@/components/Upload";
 import { Card, Stack, Text, Title } from "@mantine/core";
 import { IconPhoto } from "@tabler/icons-react";
 import { useEffect, useState } from "react";

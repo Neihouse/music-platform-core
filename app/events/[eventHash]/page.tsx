@@ -3,8 +3,8 @@ import { EventPhotoUploadSection } from "@/components/events/EventPhotoUploadSec
 import { EventPosterSection } from "@/components/events/EventPosterSection";
 import { VenueSelector } from "@/components/events/VenueSelector";
 import StyledTitle from "@/components/StyledTitle";
-import { getEventByHash, getEvents } from "@/db/queries/events";
 import { getPhotosByEvent } from "@/db/queries/event_photos";
+import { getEventByHash, getEvents } from "@/db/queries/events";
 import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 import { Box, Button, Center, Container, Group, Paper, Stack, Text, Title } from "@mantine/core";
