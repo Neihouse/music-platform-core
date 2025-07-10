@@ -4,6 +4,7 @@ import { EventPosterSection } from "@/components/events/EventPosterSection";
 import { VenueSelector } from "@/components/events/VenueSelector";
 import StyledTitle from "@/components/StyledTitle";
 import { getEventByHash, getEvents } from "@/db/queries/events";
+import { getPhotosByEvent } from "@/db/queries/event_photos";
 import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 import { Box, Button, Center, Container, Group, Paper, Stack, Text, Title } from "@mantine/core";
@@ -30,6 +31,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     // Get current user to check if they are the event creator
     const currentUser = await getUser(supabase);
     const isEventCreator = !!(currentUser && event.user_id === currentUser.id);
+
+    // Fetch event photos
+    const eventPhotos = event.id ? await getPhotosByEvent(supabase, event.id) : [];
 
     return (
       <Container size="lg" pt="xl">
@@ -118,7 +122,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 {isEventCreator && <VenueSelector event={event} availableVenues={availableVenues} />}
 
                 {/* Event Photo Gallery */}
-                <EventPhotoGallerySection event={event} />
+                <EventPhotoGallerySection event={event} photos={eventPhotos} />
 
                 {/* Event Management */}
                 {isEventCreator && (
@@ -252,7 +256,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             {isEventCreator && <VenueSelector event={event} availableVenues={availableVenues} />}
 
             {/* Mobile Event Photo Gallery */}
-            <EventPhotoGallerySection event={event} />
+            <EventPhotoGallerySection event={event} photos={eventPhotos} />
 
             {/* Mobile Event Management */}
             {isEventCreator && (

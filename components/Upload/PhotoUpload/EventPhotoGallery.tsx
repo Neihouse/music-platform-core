@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight, IconEye, IconPhoto, IconX } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface EventPhotoGalleryProps {
     eventId: string;
@@ -26,16 +26,24 @@ interface EventPhotoGalleryProps {
     fullscreen?: boolean;
     /** Whether to hide the container wrapper for embedded usage */
     embedded?: boolean;
+    /** Pre-fetched photos to display */
+    photos?: PhotoItem[];
 }
 
 export function EventPhotoGallery({
     eventId,
     eventName,
     fullscreen = false,
-    embedded = false
+    embedded = false,
+    photos: initialPhotos = []
 }: EventPhotoGalleryProps) {
-    const [photos, setPhotos] = useState<PhotoItem[]>([]);
+    const [photos, setPhotos] = useState<PhotoItem[]>(initialPhotos);
     const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
+
+    // Update photos when the prop changes
+    useEffect(() => {
+        setPhotos(initialPhotos);
+    }, [initialPhotos]);
 
     // Mobile responsive hooks
     const isMobile = useMediaQuery('(max-width: 768px)');

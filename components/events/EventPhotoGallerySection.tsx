@@ -1,6 +1,7 @@
 "use client";
 
 import { EventPhotoGallery } from "@/components/Upload";
+import { PhotoItem } from "@/components/Upload";
 import { Card, Stack, Text, Title } from "@mantine/core";
 import { IconPhoto } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
@@ -11,10 +12,11 @@ interface EventPhotoGallerySectionProps {
         name: string;
         date?: string | null;
     };
+    photos: PhotoItem[];
     refreshTrigger?: number;
 }
 
-export function EventPhotoGallerySection({ event, refreshTrigger }: EventPhotoGallerySectionProps) {
+export function EventPhotoGallerySection({ event, photos, refreshTrigger }: EventPhotoGallerySectionProps) {
     const [key, setKey] = useState(0);
 
     // Check if the event has started
@@ -41,8 +43,8 @@ export function EventPhotoGallerySection({ event, refreshTrigger }: EventPhotoGa
         };
     }, [event.id]);
 
-    // If event hasn't started, show placeholder
-    if (!eventHasStarted || !event.id) {
+    // If event hasn't started and no photos, show placeholder
+    if ((!eventHasStarted || !event.id) && photos.length === 0) {
         return (
             <Card shadow="sm" p="lg" radius="md">
                 <Stack gap="md" align="center" py="lg">
@@ -62,9 +64,10 @@ export function EventPhotoGallerySection({ event, refreshTrigger }: EventPhotoGa
     return (
         <div key={key}>
             <EventPhotoGallery
-                eventId={event.id}
+                eventId={event.id || ''}
                 eventName={event.name}
                 embedded={true}
+                photos={photos}
             />
         </div>
     );
