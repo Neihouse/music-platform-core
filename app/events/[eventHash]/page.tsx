@@ -1,3 +1,4 @@
+import { EventPhotoSection } from "@/components/events/EventPhotoSection";
 import { EventPosterSection } from "@/components/events/EventPosterSection";
 import { VenueSelector } from "@/components/events/VenueSelector";
 import StyledTitle from "@/components/StyledTitle";
@@ -36,12 +37,20 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           <Group align="flex-start" gap="xl" style={{ minHeight: '100vh' }}>
             {/* Left Column - Portrait Poster */}
             <Box style={{ flex: '0 0 400px', position: 'sticky', top: '20px' }}>
-              <EventPosterSection
-                event={event}
-                className="poster-desktop"
-                style={{ maxWidth: '400px' }}
-                isEventCreator={isEventCreator}
-              />
+              <Stack gap="lg">
+                <EventPosterSection
+                  event={event}
+                  className="poster-desktop"
+                  style={{ maxWidth: '400px' }}
+                  isEventCreator={isEventCreator}
+                />
+
+                {/* Event Photo Gallery */}
+                <EventPhotoSection
+                  event={event}
+                  isEventCreator={isEventCreator}
+                />
+              </Stack>
             </Box>
 
             {/* Right Column - Event Details */}
@@ -179,6 +188,12 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 isEventCreator={isEventCreator}
               />
             </Center>
+
+            {/* Mobile Event Photo Gallery */}
+            <EventPhotoSection
+              event={event}
+              isEventCreator={isEventCreator}
+            />
 
             {/* Mobile Event Header */}
             <Paper shadow="sm" p="lg" radius="md">
