@@ -250,6 +250,45 @@ export type Database = {
         }
         Relationships: []
       }
+      event_photos: {
+        Row: {
+          artist: string | null
+          created_at: string
+          event: string | null
+          id: string
+          user: string | null
+        }
+        Insert: {
+          artist?: string | null
+          created_at?: string
+          event?: string | null
+          id?: string
+          user?: string | null
+        }
+        Update: {
+          artist?: string | null
+          created_at?: string
+          event?: string | null
+          id?: string
+          user?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_artist_fkey"
+            columns: ["artist"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gallery_event_fkey"
+            columns: ["event"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_stage: {
         Row: {
           created_at: string
