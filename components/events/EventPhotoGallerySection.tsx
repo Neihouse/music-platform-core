@@ -1,7 +1,7 @@
 "use client";
 
 import { EventPhotoGallery, PhotoItem } from "@/components/Upload";
-import { Card, Stack, Text, Title } from "@mantine/core";
+import { Paper, Stack, Text, Title } from "@mantine/core";
 import { IconPhoto } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
@@ -45,7 +45,7 @@ export function EventPhotoGallerySection({ event, photos, refreshTrigger }: Even
     // If event hasn't started and no photos, show placeholder
     if ((!eventHasStarted || !event.id) && photos.length === 0) {
         return (
-            <Card shadow="sm" p="lg" radius="md">
+            <Paper shadow="sm" p="xl" radius="md">
                 <Stack gap="md" align="center" py="lg">
                     <IconPhoto size={48} color="var(--mantine-color-gray-4)" />
                     <div>
@@ -55,7 +55,7 @@ export function EventPhotoGallerySection({ event, photos, refreshTrigger }: Even
                         </Text>
                     </div>
                 </Stack>
-            </Card>
+            </Paper>
         );
     }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Box, Card, Stack, Text, Title } from "@mantine/core";
+import { Badge, Box, Paper, Stack, Text, Title } from "@mantine/core";
 import { IconCalendar, IconClock, IconPhoto } from "@tabler/icons-react";
 
 interface EventPhotoPlaceholderProps {
@@ -14,7 +14,7 @@ export function EventPhotoPlaceholder({ eventName, eventDate }: EventPhotoPlaceh
         new Date(eventDate).toDateString() === new Date().toDateString() : false;
 
     return (
-        <Card shadow="sm" p="xl" radius="md">
+        <Paper shadow="sm" p="xl" radius="md">
             <Stack gap="lg" align="center" py="xl">
                 <Box style={{ position: "relative" }}>
                     <IconPhoto
@@ -78,6 +78,6 @@ export function EventPhotoPlaceholder({ eventName, eventDate }: EventPhotoPlaceh
                     )}
                 </Stack>
             </Stack>
-        </Card>
+        </Paper>
     );
 }

@@ -2,7 +2,7 @@
 
 import { PhotoItem, PhotoUpload, PhotoUploadConfig } from "@/components/Upload";
 import { createClient } from "@/utils/supabase/client";
-import { Button, Card, Group, Stack, Text, Title } from "@mantine/core";
+import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { useState } from "react";
@@ -150,7 +150,7 @@ export function EventPhotoUploadWithControls({
     };
 
     return (
-        <Card shadow="sm" p="lg" radius="md">
+        <Paper shadow="sm" p="xl" radius="md">
             <Stack gap="lg">
                 {/* Header */}
                 <div>
@@ -196,6 +196,6 @@ export function EventPhotoUploadWithControls({
                     </>
                 )}
             </Stack>
-        </Card>
+        </Paper>
     );
 }

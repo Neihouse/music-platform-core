@@ -10,6 +10,7 @@ import {
     Group,
     Image as MantineImage,
     Modal,
+    Paper,
     SimpleGrid,
     Stack,
     Text,
@@ -173,7 +174,7 @@ export function EventPhotoGallery({
             )}
 
             {/* Photo Gallery Display */}
-            <Card p={fullscreen ? "xl" : "lg"} withBorder>
+            <Paper shadow="sm" p="xl" radius="md">
                 {photos.length > 0 ? (
                     <Stack gap="lg">
                         <Group justify="space-between" align="center">
@@ -200,7 +201,7 @@ export function EventPhotoGallery({
                         </Text>
                     </Stack>
                 )}
-            </Card>
+            </Paper>
         </Stack>
     );
 
