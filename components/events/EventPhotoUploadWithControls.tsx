@@ -19,8 +19,8 @@ interface EventPhotoUploadWithControlsProps {
 const stagingPhotoConfig: PhotoUploadConfig = {
     storageBucket: "event-photos",
     storageFolder: "staging", // Temporary staging folder
-    title: "Event Photos",
-    description: "Upload photos from your event to share with fans and attendees",
+    title: "", // Empty to avoid duplicate title
+    description: "", // Empty to avoid duplicate description
     maxFileSize: 10 * 1024 * 1024, // 10MB
     multiple: true,
     maxPhotos: 20,

@@ -1,7 +1,7 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { Button, Card, Group, Image as MantineImage, Modal, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Button, Group, Image as MantineImage, Modal, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -232,117 +232,119 @@ export function PhotoUpload({
 
     return (
         <>
-            <Card withBorder p={isSmallMobile ? "sm" : "md"}>
-                <Stack gap={isSmallMobile ? "sm" : "md"}>
+            <Stack gap={isSmallMobile ? "sm" : "md"}>
+                {config.title && (
                     <Title order={4} size={isSmallMobile ? "1rem" : undefined}>
                         {config.title}
                     </Title>
+                )}
+                {config.description && (
                     <Text size={isSmallMobile ? "xs" : "sm"} c="dimmed">
                         {config.description}
                     </Text>
+                )}
 
-                    {photos.length > 0 && (
-                        <SimpleGrid
-                            cols={{ base: 2, sm: 3, md: 4 }}
-                            spacing="sm"
-                            style={{ marginBottom: "1rem" }}
-                        >
-                            {photos.map((photo) => (
-                                <div key={photo.id} style={{ position: "relative" }}>
-                                    <MantineImage
-                                        src={photo.url}
-                                        alt="Event photo"
-                                        style={{
-                                            width: "100%",
-                                            aspectRatio: "1",
-                                            objectFit: "cover",
-                                            borderRadius: "8px",
-                                            cursor: "pointer",
-                                        }}
+                {photos.length > 0 && (
+                    <SimpleGrid
+                        cols={{ base: 2, sm: 3, md: 4 }}
+                        spacing="sm"
+                        style={{ marginBottom: "1rem" }}
+                    >
+                        {photos.map((photo) => (
+                            <div key={photo.id} style={{ position: "relative" }}>
+                                <MantineImage
+                                    src={photo.url}
+                                    alt="Event photo"
+                                    style={{
+                                        width: "100%",
+                                        aspectRatio: "1",
+                                        objectFit: "cover",
+                                        borderRadius: "8px",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={() => setSelectedPhotoUrl(photo.url)}
+                                />
+                                <Group
+                                    gap="xs"
+                                    style={{
+                                        position: "absolute",
+                                        top: 4,
+                                        right: 4,
+                                    }}
+                                >
+                                    <Button
                                         onClick={() => setSelectedPhotoUrl(photo.url)}
-                                    />
-                                    <Group
-                                        gap="xs"
+                                        color="blue"
+                                        variant="light"
+                                        size="xs"
+                                        p={4}
                                         style={{
-                                            position: "absolute",
-                                            top: 4,
-                                            right: 4,
+                                            backgroundColor: "rgba(255, 255, 255, 0.9)",
+                                            backdropFilter: "blur(4px)",
                                         }}
                                     >
-                                        <Button
-                                            onClick={() => setSelectedPhotoUrl(photo.url)}
-                                            color="blue"
-                                            variant="light"
-                                            size="xs"
-                                            p={4}
-                                            style={{
-                                                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                                                backdropFilter: "blur(4px)",
-                                            }}
-                                        >
-                                            <IconEye size={12} />
-                                        </Button>
-                                        <Button
-                                            onClick={() => deleteImage(photo)}
-                                            color="red"
-                                            variant="light"
-                                            size="xs"
-                                            p={4}
-                                            style={{
-                                                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                                                backdropFilter: "blur(4px)",
-                                            }}
-                                        >
-                                            <IconTrash size={12} />
-                                        </Button>
-                                    </Group>
-                                </div>
-                            ))}
-                        </SimpleGrid>
-                    )}
+                                        <IconEye size={12} />
+                                    </Button>
+                                    <Button
+                                        onClick={() => deleteImage(photo)}
+                                        color="red"
+                                        variant="light"
+                                        size="xs"
+                                        p={4}
+                                        style={{
+                                            backgroundColor: "rgba(255, 255, 255, 0.9)",
+                                            backdropFilter: "blur(4px)",
+                                        }}
+                                    >
+                                        <IconTrash size={12} />
+                                    </Button>
+                                </Group>
+                            </div>
+                        ))}
+                    </SimpleGrid>
+                )}
 
-                    {(!isMultiple && photos.length > 0) ? null : (
-                        <Dropzone
-                            loading={uploadState === "pending"}
-                            onDrop={onDrop}
-                            accept={["image/png", "image/jpeg", "image/webp", "image/avif"]}
-                            maxSize={maxFileSize}
-                            maxFiles={isMultiple ? maxPhotos - photos.length : 1}
-                            multiple={isMultiple}
-                            style={{
-                                minHeight: isSmallMobile ? "120px" : isMobile ? "150px" : "200px",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }}
-                        >
-                            <Group justify="center" align="center" gap={isSmallMobile ? "xs" : "sm"}>
-                                <Dropzone.Accept>
-                                    <IconUpload size={isSmallMobile ? 24 : 40} stroke={1.5} />
-                                </Dropzone.Accept>
-                                <Dropzone.Reject>
-                                    <IconX size={isSmallMobile ? 24 : 40} stroke={1.5} />
-                                </Dropzone.Reject>
-                                <Dropzone.Idle>
-                                    <Stack align="center" gap={isSmallMobile ? "xs" : "sm"}>
-                                        <IconPhoto size={isSmallMobile ? 24 : 40} stroke={1.5} />
-                                        <Text size={isSmallMobile ? "xs" : "sm"} ta="center">
-                                            {isSmallMobile
-                                                ? `Upload photo${isMultiple ? 's' : ''}`
-                                                : `Drag photo${isMultiple ? 's' : ''} here or click to select`
-                                            }
-                                        </Text>
-                                        <Text size="xs" c="dimmed" ta="center">
-                                            {isMultiple && `Up to ${maxPhotos - photos.length} more photos, `}
-                                            max {Math.round(maxFileSize / (1024 * 1024))}MB each
-                                        </Text>
-                                    </Stack>
-                                </Dropzone.Idle>
-                            </Group>
-                        </Dropzone>
-                    )}
-                </Stack>
-            </Card>
+                {(!isMultiple && photos.length > 0) ? null : (
+                    <Dropzone
+                        loading={uploadState === "pending"}
+                        onDrop={onDrop}
+                        accept={["image/png", "image/jpeg", "image/webp", "image/avif"]}
+                        maxSize={maxFileSize}
+                        maxFiles={isMultiple ? maxPhotos - photos.length : 1}
+                        multiple={isMultiple}
+                        style={{
+                            minHeight: isSmallMobile ? "180px" : isMobile ? "220px" : "280px",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}
+                    >
+                        <Group justify="center" align="center" gap={isSmallMobile ? "xs" : "sm"}>
+                            <Dropzone.Accept>
+                                <IconUpload size={isSmallMobile ? 32 : 50} stroke={1.5} />
+                            </Dropzone.Accept>
+                            <Dropzone.Reject>
+                                <IconX size={isSmallMobile ? 32 : 50} stroke={1.5} />
+                            </Dropzone.Reject>
+                            <Dropzone.Idle>
+                                <Stack align="center" gap={isSmallMobile ? "xs" : "sm"}>
+                                    <IconPhoto size={isSmallMobile ? 32 : 50} stroke={1.5} />
+                                    <Text size={isSmallMobile ? "sm" : "md"} ta="center">
+                                        {isSmallMobile
+                                            ? `Upload photo${isMultiple ? 's' : ''}`
+                                            : `Drag photo${isMultiple ? 's' : ''} here or click to select`
+                                        }
+                                    </Text>
+                                    <Text size="sm" c="dimmed" ta="center">
+                                        {isMultiple && `Up to ${maxPhotos - photos.length} more photos, `}
+                                        max {Math.round(maxFileSize / (1024 * 1024))}MB each
+                                    </Text>
+                                </Stack>
+                            </Dropzone.Idle>
+                        </Group>
+                    </Dropzone>
+                )}
+            </Stack>
 
             {/* Photo Preview Modal */}
             <Modal
