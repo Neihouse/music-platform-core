@@ -85,7 +85,6 @@ export async function getPromoterByName(
     throw new Error(error.message);
   }
 
-  console.log("Fetched promoter:", promoter);
   return promoter;
 }
 
