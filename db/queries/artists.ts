@@ -167,7 +167,7 @@ export async function getArtistByName(
         created_at
       )
     `)
-    .ilike("name", artistName)
+    .ilike("name", `%${artistName}%`)
     .maybeSingle();
 
   if (!artist && !error) {
