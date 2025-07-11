@@ -62,6 +62,7 @@ export async function getPromoterByName(
     .from("promoters")
     .select(`
       *,
+      name,
       promoters_localities (
         localities (
           id,
@@ -77,13 +78,14 @@ export async function getPromoterByName(
         )
       )
     `)
-    .ilike("name", promoterName)
+    .ilike("name", `%${promoterName}%`)
     .maybeSingle();
 
   if (error) {
     throw new Error(error.message);
   }
 
+  console.log("Fetched promoter:", promoter);
   return promoter;
 }
 
