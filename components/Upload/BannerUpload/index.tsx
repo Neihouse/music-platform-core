@@ -18,6 +18,8 @@ export interface BannerUploadConfig {
   title: string;
   /** Description text for the upload section */
   description: string;
+  /** Max file size in bytes */
+  maxFileSize?: number;
 }
 
 export interface IBannerUploadProps {
@@ -45,10 +47,13 @@ export function BannerUpload({
   >("initial");
   const [imageUrl, setImageUrl] = React.useState<string | null>(null);
   const [currentBannerFilename, setCurrentBannerFilename] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
 
   // Mobile responsive hooks
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isSmallMobile = useMediaQuery('(max-width: 480px)');
+
+  const maxFileSize = config.maxFileSize || 5 * 1024 * 1024; // 5MB default
 
   // Fetch existing banner when component mounts
   React.useEffect(() => {
@@ -155,8 +160,9 @@ export function BannerUpload({
           <Dropzone
             loading={uploadState === "pending"}
             onDrop={onDrop}
+            onReject={onReject}
             accept={["image/png", "image/jpeg", "image/webp"]}
-            maxSize={5 * 1024 * 1024} // 5MB
+            maxSize={maxFileSize}
             maxFiles={1}
             style={{
               minHeight: isSmallMobile ? "120px" : isMobile ? "160px" : "200px",
@@ -179,12 +185,17 @@ export function BannerUpload({
                     {isSmallMobile ? "Upload banner" : "Drag banner image here or click to select"}
                   </Text>
                   <Text size="xs" c="dimmed" ta="center">
-                    Wide image recommended (16:9 ratio), max 5MB
+                    Wide image recommended (16:9 ratio), max {Math.round(maxFileSize / (1024 * 1024))}MB
                   </Text>
                 </Stack>
               </Dropzone.Idle>
             </Group>
           </Dropzone>
+        )}
+        {error && (
+          <Text c="red" size="xs" ta="center">
+            {error}
+          </Text>
         )}
       </Stack>
     </Card>
@@ -241,8 +252,23 @@ export function BannerUpload({
     }
   }
 
+  async function onReject(files: any[]) {
+    const file = files[0];
+    if (file && file.file) {
+      const fileSize = file.file.size;
+      if (fileSize > maxFileSize) {
+        const errorMessage = `File size is ${(fileSize / (1024 * 1024)).toFixed(1)}MB. Maximum allowed size is ${Math.round(maxFileSize / (1024 * 1024))}MB.`;
+        setError(errorMessage);
+        setUploadState("error");
+      }
+    }
+  }
+
   async function onDrop(files: FileWithPath[]) {
     if (files.length === 0) return;
+
+    // Clear any previous errors
+    setError(null);
 
     setUploadState("pending");
     const file = files[0];

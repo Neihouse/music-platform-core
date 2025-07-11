@@ -50,6 +50,7 @@ export function AvatarUpload({
   >("initial");
   const [imageUrl, setImageUrl] = React.useState<string | null>(null);
   const [currentAvatarFilename, setCurrentAvatarFilename] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
 
   // Mobile responsive hooks
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -149,6 +150,7 @@ export function AvatarUpload({
             <Dropzone
               loading={uploadState === "pending"}
               onDrop={onDrop}
+              onReject={onReject}
               accept={["image/png", "image/jpeg", "image/webp"]}
               maxSize={maxFileSize}
               maxFiles={1}
@@ -189,6 +191,11 @@ export function AvatarUpload({
         <Text size="xs" c="dimmed" ta="center">
           Square image recommended, max {Math.round(maxFileSize / (1024 * 1024))}MB
         </Text>
+        {error && (
+          <Text c="red" size="xs" ta="center">
+            {error}
+          </Text>
+        )}
       </Stack>
     </Card>
   );
@@ -244,8 +251,23 @@ export function AvatarUpload({
     }
   }
 
+  async function onReject(files: any[]) {
+    const file = files[0];
+    if (file && file.file) {
+      const fileSize = file.file.size;
+      if (fileSize > maxFileSize) {
+        const errorMessage = `File size is ${(fileSize / (1024 * 1024)).toFixed(1)}MB. Maximum allowed size is ${Math.round(maxFileSize / (1024 * 1024))}MB.`;
+        setError(errorMessage);
+        setUploadState("error");
+      }
+    }
+  }
+
   async function onDrop(files: FileWithPath[]) {
     if (files.length === 0) return;
+
+    // Clear any previous errors
+    setError(null);
 
     setUploadState("pending");
     const file = files[0];
