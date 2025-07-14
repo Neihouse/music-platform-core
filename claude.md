@@ -74,6 +74,31 @@ Key improvements include:
 - Implement mobile-first responsive design patterns
 - **Prefer responsive style props over duplicate components** to reduce code duplication
 
+#### CSS-in-JS Media Query Syntax
+⚠️ **CRITICAL**: When using inline styles with media queries in React/Mantine:
+- **INCORRECT**: `'@media (min-width: 48em)'` - Standard CSS syntax will cause errors
+- **CORRECT**: `'@media (minWidth: 48em)'` - Use camelCase for CSS properties in objects
+- **ALTERNATIVE**: Use Mantine's responsive style props instead of inline media queries when possible
+- **Example**:
+  ```tsx
+  // ❌ Wrong - will cause error
+  style={{
+    '@media (min-width: 48em)': {
+      fontSize: '1.5rem'
+    }
+  }}
+  
+  // ✅ Correct - camelCase property names
+  style={{
+    '@media (minWidth: 48em)': {
+      fontSize: '1.5rem'
+    }
+  }}
+  
+  // ✅ Better - use Mantine's responsive props when supported
+  fz={{ base: "md", sm: "lg" }}
+  ```
+
 ### Performance Considerations
 - Minimize responsive style prop usage for better performance
 - Use conditional rendering to avoid duplicate content
