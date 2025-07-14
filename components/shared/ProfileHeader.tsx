@@ -82,7 +82,6 @@ const ProfileHeader = ({
               textAlign: 'center',
               margin: 0,
               whiteSpace: isMobile ? 'normal' : 'nowrap',
-              wordWrap: isMobile ? 'break-word' : 'normal',
               overflowWrap: isMobile ? 'break-word' : 'normal',
               hyphens: isMobile ? 'auto' : 'none',
               lineHeight: isMobile ? 1.2 : 1,
