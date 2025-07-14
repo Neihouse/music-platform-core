@@ -4,6 +4,7 @@ import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import StyledTitle from "@/components/StyledTitle";
 import { StoredLocality } from "@/utils/supabase/global.types";
 import { Avatar, Button, Group, Stack, Text } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { IconEdit, IconMapPin } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -31,10 +32,12 @@ const ProfileHeader = ({
   editHref,
   selectedFont
 }: ProfileHeaderProps) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   return (
     <Stack align="center" gap="md" style={{ textAlign: 'center', paddingTop: '0.5rem' }}>
       {/* Placeholder for avatar when it becomes fixed */}
-      {scrollProgress > 0 && (
+      {scrollProgress > 0 && !isMobile && (
         <div style={{ width: '192px', height: '192px' }} />
       )}
       <Avatar
@@ -44,38 +47,45 @@ const ProfileHeader = ({
         style={{
           border: '4px solid var(--mantine-color-dark-9)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-          position: scrollProgress > 0 ? 'fixed' : 'static',
-          top: scrollProgress > 0 ? `${80 + (1 - scrollProgress) * 200}px` : 'auto',
-          left: scrollProgress > 0 ? `${2 + (1 - scrollProgress) * 20}rem` : 'auto',
-          zIndex: scrollProgress > 0 ? 101 : 'auto',
-          transform: `scale(${1 - scrollProgress * 0.65})`,
+          position: scrollProgress > 0 && !isMobile ? 'fixed' : 'static',
+          top: scrollProgress > 0 && !isMobile ? `${80 + (1 - scrollProgress) * 200}px` : 'auto',
+          left: scrollProgress > 0 && !isMobile ? `${2 + (1 - scrollProgress) * 20}rem` : 'auto',
+          zIndex: scrollProgress > 0 && !isMobile ? 101 : 'auto',
+          transform: !isMobile ? `scale(${1 - scrollProgress * 0.65})` : 'none',
           transformOrigin: 'top left',
           transition: scrollProgress === 0 ? 'all 0.3s ease-in-out' : 'none',
         }}
       />
       <Stack align="center" gap="xs">
         {/* Placeholder for title when it becomes fixed */}
-        {scrollProgress > 0 && (
+        {scrollProgress > 0 && !isMobile && (
           <div style={{ height: '3rem', width: '100%' }} />
         )}
         <div style={{
           textAlign: 'center',
-          position: scrollProgress > 0 ? 'fixed' : 'static',
-          top: scrollProgress > 0 ? `${85 + (1 - scrollProgress) * 200}px` : 'auto',
-          left: scrollProgress > 0 ? `${120 + (1 - scrollProgress) * 200}px` : 'auto',
-          zIndex: scrollProgress > 0 ? 101 : 'auto',
-          transform: `scale(${1 - scrollProgress * 0.4})`,
+          position: scrollProgress > 0 && !isMobile ? 'fixed' : 'static',
+          top: scrollProgress > 0 && !isMobile ? `${85 + (1 - scrollProgress) * 200}px` : 'auto',
+          left: scrollProgress > 0 && !isMobile ? `${120 + (1 - scrollProgress) * 200}px` : 'auto',
+          zIndex: scrollProgress > 0 && !isMobile ? 101 : 'auto',
+          transform: !isMobile ? `scale(${1 - scrollProgress * 0.4})` : 'none',
           transformOrigin: 'top left',
           transition: scrollProgress === 0 ? 'all 0.3s ease-in-out' : 'none',
+          width: isMobile ? '100%' : 'auto',
+          maxWidth: isMobile ? '90vw' : 'none',
+          padding: isMobile ? '0 1rem' : '0',
         }}>
           <StyledTitle
             style={{
               color: 'var(--mantine-color-gray-0)',
-              fontSize: '2.5rem',
+              fontSize: isMobile ? '1.8rem' : '2.5rem',
               fontWeight: 700,
               textAlign: 'center',
               margin: 0,
-              whiteSpace: 'nowrap',
+              whiteSpace: isMobile ? 'normal' : 'nowrap',
+              wordWrap: isMobile ? 'break-word' : 'normal',
+              overflowWrap: isMobile ? 'break-word' : 'normal',
+              hyphens: isMobile ? 'auto' : 'none',
+              lineHeight: isMobile ? 1.2 : 1,
             }}
             selectedFont={selectedFont}
           >
