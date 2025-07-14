@@ -344,13 +344,7 @@ export default async function PromoterDashboardPage() {
         </GridCol>
 
         <GridCol span={{ base: 12, sm: 6, lg: 3 }}>
-          <Card
-            p={{ base: "md", sm: "lg", md: "xl" }}
-            radius="md"
-            withBorder
-            bg="dark.8"
-            style={{ borderColor: "var(--mantine-color-dark-6)" }}
-          >
+          <ThemedCard>
             <Group justify="space-between" wrap="nowrap">
               <div style={{ minWidth: 0, flex: 1 }}>
                 <Text
@@ -382,17 +376,11 @@ export default async function PromoterDashboardPage() {
                 <IconMusic size={30} />
               </ThemeIcon>
             </Group>
-          </Card>
+          </ThemedCard>
         </GridCol>
 
         <GridCol span={{ base: 12, sm: 6, lg: 3 }}>
-          <Card
-            p={{ base: "md", sm: "lg", md: "xl" }}
-            radius="md"
-            withBorder
-            bg="dark.8"
-            style={{ borderColor: "var(--mantine-color-dark-6)" }}
-          >
+          <ThemedCard>
             <Group justify="space-between" wrap="nowrap">
               <div style={{ minWidth: 0, flex: 1 }}>
                 <Text
@@ -424,7 +412,7 @@ export default async function PromoterDashboardPage() {
                 <IconTrendingUp size={30} />
               </ThemeIcon>
             </Group>
-          </Card>
+          </ThemedCard>
         </GridCol>
       </Grid>
 
@@ -432,14 +420,7 @@ export default async function PromoterDashboardPage() {
       <Grid gutter={{ base: "md", sm: "lg", md: "xl" }}>
         {/* Upcoming Events */}
         <GridCol span={{ base: 12, lg: 6 }}>
-          <Card
-            p={{ base: "md", sm: "lg", md: "xl" }}
-            radius="md"
-            withBorder
-            h="100%"
-            bg="dark.8"
-            style={{ borderColor: "var(--mantine-color-dark-6)" }}
-          >
+          <ThemedCard h="100%">
             <Group justify="space-between" mb="lg" wrap="wrap">
               <Title order={3} c="gray.0" fz={{ base: "lg", sm: "xl" }}>
                 Upcoming Events
@@ -503,19 +484,12 @@ export default async function PromoterDashboardPage() {
                 </Stack>
               </Center>
             )}
-          </Card>
+          </ThemedCard>
         </GridCol>
 
         {/* Artists Overview */}
         <GridCol span={{ base: 12, lg: 6 }}>
-          <Card
-            p={{ base: "md", sm: "lg", md: "xl" }}
-            radius="md"
-            withBorder
-            h="100%"
-            bg="dark.8"
-            style={{ borderColor: "var(--mantine-color-dark-6)" }}
-          >
+          <ThemedCard h="100%">
             <Group justify="space-between" mb="lg" wrap="wrap">
               <Stack gap={4}>
                 <Title order={3} c="gray.0" fz={{ base: "lg", sm: "xl" }}>Your Artists</Title>
@@ -571,19 +545,12 @@ export default async function PromoterDashboardPage() {
                 </Stack>
               </Center>
             )}
-          </Card>
+          </ThemedCard>
         </GridCol>
       </Grid>
 
       {/* Quick Actions */}
-      <Card
-        p={{ base: "md", sm: "lg", md: "xl" }}
-        radius="md"
-        withBorder
-        mt="xl"
-        bg="dark.8"
-        style={{ borderColor: "var(--mantine-color-dark-6)" }}
-      >
+      <ThemedCard mt="xl">
         <Title order={3} mb="lg" c="gray.0" fz={{ base: "lg", sm: "xl" }}>Quick Actions</Title>
         <Group gap="md" justify="center">
           <Button
@@ -614,7 +581,7 @@ export default async function PromoterDashboardPage() {
             View Analytics
           </Button>
         </Group>
-      </Card>
+      </ThemedCard>
     </Container>
   );
 }
