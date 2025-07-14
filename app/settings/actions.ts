@@ -1,6 +1,7 @@
 "use server";
 
 import { validateEmail, validatePassword } from "@/components/auth/validation";
+import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -47,13 +48,13 @@ export async function updatePassword(formData: FormData) {
 
     try {
         // Verify current password by attempting to sign in
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user?.email) {
+        const user = await getUser(supabase);
+        if (!user?.email) {
             return { error: "User not found" };
         }
 
         const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: user.user.email,
+            email: user.email,
             password: currentPassword,
         });
 
@@ -80,13 +81,13 @@ export async function deleteAccount() {
     const supabase = await createClient();
 
     try {
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user) {
+        const user = await getUser(supabase);
+        if (!user) {
             return { error: "User not found" };
         }
 
         // Delete user account
-        const { error } = await supabase.auth.admin.deleteUser(user.user.id);
+        const { error } = await supabase.auth.admin.deleteUser(user.id);
 
         if (error) {
             return { error: error.message };
