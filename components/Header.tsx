@@ -20,6 +20,7 @@ import {
   IconLogout,
   IconMusic,
   IconSearch,
+  IconSettings,
   IconUpload,
   IconUser
 } from "@tabler/icons-react";
@@ -171,6 +172,13 @@ export function Header({ user, userProfile }: HeaderProps) {
                   >
                     Profile
                   </Menu.Item>
+                  <Menu.Item
+                    leftSection={<IconSettings size={14} />}
+                    component={Link}
+                    href="/settings"
+                  >
+                    Settings
+                  </Menu.Item>
                   <Menu.Divider />
                   <Menu.Item
                     leftSection={<IconLogout size={14} />}
@@ -222,7 +230,6 @@ export function Header({ user, userProfile }: HeaderProps) {
         <Drawer
           opened={mobileMenuOpened}
           onClose={() => setMobileMenuOpened(false)}
-          title="Navigation"
           hiddenFrom="sm"
           position="right"
           size="xs"
@@ -274,6 +281,18 @@ export function Header({ user, userProfile }: HeaderProps) {
               onClick={() => setMobileMenuOpened(false)}
             >
               Profile
+            </Button>
+
+            <Button
+              component={Link}
+              href="/settings"
+              variant="subtle"
+              leftSection={<IconSettings size={16} />}
+              fullWidth
+              justify="flex-start"
+              onClick={() => setMobileMenuOpened(false)}
+            >
+              Settings
             </Button>
 
             <Button

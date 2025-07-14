@@ -1,3 +1,4 @@
+import { ThemedCard } from "@/components/shared/ThemedCard";
 import { getPromoter, getPromoterArtists, getPromoterEvents, getPromoterShowCount, getPromoterTrackCount } from "@/db/queries/promoters";
 import { getSentRequests } from "@/db/queries/requests";
 import { getUserProfile } from "@/db/queries/user";
@@ -5,7 +6,7 @@ import { getUser } from "@/db/queries/users";
 import { getAvatarUrlServer, getPromoterImagesServer } from "@/lib/images/image-utils";
 import { nameToUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
-import { Avatar, Badge, Box, Button, Card, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
+import { Avatar, Badge, Button, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
 import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconMusic, IconSparkles, IconTrendingUp, IconUser, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -111,111 +112,154 @@ export default async function PromoterDashboardPage() {
   const { avatarUrl, bannerUrl } = promoterImages;
 
   return (
-    <Container size="xl" py="xl">
+    <Container
+      size="xl"
+      py={{ base: "md", sm: "lg", md: "xl" }}
+      px={{ base: "sm", sm: "md" }}
+    >
       {/* Hero Banner Section */}
       <Paper
-        radius="xl"
-        p="xl"
-        mb="xl"
-        style={{
-          background: bannerUrl
-            ? `linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%), url(${bannerUrl}) center/cover`
-            : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-          minHeight: "300px",
-        }}
+        radius="md"
+        p={{ base: "md", sm: "lg" }}
+        mb={{ base: "md", sm: "lg", md: "xl" }}
+        bg="dark.8"
+        withBorder
+        style={{ borderColor: "var(--mantine-color-dark-6)" }}
       >
-        {/* Decorative elements */}
-        <Box
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: "200px",
-            height: "200px",
-            background: "rgba(255,255,255,0.1)",
-            borderRadius: "50%",
-            transform: "translate(50%, -50%)",
-          }}
-        />
-        <Box
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "150px",
-            height: "150px",
-            background: "rgba(255,255,255,0.05)",
-            borderRadius: "50%",
-            transform: "translate(-50%, 50%)",
-          }}
-        />
-
-        <Grid align="center" style={{ position: "relative", zIndex: 1 }}>
-          <GridCol span={{ base: 12, md: 8 }}>
-            <Group gap="xl">
-              <Avatar
-                src={avatarUrl}
-                size={120}
-                radius="xl"
+        <Grid align="center" gutter={{ base: "md", sm: "lg" }}>
+          <GridCol span={12}>
+            <Stack
+              gap="md"
+              align="center"
+              style={{
+                alignItems: 'center',
+                '@media (min-width: 48em)': {
+                  alignItems: 'flex-start',
+                }
+              }}
+            >
+              <Group
+                gap="md"
+                align="flex-start"
+                justify="center"
+                wrap="nowrap"
+                w="100%"
                 style={{
-                  border: "4px solid rgba(255,255,255,0.3)",
-                  background: avatarUrl ? "transparent" : "linear-gradient(45deg, #ff6b6b, #4ecdc4)",
+                  '@media (min-width: 48em)': {
+                    justifyContent: 'flex-start',
+                  }
                 }}
               >
-                {!avatarUrl && <IconSparkles size={48} />}
-              </Avatar>
-              <Stack gap="md">
-                <Group gap="md">
-                  <Title order={1} size="3rem" fw={900}>
-                    Welcome back, {promoter.name}!
-                  </Title>
-                  <Badge
-                    size="lg"
-                    variant="light"
-                    color="yellow"
-                    leftSection={<IconSparkles size={16} />}
+                <Avatar
+                  src={avatarUrl}
+                  size={120}
+                  radius="xl"
+                  style={{
+                    border: "2px solid var(--mantine-color-dark-5)",
+                    background: avatarUrl ? "transparent" : "var(--mantine-color-dark-6)",
+                    width: '80px',
+                    height: '80px',
+                    '@media (min-width: 48em)': {
+                      width: '100px',
+                      height: '100px',
+                    },
+                    '@media (min-width: 62em)': {
+                      width: '120px',
+                      height: '120px',
+                    }
+                  }}
+                >
+                  {!avatarUrl && <IconSparkles size={32} />}
+                </Avatar>
+                <Stack gap="xs" align="center" style={{ flex: 1, minWidth: 0 }}>
+                  <Group gap="sm" align="center" justify="center" wrap="wrap">
+                    <Title
+                      order={1}
+                      fw={600}
+                      c="gray.0"
+                      ta="center"
+                      style={{
+                        fontSize: '1.5rem',
+                        '@media (min-width: 48em)': {
+                          fontSize: '1.75rem',
+                          textAlign: 'left',
+                        },
+                        '@media (min-width: 62em)': {
+                          fontSize: '2rem',
+                        }
+                      }}
+                    >
+                      Welcome back, {promoter.name}!
+                    </Title>
+                    <Badge
+                      size="md"
+                      variant="light"
+                      color="blue"
+                      leftSection={<IconSparkles size={14} />}
+                    >
+                      PROMOTER
+                    </Badge>
+                  </Group>
+                  <Group
+                    gap="xs"
+                    justify="center"
+                    wrap="wrap"
                   >
-                    PROMOTER
-                  </Badge>
-                </Group>
-                <Group gap="lg">
-                  <Text size="lg" fw={500}>
-                    🎉 {showMetrics.total} Epic Events
-                  </Text>
-                  <Text size="lg" fw={500}>
-                    🎵 {artistsWithAvatars.length} Amazing Artists
-                  </Text>
-                </Group>
-                {promoter.bio && (
-                  <Text size="md" style={{ maxWidth: "600px" }}>
-                    {promoter.bio}
-                  </Text>
-                )}
-              </Stack>
-            </Group>
-          </GridCol>
-          <GridCol span={{ base: 12, md: 4 }}>
-            <Stack gap="md" align="center">
-              <Group gap="md">
+                    <Text
+                      size="sm"
+                      fw={500}
+                      c="gray.2"
+                    >
+                      🎉 {showMetrics.total} Events
+                    </Text>
+                    <Text
+                      size="sm"
+                      fw={500}
+                      c="gray.2"
+                    >
+                      🎵 {artistsWithAvatars.length} Artists
+                    </Text>
+                  </Group>
+                  {promoter.bio && (
+                    <Text
+                      size="sm"
+                      c="gray.3"
+                      ta="center"
+                      lineClamp={2}
+                      style={{
+                        '@media (min-width: 48em)': {
+                          textAlign: 'left',
+                        }
+                      }}
+                    >
+                      {promoter.bio}
+                    </Text>
+                  )}
+                </Stack>
+              </Group>
+              <Group
+                gap="xs"
+                justify="center"
+                w="100%"
+              >
                 <Button
                   component={Link}
                   href={`/promoters/${nameToUrl(promoter.name)}`}
                   variant="light"
-                  size="lg"
+                  size="sm"
                   leftSection={<IconUser size={16} />}
-                  style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
+                  w={{ base: "100%", sm: "auto" }}
+                  maw={{ base: "none", sm: 200 }}
                 >
                   View Public Profile
                 </Button>
                 <Button
                   component={Link}
                   href={`/promoters/${nameToUrl(promoter.name)}/edit`}
-                  size="lg"
+                  size="sm"
                   leftSection={<IconSparkles size={16} />}
-                  style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#667eea" }}
+                  w={{ base: "100%", sm: "auto" }}
+                  maw={{ base: "none", sm: 200 }}
                 >
                   Edit Profile
                 </Button>
@@ -226,111 +270,189 @@ export default async function PromoterDashboardPage() {
       </Paper>
 
       {/* Stats Grid */}
-      <Grid gutter="xl" mb="xl">
+      <Grid
+        gutter={{ base: "md", sm: "lg", md: "xl" }}
+        mb={{ base: "md", sm: "lg", md: "xl" }}
+      >
         <GridCol span={{ base: 12, sm: 6, lg: 3 }}>
-          <Card p="xl" radius="lg" withBorder>
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+          <ThemedCard>
+            <Group justify="space-between" wrap="nowrap">
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <Text
+                  size="xs"
+                  tt="uppercase"
+                  fw={700}
+                  c="gray.5"
+                  mb={4}
+                >
                   Artists
                 </Text>
-                <Text fw={700} size="xl">
+                <Text
+                  fw={700}
+                  size="xl"
+                  c="gray.0"
+                >
                   {artistsWithAvatars.length}
                 </Text>
               </div>
-              <ThemeIcon size={60} radius="xl" variant="light" color="blue">
+              <ThemeIcon
+                size={60}
+                radius="xl"
+                variant="light"
+                color="gray"
+              >
                 <IconUsers size={30} />
               </ThemeIcon>
             </Group>
-          </Card>
+          </ThemedCard>
         </GridCol>
 
         <GridCol span={{ base: 12, sm: 6, lg: 3 }}>
-          <Card p="xl" radius="lg" withBorder>
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+          <ThemedCard>
+            <Group justify="space-between" wrap="nowrap">
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <Text
+                  size="xs"
+                  tt="uppercase"
+                  fw={700}
+                  c="gray.5"
+                  mb={4}
+                >
                   Total Events
                 </Text>
-                <Text fw={700} size="xl">
+                <Text
+                  fw={700}
+                  size="xl"
+                  c="gray.0"
+                >
                   {showMetrics.total}
                 </Text>
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c="gray.6">
                   {showMetrics.upcoming} upcoming
                 </Text>
               </div>
-              <ThemeIcon size={60} radius="xl" variant="light" color="green">
+              <ThemeIcon
+                size={60}
+                radius="xl"
+                variant="light"
+                color="blue"
+              >
                 <IconCalendarEvent size={30} />
               </ThemeIcon>
             </Group>
-          </Card>
+          </ThemedCard>
         </GridCol>
 
         <GridCol span={{ base: 12, sm: 6, lg: 3 }}>
-          <Card p="xl" radius="lg" withBorder>
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+          <ThemedCard>
+            <Group justify="space-between" wrap="nowrap">
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <Text
+                  size="xs"
+                  tt="uppercase"
+                  fw={700}
+                  c="gray.5"
+                  mb={4}
+                >
                   Total Tracks
                 </Text>
-                <Text fw={700} size="xl">
+                <Text
+                  fw={700}
+                  size="xl"
+                  c="gray.0"
+                >
                   {trackMetrics.total}
                 </Text>
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c="gray.6">
                   {trackMetrics.recent} this month
                 </Text>
               </div>
-              <ThemeIcon size={60} radius="xl" variant="light" color="purple">
+              <ThemeIcon
+                size={60}
+                radius="xl"
+                variant="light"
+                color="gray"
+              >
                 <IconMusic size={30} />
               </ThemeIcon>
             </Group>
-          </Card>
+          </ThemedCard>
         </GridCol>
 
         <GridCol span={{ base: 12, sm: 6, lg: 3 }}>
-          <Card p="xl" radius="lg" withBorder>
-            <Group justify="space-between">
-              <div>
-                <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+          <ThemedCard>
+            <Group justify="space-between" wrap="nowrap">
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <Text
+                  size="xs"
+                  tt="uppercase"
+                  fw={700}
+                  c="gray.5"
+                  mb={4}
+                >
                   Performance
                 </Text>
-                <Text fw={700} size="xl">
+                <Text
+                  fw={700}
+                  size="xl"
+                  c="gray.0"
+                >
                   {Math.round((trackMetrics.recent / Math.max(trackMetrics.total, 1)) * 100)}%
                 </Text>
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c="gray.6">
                   Activity rate
                 </Text>
               </div>
-              <ThemeIcon size={60} radius="xl" variant="light" color="orange">
+              <ThemeIcon
+                size={60}
+                radius="xl"
+                variant="light"
+                color="blue"
+              >
                 <IconTrendingUp size={30} />
               </ThemeIcon>
             </Group>
-          </Card>
+          </ThemedCard>
         </GridCol>
       </Grid>
 
       {/* Content Grid */}
-      <Grid gutter="xl">
+      <Grid gutter={{ base: "md", sm: "lg", md: "xl" }}>
         {/* Upcoming Events */}
         <GridCol span={{ base: 12, lg: 6 }}>
-          <Card p="xl" radius="lg" withBorder h="100%">
-            <Group justify="space-between" mb="lg">
-              <Title order={3}>Upcoming Events</Title>
+          <ThemedCard h="100%">
+            <Group justify="space-between" mb="lg" wrap="wrap">
+              <Title order={3} c="gray.0" fz={{ base: "lg", sm: "xl" }}>
+                Upcoming Events
+              </Title>
               <Button size="xs" variant="light">View All</Button>
             </Group>
 
             {upcomingEvents.length > 0 ? (
               <Stack gap="md">
                 {upcomingEvents.slice(0, 3).map((event) => (
-                  <Paper key={event.id} p="md" radius="md" withBorder>
-                    <Group justify="space-between">
-                      <div>
-                        <Text fw={600}>{event.name}</Text>
-                        <Text size="sm" c="dimmed">
+                  <Paper
+                    key={event.id}
+                    p="md"
+                    radius="md"
+                    withBorder
+                    bg="dark.7"
+                    style={{ borderColor: "var(--mantine-color-dark-5)" }}
+                  >
+                    <Group justify="space-between" wrap="wrap">
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <Text fw={600} c="gray.0" fz={{ base: "sm", sm: "md" }}>
+                          {event.name}
+                        </Text>
+                        <Text
+                          fz={{ base: "xs", sm: "sm" }}
+                          c="gray.4"
+                          style={{ wordBreak: "break-word" }}
+                        >
                           {event.venues?.name} • {new Date(event.date).toLocaleDateString()}
                         </Text>
                       </div>
-                      <Badge variant="light" color="green">
+                      <Badge variant="light" color="blue" size="sm">
                         Upcoming
                       </Badge>
                     </Group>
@@ -340,24 +462,38 @@ export default async function PromoterDashboardPage() {
             ) : (
               <Center py="xl">
                 <Stack align="center" gap="md">
-                  <ThemeIcon size={60} radius="xl" variant="light" color="gray">
-                    <IconCalendarEvent size={30} />
+                  <ThemeIcon
+                    size={50}
+                    radius="xl"
+                    variant="light"
+                    color="gray"
+                  >
+                    <IconCalendarEvent size={25} />
                   </ThemeIcon>
-                  <Text c="dimmed" ta="center">No upcoming events</Text>
-                  <Button component={Link} href="/promoter/events/create" size="sm" variant="light">Create Event</Button>
+                  <Text c="gray.5" ta="center" fz={{ base: "sm", sm: "md" }}>
+                    No upcoming events
+                  </Text>
+                  <Button
+                    component={Link}
+                    href="/promoter/events/create"
+                    size="sm"
+                    variant="light"
+                  >
+                    Create Event
+                  </Button>
                 </Stack>
               </Center>
             )}
-          </Card>
+          </ThemedCard>
         </GridCol>
 
         {/* Artists Overview */}
         <GridCol span={{ base: 12, lg: 6 }}>
-          <Card p="xl" radius="lg" withBorder h="100%">
-            <Group justify="space-between" mb="lg">
+          <ThemedCard h="100%">
+            <Group justify="space-between" mb="lg" wrap="wrap">
               <Stack gap={4}>
-                <Title order={3}>Your Artists</Title>
-                <Text size="sm" c="dimmed">
+                <Title order={3} c="gray.0" fz={{ base: "lg", sm: "xl" }}>Your Artists</Title>
+                <Text size="sm" c="gray.5">
                   {pendingInvites > 0
                     ? `${pendingInvites} pending invite${pendingInvites === 1 ? '' : 's'}`
                     : "All artists in your collective"
@@ -372,7 +508,14 @@ export default async function PromoterDashboardPage() {
             {artistsWithAvatars.length > 0 ? (
               <Stack gap="md">
                 {artistsWithAvatars.slice(0, 3).map((artist) => (
-                  <Paper key={artist.id} p="md" radius="md" withBorder>
+                  <Paper
+                    key={artist.id}
+                    p="md"
+                    radius="md"
+                    withBorder
+                    bg="dark.7"
+                    style={{ borderColor: "var(--mantine-color-dark-5)" }}
+                  >
                     <Group>
                       <Avatar
                         src={artist.avatarUrl}
@@ -382,8 +525,8 @@ export default async function PromoterDashboardPage() {
                         {artist.name?.[0]}
                       </Avatar>
                       <div style={{ flex: 1 }}>
-                        <Text fw={600}>{artist.name}</Text>
-                        <Text size="sm" c="dimmed" lineClamp={1}>
+                        <Text fw={600} c="gray.0">{artist.name}</Text>
+                        <Text size="sm" c="gray.4" lineClamp={1}>
                           {artist.bio || "No bio available"}
                         </Text>
                       </div>
@@ -397,30 +540,48 @@ export default async function PromoterDashboardPage() {
                   <ThemeIcon size={60} radius="xl" variant="light" color="gray">
                     <IconUsers size={30} />
                   </ThemeIcon>
-                  <Text c="dimmed" ta="center">No artists in your collective yet</Text>
+                  <Text c="gray.5" ta="center">No artists in your collective yet</Text>
                   <Button size="sm" variant="light" component={Link} href="/promoter/artists">Add Artists</Button>
                 </Stack>
               </Center>
             )}
-          </Card>
+          </ThemedCard>
         </GridCol>
       </Grid>
 
       {/* Quick Actions */}
-      <Card p="xl" radius="lg" withBorder mt="xl">
-        <Title order={3} mb="lg">Quick Actions</Title>
-        <Group>
-          <Button component={Link} href="/promoter/events/create" leftSection={<IconCalendarEvent size={16} />}>
+      <ThemedCard mt="xl">
+        <Title order={3} mb="lg" c="gray.0" fz={{ base: "lg", sm: "xl" }}>Quick Actions</Title>
+        <Group gap="md" justify="center">
+          <Button
+            component={Link}
+            href="/promoter/events/create"
+            leftSection={<IconCalendarEvent size={16} />}
+            w={{ base: "100%", sm: "auto" }}
+            maw={{ base: "none", sm: 200 }}
+          >
             Create Event
           </Button>
-          <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/promoter/artists">
+          <Button
+            variant="light"
+            leftSection={<IconUsers size={16} />}
+            component={Link}
+            href="/promoter/artists"
+            w={{ base: "100%", sm: "auto" }}
+            maw={{ base: "none", sm: 200 }}
+          >
             Add Artists
           </Button>
-          <Button variant="light" leftSection={<IconChartBar size={16} />}>
+          <Button
+            variant="light"
+            leftSection={<IconChartBar size={16} />}
+            w={{ base: "100%", sm: "auto" }}
+            maw={{ base: "none", sm: 200 }}
+          >
             View Analytics
           </Button>
         </Group>
-      </Card>
+      </ThemedCard>
     </Container>
   );
 }
