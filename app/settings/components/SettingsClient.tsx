@@ -17,6 +17,7 @@ import { notifications } from "@mantine/notifications";
 import { IconAlertTriangle, IconCheck, IconMail, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { deleteAccount, updateEmail, updatePassword } from "../actions";
+import { validateEmail } from "@/components/auth/validation";
 
 interface SettingsClientProps {
     userEmail: string;
@@ -25,6 +26,7 @@ interface SettingsClientProps {
 
 export function SettingsClient({ userEmail, userId }: SettingsClientProps) {
     const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+    const [emailInput, setEmailInput] = useState(userEmail);
     const [loading, setLoading] = useState<{
         email: boolean;
         password: boolean;
@@ -34,6 +36,9 @@ export function SettingsClient({ userEmail, userId }: SettingsClientProps) {
         password: false,
         delete: false,
     });
+
+    // Check if email update should be enabled
+    const isEmailUpdateEnabled = !validateEmail(emailInput) && emailInput !== userEmail;
 
     const handleEmailUpdate = async (formData: FormData) => {
         setLoading(prev => ({ ...prev, email: true }));
@@ -147,12 +152,17 @@ export function SettingsClient({ userEmail, userId }: SettingsClientProps) {
                             </Text>
                         </Group>
 
-                        <form action={handleEmailUpdate}>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            handleEmailUpdate(formData);
+                        }}>
                             <Stack gap="md">
                                 <TextInput
                                     name="email"
                                     placeholder="Enter new email address"
-                                    defaultValue={userEmail}
+                                    value={emailInput}
+                                    onChange={(e) => setEmailInput(e.currentTarget.value)}
                                     size="md"
                                     styles={{
                                         input: {
@@ -168,6 +178,7 @@ export function SettingsClient({ userEmail, userId }: SettingsClientProps) {
                                 <Button
                                     type="submit"
                                     loading={loading.email}
+                                    disabled={!isEmailUpdateEnabled}
                                     size="md"
                                     w={{ base: "100%", sm: "auto" }}
                                 >
@@ -195,7 +206,11 @@ export function SettingsClient({ userEmail, userId }: SettingsClientProps) {
                             Password
                         </Text>
 
-                        <form id="password-form" action={handlePasswordUpdate}>
+                        <form id="password-form" onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            handlePasswordUpdate(formData);
+                        }}>
                             <Stack gap="md">
                                 <PasswordInput
                                     name="currentPassword"
