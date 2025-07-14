@@ -1,3 +1,4 @@
+import { ThemedCard } from "@/components/shared/ThemedCard";
 import { getPromoter, getPromoterArtists, getPromoterEvents, getPromoterShowCount, getPromoterTrackCount } from "@/db/queries/promoters";
 import { getSentRequests } from "@/db/queries/requests";
 import { getUserProfile } from "@/db/queries/user";
@@ -5,7 +6,7 @@ import { getUser } from "@/db/queries/users";
 import { getAvatarUrlServer, getPromoterImagesServer } from "@/lib/images/image-utils";
 import { nameToUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
-import { Avatar, Badge, Button, Card, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
+import { Avatar, Badge, Button, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
 import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconMusic, IconSparkles, IconTrendingUp, IconUser, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -119,7 +120,7 @@ export default async function PromoterDashboardPage() {
       {/* Hero Banner Section */}
       <Paper
         radius="md"
-        p={{ base: "md", sm: "lg", md: "xl" }}
+        p={{ base: "md", sm: "lg" }}
         mb={{ base: "md", sm: "lg", md: "xl" }}
         bg="dark.8"
         withBorder
@@ -128,16 +129,17 @@ export default async function PromoterDashboardPage() {
         <Grid align="center" gutter={{ base: "md", sm: "lg" }}>
           <GridCol span={12}>
             <Stack
-              gap="lg"
+              gap="md"
               align="center"
               style={{
+                alignItems: 'center',
                 '@media (min-width: 48em)': {
                   alignItems: 'flex-start',
                 }
               }}
             >
               <Group
-                gap="lg"
+                gap="md"
                 align="flex-start"
                 justify="center"
                 wrap="nowrap"
@@ -169,7 +171,7 @@ export default async function PromoterDashboardPage() {
                 >
                   {!avatarUrl && <IconSparkles size={32} />}
                 </Avatar>
-                <Stack gap="sm" align="center" style={{ flex: 1, minWidth: 0 }}>
+                <Stack gap="xs" align="center" style={{ flex: 1, minWidth: 0 }}>
                   <Group gap="sm" align="center" justify="center" wrap="wrap">
                     <Title
                       order={1}
@@ -199,7 +201,7 @@ export default async function PromoterDashboardPage() {
                     </Badge>
                   </Group>
                   <Group
-                    gap="sm"
+                    gap="xs"
                     justify="center"
                     wrap="wrap"
                   >
@@ -236,7 +238,7 @@ export default async function PromoterDashboardPage() {
                 </Stack>
               </Group>
               <Group
-                gap="sm"
+                gap="xs"
                 justify="center"
                 w="100%"
               >
@@ -273,13 +275,7 @@ export default async function PromoterDashboardPage() {
         mb={{ base: "md", sm: "lg", md: "xl" }}
       >
         <GridCol span={{ base: 12, sm: 6, lg: 3 }}>
-          <Card
-            p={{ base: "md", sm: "lg", md: "xl" }}
-            radius="md"
-            withBorder
-            bg="dark.8"
-            style={{ borderColor: "var(--mantine-color-dark-6)" }}
-          >
+          <ThemedCard>
             <Group justify="space-between" wrap="nowrap">
               <div style={{ minWidth: 0, flex: 1 }}>
                 <Text
@@ -308,17 +304,11 @@ export default async function PromoterDashboardPage() {
                 <IconUsers size={30} />
               </ThemeIcon>
             </Group>
-          </Card>
+          </ThemedCard>
         </GridCol>
 
         <GridCol span={{ base: 12, sm: 6, lg: 3 }}>
-          <Card
-            p={{ base: "md", sm: "lg", md: "xl" }}
-            radius="md"
-            withBorder
-            bg="dark.8"
-            style={{ borderColor: "var(--mantine-color-dark-6)" }}
-          >
+          <ThemedCard>
             <Group justify="space-between" wrap="nowrap">
               <div style={{ minWidth: 0, flex: 1 }}>
                 <Text
@@ -350,7 +340,7 @@ export default async function PromoterDashboardPage() {
                 <IconCalendarEvent size={30} />
               </ThemeIcon>
             </Group>
-          </Card>
+          </ThemedCard>
         </GridCol>
 
         <GridCol span={{ base: 12, sm: 6, lg: 3 }}>

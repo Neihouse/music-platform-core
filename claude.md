@@ -26,6 +26,36 @@ music-platform-core/
 
 ## Recent Development Work
 
+### Code Review Feedback & Improvements (July 2025)
+
+#### ✅ Completed
+1. **Unused Props Cleanup**: Removed unused `userId` prop from SettingsClient component
+2. **Component Architecture**: Successfully broke down large SettingsClient component into smaller, maintainable pieces:
+   - `EmailSection.tsx` - Handles email updates with validation
+   - `PasswordSection.tsx` - Manages password changes
+   - `DeleteAccountSection.tsx` - Account deletion with confirmation modal
+3. **Shared Components**: Created reusable `ThemedCard` and `ThemedPaper` components to reduce styling duplication
+4. **Hero Section Optimization**: Made top card more condensed by reducing spacing:
+   - Reduced gap from "lg" to "md" in main stack
+   - Reduced Group gaps from "lg"/"sm" to "md"/"xs"
+   - Reduced padding in hero Paper from "xl" to "lg" on medium screens
+
+#### 🔄 In Progress / Next Steps
+1. **CSS Media Query Migration**: Replace inline `@media` queries with Mantine's responsive props
+   - Current issue: Not all Mantine components support responsive object syntax
+   - Need to use `sx` prop with `theme.fn.smallerThan/largerThan` for unsupported components
+   - File: `/app/promoter/page.tsx` has ~14 inline media queries to convert
+
+2. **Component Styling Consolidation**: 
+   - Continue replacing Card components with ThemedCard in promoter page
+   - Standardize all Paper components to use ThemedPaper
+   - Create consistent color scheme variables
+
+#### 📝 Important Notes
+- **CSS-in-JS Media Queries**: Use camelCase property names in media queries (e.g., `alignItems` not `align-items`)
+- **Responsive Props Support**: Check Mantine component documentation before using responsive object syntax
+- **Component Modularity**: Large components should be broken into logical sub-components for maintainability
+
 ### Mobile Responsiveness Improvements
 📱 **[View Mobile Improvements Documentation](./MOBILE_IMPROVEMENTS.md)**
 

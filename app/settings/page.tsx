@@ -14,7 +14,6 @@ export default async function SettingsPage() {
     return (
         <SettingsClient
             userEmail={user.email || ""}
-            userId={user.id}
         />
     );
 }
