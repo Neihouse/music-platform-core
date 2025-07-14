@@ -1,5 +1,6 @@
 "use client";
 
+import { validateEmail } from "@/components/auth/validation";
 import {
     Button,
     Container,
@@ -17,7 +18,6 @@ import { notifications } from "@mantine/notifications";
 import { IconAlertTriangle, IconCheck, IconMail, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { deleteAccount, updateEmail, updatePassword } from "../actions";
-import { validateEmail } from "@/components/auth/validation";
 
 interface SettingsClientProps {
     userEmail: string;
