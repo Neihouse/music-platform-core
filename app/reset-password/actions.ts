@@ -1,5 +1,6 @@
 "use server";
 
+import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 
 export interface ResetPasswordResult {
@@ -8,21 +9,13 @@ export interface ResetPasswordResult {
 }
 
 export async function resetPassword(
-    accessToken: string,
-    refreshToken: string,
     password: string
 ): Promise<ResetPasswordResult> {
     try {
         const supabase = await createClient();
+        const user = await getUser(supabase)
 
-        // Set the session with the tokens from the URL
-        const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-        });
-
-        if (sessionError) {
-            console.error("Error setting session:", sessionError);
+        if (!user) {
             return {
                 error: "Invalid or expired reset link. Please request a new password reset."
             };
