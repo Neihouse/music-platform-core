@@ -1,9 +1,10 @@
-import { type EmailOtpType } from '@supabase/supabase-js'
-import { NextRequest, NextResponse } from 'next/server'
+import { type EmailOtpType } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 // The client you created from the Server-Side Auth instructions
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/utils/supabase/server';
 
 export async function GET(request: NextRequest) {
+  console.log("Confirm route called");
   const { searchParams } = new URL(request.url)
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as EmailOtpType | null
@@ -18,6 +19,8 @@ export async function GET(request: NextRequest) {
       type,
       token_hash,
     })
+
+    console.log("OTP verification result:", error);
     if (!error) {
       return NextResponse.redirect(redirectTo)
     }
