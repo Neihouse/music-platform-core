@@ -11,15 +11,15 @@ import { validateResetToken } from "./actions";
 import ResetPasswordForm from "./ResetPasswordForm";
 
 interface ResetPasswordPageProps {
-    searchParams: {
+    searchParams: Promise<{
         access_token?: string;
         refresh_token?: string;
         type?: string;
-    };
+    }>;
 }
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
-    const { access_token, refresh_token, type } = searchParams;
+    const { access_token, refresh_token, type } = await searchParams;
 
     // Validate the reset token on the server
     const validation = await validateResetToken(access_token || null, refresh_token || null, type || null);
