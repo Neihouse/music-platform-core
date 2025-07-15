@@ -1,5 +1,6 @@
 "use server";
 
+import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 
 export interface ResetPasswordResult {
@@ -8,21 +9,13 @@ export interface ResetPasswordResult {
 }
 
 export async function resetPassword(
-    accessToken: string,
-    refreshToken: string,
     password: string
 ): Promise<ResetPasswordResult> {
     try {
         const supabase = await createClient();
+        const user = await getUser(supabase)
 
-        // Set the session with the tokens from the URL
-        const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-        });
-
-        if (sessionError) {
-            console.error("Error setting session:", sessionError);
+        if (!user) {
             return {
                 error: "Invalid or expired reset link. Please request a new password reset."
             };
@@ -63,7 +56,6 @@ export async function validateResetToken(
     refreshToken: string | null,
     type: string | null
 ): Promise<{ valid: boolean; error?: string }> {
-    console.error("Validating reset token", { accessToken, refreshToken, type });
     if (type !== "recovery" || !accessToken || !refreshToken) {
         return {
             valid: false,
@@ -78,7 +70,6 @@ export async function validateResetToken(
             access_token: accessToken,
             refresh_token: refreshToken,
         });
-        console.error("Session set with access token:", accessToken);
 
         if (error) {
             console.error("Error validating session:", error);
@@ -87,7 +78,6 @@ export async function validateResetToken(
                 error: "Invalid or expired reset link. Please request a new password reset."
             };
         }
-        console.log("Token validation successful");
         return { valid: true };
     } catch (err) {
         console.error("Token validation error:", err);

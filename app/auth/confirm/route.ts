@@ -19,13 +19,12 @@ export async function GET(request: NextRequest) {
       token_hash,
     })
 
-    console.log("OTP verification result:", error);
     if (!error) {
       return NextResponse.redirect(redirectTo)
     }
   }
 
   // return the user to an error page with some instructions
-  redirectTo.pathname = '/error'
+  redirectTo.pathname = '/auth-error'
   return NextResponse.redirect(redirectTo)
 }
