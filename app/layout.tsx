@@ -19,7 +19,7 @@ import "@mantine/dropzone/styles.css";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 
-
+import { Analytics } from "@vercel/analytics/next";
 export default async function RootLayout({
   children,
 }: {
@@ -77,6 +77,7 @@ export default async function RootLayout({
 
               <AppShellMain>
                 {children}
+                <Analytics />
               </AppShellMain>
             </AppShell>
 
