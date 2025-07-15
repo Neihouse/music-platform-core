@@ -152,6 +152,7 @@ export function Login(props: PaperProps) {
       <ForgotPasswordModal
         opened={forgotPasswordOpened}
         onClose={() => setForgotPasswordOpened(false)}
+        initialEmail={form.values.email}
       />
     </>
   );

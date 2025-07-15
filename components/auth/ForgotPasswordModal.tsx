@@ -10,15 +10,16 @@ import {
     TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { validateEmail } from "./validation";
 
 interface ForgotPasswordModalProps {
     opened: boolean;
     onClose: () => void;
+    initialEmail?: string;
 }
 
-export function ForgotPasswordModal({ opened, onClose }: ForgotPasswordModalProps) {
+export function ForgotPasswordModal({ opened, onClose, initialEmail = "" }: ForgotPasswordModalProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -26,12 +27,19 @@ export function ForgotPasswordModal({ opened, onClose }: ForgotPasswordModalProp
 
     const form = useForm({
         initialValues: {
-            email: "",
+            email: initialEmail,
         },
         validate: {
             email: (val: string) => validateEmail(val),
         },
     });
+
+    // Update form when modal opens with new initial email
+    useEffect(() => {
+        if (opened && initialEmail) {
+            form.setFieldValue('email', initialEmail);
+        }
+    }, [opened, initialEmail]);
 
     const handleResetPassword = async (values: { email: string }) => {
         setLoading(true);
