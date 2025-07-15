@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 
 export interface ResetPasswordResult {
     success?: boolean;
@@ -95,8 +94,4 @@ export async function validateResetToken(
             error: "Invalid or expired reset link. Please request a new password reset."
         };
     }
-}
-
-export async function redirectToLogin() {
-    redirect("/login");
 }
