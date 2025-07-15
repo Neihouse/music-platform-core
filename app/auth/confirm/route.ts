@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
       token_hash,
     })
 
-    console.log("OTP verification result:", error);
     if (!error) {
       return NextResponse.redirect(redirectTo)
     }
