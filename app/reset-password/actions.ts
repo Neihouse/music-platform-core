@@ -63,7 +63,7 @@ export async function validateResetToken(
     refreshToken: string | null,
     type: string | null
 ): Promise<{ valid: boolean; error?: string }> {
-    console.log("Validating reset token", { accessToken, refreshToken, type });
+    console.error("Validating reset token", { accessToken, refreshToken, type });
     if (type !== "recovery" || !accessToken || !refreshToken) {
         return {
             valid: false,
@@ -78,7 +78,7 @@ export async function validateResetToken(
             access_token: accessToken,
             refresh_token: refreshToken,
         });
-        console.log("Session set with access token:", accessToken);
+        console.error("Session set with access token:", accessToken);
 
         if (error) {
             console.error("Error validating session:", error);
