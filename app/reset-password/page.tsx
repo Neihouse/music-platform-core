@@ -19,11 +19,13 @@ interface ResetPasswordPageProps {
 }
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+    console.log("ResetPasswordPage", searchParams);
     const { access_token, refresh_token, type } = await searchParams;
 
     // Validate the reset token on the server
     const validation = await validateResetToken(access_token || null, refresh_token || null, type || null);
 
+    console.log("Token validation result:", validation);
     if (!validation.valid) {
         return (
             <Container

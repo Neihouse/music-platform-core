@@ -63,6 +63,7 @@ export async function validateResetToken(
     refreshToken: string | null,
     type: string | null
 ): Promise<{ valid: boolean; error?: string }> {
+    console.log("Validating reset token", { accessToken, refreshToken, type });
     if (type !== "recovery" || !accessToken || !refreshToken) {
         return {
             valid: false,
@@ -77,6 +78,7 @@ export async function validateResetToken(
             access_token: accessToken,
             refresh_token: refreshToken,
         });
+        console.log("Session set with access token:", accessToken);
 
         if (error) {
             console.error("Error validating session:", error);
@@ -85,7 +87,7 @@ export async function validateResetToken(
                 error: "Invalid or expired reset link. Please request a new password reset."
             };
         }
-
+        console.log("Token validation successful");
         return { valid: true };
     } catch (err) {
         console.error("Token validation error:", err);
