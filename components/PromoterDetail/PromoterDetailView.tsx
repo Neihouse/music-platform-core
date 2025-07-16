@@ -3,6 +3,7 @@
 import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import StyledTitle from "@/components/StyledTitle";
 import { nameToUrl } from "@/lib/utils";
+import { Database } from "@/utils/supabase/database.types";
 import { Artist, Event, Promoter } from "@/utils/supabase/global.types";
 import {
   ActionIcon,
@@ -39,14 +40,40 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type PopularTrack = Pick<Database['public']['Tables']['tracks']['Row'], 'id' | 'title' | 'duration'> & {
+  plays?: number;
+  artist?: Pick<Artist, 'id' | 'name' | 'avatar_img'>;
+};
+
+type PopulatedPromoterLocality = {
+  created_at: string;
+  locality: string;
+  promoter: string;
+  localities: {
+    name: string;
+    administrative_areas?: {
+      name: string;
+      countries?: {
+        name: string;
+      };
+    };
+  };
+};
+
+type CurrentUser = {
+  id: string;
+  email?: string;
+} | null;
+
 interface PromoterDetailViewProps {
   promoter: Promoter;
   upcomingEvents: Event[];
   pastEvents: Event[];
   artists: Artist[];
-  popularTracks: any[]; // This might need a specific interface for tracks with artist info
-  currentUser: any; // This could be a User type if we have one
-  promoterLocalities: any[]; // The joined localities data
+  popularTracks: PopularTrack[];
+  currentUser: CurrentUser;
+  promoterLocalities: PopulatedPromoterLocality[];
   avatarUrl: string | null;
   bannerUrl: string | null;
 }
@@ -518,7 +545,7 @@ export function PromoterDetailView({
   );
 }
 
-function EventCard({ event, type }: { event: any; type: "upcoming" | "past" }) {
+function EventCard({ event, type }: { event: Event; type: "upcoming" | "past" }) {
   return (
     <Card
       p="lg"
@@ -575,7 +602,7 @@ function EventCard({ event, type }: { event: any; type: "upcoming" | "past" }) {
   );
 }
 
-function ArtistCard({ artist }: { artist: any }) {
+function ArtistCard({ artist }: { artist: Artist }) {
   return (
     <Card
       p="lg"
@@ -627,7 +654,7 @@ function ArtistCard({ artist }: { artist: any }) {
   );
 }
 
-function TrackCard({ track, index }: { track: any; index: number }) {
+function TrackCard({ track, index }: { track: PopularTrack; index: number }) {
   return (
     <Card
       p="lg"
@@ -707,7 +734,7 @@ function TrackCard({ track, index }: { track: any; index: number }) {
   );
 }
 
-function LocationCard({ location }: { location: any }) {
+function LocationCard({ location }: { location: PopulatedPromoterLocality }) {
   return (
     <Card
       p="lg"
@@ -719,10 +746,10 @@ function LocationCard({ location }: { location: any }) {
         transition: "transform 0.2s ease",
         cursor: "pointer",
       }}
-      onMouseEnter={(e: any) => {
+      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
         e.currentTarget.style.transform = "translateY(-4px)";
       }}
-      onMouseLeave={(e: any) => {
+      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
         e.currentTarget.style.transform = "translateY(0)";
       }}
     >

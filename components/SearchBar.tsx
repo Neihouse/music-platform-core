@@ -1,35 +1,49 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { nameToUrl } from "@/lib/utils";
+import { Database } from "@/utils/supabase/database.types";
+import { Artist } from "@/utils/supabase/global.types";
 import {
-  TextInput,
-  Loader,
-  Box,
-  Text,
-  Group,
-  Avatar,
-  Paper,
   ActionIcon,
-  Transition,
-  Stack,
+  Avatar,
   Badge,
+  Box,
   Divider,
-  UnstyledButton,
-  rem,
+  Group,
+  Loader,
+  Paper,
+  Stack,
+  Text,
+  TextInput,
+  Transition,
+  UnstyledButton
 } from "@mantine/core";
-import {
-  IconSearch,
-  IconPlayerPlay,
-  IconHeart,
-  IconX,
-  IconMusic,
-  IconMicrophone,
-  IconClock,
-} from "@tabler/icons-react";
-import Link from "next/link";
 import { useClickOutside, useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { nameToUrl } from "@/lib/utils";
+import {
+  IconClock,
+  IconMicrophone,
+  IconMusic,
+  IconPlayerPlay,
+  IconSearch,
+  IconX
+} from "@tabler/icons-react";
+import Link from "next/link";
+import { useState } from "react";
+
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type TrackSearchResult = Pick<Database['public']['Tables']['tracks']['Row'], 'id' | 'title'> & {
+  artist: string;
+  cover_url: string;
+  genre: string;
+  duration: string;
+};
+
+type ArtistSearchResult = Pick<Artist, 'id' | 'name'> & {
+  avatar_url: string;
+  followers: number;
+  genres: string[];
+};
 
 // Mock data for development
 const MOCK_DATA = {
@@ -90,31 +104,14 @@ const MOCK_DATA = {
   ],
 };
 
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  cover_url: string;
-  genre: string;
-  duration: string;
-}
-
-interface Artist {
-  id: string;
-  name: string;
-  avatar_url: string;
-  followers: number;
-  genres: string[];
-}
-
 export function SearchBar() {
   const [value, setValue] = useState("");
   const [debouncedValue] = useDebouncedValue(value, 300);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(false);
   const [results, setResults] = useState<{
-    tracks: Track[];
-    artists: Artist[];
+    tracks: TrackSearchResult[];
+    artists: ArtistSearchResult[];
   }>({ tracks: [], artists: [] });
   const wrapperRef = useClickOutside(() => setFocused(false));
 
@@ -164,7 +161,7 @@ export function SearchBar() {
     }
   };
 
-  const handlePlay = (track: Track) => {
+  const handlePlay = (track: TrackSearchResult) => {
     notifications.show({
       title: "Playing",
       message: `Now playing "${track.title}" by ${track.artist}`,

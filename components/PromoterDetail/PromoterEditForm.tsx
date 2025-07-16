@@ -35,8 +35,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import FontSelect from "../FontSelect";
 
+import { Promoter } from "@/utils/supabase/global.types";
+
 interface PromoterEditFormProps {
-  promoter: any;
+  promoter: Promoter;
 }
 
 export function PromoterEditForm({ promoter }: PromoterEditFormProps) {

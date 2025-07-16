@@ -1,43 +1,41 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { 
-  TextInput, 
-  Paper, 
-  Stack, 
-  Group, 
-  Text, 
-  UnstyledButton,
-  Highlight,
-  ScrollArea,
-  Loader,
+import { Database } from "@/utils/supabase/database.types";
+import {
+  ActionIcon,
   Badge,
-  ActionIcon
+  Group,
+  Highlight,
+  Paper,
+  ScrollArea,
+  Stack,
+  Text,
+  TextInput,
+  UnstyledButton
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconSearch, IconMapPin, IconX } from "@tabler/icons-react";
+import { IconMapPin, IconSearch, IconX } from "@tabler/icons-react";
+import { useEffect, useMemo, useState } from "react";
 
-interface Venue {
-  id: string;
-  name: string;
-  address?: string | null;
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type VenueSearchData = Pick<Database['public']['Tables']['venues']['Row'], 'id' | 'name' | 'address'> & {
   capacity?: number | null;
-}
+};
 
 interface VenueSearchProps {
-  venues: Venue[];
-  onSelect: (venue: Venue | null) => void;
+  venues: VenueSearchData[];
+  onSelect: (venue: VenueSearchData | null) => void;
   selectedVenueId?: string | null;
   placeholder?: string;
   clearable?: boolean;
 }
 
-export function VenueSearch({ 
-  venues, 
-  onSelect, 
-  selectedVenueId, 
+export function VenueSearch({
+  venues,
+  onSelect,
+  selectedVenueId,
   placeholder = "Search venues...",
-  clearable = true 
+  clearable = true
 }: VenueSearchProps) {
   const [searchValue, setSearchValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -50,9 +48,9 @@ export function VenueSearch({
   // Filter venues based on search
   const filteredVenues = useMemo(() => {
     if (!debouncedSearch) return venues;
-    
+
     const searchLower = debouncedSearch.toLowerCase();
-    return venues.filter(venue => 
+    return venues.filter(venue =>
       venue.name.toLowerCase().includes(searchLower) ||
       venue.address?.toLowerCase().includes(searchLower)
     );
@@ -65,7 +63,7 @@ export function VenueSearch({
     }
   }, [selectedVenue, isOpen]);
 
-  const handleSelect = (venue: Venue) => {
+  const handleSelect = (venue: VenueSearchData) => {
     onSelect(venue);
     setSearchValue(venue.name);
     setIsOpen(false);
@@ -84,7 +82,7 @@ export function VenueSearch({
     setSearchValue(value);
     setIsOpen(true);
     setHighlightedIndex(-1);
-    
+
     // If cleared, notify parent
     if (!value && selectedVenueId) {
       onSelect(null);
@@ -97,13 +95,13 @@ export function VenueSearch({
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev < filteredVenues.length - 1 ? prev + 1 : 0
         );
         break;
       case 'ArrowUp':
         event.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev > 0 ? prev - 1 : filteredVenues.length - 1
         );
         break;
@@ -150,9 +148,9 @@ export function VenueSearch({
         leftSection={<IconSearch size={16} />}
         rightSection={
           clearable && selectedVenueId ? (
-            <ActionIcon 
-              size="sm" 
-              variant="subtle" 
+            <ActionIcon
+              size="sm"
+              variant="subtle"
               onClick={handleClear}
               style={{ cursor: "pointer" }}
             >
@@ -193,10 +191,10 @@ export function VenueSearch({
                       display: "block",
                       width: "100%",
                       borderBottom: "1px solid var(--mantine-color-gray-2)",
-                      backgroundColor: 
+                      backgroundColor:
                         venue.id === selectedVenueId ? "var(--mantine-color-blue-0)" :
-                        index === highlightedIndex ? "var(--mantine-color-gray-0)" :
-                        "transparent"
+                          index === highlightedIndex ? "var(--mantine-color-gray-0)" :
+                            "transparent"
                     }}
                     onMouseEnter={() => setHighlightedIndex(index)}
                   >
@@ -204,7 +202,7 @@ export function VenueSearch({
                       <Stack gap={2} style={{ flex: 1 }}>
                         <Group gap="xs">
                           <IconMapPin size={16} />
-                          <Highlight 
+                          <Highlight
                             component="span"
                             fw={500}
                             highlight={debouncedSearch}
@@ -213,12 +211,12 @@ export function VenueSearch({
                             {venue.name}
                           </Highlight>
                         </Group>
-                        
+
                         {venue.address && (
-                          <Highlight 
+                          <Highlight
                             component="div"
-                            size="sm" 
-                            c="dimmed" 
+                            size="sm"
+                            c="dimmed"
                             pl={24}
                             highlight={debouncedSearch}
                             highlightStyles={{ backgroundColor: "yellow" }}
@@ -227,7 +225,7 @@ export function VenueSearch({
                           </Highlight>
                         )}
                       </Stack>
-                      
+
                       {venue.capacity && (
                         <Badge size="sm" variant="light">
                           {venue.capacity.toLocaleString()} cap
