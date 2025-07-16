@@ -568,7 +568,7 @@ export async function getArtistEvents(
   const sortedEvents = events
     ?.map(ea => ea.events)
     .filter(Boolean)
-    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+    .sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime()) || [];
 
   return sortedEvents;
 }
