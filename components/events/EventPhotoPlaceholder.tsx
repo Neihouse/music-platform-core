@@ -9,9 +9,16 @@ interface EventPhotoPlaceholderProps {
 }
 
 export function EventPhotoPlaceholder({ eventName, eventDate }: EventPhotoPlaceholderProps) {
-    const isEventPast = eventDate ? new Date(eventDate) < new Date() : false;
-    const isEventToday = eventDate ?
-        new Date(eventDate).toDateString() === new Date().toDateString() : false;
+    const now = new Date();
+    const eventDateObj = eventDate ? new Date(eventDate) : null;
+    const isEventPast = eventDateObj ? eventDateObj < now : false;
+    const isEventToday = eventDateObj ?
+        eventDateObj.toDateString() === now.toDateString() : false;
+
+    // Calculate if we're within the 2-week upload period after the event
+    const twoWeeksAfterEvent = eventDateObj ? new Date(eventDateObj.getTime() + (14 * 24 * 60 * 60 * 1000)) : null;
+    const isWithinUploadPeriod = eventDateObj && twoWeeksAfterEvent ? now >= eventDateObj && now <= twoWeeksAfterEvent : false;
+    const uploadPeriodExpired = eventDateObj && twoWeeksAfterEvent ? now > twoWeeksAfterEvent : false;
 
     return (
         <Paper shadow="sm" p="xl" radius="md">
@@ -40,12 +47,17 @@ export function EventPhotoPlaceholder({ eventName, eventDate }: EventPhotoPlaceh
 
                 <Stack gap="sm" align="center">
                     <Title order={3} ta="center">
-                        {isEventPast ? "Event Photos" : "Photo Gallery Coming Soon"}
+                        {uploadPeriodExpired ? "Event Photos" :
+                            isEventPast ? "Photo Gallery Coming Soon" : "Photo Gallery Coming Soon"}
                     </Title>
 
-                    {isEventPast ? (
+                    {uploadPeriodExpired ? (
                         <Text c="dimmed" ta="center" size="lg">
                             Photos from {eventName} will appear here once they're uploaded
+                        </Text>
+                    ) : isEventPast ? (
+                        <Text c="dimmed" ta="center" size="lg">
+                            Photo uploads are available for 2 weeks after the event ends
                         </Text>
                     ) : (
                         <Text c="dimmed" ta="center" size="lg">
@@ -57,12 +69,15 @@ export function EventPhotoPlaceholder({ eventName, eventDate }: EventPhotoPlaceh
                         <Box>
                             <Badge
                                 variant="light"
-                                color={isEventToday ? "green" : isEventPast ? "gray" : "blue"}
+                                color={isEventToday ? "green" :
+                                    uploadPeriodExpired ? "gray" :
+                                        isEventPast ? "orange" : "blue"}
                                 size="lg"
                                 leftSection={<IconCalendar size={14} />}
                             >
                                 {isEventToday ? "Event Today" :
-                                    isEventPast ? "Event Ended" : "Upcoming Event"}
+                                    uploadPeriodExpired ? "Upload Period Ended" :
+                                        isEventPast ? "Upload Period Active" : "Upcoming Event"}
                             </Badge>
                             <Text size="sm" c="dimmed" ta="center" mt="xs">
                                 {new Date(eventDate).toLocaleDateString('en-US', {
@@ -74,6 +89,15 @@ export function EventPhotoPlaceholder({ eventName, eventDate }: EventPhotoPlaceh
                                     minute: '2-digit'
                                 })}
                             </Text>
+                            {isWithinUploadPeriod && twoWeeksAfterEvent && (
+                                <Text size="xs" c="dimmed" ta="center" mt="xs">
+                                    Upload period ends {twoWeeksAfterEvent.toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        year: 'numeric'
+                                    })}
+                                </Text>
+                            )}
                         </Box>
                     )}
                 </Stack>
