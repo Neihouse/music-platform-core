@@ -39,13 +39,13 @@ type EventBasic = Pick<Event, 'id' | 'name' | 'start' | 'venue'>;
 type ArtistBasic = Pick<Artist, 'id' | 'name' | 'avatar_img'>;
 
 type VenueBasic = Pick<Venue, 'id' | 'name' | 'address'> & {
-  capacity?: number | null;
+	capacity?: number | null;
 };
 
 type EventStage = Pick<Database['public']['Tables']['event_stage']['Row'], 'id' | 'name' | 'venue'>;
 
 type StageAssignmentWithArtist = Pick<Database['public']['Tables']['event_stage_artists']['Row'], 'id' | 'artist' | 'stage' | 'set_start' | 'set_end'> & {
-  artists: ArtistBasic;
+	artists: ArtistBasic;
 };
 
 interface EventLineupPlannerProps {
