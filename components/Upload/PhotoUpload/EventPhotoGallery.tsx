@@ -210,8 +210,8 @@ export function EventPhotoGallery({
             {embedded ? (
                 renderContent()
             ) : (
-                <Container 
-                    size={fullscreen ? "xl" : "lg"} 
+                <Container
+                    size={fullscreen ? "xl" : "lg"}
                     p={isMobile ? "xs" : (fullscreen ? "xl" : "md")}
                     style={isMobile ? { maxWidth: "100%", margin: 0 } : undefined}
                 >

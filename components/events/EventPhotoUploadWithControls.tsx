@@ -283,7 +283,7 @@ export function EventPhotoUploadWithControls({
                                         {isMobile ? "Tap to upload photos" : "Drag photos here or click to select"}
                                     </Text>
                                     <Text size={isMobile ? "xs" : "sm"} c="dimmed" ta="center">
-                                        {isMobile 
+                                        {isMobile
                                             ? `Up to ${maxPhotos - pendingPhotos.length} more, max ${Math.round(maxFileSize / (1024 * 1024))}MB`
                                             : `Up to ${maxPhotos - pendingPhotos.length} more photos, max ${Math.round(maxFileSize / (1024 * 1024))}MB each`
                                         }
