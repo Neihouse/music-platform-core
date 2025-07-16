@@ -153,18 +153,18 @@ export function EventPhotoGallery({
     );
 
     const renderContent = () => (
-        <Stack gap={fullscreen ? "lg" : "xl"}>
+        <Stack gap={fullscreen ? "lg" : isMobile ? "md" : "xl"}>
             {/* Header */}
             {!embedded && (
-                <Card p={fullscreen ? "xl" : "lg"} withBorder>
+                <Card p={fullscreen ? "xl" : isMobile ? "md" : "lg"} withBorder>
                     <Group justify="space-between" align="flex-start">
                         <div>
-                            <Title order={fullscreen ? 1 : 2}>Event Photos</Title>
-                            <Text c="dimmed" size={fullscreen ? "md" : "sm"}>
+                            <Title order={fullscreen ? 1 : isMobile ? 3 : 2}>Event Photos</Title>
+                            <Text c="dimmed" size={fullscreen ? "md" : isMobile ? "xs" : "sm"}>
                                 {eventName}
                             </Text>
                             <Group gap="xs" mt="xs">
-                                <Badge variant="light" color="blue" size={fullscreen ? "md" : "sm"}>
+                                <Badge variant="light" color="blue" size={fullscreen ? "md" : isMobile ? "xs" : "sm"}>
                                     {photos.length} photo{photos.length !== 1 ? 's' : ''}
                                 </Badge>
                             </Group>
@@ -174,29 +174,29 @@ export function EventPhotoGallery({
             )}
 
             {/* Photo Gallery Display */}
-            <Paper shadow="sm" p="xl" radius="md">
+            <Paper shadow="sm" p={isMobile ? "md" : "xl"} radius="md">
                 {photos.length > 0 ? (
-                    <Stack gap="lg">
+                    <Stack gap={isMobile ? "md" : "lg"}>
                         <Group justify="space-between" align="center">
                             <div>
-                                <Title order={4}>Event Gallery</Title>
-                                <Text size="sm" c="dimmed">
+                                <Title order={isMobile ? 5 : 4}>Event Gallery</Title>
+                                <Text size={isMobile ? "xs" : "sm"} c="dimmed">
                                     Check out photos from this event
                                 </Text>
                             </div>
-                            <Text size="sm" fw={500}>
+                            <Text size={isMobile ? "xs" : "sm"} fw={500}>
                                 {photos.length} photo{photos.length !== 1 ? 's' : ''}
                             </Text>
                         </Group>
                         <PhotoGrid photos={photos} />
                     </Stack>
                 ) : (
-                    <Stack align="center" gap="md" py="xl">
-                        <IconPhoto size={48} color="var(--mantine-color-gray-5)" />
-                        <Text size="lg" c="dimmed" ta="center">
+                    <Stack align="center" gap={isMobile ? "sm" : "md"} py={isMobile ? "md" : "xl"}>
+                        <IconPhoto size={isMobile ? 36 : 48} color="var(--mantine-color-gray-5)" />
+                        <Text size={isMobile ? "md" : "lg"} c="dimmed" ta="center">
                             No photos have been uploaded for this event yet.
                         </Text>
-                        <Text size="sm" c="dimmed" ta="center">
+                        <Text size={isMobile ? "xs" : "sm"} c="dimmed" ta="center">
                             Check back later to see photos from this event!
                         </Text>
                     </Stack>
@@ -210,7 +210,11 @@ export function EventPhotoGallery({
             {embedded ? (
                 renderContent()
             ) : (
-                <Container size={fullscreen ? "xl" : "lg"} p={fullscreen ? "xl" : "md"}>
+                <Container 
+                    size={fullscreen ? "xl" : "lg"} 
+                    p={isMobile ? "xs" : (fullscreen ? "xl" : "md")}
+                    style={isMobile ? { maxWidth: "100%", margin: 0 } : undefined}
+                >
                     {renderContent()}
                 </Container>
             )}
@@ -219,15 +223,19 @@ export function EventPhotoGallery({
             <Modal
                 opened={selectedPhotoIndex !== null}
                 onClose={closePhotoModal}
-                size="xl"
+                size={isMobile ? "100%" : "xl"}
                 padding={0}
                 centered
                 withCloseButton={false}
+                fullScreen={isMobile}
                 styles={{
                     body: {
                         backgroundColor: "transparent",
                         padding: 0,
                     },
+                    inner: isMobile ? {
+                        padding: 0,
+                    } : undefined,
                 }}
             >
                 {selectedPhotoIndex !== null && photos[selectedPhotoIndex] && (
@@ -237,9 +245,9 @@ export function EventPhotoGallery({
                             alt={`Event photo ${selectedPhotoIndex + 1}`}
                             style={{
                                 width: "100%",
-                                maxHeight: "90vh",
+                                maxHeight: isMobile ? "100vh" : "90vh",
                                 objectFit: "contain",
-                                borderRadius: "8px",
+                                borderRadius: isMobile ? 0 : "8px",
                             }}
                         />
 
@@ -248,17 +256,18 @@ export function EventPhotoGallery({
                             onClick={closePhotoModal}
                             variant="filled"
                             color="dark"
-                            size="lg"
+                            size={isMobile ? "md" : "lg"}
                             radius="xl"
                             style={{
                                 position: "absolute",
-                                top: 16,
-                                right: 16,
+                                top: isMobile ? 12 : 16,
+                                right: isMobile ? 12 : 16,
                                 backgroundColor: "rgba(0, 0, 0, 0.7)",
                                 color: "white",
+                                zIndex: 1000,
                             }}
                         >
-                            <IconX size={20} />
+                            <IconX size={isMobile ? 16 : 20} />
                         </ActionIcon>
 
                         {/* Navigation buttons */}
@@ -268,36 +277,38 @@ export function EventPhotoGallery({
                                     onClick={() => navigatePhoto('prev')}
                                     variant="filled"
                                     color="dark"
-                                    size="xl"
+                                    size={isMobile ? "lg" : "xl"}
                                     radius="xl"
                                     style={{
                                         position: "absolute",
-                                        left: 16,
+                                        left: isMobile ? 12 : 16,
                                         top: "50%",
                                         transform: "translateY(-50%)",
                                         backgroundColor: "rgba(0, 0, 0, 0.7)",
                                         color: "white",
+                                        zIndex: 1000,
                                     }}
                                 >
-                                    <IconChevronLeft size={24} />
+                                    <IconChevronLeft size={isMobile ? 20 : 24} />
                                 </ActionIcon>
 
                                 <ActionIcon
                                     onClick={() => navigatePhoto('next')}
                                     variant="filled"
                                     color="dark"
-                                    size="xl"
+                                    size={isMobile ? "lg" : "xl"}
                                     radius="xl"
                                     style={{
                                         position: "absolute",
-                                        right: 16,
+                                        right: isMobile ? 12 : 16,
                                         top: "50%",
                                         transform: "translateY(-50%)",
                                         backgroundColor: "rgba(0, 0, 0, 0.7)",
                                         color: "white",
+                                        zIndex: 1000,
                                     }}
                                 >
-                                    <IconChevronRight size={24} />
+                                    <IconChevronRight size={isMobile ? 20 : 24} />
                                 </ActionIcon>
                             </>
                         )}
@@ -307,14 +318,15 @@ export function EventPhotoGallery({
                             <Box
                                 style={{
                                     position: "absolute",
-                                    bottom: 16,
+                                    bottom: isMobile ? 20 : 16,
                                     left: "50%",
                                     transform: "translateX(-50%)",
                                     backgroundColor: "rgba(0, 0, 0, 0.7)",
                                     color: "white",
-                                    padding: "8px 16px",
+                                    padding: isMobile ? "6px 12px" : "8px 16px",
                                     borderRadius: "20px",
-                                    fontSize: "14px",
+                                    fontSize: isMobile ? "12px" : "14px",
+                                    zIndex: 1000,
                                 }}
                             >
                                 {selectedPhotoIndex + 1} of {photos.length}

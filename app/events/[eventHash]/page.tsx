@@ -4,7 +4,7 @@ import { EventPosterSection } from "@/components/events/EventPosterSection";
 import { VenueSelector } from "@/components/events/VenueSelector";
 import StyledTitle from "@/components/StyledTitle";
 import { getPhotosByEvent } from "@/db/queries/event_photos";
-import { getEventByHash, getEvents } from "@/db/queries/events";
+import { getEventByHash } from "@/db/queries/events";
 import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 import { Box, Button, Center, Container, Group, Paper, Stack, Text, Title } from "@mantine/core";
@@ -22,11 +22,9 @@ interface EventDetailPageProps {
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   try {
     const eventHash = (await params).eventHash;
-    console.log("Fetching event details for hash:", eventHash);
     const supabase = await createClient();
     const event = await getEventByHash(supabase, eventHash);
     const availableVenues = await getAvailableVenues();
-    const events = await getEvents(supabase);
 
     // Get current user to check if they are the event creator
     const currentUser = await getUser(supabase);
