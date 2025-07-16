@@ -83,7 +83,7 @@ export function Header({ user, userProfile }: HeaderProps) {
     ? '/artist'
     : currentUserProfile?.type === 'promoter'
       ? '/promoter'
-      : '/profile'; // fallback for users without a specific profile type
+      : '/onboarding'; // fallback for users without a specific profile type
 
   return (
     <Container
