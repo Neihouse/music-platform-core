@@ -26,6 +26,40 @@ music-platform-core/
 
 ## Recent Development Work
 
+### Code Review Feedback & Improvements (July 2025)
+
+#### ✅ Completed
+1. **Unused Props Cleanup**: Removed unused `userId` prop from SettingsClient component
+2. **Component Architecture**: Successfully broke down large SettingsClient component into smaller, maintainable pieces:
+   - `EmailSection.tsx` - Handles email updates with validation
+   - `PasswordSection.tsx` - Manages password changes
+   - `DeleteAccountSection.tsx` - Account deletion with confirmation modal
+3. **Shared Components**: Created reusable `ThemedCard` and `ThemedPaper` components to reduce styling duplication
+4. **Hero Section Optimization**: Made top card more condensed by reducing spacing:
+   - Reduced gap from "lg" to "md" in main stack
+   - Reduced Group gaps from "lg"/"sm" to "md"/"xs"
+   - Reduced padding in hero Paper from "xl" to "lg" on medium screens
+5. **Component Styling Consolidation**: ✅ **COMPLETED**
+   - Replaced all Card components with ThemedCard in promoter page
+   - Updated settings components to use ThemedPaper
+   - Established consistent styling patterns across components
+
+#### 🔄 In Progress / Next Steps
+1. **CSS Media Query Migration**: Replace inline `@media` queries with Mantine's responsive props
+   - Current issue: Not all Mantine components support responsive object syntax
+   - Need to use `sx` prop with `theme.fn.smallerThan/largerThan` for unsupported components
+   - File: `/app/promoter/page.tsx` has ~14 inline media queries to convert
+
+2. **Future Improvements**:
+   - Apply ThemedCard/ThemedPaper pattern to other pages in the application
+   - Create additional shared components for common UI patterns
+   - Standardize responsive breakpoint usage across all components
+
+#### 📝 Important Notes
+- **CSS-in-JS Media Queries**: Use camelCase property names in media queries (e.g., `alignItems` not `align-items`)
+- **Responsive Props Support**: Check Mantine component documentation before using responsive object syntax
+- **Component Modularity**: Large components should be broken into logical sub-components for maintainability
+
 ### Mobile Responsiveness Improvements
 📱 **[View Mobile Improvements Documentation](./MOBILE_IMPROVEMENTS.md)**
 
@@ -73,6 +107,31 @@ Key improvements include:
 - Follow Mantine's breakpoint system: `xs`, `sm`, `md`, `lg`, `xl`
 - Implement mobile-first responsive design patterns
 - **Prefer responsive style props over duplicate components** to reduce code duplication
+
+#### CSS-in-JS Media Query Syntax
+⚠️ **CRITICAL**: When using inline styles with media queries in React/Mantine:
+- **INCORRECT**: `'@media (min-width: 48em)'` - Standard CSS syntax will cause errors
+- **CORRECT**: `'@media (minWidth: 48em)'` - Use camelCase for CSS properties in objects
+- **ALTERNATIVE**: Use Mantine's responsive style props instead of inline media queries when possible
+- **Example**:
+  ```tsx
+  // ❌ Wrong - will cause error
+  style={{
+    '@media (min-width: 48em)': {
+      fontSize: '1.5rem'
+    }
+  }}
+  
+  // ✅ Correct - camelCase property names
+  style={{
+    '@media (minWidth: 48em)': {
+      fontSize: '1.5rem'
+    }
+  }}
+  
+  // ✅ Better - use Mantine's responsive props when supported
+  fz={{ base: "md", sm: "lg" }}
+  ```
 
 ### Performance Considerations
 - Minimize responsive style prop usage for better performance

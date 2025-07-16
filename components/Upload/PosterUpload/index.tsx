@@ -47,6 +47,7 @@ export function PosterUpload({
     >("initial");
     const [imageUrl, setImageUrl] = React.useState<string | null>(null);
     const [currentPosterFilename, setCurrentPosterFilename] = React.useState<string | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
 
     // Mobile responsive hooks
     const isMobile = useMediaQuery('(max-width: 768px)');
@@ -156,6 +157,7 @@ export function PosterUpload({
                     <Dropzone
                         loading={uploadState === "pending"}
                         onDrop={onDrop}
+                        onReject={onReject}
                         accept={["image/png", "image/jpeg", "image/webp", "image/avif"]}
                         maxSize={maxFileSize}
                         maxFiles={1}
@@ -186,6 +188,11 @@ export function PosterUpload({
                             </Dropzone.Idle>
                         </Group>
                     </Dropzone>
+                )}
+                {error && (
+                    <Text c="red" size="xs" ta="center">
+                        {error}
+                    </Text>
                 )}
             </Stack>
         </Card>
@@ -243,8 +250,23 @@ export function PosterUpload({
         }
     }
 
+    async function onReject(files: any[]) {
+        const file = files[0];
+        if (file && file.file) {
+            const fileSize = file.file.size;
+            if (fileSize > maxFileSize) {
+                const errorMessage = `File size is ${(fileSize / (1024 * 1024)).toFixed(1)}MB. Maximum allowed size is ${Math.round(maxFileSize / (1024 * 1024))}MB.`;
+                setError(errorMessage);
+                setUploadState("error");
+            }
+        }
+    }
+
     async function onDrop(files: FileWithPath[]) {
         if (files.length === 0) return;
+
+        // Clear any previous errors
+        setError(null);
 
         setUploadState("pending");
         const file = files[0];
