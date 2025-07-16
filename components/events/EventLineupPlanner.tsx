@@ -10,6 +10,8 @@ import {
 } from "@/app/events/[eventHash]/lineup/actions";
 import StyledTitle from "@/components/StyledTitle";
 import { VenueSearch } from "@/components/VenueSearch";
+import { Database } from "@/utils/supabase/database.types";
+import { Artist, Event, Venue } from "@/utils/supabase/global.types";
 import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
 import {
 	ActionIcon,
@@ -31,48 +33,30 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconClock, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
-interface Artist {
-	id: string;
-	name: string;
-	avatar_img?: string | null;
-}
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type EventBasic = Pick<Event, 'id' | 'name' | 'start' | 'venue'>;
 
-interface Event {
-	id: string;
-	name: string;
-	start?: string | null;
-	venue?: string | null;
-}
+type ArtistBasic = Pick<Artist, 'id' | 'name' | 'avatar_img'>;
 
-interface Stage {
-	id: string;
-	name: string;
-	venue: string;
-}
+type VenueBasic = Pick<Venue, 'id' | 'name' | 'address'> & {
+  capacity?: number | null;
+};
 
-interface StageAssignment {
-	id: string;
-	artist: string;
-	stage: string | null;
-	set_start?: string | null;
-	set_end?: string | null;
-	artists: Artist;
-}
+type EventStage = Pick<Database['public']['Tables']['event_stage']['Row'], 'id' | 'name' | 'venue'>;
+
+type StageAssignmentWithArtist = Pick<Database['public']['Tables']['event_stage_artists']['Row'], 'id' | 'artist' | 'stage' | 'set_start' | 'set_end'> & {
+  artists: ArtistBasic;
+};
 
 interface EventLineupPlannerProps {
-	event: Event;
-	availableArtists: Artist[];
-	availableVenues?: Array<{
-		id: string;
-		name: string;
-		address?: string | null;
-		capacity?: number | null;
-	}>;
+	event: EventBasic;
+	availableArtists: ArtistBasic[];
+	availableVenues?: VenueBasic[];
 }
 
 export function EventLineupPlanner({ event, availableArtists, availableVenues = [] }: EventLineupPlannerProps) {
-	const [stages, setStages] = useState<Stage[]>([]);
-	const [assignments, setAssignments] = useState<{ [stageId: string]: StageAssignment[] }>({});
+	const [stages, setStages] = useState<EventStage[]>([]);
+	const [assignments, setAssignments] = useState<{ [stageId: string]: StageAssignmentWithArtist[] }>({});
 	const [newStageName, setNewStageName] = useState("");
 	const [selectedVenue, setSelectedVenue] = useState<string>("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -82,7 +66,7 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 		loadEventData();
 	}, [event.id]);
 
-	const handleStageVenueSelect = (venue: any) => {
+	const handleStageVenueSelect = (venue: VenueBasic | null) => {
 		setSelectedVenue(venue?.id || "");
 	};
 
@@ -94,13 +78,13 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 
 			// Load assignments for each stage
 			const allAssignments = await getEventStageArtistsAction(event.id);
-			const assignmentsByStage: { [stageId: string]: StageAssignment[] } = {};
+			const assignmentsByStage: { [stageId: string]: StageAssignmentWithArtist[] } = {};
 
-			allAssignments.forEach((assignment: any) => {
-				if (!assignmentsByStage[assignment.stage]) {
-					assignmentsByStage[assignment.stage] = [];
+			allAssignments.forEach((assignment: StageAssignmentWithArtist) => {
+				if (!assignmentsByStage[assignment.stage!]) {
+					assignmentsByStage[assignment.stage!] = [];
 				}
-				assignmentsByStage[assignment.stage].push(assignment);
+				assignmentsByStage[assignment.stage!].push(assignment);
 			});
 
 			setAssignments(assignmentsByStage);
