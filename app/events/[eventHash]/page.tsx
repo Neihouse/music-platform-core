@@ -67,21 +67,21 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     </StyledTitle>
 
                     <Group gap="xl" wrap="wrap">
-                      {event.date && (
+                      {event.start && (
                         <Group gap="xs">
                           <IconCalendar size={20} style={{ color: 'var(--mantine-color-blue-6)' }} />
                           <Box>
                             <Text fw={500} size="lg">
-                              {new Date(event.date).toLocaleDateString('en-US', {
+                              {new Date(event.start).toLocaleDateString('en-US', {
                                 weekday: 'long',
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric'
                               })}
                             </Text>
-                            {event.date && (
+                            {event.start && (
                               <Text size="sm" c="dimmed">
-                                {new Date(event.date).toLocaleDateString('en-US', {
+                                {new Date(event.start).toLocaleDateString('en-US', {
                                   month: 'short',
                                   day: 'numeric'
                                 })}
@@ -209,12 +209,12 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 </StyledTitle>
 
                 <Stack gap="md">
-                  {event.date && (
+                  {event.start && (
                     <Group gap="xs">
                       <IconCalendar size={18} style={{ color: 'var(--mantine-color-blue-6)' }} />
                       <Box>
                         <Text fw={500}>
-                          {new Date(event.date).toLocaleDateString('en-US', {
+                          {new Date(event.start).toLocaleDateString('en-US', {
                             weekday: 'long',
                             year: 'numeric',
                             month: 'long',

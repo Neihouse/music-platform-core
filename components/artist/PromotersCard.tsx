@@ -1,27 +1,25 @@
 "use client";
 
 import { acceptPromoterInvitation, declinePromoterInvitation } from "@/app/artist/actions";
+import { Database } from "@/utils/supabase/database.types";
 import { Avatar, Button, Card, Center, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconUserPlus, IconUsers, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 
-interface Promoter {
-  id: string;
-  name: string;
-  bio: string | null;
-  avatar_img: string | null;
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type PromoterData = Pick<Database['public']['Tables']['promoters']['Row'], 'id' | 'name' | 'bio' | 'avatar_img'> & {
   avatarUrl?: string | null;
-}
+};
 
 interface PromoterInvitation {
   id: string;
-  promoter: Promoter;
+  promoter: PromoterData;
 }
 
 interface PromotersCardProps {
-  promotersWithAvatars: Promoter[];
+  promotersWithAvatars: PromoterData[];
   invitationsWithAvatars: PromoterInvitation[];
 }
 

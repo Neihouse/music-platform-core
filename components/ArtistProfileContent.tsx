@@ -1,11 +1,23 @@
 "use client";
 
-import { Artist, StoredLocality } from "@/utils/supabase/global.types";
-import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
-import { 
+import {
   ProfileContent,
   transformArtistData
 } from "@/components/shared";
+import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
+import { Database } from "@/utils/supabase/database.types";
+import { Artist, Event, StoredLocality, Venue } from "@/utils/supabase/global.types";
+
+// Define types using database-first approach (per TYPE_USAGE_GUIDE.md)
+type PromoterWithImages = Pick<Database['public']['Tables']['promoters']['Row'], 'id' | 'name' | 'bio'> & {
+  avatarUrl?: string | null;
+  bannerUrl?: string | null;
+};
+
+type EventWithDate = Pick<Event, 'id' | 'name'> & {
+  date: string | null;
+  venues?: Pick<Venue, 'id' | 'name'> | null;
+};
 
 interface ArtistProfileContentProps {
   artist: Artist;
@@ -14,25 +26,8 @@ interface ArtistProfileContentProps {
   tracksWithPlayCounts: ArtistTrackWithPlayCount[];
   avatarUrl: string | null;
   bannerUrl: string | null;
-  promoters?: Array<{
-    id: string;
-    name: string;
-    bio?: string | null;
-    avatar_img?: string | null;
-    banner_img?: string | null;
-    selectedFont?: string | null;
-    avatarUrl?: string | null;
-    bannerUrl?: string | null;
-  }>;
-  events?: Array<{
-    id: string;
-    name: string;
-    date: string | null;
-    venues?: {
-      id: string;
-      name: string;
-    } | null;
-  }>;
+  promoters?: PromoterWithImages[];
+  events?: EventWithDate[];
 }
 
 const ArtistProfileContent = ({
@@ -45,12 +40,20 @@ const ArtistProfileContent = ({
   promoters = [],
   events = [],
 }: ArtistProfileContentProps) => {
+  // Map events from EventWithDate to EventWithVenue format
+  const eventsWithVenue = events.map(event => ({
+    id: event.id,
+    name: event.name,
+    start: event.date, // Map date to start
+    venues: event.venues
+  }));
+
   // Transform data using the helper function
   const { entity, tabs } = transformArtistData(
     artist,
     tracksWithPlayCounts,
     promoters,
-    events
+    eventsWithVenue
   );
 
   return (

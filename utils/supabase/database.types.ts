@@ -88,7 +88,7 @@ export type Database = {
           id: string
           name: string
           selectedFont: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           administrative_area_id?: string | null
@@ -101,7 +101,7 @@ export type Database = {
           id?: string
           name: string
           selectedFont?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Update: {
           administrative_area_id?: string | null
@@ -114,7 +114,7 @@ export type Database = {
           id?: string
           name?: string
           selectedFont?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -519,6 +519,7 @@ export type Database = {
           display_name: string
           id: string
           locality_id: string | null
+          user_id: string | null
         }
         Insert: {
           administrative_area_id?: string | null
@@ -526,6 +527,7 @@ export type Database = {
           display_name: string
           id?: string
           locality_id?: string | null
+          user_id?: string | null
         }
         Update: {
           administrative_area_id?: string | null
@@ -533,6 +535,7 @@ export type Database = {
           display_name?: string
           id?: string
           locality_id?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {

@@ -572,7 +572,7 @@ export default async function ArtistDashboardPage() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <Text fw={600} lineClamp={1} size="sm">{event.name}</Text>
                         <Text size="xs" c="dimmed" lineClamp={1}>
-                          {event.venues?.name} • {event.date ? new Date(event.date).toLocaleDateString() : 'Date TBD'}
+                          {event.venues?.name} • {event.start ? new Date(event.start).toLocaleDateString() : 'Date TBD'}
                         </Text>
                       </div>
                       <Badge variant="light" color="green" size="xs">
@@ -602,7 +602,7 @@ export default async function ArtistDashboardPage() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <Text fw={600} lineClamp={1}>{event.name}</Text>
                         <Text size="sm" c="dimmed" lineClamp={1}>
-                          {event.venues?.name} • {event.date ? new Date(event.date).toLocaleDateString() : 'Date TBD'}
+                          {event.venues?.name} • {event.start ? new Date(event.start).toLocaleDateString() : 'Date TBD'}
                         </Text>
                       </div>
                       <Badge variant="light" color="green" size="sm">

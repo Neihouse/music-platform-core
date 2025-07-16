@@ -1,52 +1,79 @@
 "use client";
 
-import Link from "next/link";
+import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
+import StyledTitle from "@/components/StyledTitle";
+import { nameToUrl } from "@/lib/utils";
+import { Database } from "@/utils/supabase/database.types";
+import { Artist, Event, Promoter } from "@/utils/supabase/global.types";
 import {
+  ActionIcon,
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Card,
+  Center,
   Container,
   Grid,
   GridCol,
   Group,
-  Stack,
-  Title,
-  Text,
-  Badge,
-  Button,
-  Card,
-  Avatar,
   Paper,
   SimpleGrid,
-  ThemeIcon,
-  Box,
+  Stack,
   Tabs,
-  Center,
-  ActionIcon,
+  Text,
+  ThemeIcon,
+  Title,
 } from "@mantine/core";
-import StyledTitle from "@/components/StyledTitle";
 import {
-  IconUsers,
+  IconBolt,
   IconCalendarEvent,
-  IconMusic,
-  IconMapPin,
-  IconPlayerPlay,
+  IconEdit,
   IconHeart,
+  IconMapPin,
+  IconMusic,
+  IconPlayerPlay,
   IconShare,
   IconSparkles,
-  IconBolt,
-  IconEdit,
+  IconUsers,
 } from "@tabler/icons-react";
-import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
-import { nameToUrl } from "@/lib/utils";
-import { useState, useEffect } from "react";
-import { Promoter, Event, Artist } from "@/utils/supabase/global.types";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type PopularTrack = Pick<Database['public']['Tables']['tracks']['Row'], 'id' | 'title' | 'duration'> & {
+  plays?: number;
+  artist?: Pick<Artist, 'id' | 'name' | 'avatar_img'>;
+};
+
+type PopulatedPromoterLocality = {
+  created_at: string;
+  locality: string;
+  promoter: string;
+  localities: {
+    name: string;
+    administrative_areas?: {
+      name: string;
+      countries?: {
+        name: string;
+      };
+    };
+  };
+};
+
+type CurrentUser = {
+  id: string;
+  email?: string;
+} | null;
 
 interface PromoterDetailViewProps {
   promoter: Promoter;
   upcomingEvents: Event[];
   pastEvents: Event[];
   artists: Artist[];
-  popularTracks: any[]; // This might need a specific interface for tracks with artist info
-  currentUser: any; // This could be a User type if we have one
-  promoterLocalities: any[]; // The joined localities data
+  popularTracks: PopularTrack[];
+  currentUser: CurrentUser;
+  promoterLocalities: PopulatedPromoterLocality[];
   avatarUrl: string | null;
   bannerUrl: string | null;
 }
@@ -69,7 +96,7 @@ export function PromoterDetailView({
     const selectedFont = promoter.selectedFont;
     if (selectedFont) {
       const fontName = selectedFont.replace(/ /g, '+');
-      
+
       // Check if font is already loaded
       const existingLink = document.querySelector(`link[href*="${fontName}"]`);
       if (!existingLink) {
@@ -92,7 +119,7 @@ export function PromoterDetailView({
         p="xl"
         mb="xl"
         style={{
-          background: bannerUrl 
+          background: bannerUrl
             ? `linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%), url(${bannerUrl}) center/cover`
             : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
@@ -125,7 +152,7 @@ export function PromoterDetailView({
             transform: "translate(-50%, 50%)",
           }}
         />
-        
+
         <Grid align="center" style={{ position: "relative", zIndex: 1 }}>
           <GridCol span={{ base: 12, md: 8 }}>
             <Group gap="xl">
@@ -142,11 +169,11 @@ export function PromoterDetailView({
               </Avatar>
               <Stack gap="md">
                 <Group gap="md">
-                  <StyledTitle 
+                  <StyledTitle
                     selectedFont={promoter.selectedFont || "Inter"}
-                    style={{ 
-                      fontSize: '3rem', 
-                      fontWeight: 900 
+                    style={{
+                      fontSize: '3rem',
+                      fontWeight: 900
                     }}
                   >
                     {promoter.name}
@@ -205,7 +232,7 @@ export function PromoterDetailView({
                   Edit Collective
                 </Button>
               )}
-              
+
               <Button
                 size="xl"
                 variant="white"
@@ -338,9 +365,9 @@ export function PromoterDetailView({
                               {event.venue || "TBA"}
                             </Text>
                           </Group>
-                          {event.date && (
+                          {event.start && (
                             <Text size="sm" c="blue" fw={500}>
-                              {new Date(event.date).toLocaleDateString("en-US", {
+                              {new Date(event.start).toLocaleDateString("en-US", {
                                 weekday: "short",
                                 month: "short",
                                 day: "numeric",
@@ -518,14 +545,14 @@ export function PromoterDetailView({
   );
 }
 
-function EventCard({ event, type }: { event: any; type: "upcoming" | "past" }) {
+function EventCard({ event, type }: { event: Event; type: "upcoming" | "past" }) {
   return (
     <Card
       p="lg"
       radius="xl"
       withBorder
       style={{
-        background: type === "upcoming" 
+        background: type === "upcoming"
           ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
           : "linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%)",
         color: "white",
@@ -548,7 +575,7 @@ function EventCard({ event, type }: { event: any; type: "upcoming" | "past" }) {
             {type === "upcoming" ? "Upcoming" : "Past"}
           </Badge>
         </Group>
-        
+
         <Group gap="xs">
           <IconMapPin size={16} />
           <Text size="sm" lineClamp={1}>
@@ -556,9 +583,9 @@ function EventCard({ event, type }: { event: any; type: "upcoming" | "past" }) {
           </Text>
         </Group>
 
-        {event.date && (
+        {event.start && (
           <Text size="sm" fw={500}>
-            {new Date(event.date).toLocaleDateString("en-US", {
+            {new Date(event.start).toLocaleDateString("en-US", {
               weekday: "long",
               year: "numeric",
               month: "long",
@@ -575,7 +602,7 @@ function EventCard({ event, type }: { event: any; type: "upcoming" | "past" }) {
   );
 }
 
-function ArtistCard({ artist }: { artist: any }) {
+function ArtistCard({ artist }: { artist: Artist }) {
   return (
     <Card
       p="lg"
@@ -603,7 +630,7 @@ function ArtistCard({ artist }: { artist: any }) {
         >
           {artist.name?.[0]}
         </Avatar>
-        
+
         <Stack gap="xs" align="center">
           <Text fw={700} size="lg" ta="center">
             {artist.name}
@@ -627,14 +654,14 @@ function ArtistCard({ artist }: { artist: any }) {
   );
 }
 
-function TrackCard({ track, index }: { track: any; index: number }) {
+function TrackCard({ track, index }: { track: PopularTrack; index: number }) {
   return (
     <Card
       p="lg"
       radius="xl"
       withBorder
       style={{
-        background: index % 2 === 0 
+        background: index % 2 === 0
           ? "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"
           : "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
         transition: "transform 0.2s ease",
@@ -707,7 +734,7 @@ function TrackCard({ track, index }: { track: any; index: number }) {
   );
 }
 
-function LocationCard({ location }: { location: any }) {
+function LocationCard({ location }: { location: PopulatedPromoterLocality }) {
   return (
     <Card
       p="lg"
@@ -719,10 +746,10 @@ function LocationCard({ location }: { location: any }) {
         transition: "transform 0.2s ease",
         cursor: "pointer",
       }}
-      onMouseEnter={(e: any) => {
+      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
         e.currentTarget.style.transform = "translateY(-4px)";
       }}
-      onMouseLeave={(e: any) => {
+      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
         e.currentTarget.style.transform = "translateY(0)";
       }}
     >
@@ -739,7 +766,7 @@ function LocationCard({ location }: { location: any }) {
         >
           <IconMapPin size={30} />
         </ThemeIcon>
-        
+
         <Stack gap="xs" align="center">
           <Text fw={700} size="lg" ta="center">
             {location.localities.name}

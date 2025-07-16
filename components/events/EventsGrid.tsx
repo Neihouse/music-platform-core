@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 interface Event {
     id: string;
     name: string;
-    date: string | null;
+    start: string | null;
     hash: string | null;
     poster_img: string | null;
     venues: {
@@ -191,7 +191,7 @@ function EventCard({ event }: EventCardProps) {
     });
 
     const posterUrl = event.poster_img ? getPosterUrl(event.poster_img) : null;
-    const eventDate = event.date ? new Date(event.date) : null;
+    const eventDate = event.start ? new Date(event.start) : null;
 
     useEffect(() => {
         if (posterUrl) {

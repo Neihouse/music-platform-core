@@ -139,8 +139,8 @@ export async function getPromoterEvents(
   const events = eventPromotions
     ?.map((ep: any) => ep.events)
     .filter(Boolean)
-    .filter((event: any) => event.date && new Date(event.date) >= new Date())
-    .sort((a: any, b: any) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()) || [];
+    .filter((event: any) => event.start && new Date(event.start) >= new Date())
+    .sort((a: any, b: any) => new Date(a.start || 0).getTime() - new Date(b.start || 0).getTime()) || [];
 
   return events;
 }
@@ -172,8 +172,8 @@ export async function getPromoterPastEvents(
   return eventPromotions
     ?.map((ep: any) => ep.events)
     .filter(Boolean)
-    .filter((event: any) => event.date && new Date(event.date) < new Date())
-    .sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+    .filter((event: any) => event.start && new Date(event.start) < new Date())
+    .sort((a: any, b: any) => new Date(b.start || 0).getTime() - new Date(a.start || 0).getTime())
     .slice(0, 6) || [];
 
 }
@@ -315,7 +315,7 @@ export async function getPromoterShowCount(supabase: TypedClient, promoterId: st
     .select(`
       events (
         id,
-        date,
+        start,
         created_at
       )
     `)
@@ -334,7 +334,7 @@ export async function getPromoterShowCount(supabase: TypedClient, promoterId: st
   data?.forEach(ep => {
     if (ep.events) {
       totalShows++;
-      const eventDate = ep.events.date ? new Date(ep.events.date) : new Date(ep.events.created_at);
+      const eventDate = ep.events.start ? new Date(ep.events.start) : new Date(ep.events.created_at);
       if (eventDate >= now) {
         upcomingShows++;
       } else {

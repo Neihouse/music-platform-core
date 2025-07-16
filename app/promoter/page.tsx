@@ -449,7 +449,7 @@ export default async function PromoterDashboardPage() {
                           c="gray.4"
                           style={{ wordBreak: "break-word" }}
                         >
-                          {event.venues?.name} • {new Date(event.date).toLocaleDateString()}
+                          {event.venues?.name} • {new Date(event.start).toLocaleDateString()}
                         </Text>
                       </div>
                       <Badge variant="light" color="blue" size="sm">

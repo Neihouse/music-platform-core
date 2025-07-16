@@ -1,27 +1,26 @@
 "use client";
 
+import { Event } from "@/utils/supabase/global.types";
 import {
+  Badge,
+  Box,
+  Button,
   Card,
+  Center,
   Group,
+  Paper,
+  SimpleGrid,
   Stack,
   Text,
-  Title,
-  Badge,
-  Button,
-  SimpleGrid,
-  Center,
   ThemeIcon,
-  Paper,
-  Box,
+  Title,
 } from "@mantine/core";
 import {
   IconCalendarEvent,
-  IconClock,
-  IconMapPin,
-  IconUsers,
   IconCalendarOff,
+  IconClock,
+  IconMapPin
 } from "@tabler/icons-react";
-import { Event } from "@/utils/supabase/global.types";
 
 // Helper functions for date formatting
 function formatDate(dateString: string): string {
@@ -88,14 +87,14 @@ function EventCard({ event, type }: EventCardProps) {
   const artists = event.events_artists?.map((ea: any) => ea.artists?.name).filter(Boolean) || [];
 
   return (
-    <Card 
-      shadow="md" 
-      p="lg" 
-      radius="xl" 
-      withBorder 
+    <Card
+      shadow="md"
+      p="lg"
+      radius="xl"
+      withBorder
       h="100%"
       style={{
-        background: type === "upcoming" 
+        background: type === "upcoming"
           ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
           : "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
         color: "white",
@@ -128,18 +127,18 @@ function EventCard({ event, type }: EventCardProps) {
           {event.name}
         </Title>
 
-        {event.date && (
+        {event.start && (
           <Group gap="lg" mb="sm">
             <Group gap="xs">
               <IconCalendarEvent size={16} opacity={0.8} />
               <Text size="sm" opacity={0.9}>
-                {formatDate(event.date)}
+                {formatDate(event.start)}
               </Text>
             </Group>
             <Group gap="xs">
               <IconClock size={16} opacity={0.8} />
               <Text size="sm" opacity={0.9}>
-                {formatTime(event.date)}
+                {formatTime(event.start)}
               </Text>
             </Group>
           </Group>
@@ -174,9 +173,9 @@ function EventCard({ event, type }: EventCardProps) {
           </Box>
         )}
 
-        <Button 
-          variant="white" 
-          size="sm" 
+        <Button
+          variant="white"
+          size="sm"
           mt="auto"
           style={{ color: type === "upcoming" ? "#667eea" : "#f5576c" }}
         >

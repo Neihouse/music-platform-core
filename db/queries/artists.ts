@@ -550,7 +550,7 @@ export async function getArtistEvents(
       events (
         id,
         name,
-        date,
+        start,
         venues (
           id,
           name
@@ -558,7 +558,7 @@ export async function getArtistEvents(
       )
     `)
     .eq("artist", artistId)
-    .gte("events.date", new Date().toISOString());
+    .gte("events.start", new Date().toISOString());
 
   if (error) {
     throw new Error(error.message);
@@ -568,7 +568,7 @@ export async function getArtistEvents(
   const sortedEvents = events
     ?.map(ea => ea.events)
     .filter(Boolean)
-    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+    .sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime()) || [];
 
   return sortedEvents;
 }
@@ -660,7 +660,7 @@ export async function getArtistShowCount(
     .from("events_artists")
     .select("events!inner(*)", { count: "exact", head: true })
     .eq("artist", artistId)
-    .gte("events.date", new Date().toISOString());
+    .gte("events.start", new Date().toISOString());
 
   if (upcomingError) {
     throw new Error(`Failed to get upcoming show count: ${upcomingError.message || 'Unknown error'}`);

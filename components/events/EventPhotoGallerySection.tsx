@@ -11,7 +11,7 @@ interface EventPhotoGallerySectionProps {
     event: {
         id?: string;
         name: string;
-        date?: string | null;
+        start?: string | null;
     };
     photos: PhotoItem[];
     refreshTrigger?: number;
@@ -91,7 +91,7 @@ export function EventPhotoGallerySection({ event, photos: initialPhotos, refresh
     const isMobile = useMediaQuery('(max-width: 768px)');
 
     // Check if the event has started
-    const eventHasStarted = event.date ? new Date(event.date) <= new Date() : false;
+    const eventHasStarted = event.start ? new Date(event.start) <= new Date() : false;
 
     // Update photos when initialPhotos change
     useEffect(() => {

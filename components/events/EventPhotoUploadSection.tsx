@@ -13,7 +13,7 @@ interface EventPhotoUploadSectionProps {
         id?: string;
         hash?: string | null;
         name: string;
-        date?: string | null;
+        start?: string | null;
     };
     isEventCreator?: boolean;
     onPhotosConfirmed?: () => void;
@@ -40,7 +40,7 @@ export function EventPhotoUploadSection({
 
     // Check if upload period is active (event date to 2 weeks after)
     const now = new Date();
-    const eventDate = event.date ? new Date(event.date) : null;
+    const eventDate = event.start ? new Date(event.start) : null;
 
     // Allow uploads for up to 2 weeks (14 days) after the event date
     const twoWeeksAfterEvent = eventDate ? new Date(eventDate.getTime() + (14 * 24 * 60 * 60 * 1000)) : null;
@@ -105,7 +105,7 @@ export function EventPhotoUploadSection({
     return (
         <EventPhotoPlaceholder
             eventName={event.name}
-            eventDate={event.date}
+            eventDate={event.start}
         />
     );
 }

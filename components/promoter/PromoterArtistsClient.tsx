@@ -1,22 +1,19 @@
 "use client";
 
-import { Container, Title, Text, SimpleGrid, Card, Group, Stack, Badge, Avatar, Button, Center, ThemeIcon, TextInput, Paper, Switch } from "@mantine/core";
-import { IconUser, IconMapPin, IconSearch, IconX, IconUserPlus, IconMusic, IconArrowLeft } from "@tabler/icons-react";
-import Link from "next/link";
-import { nameToUrl } from "@/lib/utils";
-import { useState } from "react";
+import { cancelInviteAction } from "@/app/promoter/artists/actions";
 import StyledTitle from "@/components/StyledTitle";
 import InviteArtistModal from "@/components/promoter/InviteArtistModal";
-import { cancelInviteAction } from "@/app/promoter/artists/actions";
+import { nameToUrl } from "@/lib/utils";
+import { Database } from "@/utils/supabase/database.types";
+import { Avatar, Button, Card, Center, Container, Group, Paper, SimpleGrid, Stack, Switch, Text, TextInput, ThemeIcon, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconArrowLeft, IconMapPin, IconMusic, IconSearch, IconUser, IconUserPlus, IconX } from "@tabler/icons-react";
+import Link from "next/link";
+import { useState } from "react";
 
-interface Artist {
-  id: string;
-  name: string;
-  bio: string | null;
-  avatar_img: string | null;
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type ArtistWithLocation = Pick<Database['public']['Tables']['artists']['Row'], 'id' | 'name' | 'bio' | 'avatar_img' | 'user_id'> & {
   avatarUrl?: string | null;
-  user_id: string;
   localities?: { id: string; name: string } | null;
   administrative_areas?: { id: string; name: string } | null;
   countries?: { id: string; name: string } | null;
@@ -26,37 +23,37 @@ interface Artist {
     country: { id: string; name: string };
     fullAddress: undefined;
   };
-}
+};
 
 interface PromoterArtistsClientProps {
-  localityArtists: Artist[];
-  promoterLocalityArtists: Artist[];
+  localityArtists: ArtistWithLocation[];
+  promoterLocalityArtists: ArtistWithLocation[];
   localityName?: string;
-  pendingRequests: any[];
+  pendingRequests: any[]; // TODO: Type this properly
 }
 
-export default function PromoterArtistsClient({ 
-  localityArtists, 
-  promoterLocalityArtists, 
+export default function PromoterArtistsClient({
+  localityArtists,
+  promoterLocalityArtists,
   localityName,
   pendingRequests
 }: PromoterArtistsClientProps) {
   const [filterByPromoterLocality, setFilterByPromoterLocality] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [inviteModalOpened, setInviteModalOpened] = useState(false);
-  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+  const [selectedArtist, setSelectedArtist] = useState<ArtistWithLocation | null>(null);
 
   // Determine which artists to show based on the toggle
   const baseArtists = filterByPromoterLocality ? promoterLocalityArtists : localityArtists;
-  
+
   // Filter by search term
-  const filteredArtists = baseArtists.filter(artist => 
+  const filteredArtists = baseArtists.filter(artist =>
     artist.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     artist.bio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     getLocationText(artist).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getLocationText = (artist: Artist) => {
+  const getLocationText = (artist: ArtistWithLocation) => {
     if (artist.storedLocality) {
       return `${artist.storedLocality.locality.name}, ${artist.storedLocality.administrativeArea.name}, ${artist.storedLocality.country.name}`;
     }
@@ -66,7 +63,7 @@ export default function PromoterArtistsClient({
     return "Location not specified";
   };
 
-  const handleInviteArtist = (artist: Artist) => {
+  const handleInviteArtist = (artist: ArtistWithLocation) => {
     setSelectedArtist(artist);
     setInviteModalOpened(true);
   };
@@ -76,9 +73,9 @@ export default function PromoterArtistsClient({
     setSelectedArtist(null);
   };
 
-  const getArtistPendingRequest = (artist: Artist) => {
-    return pendingRequests.find(request => 
-      request.invitee_user_id === artist.user_id && 
+  const getArtistPendingRequest = (artist: ArtistWithLocation) => {
+    return pendingRequests.find(request =>
+      request.invitee_user_id === artist.user_id &&
       request.status === "pending"
     );
   };
@@ -95,7 +92,7 @@ export default function PromoterArtistsClient({
             <div style={{ flex: 1, minWidth: 0 }}>
               <Title order={1}>Add Artists to Your Collective</Title>
               <Text c="dimmed" size="lg">
-                {filterByPromoterLocality 
+                {filterByPromoterLocality
                   ? `Artists in your shared localities${localityName ? ` (including ${localityName})` : ""}`
                   : `Artists in your primary area${localityName ? ` (${localityName})` : ""}`
                 }
@@ -103,10 +100,10 @@ export default function PromoterArtistsClient({
             </div>
           </Group>
         </Stack>
-        
-        <Button 
-          component={Link} 
-          href="/promoter" 
+
+        <Button
+          component={Link}
+          href="/promoter"
           variant="light"
           leftSection={<IconArrowLeft size={16} />}
           size="sm"
@@ -130,9 +127,9 @@ export default function PromoterArtistsClient({
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.currentTarget.value)}
               rightSection={searchTerm && (
-                <IconX 
-                  size={16} 
-                  style={{ cursor: 'pointer' }} 
+                <IconX
+                  size={16}
+                  style={{ cursor: 'pointer' }}
                   onClick={() => setSearchTerm("")}
                 />
               )}
@@ -144,8 +141,8 @@ export default function PromoterArtistsClient({
             <div>
               <Text fw={500} size="sm">Show artists in your localities only</Text>
               <Text size="xs" c="dimmed">
-                {filterByPromoterLocality 
-                  ? "Currently showing only artists in your shared localities" 
+                {filterByPromoterLocality
+                  ? "Currently showing only artists in your shared localities"
                   : "Currently showing all artists regardless of location"
                 }
               </Text>
@@ -159,16 +156,16 @@ export default function PromoterArtistsClient({
           </Group>
         </Stack>
       </Paper>
-     
+
 
       {/* Artists Grid */}
       {filteredArtists.length > 0 ? (
         <SimpleGrid cols={{ base: 1, xs: 2, sm: 2, md: 3, lg: 4 }} spacing={{ base: "md", sm: "lg" }}>
           {filteredArtists.map((artist) => (
-            <ArtistCard 
-              key={artist.id} 
-              artist={artist} 
-              getLocationText={getLocationText} 
+            <ArtistCard
+              key={artist.id}
+              artist={artist}
+              getLocationText={getLocationText}
               onInviteArtist={handleInviteArtist}
               pendingRequest={getArtistPendingRequest(artist)}
             />
@@ -182,7 +179,7 @@ export default function PromoterArtistsClient({
             </ThemeIcon>
             <Title order={3} c="dimmed">No Artists Found</Title>
             <Text c="dimmed" ta="center">
-              {searchTerm 
+              {searchTerm
                 ? `No artists found matching "${searchTerm}". Try a different search term.`
                 : filterByPromoterLocality
                   ? "No artists found in your shared localities. Try unchecking the locality filter."
@@ -236,22 +233,22 @@ export default function PromoterArtistsClient({
   );
 }
 
-function ArtistCard({ 
-  artist, 
+function ArtistCard({
+  artist,
   getLocationText,
   onInviteArtist,
   pendingRequest
-}: { 
-  artist: Artist; 
-  getLocationText: (artist: Artist) => string;
-  onInviteArtist: (artist: Artist) => void;
+}: {
+  artist: ArtistWithLocation;
+  getLocationText: (artist: ArtistWithLocation) => string;
+  onInviteArtist: (artist: ArtistWithLocation) => void;
   pendingRequest?: any;
 }) {
   const [cancellingInvite, setCancellingInvite] = useState(false);
 
   const handleCancelInvite = async () => {
     if (!pendingRequest) return;
-    
+
     setCancellingInvite(true);
     try {
       await cancelInviteAction(pendingRequest.id);
@@ -304,21 +301,21 @@ function ArtistCard({
         >
           {artist.name?.[0]?.toUpperCase()}
         </Avatar>
-        
+
         {/* Artist Info */}
         <Stack gap="xs" align="center" style={{ flex: 1 }}>
-          <StyledTitle 
+          <StyledTitle
             selectedFont="Inter"
-            style={{ 
-              lineClamp: 1, 
-              fontWeight: 700, 
+            style={{
+              lineClamp: 1,
+              fontWeight: 700,
               fontSize: '1.125rem',
-              textAlign: 'center' 
+              textAlign: 'center'
             }}
           >
             {artist.name}
           </StyledTitle>
-          
+
           {/* Location */}
           <Group gap="xs" justify="center">
             <IconMapPin size={14} style={{ color: "var(--mantine-color-dimmed)" }} />
@@ -326,7 +323,7 @@ function ArtistCard({
               {getLocationText(artist)}
             </Text>
           </Group>
-          
+
           {/* Bio */}
           {artist.bio && (
             <Text size="sm" c="dimmed" ta="center" lineClamp={3} style={{ flex: 1 }}>

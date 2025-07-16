@@ -1,85 +1,54 @@
 "use client";
 
-import { StoredLocality } from "@/utils/supabase/global.types";
-import { 
+import {
   ProfileContent,
   transformPromoterData,
   transformPromoterLocalities
 } from "@/components/shared";
+import { Database } from "@/utils/supabase/database.types";
+import { AdministrativeArea, Artist, Country, Event, Locality, Promoter, Venue } from "@/utils/supabase/global.types";
+
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type EventWithDate = Pick<Event, 'id' | 'name'> & {
+  date: string | null;
+  venues?: Pick<Venue, 'id' | 'name'> | null;
+};
+
+type ArtistWithImages = Pick<Artist, 'id' | 'name' | 'bio'> & {
+  avatarUrl?: string | null;
+  bannerUrl?: string | null;
+};
+
+type PopularTrack = Pick<Database['public']['Tables']['tracks']['Row'], 'id' | 'title'> & {
+  plays: number;
+  artist?: Pick<Artist, 'id' | 'name'>;
+};
+
+// Use database-first types for locality relationships as per TYPE_USAGE_GUIDE.md
+type PromoterLocalityWithRelations = {
+  localities: Pick<Locality, 'id' | 'name'> & {
+    administrative_areas: Pick<AdministrativeArea, 'id' | 'name'> & {
+      countries: Pick<Country, 'id' | 'name'>;
+    };
+  };
+};
+
+type CurrentUser = {
+  id: string;
+} | null;
 
 interface PromoterProfileContentProps {
-  promoter: {
-    id: string;
-    name: string;
-    bio?: string | null;
+  promoter: Pick<Promoter, 'id' | 'name' | 'bio' | 'selectedFont' | 'user_id'> & {
     email?: string | null;
     phone?: string | null;
-    selectedFont?: string | null;
-    user_id: string;
-    promoters_localities?: Array<{
-      localities: {
-        id: string;
-        name: string;
-        administrative_areas: {
-          id: string;
-          name: string;
-          countries: {
-            id: string;
-            name: string;
-          };
-        };
-      };
-    }>;
+    promoters_localities?: PromoterLocalityWithRelations[];
   };
-  upcomingEvents?: Array<{
-    id: string;
-    name: string;
-    date: string | null;
-    venues?: {
-      id: string;
-      name: string;
-    } | null;
-  }>;
-  pastEvents?: Array<{
-    id: string;
-    name: string;
-    date: string | null;
-    venues?: {
-      id: string;
-      name: string;
-    } | null;
-  }>;
-  artists?: Array<{
-    id: string;
-    name: string;
-    bio?: string | null;
-    avatarUrl?: string | null;
-    bannerUrl?: string | null;
-  }>;
-  popularTracks?: Array<{
-    id: string;
-    title: string;
-    plays: number;
-    artist?: {
-      id: string;
-      name: string;
-    };
-  }>;
-  currentUser?: { id: string } | null;
-  promoterLocalities?: Array<{
-    localities: {
-      id: string;
-      name: string;
-      administrative_areas: {
-        id: string;
-        name: string;
-        countries: {
-          id: string;
-          name: string;
-        };
-      };
-    };
-  }>;
+  upcomingEvents?: EventWithDate[];
+  pastEvents?: EventWithDate[];
+  artists?: ArtistWithImages[];
+  popularTracks?: PopularTrack[];
+  currentUser?: CurrentUser;
+  promoterLocalities?: PromoterLocalityWithRelations[];
   avatarUrl: string | null;
   bannerUrl: string | null;
 }

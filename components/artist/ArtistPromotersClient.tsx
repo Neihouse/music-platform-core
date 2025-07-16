@@ -1,16 +1,14 @@
 "use client";
 
 import { nameToUrl } from "@/lib/utils";
+import { Database } from "@/utils/supabase/database.types";
 import { Avatar, Button, Card, Center, Container, Group, Paper, SimpleGrid, Stack, Switch, Text, TextInput, ThemeIcon, Title } from "@mantine/core";
 import { IconArrowLeft, IconMapPin, IconSearch, IconSparkles, IconUser, IconUserPlus, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 
-interface Promoter {
-  id: string;
-  name: string;
-  bio: string | null;
-  avatar_img: string | null;
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type PromoterWithLocation = Pick<Database['public']['Tables']['promoters']['Row'], 'id' | 'name' | 'bio' | 'avatar_img'> & {
   avatarUrl?: string | null;
   localities?: { id: string; name: string } | null;
   administrative_areas?: { id: string; name: string } | null;
@@ -21,11 +19,11 @@ interface Promoter {
     country: { id: string; name: string };
     fullAddress: undefined;
   };
-}
+};
 
 interface ArtistPromotersClientProps {
-  localityPromoters: Promoter[];
-  artistLocalityPromoters: Promoter[];
+  localityPromoters: PromoterWithLocation[];
+  artistLocalityPromoters: PromoterWithLocation[];
   localityName?: string;
 }
 
@@ -47,7 +45,7 @@ export default function ArtistPromotersClient({
     getLocationText(promoter).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getLocationText = (promoter: Promoter) => {
+  const getLocationText = (promoter: PromoterWithLocation) => {
     if (promoter.storedLocality) {
       return `${promoter.storedLocality.locality.name}, ${promoter.storedLocality.administrativeArea.name}, ${promoter.storedLocality.country.name}`;
     }
@@ -312,8 +310,8 @@ function PromoterCard({
   promoter,
   getLocationText
 }: {
-  promoter: Promoter;
-  getLocationText: (promoter: Promoter) => string;
+  promoter: PromoterWithLocation;
+  getLocationText: (promoter: PromoterWithLocation) => string;
 }) {
   return (
     <Card
