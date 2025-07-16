@@ -1,7 +1,10 @@
+import { EventPhotoGallerySection } from "@/components/events/EventPhotoGallerySection";
+import { EventPhotoUploadSection } from "@/components/events/EventPhotoUploadSection";
 import { EventPosterSection } from "@/components/events/EventPosterSection";
 import { VenueSelector } from "@/components/events/VenueSelector";
 import StyledTitle from "@/components/StyledTitle";
-import { getEventByHash, getEvents } from "@/db/queries/events";
+import { getPhotosByEvent } from "@/db/queries/event_photos";
+import { getEventByHash } from "@/db/queries/events";
 import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 import { Box, Button, Center, Container, Group, Paper, Stack, Text, Title } from "@mantine/core";
@@ -19,15 +22,16 @@ interface EventDetailPageProps {
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   try {
     const eventHash = (await params).eventHash;
-    console.log("Fetching event details for hash:", eventHash);
     const supabase = await createClient();
     const event = await getEventByHash(supabase, eventHash);
     const availableVenues = await getAvailableVenues();
-    const events = await getEvents(supabase);
 
     // Get current user to check if they are the event creator
     const currentUser = await getUser(supabase);
     const isEventCreator = !!(currentUser && event.user_id === currentUser.id);
+
+    // Fetch event photos
+    const eventPhotos = event.id ? await getPhotosByEvent(supabase, event.id) : [];
 
     return (
       <Container size="lg" pt="xl">
@@ -36,12 +40,20 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           <Group align="flex-start" gap="xl" style={{ minHeight: '100vh' }}>
             {/* Left Column - Portrait Poster */}
             <Box style={{ flex: '0 0 400px', position: 'sticky', top: '20px' }}>
-              <EventPosterSection
-                event={event}
-                className="poster-desktop"
-                style={{ maxWidth: '400px' }}
-                isEventCreator={isEventCreator}
-              />
+              <Stack gap="lg">
+                <EventPosterSection
+                  event={event}
+                  className="poster-desktop"
+                  style={{ maxWidth: '400px' }}
+                  isEventCreator={isEventCreator}
+                />
+
+                {/* Event Photo Upload */}
+                <EventPhotoUploadSection
+                  event={event}
+                  isEventCreator={isEventCreator}
+                />
+              </Stack>
             </Box>
 
             {/* Right Column - Event Details */}
@@ -106,6 +118,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
                 {/* Venue Selection */}
                 {isEventCreator && <VenueSelector event={event} availableVenues={availableVenues} />}
+
+                {/* Event Photo Gallery */}
+                <EventPhotoGallerySection event={event} photos={eventPhotos} />
 
                 {/* Event Management */}
                 {isEventCreator && (
@@ -180,6 +195,12 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               />
             </Center>
 
+            {/* Mobile Event Photo Upload */}
+            <EventPhotoUploadSection
+              event={event}
+              isEventCreator={isEventCreator}
+            />
+
             {/* Mobile Event Header */}
             <Paper shadow="sm" p="lg" radius="md">
               <Stack gap="md">
@@ -231,6 +252,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
             {/* Mobile Venue Selection */}
             {isEventCreator && <VenueSelector event={event} availableVenues={availableVenues} />}
+
+            {/* Mobile Event Photo Gallery */}
+            <EventPhotoGallerySection event={event} photos={eventPhotos} />
 
             {/* Mobile Event Management */}
             {isEventCreator && (
