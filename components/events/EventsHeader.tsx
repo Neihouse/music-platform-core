@@ -1,6 +1,8 @@
 "use client";
 
-import { Text, Title } from "@mantine/core";
+import { Button, Group, Stack, Text, Title } from "@mantine/core";
+import { IconPlus } from "@tabler/icons-react";
+import Link from "next/link";
 
 interface Event {
     id: string;
@@ -17,22 +19,35 @@ interface Event {
 
 interface EventsHeaderProps {
     events: Event[];
+    userType?: 'artist' | 'promoter' | null;
 }
 
-export default function EventsHeader({ events }: EventsHeaderProps) {
+export default function EventsHeader({ events, userType }: EventsHeaderProps) {
     return (
-        <div>
-            <Title
-                order={1}
-                size="2.5rem"
-                fw={700}
-                mb="xs"
-            >
-                Events
-            </Title>
-            <Text size="lg" c="dimmed">
-                Discover upcoming music events and performances
-            </Text>
-        </div>
+        <Group justify="space-between" align="start">
+            <Stack gap="xs">
+                <Title
+                    order={1}
+                    size="2.5rem"
+                    fw={700}
+                >
+                    Events
+                </Title>
+                <Text size="lg" c="dimmed">
+                    Discover upcoming music events and performances
+                </Text>
+            </Stack>
+            {userType === 'promoter' && (
+                <Button
+                    component={Link}
+                    href="/promoter/events/create"
+                    leftSection={<IconPlus size={16} />}
+                    size="lg"
+                    variant="filled"
+                >
+                    Create Event
+                </Button>
+            )}
+        </Group>
     );
 }
