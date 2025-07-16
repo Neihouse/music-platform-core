@@ -1,7 +1,8 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { Button, Group, Image as MantineImage, Modal, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { getUserEventPhotoCount } from "@/db/queries/event_photos";
+import { Button, Group, Image as MantineImage, Modal, Paper, SimpleGrid, Stack, Text, Title, Loader } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -21,29 +22,6 @@ interface PendingPhoto {
     id: string;
     file: File;
     url: string; // blob URL for preview
-}
-
-// Client-side function to get user's photo count for an event
-async function getUserEventPhotoCount(eventId: string, userId: string): Promise<number> {
-    const supabase = createClient();
-
-    try {
-        const { count, error } = await supabase
-            .from("event_photos")
-            .select("id", { count: "exact", head: true })
-            .eq("event", eventId)
-            .eq("user", userId);
-
-        if (error) {
-            console.error("Error getting user event photo count:", error);
-            throw new Error(`Failed to get user event photo count: ${error.message}`);
-        }
-
-        return count || 0;
-    } catch (error) {
-        console.error("Error in getUserEventPhotoCount:", error);
-        return 0;
-    }
 }
 
 export function EventPhotoUploadWithControls({
@@ -69,15 +47,14 @@ export function EventPhotoUploadWithControls({
     const maxPhotos = 20;
 
     // Calculate remaining photos the user can upload
-    const remainingPhotos = maxPhotos - existingPhotoCount;
-
-    // Function to refresh existing photo count
+    const remainingPhotos = maxPhotos - existingPhotoCount;    // Function to refresh existing photo count
     const refreshPhotoCount = React.useCallback(async () => {
         if (!currentUserId || !eventId) return;
-
+        
         setIsLoadingExisting(true);
         try {
-            const count = await getUserEventPhotoCount(eventId, currentUserId);
+            const supabase = createClient();
+            const count = await getUserEventPhotoCount(supabase, eventId, currentUserId);
             setExistingPhotoCount(count);
         } catch (error) {
             console.error("Error refreshing photo count:", error);
@@ -97,7 +74,7 @@ export function EventPhotoUploadWithControls({
                 // Fetch existing photo count for this user and event
                 setIsLoadingExisting(true);
                 try {
-                    const count = await getUserEventPhotoCount(eventId, user.id);
+                    const count = await getUserEventPhotoCount(supabase, eventId, user.id);
                     setExistingPhotoCount(count);
                 } catch (error) {
                     console.error("Error fetching existing photo count:", error);
@@ -117,7 +94,8 @@ export function EventPhotoUploadWithControls({
             if (customEvent.detail?.eventId === eventId && currentUserId) {
                 // Refresh the existing photo count
                 try {
-                    const count = await getUserEventPhotoCount(eventId, currentUserId);
+                    const supabase = createClient();
+                    const count = await getUserEventPhotoCount(supabase, eventId, currentUserId);
                     setExistingPhotoCount(count);
                 } catch (error) {
                     console.error("Error refreshing photo count:", error);
@@ -170,6 +148,10 @@ export function EventPhotoUploadWithControls({
     };
 
     const deletePhoto = (photoId: string) => {
+        const confirmed = window.confirm("Are you sure you want to delete this photo? This action cannot be undone.");
+        
+        if (!confirmed) return;
+        
         setPendingPhotos(prev => {
             const updatedPhotos = prev.filter(p => p.id !== photoId);
             setHasChanges(updatedPhotos.length > 0);
@@ -281,11 +263,18 @@ export function EventPhotoUploadWithControls({
                     <Text c="dimmed" size={isMobile ? "xs" : "sm"}>
                         Upload photos from {eventName} to share with fans and attendees
                     </Text>
-                    {existingPhotoCount > 0 && !isLoadingExisting && (
+                    {isLoadingExisting ? (
+                        <Group gap="xs" mt="xs">
+                            <Loader size="xs" />
+                            <Text size="xs" c="dimmed">
+                                Checking existing photos...
+                            </Text>
+                        </Group>
+                    ) : existingPhotoCount > 0 ? (
                         <Text size="xs" c="blue" mt="xs">
                             You have {existingPhotoCount} photo{existingPhotoCount !== 1 ? 's' : ''} already uploaded for this event
                         </Text>
-                    )}
+                    ) : null}
                 </div>
 
                 {/* Photo Preview Grid */}

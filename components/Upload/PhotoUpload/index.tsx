@@ -90,6 +90,10 @@ export function PhotoUpload({
     }, [entityId, fetchExistingPhotos, onPhotosUpdated]);
 
     const deleteImage = async (photo: PhotoItem) => {
+        const confirmed = window.confirm("Are you sure you want to delete this photo? This action cannot be undone.");
+        
+        if (!confirmed) return;
+        
         if (!entityId || !deletePhoto) {
             // If no entityId or deletePhoto function, just remove from local state
             const updatedPhotos = photos.filter(p => p.id !== photo.id);

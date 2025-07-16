@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
+import { Loader } from "@mantine/core";
 import React from "react";
 import { PhotoItem, PhotoUpload, PhotoUploadConfig } from "./index";
 
@@ -165,7 +166,11 @@ export function EventPhotoUpload({
     }, [eventId]);
 
     if (!photoConfig) {
-        return <div>Loading...</div>;
+        return (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 120 }}>
+                <Loader size="md" />
+            </div>
+        );
     }
 
     return (
