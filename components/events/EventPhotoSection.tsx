@@ -9,21 +9,21 @@ interface EventPhotoSectionProps {
         id?: string;
         hash?: string | null;
         name: string;
-        date?: string | null;
+        start?: string | null;
     };
     isEventCreator?: boolean;
 }
 
 export function EventPhotoSection({ event, isEventCreator = false }: EventPhotoSectionProps) {
     // Check if the event has started
-    const eventHasStarted = event.date ? new Date(event.date) <= new Date() : false;
+    const eventHasStarted = event.start ? new Date(event.start) <= new Date() : false;
 
     // If event hasn't started, show placeholder
     if (!eventHasStarted) {
         return (
             <EventPhotoPlaceholder
                 eventName={event.name}
-                eventDate={event.date}
+                eventDate={event.start}
             />
         );
     }
@@ -61,7 +61,7 @@ export function EventPhotoSection({ event, isEventCreator = false }: EventPhotoS
     return (
         <EventPhotoPlaceholder
             eventName={event.name}
-            eventDate={event.date}
+            eventDate={event.start}
         />
     );
 }

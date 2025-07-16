@@ -24,7 +24,7 @@ interface EventCardProps {
   event: {
     id: string;
     name: string;
-    date: string | null;
+    start: string | null;
     hash?: string;
     venues: {
       id: string;
@@ -115,7 +115,7 @@ export default function EventCard({ event }: EventCardProps) {
             <IconCalendarEvent size={14} />
           </ThemeIcon>
           <Text size="sm" c="dimmed">
-            {event.date ? new Date(event.date).toLocaleDateString() : 'Date TBA'}
+            {event.start ? new Date(event.start).toLocaleDateString() : 'Date TBA'}
           </Text>
         </Group>
 

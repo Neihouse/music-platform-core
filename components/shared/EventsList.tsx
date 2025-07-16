@@ -1,12 +1,12 @@
 "use client";
 
-import { Container, Title, Text, Stack } from "@mantine/core";
 import EventCard from "@/components/events/EventCard";
+import { Container, Stack, Text, Title } from "@mantine/core";
 
 interface Event {
   id: string;
   name: string;
-  date: string | null;
+  start: string | null;
   venues?: {
     id: string;
     name: string;
@@ -20,13 +20,13 @@ interface EventsListProps {
   emptyStateMessage?: string;
 }
 
-const EventsList = ({ 
-  events, 
+const EventsList = ({
+  events,
   title = "Upcoming Events",
   artistName = "",
   emptyStateMessage = "No upcoming events scheduled."
 }: EventsListProps) => {
-  const upcomingEvents = events.filter(event => event.date);
+  const upcomingEvents = events.filter(event => event.start);
 
   return (
     <Container size="md">
@@ -39,7 +39,7 @@ const EventsList = ({
               id={event.id}
               title={event.name}
               description={artistName ? `Join ${artistName} for a live performance at ${event.venues?.name || 'this venue'}.` : event.name}
-              date={event.date!}
+              date={event.start!}
               venue={{
                 name: event.venues?.name || 'TBA',
                 location: 'Location TBA'

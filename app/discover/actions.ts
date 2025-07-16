@@ -38,7 +38,7 @@ export interface LocalPromoter {
 export interface LocalEvent {
   id: string;
   name: string;
-  date: string;
+  date: string; // This is kept for compatibility, mapped from 'start' field
   venue: string;
   artists: string[];
   price?: string;
@@ -174,7 +174,7 @@ export async function getCityMusicData(cityName: string): Promise<CityData> {
     const transformedEvents: LocalEvent[] = (events || []).map((event: any) => ({
       id: event.id,
       name: event.name,
-      date: event.date || new Date().toISOString(),
+      date: event.start || new Date().toISOString(),
       venue: event.venues?.name || 'TBA',
       artists: event.events_artists?.map((ea: any) => ea.artists?.name).filter(Boolean) || [],
       hash: event.hash,

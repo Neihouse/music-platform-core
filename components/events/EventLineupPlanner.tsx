@@ -40,7 +40,7 @@ interface Artist {
 interface Event {
 	id: string;
 	name: string;
-	date?: string | null;
+	start?: string | null;
 	venue?: string | null;
 }
 
@@ -247,7 +247,7 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 							>
 								{event.name}
 							</StyledTitle>
-							{event.date && <Text c="dimmed">Event Date: {new Date(event.date).toLocaleDateString()}</Text>}
+							{event.start && <Text c="dimmed">Event Date: {new Date(event.start).toLocaleDateString()}</Text>}
 						</div>
 						<Button leftSection={<IconPlus size={16} />} onClick={open}>
 							Add Stage

@@ -48,7 +48,7 @@ interface Artist {
 interface Event {
 	id: string;
 	name: string;
-	date?: string | null;
+	start?: string | null;
 	venue?: string | null;
 }
 
@@ -350,14 +350,14 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	};
 
 	const convertTimeToTimestamp = (time: string): string => {
-		if (!event.date) {
+		if (!event.start) {
 			// If no event date, use today's date
 			const today = new Date().toISOString().split('T')[0];
 			return `${today}T${time}:00`;
 		}
 
 		// Use the event's date
-		const eventDate = new Date(event.date).toISOString().split('T')[0];
+		const eventDate = new Date(event.start).toISOString().split('T')[0];
 		return `${eventDate}T${time}:00`;
 	};
 
@@ -491,9 +491,9 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 								>
 									{event.name}
 								</StyledTitle>
-								{event.date && (
+								{event.start && (
 									<Text size="lg" c="white" opacity={0.9}>
-										{new Date(event.date).toLocaleDateString('en-US', {
+										{new Date(event.start).toLocaleDateString('en-US', {
 											year: 'numeric',
 											month: '2-digit',
 											day: '2-digit'

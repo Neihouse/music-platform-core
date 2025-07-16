@@ -5,7 +5,7 @@ import { Text, Title } from "@mantine/core";
 interface Event {
     id: string;
     name: string;
-    date: string | null;
+    start: string | null;
     hash: string | null;
     poster_img: string | null;
     venues: {
