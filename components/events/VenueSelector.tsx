@@ -2,32 +2,24 @@
 
 import { updateEventVenue } from "@/app/events/[eventHash]/actions";
 import { VenueSearch } from "@/components/VenueSearch";
+import { Event, Venue } from "@/utils/supabase/global.types";
 import { Anchor, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { IconCheck, IconEdit, IconMapPin, IconPlus, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 
-interface Venue {
-  id: string;
-  name: string;
-  address?: string | null;
+// Use database-first types as per TYPE_USAGE_GUIDE.md
+type VenueBasic = Pick<Venue, 'id' | 'name' | 'address'> & {
   capacity?: number | null;
-}
+};
 
-interface Event {
-  id: string;
-  name: string;
-  venue?: string | null;
-  venues?: {
-    id: string;
-    name: string;
-    address?: string | null;
-  } | null;
-}
+type EventWithVenue = Pick<Event, 'id' | 'name' | 'venue'> & {
+  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
+};
 
 interface VenueSelectorProps {
-  event: Event;
-  availableVenues: Venue[];
+  event: EventWithVenue;
+  availableVenues: VenueBasic[];
 }
 
 export function VenueSelector({ event, availableVenues }: VenueSelectorProps) {
@@ -60,7 +52,7 @@ export function VenueSelector({ event, availableVenues }: VenueSelectorProps) {
     setIsEditing(false);
   };
 
-  const handleVenueSelect = (venue: Venue | null) => {
+  const handleVenueSelect = (venue: VenueBasic | null) => {
     setSelectedVenue(venue?.id || "");
   };
 
