@@ -23,6 +23,29 @@ interface PendingPhoto {
     url: string; // blob URL for preview
 }
 
+// Client-side function to get user's photo count for an event
+async function getUserEventPhotoCount(eventId: string, userId: string): Promise<number> {
+    const supabase = createClient();
+
+    try {
+        const { count, error } = await supabase
+            .from("event_photos")
+            .select("id", { count: "exact", head: true })
+            .eq("event", eventId)
+            .eq("user", userId);
+
+        if (error) {
+            console.error("Error getting user event photo count:", error);
+            throw new Error(`Failed to get user event photo count: ${error.message}`);
+        }
+
+        return count || 0;
+    } catch (error) {
+        console.error("Error in getUserEventPhotoCount:", error);
+        return 0;
+    }
+}
+
 export function EventPhotoUploadWithControls({
     eventId,
     eventHash,
@@ -35,6 +58,8 @@ export function EventPhotoUploadWithControls({
     const [isConfirming, setIsConfirming] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [selectedPhotoUrl, setSelectedPhotoUrl] = useState<string | null>(null);
+    const [existingPhotoCount, setExistingPhotoCount] = useState<number>(0);
+    const [isLoadingExisting, setIsLoadingExisting] = useState(false);
 
     // Mobile responsive hooks
     const isMobile = useMediaQuery('(max-width: 768px)');
@@ -43,26 +68,92 @@ export function EventPhotoUploadWithControls({
     const maxFileSize = 10 * 1024 * 1024; // 10MB
     const maxPhotos = 20;
 
-    // Get current user ID
+    // Calculate remaining photos the user can upload
+    const remainingPhotos = maxPhotos - existingPhotoCount;
+
+    // Function to refresh existing photo count
+    const refreshPhotoCount = React.useCallback(async () => {
+        if (!currentUserId || !eventId) return;
+
+        setIsLoadingExisting(true);
+        try {
+            const count = await getUserEventPhotoCount(eventId, currentUserId);
+            setExistingPhotoCount(count);
+        } catch (error) {
+            console.error("Error refreshing photo count:", error);
+        } finally {
+            setIsLoadingExisting(false);
+        }
+    }, [currentUserId, eventId]);
+
+    // Get current user ID and fetch existing photo count
     React.useEffect(() => {
         const getCurrentUser = async () => {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user && !user.is_anonymous) {
                 setCurrentUserId(user.id);
+
+                // Fetch existing photo count for this user and event
+                setIsLoadingExisting(true);
+                try {
+                    const count = await getUserEventPhotoCount(eventId, user.id);
+                    setExistingPhotoCount(count);
+                } catch (error) {
+                    console.error("Error fetching existing photo count:", error);
+                    setExistingPhotoCount(0);
+                } finally {
+                    setIsLoadingExisting(false);
+                }
             }
         };
         getCurrentUser();
-    }, []);
+    }, [eventId]);
+
+    // Listen for photo confirmations to refresh count
+    React.useEffect(() => {
+        const handlePhotosConfirmed = async (event: Event) => {
+            const customEvent = event as CustomEvent;
+            if (customEvent.detail?.eventId === eventId && currentUserId) {
+                // Refresh the existing photo count
+                try {
+                    const count = await getUserEventPhotoCount(eventId, currentUserId);
+                    setExistingPhotoCount(count);
+                } catch (error) {
+                    console.error("Error refreshing photo count:", error);
+                }
+            }
+        };
+
+        window.addEventListener('photosConfirmed', handlePhotosConfirmed);
+        return () => {
+            window.removeEventListener('photosConfirmed', handlePhotosConfirmed);
+        };
+    }, [eventId, currentUserId]);
+
+    // Refresh photo count when page becomes visible (user returns to tab)
+    React.useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden && currentUserId) {
+                refreshPhotoCount();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [currentUserId, refreshPhotoCount]);
 
     const onDrop = (files: FileWithPath[]) => {
         if (files.length === 0) return;
 
-        // Check if we're at the limit
-        if (pendingPhotos.length + files.length > maxPhotos) {
+        // Check if we're at the limit considering existing photos
+        if (pendingPhotos.length + files.length > remainingPhotos) {
+            const totalWithNew = existingPhotoCount + pendingPhotos.length + files.length;
             notifications.show({
                 title: "Upload Limit",
-                message: `You can only upload up to ${maxPhotos} photos`,
+                message: `You can only upload up to ${maxPhotos} photos total. You have ${existingPhotoCount} existing photos and are trying to add ${pendingPhotos.length + files.length} more.`,
                 color: "orange",
             });
             return;
@@ -138,6 +229,9 @@ export function EventPhotoUploadWithControls({
                 icon: <IconCheck size={18} />,
             });
 
+            // Refresh existing photo count from database
+            await refreshPhotoCount();
+
             // Emit event to notify gallery to refresh
             window.dispatchEvent(new CustomEvent('photosConfirmed', {
                 detail: { eventId }
@@ -187,6 +281,11 @@ export function EventPhotoUploadWithControls({
                     <Text c="dimmed" size={isMobile ? "xs" : "sm"}>
                         Upload photos from {eventName} to share with fans and attendees
                     </Text>
+                    {existingPhotoCount > 0 && !isLoadingExisting && (
+                        <Text size="xs" c="blue" mt="xs">
+                            You have {existingPhotoCount} photo{existingPhotoCount !== 1 ? 's' : ''} already uploaded for this event
+                        </Text>
+                    )}
                 </div>
 
                 {/* Photo Preview Grid */}
@@ -255,12 +354,21 @@ export function EventPhotoUploadWithControls({
                 )}
 
                 {/* Dropzone */}
-                {pendingPhotos.length < maxPhotos && (
+                {remainingPhotos <= 0 ? (
+                    <Paper p="md" withBorder style={{ textAlign: 'center' }}>
+                        <Stack align="center" gap="sm">
+                            <IconPhoto size={48} color="var(--mantine-color-gray-5)" />
+                            <Text c="dimmed">
+                                You've reached the maximum of {maxPhotos} photos for this event
+                            </Text>
+                        </Stack>
+                    </Paper>
+                ) : pendingPhotos.length < remainingPhotos ? (
                     <Dropzone
                         onDrop={onDrop}
                         accept={["image/png", "image/jpeg", "image/webp", "image/avif"]}
                         maxSize={maxFileSize}
-                        maxFiles={maxPhotos - pendingPhotos.length}
+                        maxFiles={remainingPhotos - pendingPhotos.length}
                         multiple={true}
                         style={{
                             minHeight: isMobile ? "200px" : "280px",
@@ -283,16 +391,24 @@ export function EventPhotoUploadWithControls({
                                         {isMobile ? "Tap to upload photos" : "Drag photos here or click to select"}
                                     </Text>
                                     <Text size={isMobile ? "xs" : "sm"} c="dimmed" ta="center">
-                                        {isMobile
-                                            ? `Up to ${maxPhotos - pendingPhotos.length} more, max ${Math.round(maxFileSize / (1024 * 1024))}MB`
-                                            : `Up to ${maxPhotos - pendingPhotos.length} more photos, max ${Math.round(maxFileSize / (1024 * 1024))}MB each`
-                                        }
+                                        {isLoadingExisting ? (
+                                            "Loading..."
+                                        ) : (
+                                            isMobile
+                                                ? `Up to ${remainingPhotos - pendingPhotos.length} more, max ${Math.round(maxFileSize / (1024 * 1024))}MB`
+                                                : `Up to ${remainingPhotos - pendingPhotos.length} more photos, max ${Math.round(maxFileSize / (1024 * 1024))}MB each`
+                                        )}
                                     </Text>
+                                    {existingPhotoCount > 0 && !isLoadingExisting && (
+                                        <Text size="xs" c="dimmed" ta="center" mt="2px">
+                                            You have {existingPhotoCount} photo{existingPhotoCount !== 1 ? 's' : ''} already uploaded
+                                        </Text>
+                                    )}
                                 </Stack>
                             </Dropzone.Idle>
                         </Group>
                     </Dropzone>
-                )}
+                ) : null}
 
                 {/* Action Buttons */}
                 {hasChanges && (
