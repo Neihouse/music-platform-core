@@ -29,8 +29,23 @@ Use the `#fetch_webpage https://www.typescriptlang.org/docs/handbook/utility-typ
 import { Database } from "@/utils/supabase/database.types";
 
 // Global types (derived from database)
-import { Artist, Event, Venue, Promoter, StoredLocality } from "@/utils/supabase/global.types";
+import { 
+  Artist, 
+  Event, 
+  Venue, 
+  Promoter, 
+  StoredLocality,
+  Locality,
+  AdministrativeArea, 
+  Country 
+} from "@/utils/supabase/global.types";
 ```
+
+### ⚠️ **CRITICAL**: Always Check Global Types First
+Before defining any new type, **always check** `@/utils/supabase/global.types` for existing types:
+- `Locality`, `AdministrativeArea`, `Country` for location data
+- `Artist`, `Promoter`, `Event`, `Venue` for core entities
+- `StoredLocality` for formatted location objects
 
 ### Type Composition Pattern
 ```typescript
@@ -93,6 +108,27 @@ Combine types:
 type ArtistWithImages = Pick<Artist, 'id' | 'name' | 'bio'> & {
   avatarUrl?: string | null;
   bannerUrl?: string | null;
+};
+```
+
+### For Location Data with Relationships
+```typescript
+// ✅ CORRECT: Using existing global types for locality relationships
+type PromoterLocalityWithRelations = {
+  localities: Pick<Locality, 'id' | 'name'> & {
+    administrative_areas: Pick<AdministrativeArea, 'id' | 'name'> & {
+      countries: Pick<Country, 'id' | 'name'>;
+    };
+  };
+};
+
+// ❌ INCORRECT: Duplicating locality structure
+type BadLocalityType = {
+  localities: {
+    id: string;        // This duplicates Locality type
+    name: string;      // Always use existing global types!
+    administrative_areas: { ... };
+  };
 };
 ```
 
@@ -245,6 +281,7 @@ type DebugType = typeof someVariable; // Shows inferred type
 ## 📝 Checklist for New Type Definitions
 
 - [ ] Does the type derive from Database or global.types?
+- [ ] **Have you checked global.types for existing types first?** (Locality, AdministrativeArea, Country, etc.)
 - [ ] Are you using appropriate utility types (Pick, Omit, etc.)?
 - [ ] Is null/undefined handling correct?
 - [ ] Are intersection types (&) used properly for extensions?
