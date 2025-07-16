@@ -1,20 +1,16 @@
 "use client";
 
 import EventCard from "@/components/events/EventCard";
+import { Event, Venue } from "@/utils/supabase/global.types";
 import { Container, Stack, Text, Title } from "@mantine/core";
 
-interface Event {
-  id: string;
-  name: string;
-  start: string | null;
-  venues?: {
-    id: string;
-    name: string;
-  } | null;
-}
+// Type for events with populated venue data
+type EventWithVenue = Pick<Event, 'id' | 'name' | 'start'> & {
+  venues?: Pick<Venue, 'id' | 'name'> | null;
+};
 
 interface EventsListProps {
-  events: Event[];
+  events: EventWithVenue[];
   title?: string;
   artistName?: string;
   emptyStateMessage?: string;

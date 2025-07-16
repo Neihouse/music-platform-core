@@ -1,6 +1,6 @@
 import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
-import { Artist, Event, StoredLocality, Venue } from "@/utils/supabase/global.types";
 import { Database } from "@/utils/supabase/database.types";
+import { Artist, Event, StoredLocality, Venue } from "@/utils/supabase/global.types";
 import { Container } from "@mantine/core";
 import { ProfileEntity, ProfileTab } from "./ProfileContent";
 import { CollaboratorsGrid, EventsList, MusicGrid } from "./index";
@@ -132,7 +132,7 @@ export function transformPromoterData(
   const allEvents = [...upcomingEvents, ...pastEvents];
 
   // Map events to EventWithVenue format (date -> start)
-  const mapToEventWithVenue = (events: EventWithDate[]): EventWithVenue[] => 
+  const mapToEventWithVenue = (events: EventWithDate[]): EventWithVenue[] =>
     events.map(event => ({
       id: event.id,
       name: event.name,

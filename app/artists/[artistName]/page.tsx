@@ -1,11 +1,11 @@
-import { getArtistByName, getArtistLocalities, getArtistPromoters, getArtistEvents } from "@/db/queries/artists";
-import { getUser } from "@/db/queries/users";
+import ArtistProfileContent from "@/components/ArtistProfileContent";
+import { getArtistByName, getArtistEvents, getArtistLocalities, getArtistPromoters } from "@/db/queries/artists";
 import { getArtistTracksWithPlayCounts } from "@/db/queries/tracks";
+import { getUser } from "@/db/queries/users";
 import { getArtistImagesServer, getPromoterImagesServer } from "@/lib/images/image-utils";
+import { urlToName } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
-import { urlToName } from "@/lib/utils";
-import ArtistProfileContent from "@/components/ArtistProfileContent";
 
 export default async function ArtistPage({
   params,
@@ -21,7 +21,7 @@ export default async function ArtistPage({
   if (!artist) {
     notFound();
   }
-  
+
   // Get tracks with play counts instead of using the basic track data
   const tracksWithPlayCounts = artist.id ? await getArtistTracksWithPlayCounts(supabase, artist.id) : [];
 
@@ -48,7 +48,13 @@ export default async function ArtistPage({
 
   // Get artist events
   const events = artist.id ? await getArtistEvents(supabase, artist.id) : [];
-  
+
+  // Map events to match the expected interface (start -> date)
+  const eventsWithDate = events.map(event => ({
+    ...event,
+    date: event.start,
+  }));
+
   // Create StoredLocality from the first locality (if available)
   const storedLocality = artistLocalities.length > 0 && artistLocalities[0].localities ? {
     locality: {
@@ -83,7 +89,7 @@ export default async function ArtistPage({
       bannerUrl={bannerUrl}
       storedLocality={storedLocality}
       promoters={promotersWithImages}
-      events={events}
+      events={eventsWithDate}
     />
   );
 }
