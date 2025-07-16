@@ -1,8 +1,8 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
 import { getUserEventPhotoCount } from "@/db/queries/event_photos";
-import { Button, Group, Image as MantineImage, Modal, Paper, SimpleGrid, Stack, Text, Title, Loader } from "@mantine/core";
+import { createClient } from "@/utils/supabase/client";
+import { Button, Group, Loader, Image as MantineImage, Modal, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -50,7 +50,7 @@ export function EventPhotoUploadWithControls({
     const remainingPhotos = maxPhotos - existingPhotoCount;    // Function to refresh existing photo count
     const refreshPhotoCount = React.useCallback(async () => {
         if (!currentUserId || !eventId) return;
-        
+
         setIsLoadingExisting(true);
         try {
             const supabase = createClient();
@@ -149,9 +149,9 @@ export function EventPhotoUploadWithControls({
 
     const deletePhoto = (photoId: string) => {
         const confirmed = window.confirm("Are you sure you want to delete this photo? This action cannot be undone.");
-        
+
         if (!confirmed) return;
-        
+
         setPendingPhotos(prev => {
             const updatedPhotos = prev.filter(p => p.id !== photoId);
             setHasChanges(updatedPhotos.length > 0);
