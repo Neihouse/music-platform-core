@@ -1,10 +1,10 @@
 "use client";
 
 import { CityData, getCityMusicData } from "@/app/discover/actions";
+import { EventCard } from "@/components/discover/EventCard";
 import {
   ArtistCard,
   ContentSection,
-  EventCard,
   MusicGrid,
   MusicTrack,
   SearchHero,
@@ -310,15 +310,7 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
                   {cityData.events.map((event) => (
                     <EventCard
                       key={event.id}
-                      id={event.id}
-                      name={event.name}
-                      date={event.date}
-                      venue={event.venue}
-                      artists={event.artists}
-                      price={event.price}
-                      imageUrl={event.banner_img}
-                      onClick={() => router.push(`/events/${event.hash}`)}
-                      onGetTickets={() => console.log('Get tickets:', event.id)}
+                      event={event}
                     />
                   ))}
                 </ContentSection>
