@@ -1,13 +1,14 @@
+import { RequestActions } from "@/components/promoter/RequestActions";
 import { ThemedCard } from "@/components/shared/ThemedCard";
 import { getPromoter, getPromoterArtists, getPromoterEvents, getPromoterShowCount, getPromoterTrackCount } from "@/db/queries/promoters";
-import { getSentRequests } from "@/db/queries/requests";
+import { getReceivedArtistRequests, getSentRequests } from "@/db/queries/requests";
 import { getUserProfile } from "@/db/queries/user";
 import { getUser } from "@/db/queries/users";
 import { getAvatarUrlServer, getPromoterImagesServer } from "@/lib/images/image-utils";
 import { nameToUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { Avatar, Badge, Button, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
-import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconMusic, IconSparkles, IconTrendingUp, IconUser, IconUsers } from "@tabler/icons-react";
+import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconMusic, IconSparkles, IconTrendingUp, IconUser, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -85,13 +86,14 @@ export default async function PromoterDashboardPage() {
   }
 
   // Fetch all promoter metrics in parallel
-  const [upcomingEvents, artists, trackMetrics, showMetrics, promoterImages, sentRequests] = await Promise.all([
+  const [upcomingEvents, artists, trackMetrics, showMetrics, promoterImages, sentRequests, receivedArtistRequests] = await Promise.all([
     getPromoterEvents(supabase, promoter.id),
     getPromoterArtists(supabase, promoter.id),
     getPromoterTrackCount(supabase, promoter.id),
     getPromoterShowCount(supabase, promoter.id),
     getPromoterImagesServer(supabase, promoter.id),
     getSentRequests(supabase, user.id),
+    getReceivedArtistRequests(supabase, promoter.id),
   ]);
 
   // Process artist avatar URLs (separate from promoter images to avoid double calls)
@@ -99,6 +101,17 @@ export default async function PromoterDashboardPage() {
     artists.map(async (artist: any) => ({
       ...artist,
       avatarUrl: artist.avatar_img ? await getAvatarUrlServer(artist.avatar_img) : null,
+    }))
+  );
+
+  // Process received artist requests with avatar URLs
+  const receivedRequestsWithAvatars = await Promise.all(
+    receivedArtistRequests.map(async (request: any) => ({
+      ...request,
+      artist: {
+        ...request.artist,
+        avatarUrl: request.artist?.avatar_img ? await getAvatarUrlServer(request.artist.avatar_img) : null,
+      }
     }))
   );
 
@@ -496,7 +509,9 @@ export default async function PromoterDashboardPage() {
                 <Text size="sm" c="gray.5">
                   {pendingInvites > 0
                     ? `${pendingInvites} pending invite${pendingInvites === 1 ? '' : 's'}`
-                    : "All artists in your collective"
+                    : receivedRequestsWithAvatars.length > 0
+                      ? `${receivedRequestsWithAvatars.length} artist request${receivedRequestsWithAvatars.length === 1 ? '' : 's'} pending`
+                      : "All artists in your collective"
                   }
                 </Text>
               </Stack>
@@ -505,9 +520,58 @@ export default async function PromoterDashboardPage() {
               </Button>
             </Group>
 
+            {/* Show received artist requests first if any */}
+            {receivedRequestsWithAvatars.length > 0 && (
+              <Stack gap="md" mb="lg">
+                <Group gap="xs">
+                  <ThemeIcon size="sm" radius="xl" variant="light" color="blue">
+                    <IconUserPlus size={12} />
+                  </ThemeIcon>
+                  <Text size="sm" fw={600} c="blue">Artist Requests</Text>
+                </Group>
+                {receivedRequestsWithAvatars.slice(0, 2).map((request) => (
+                  <Paper
+                    key={request.id}
+                    p="md"
+                    radius="md"
+                    withBorder
+                    bg="dark.7"
+                    style={{ borderColor: "var(--mantine-color-blue-9)" }}
+                  >
+                    <Group justify="space-between" wrap="wrap">
+                      <Group>
+                        <Avatar
+                          src={request.artist?.avatarUrl}
+                          size="md"
+                          radius="xl"
+                        >
+                          {request.artist?.name?.[0]}
+                        </Avatar>
+                        <div style={{ flex: 1 }}>
+                          <Text fw={600} c="gray.0">{request.artist?.name}</Text>
+                          <Text size="sm" c="gray.4" lineClamp={1}>
+                            {request.artist?.bio || "No bio available"}
+                          </Text>
+                        </div>
+                      </Group>
+                      <RequestActions requestId={request.id} />
+                    </Group>
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+
             {artistsWithAvatars.length > 0 ? (
               <Stack gap="md">
-                {artistsWithAvatars.slice(0, 3).map((artist) => (
+                {receivedRequestsWithAvatars.length > 0 && (
+                  <Group gap="xs">
+                    <ThemeIcon size="sm" radius="xl" variant="light" color="gray">
+                      <IconUsers size={12} />
+                    </ThemeIcon>
+                    <Text size="sm" fw={600} c="gray.4">Current Artists</Text>
+                  </Group>
+                )}
+                {artistsWithAvatars.slice(0, receivedRequestsWithAvatars.length > 0 ? 2 : 3).map((artist) => (
                   <Paper
                     key={artist.id}
                     p="md"
@@ -534,7 +598,7 @@ export default async function PromoterDashboardPage() {
                   </Paper>
                 ))}
               </Stack>
-            ) : (
+            ) : receivedRequestsWithAvatars.length === 0 ? (
               <Center py="xl">
                 <Stack align="center" gap="md">
                   <ThemeIcon size={60} radius="xl" variant="light" color="gray">
@@ -544,7 +608,7 @@ export default async function PromoterDashboardPage() {
                   <Button size="sm" variant="light" component={Link} href="/promoter/artists">Add Artists</Button>
                 </Stack>
               </Center>
-            )}
+            ) : null}
           </ThemedCard>
         </GridCol>
       </Grid>

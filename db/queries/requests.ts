@@ -213,6 +213,45 @@ export async function getRequestBetweenUsers(
   return request;
 }
 
+export async function getReceivedArtistRequests(
+  supabase: TypedClient,
+  promoterId: string
+) {
+  // First get the requests where artists are requesting to join this promoter
+  const { data: requests, error } = await supabase
+    .from("requests")
+    .select("*")
+    .eq("invitee_entity_id", promoterId)
+    .eq("invitee_entity", "promoter")
+    .eq("invited_to_entity", "artist")
+    .eq("status", "pending");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!requests || requests.length === 0) {
+    return [];
+  }
+
+  // Then get the artist details for each request
+  const artistIds = requests.map(req => req.invited_to_entity_id);
+  const { data: artists, error: artistsError } = await supabase
+    .from("artists")
+    .select("id, name, bio, avatar_img")
+    .in("id", artistIds);
+
+  if (artistsError) {
+    throw new Error(artistsError.message);
+  }
+
+  // Combine the data
+  return requests.map(request => ({
+    ...request,
+    artist: artists?.find(artist => artist.id === request.invited_to_entity_id) || null
+  }));
+}
+
 export async function cancelRequest(
   supabase: TypedClient,
   requestId: string
