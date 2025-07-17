@@ -3,6 +3,7 @@
 import {
 	assignArtistToStageAction,
 	createEventStageAction,
+	deleteEventStageAction,
 	getEventStageArtistsAction,
 	getEventStagesAction,
 	removeArtistFromStageAction
@@ -16,7 +17,6 @@ import {
 	Group,
 	Modal,
 	Notification,
-	Select,
 	Stack,
 	TextInput
 } from "@mantine/core";
@@ -116,10 +116,12 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	const [isLoading, setIsLoading] = useState(false);
 	const [timeSlots] = useState<TimeSlot[]>(generateEventTimeSlots());
 	const [newStageName, setNewStageName] = useState("");
-	const [selectedVenue, setSelectedVenue] = useState<string>("");
 	const [opened, { open, close }] = useDisclosure(false);
 	const [conflicts, setConflicts] = useState<string[]>([]);
 	const [showSuccess, setShowSuccess] = useState(false);
+	const [isSubmittingStage, setIsSubmittingStage] = useState(false);
+	const [stageToDelete, setStageToDelete] = useState<string | null>(null);
+	const [deleteConfirmOpened, { open: openDeleteConfirm, close: closeDeleteConfirm }] = useDisclosure(false);
 
 	useEffect(() => {
 		loadEventData();
@@ -286,24 +288,26 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	};
 
 	const handleAddStage = async () => {
-		if (!newStageName.trim()) return;
+		if (!newStageName.trim() || isSubmittingStage) return;
 
 		try {
+			setIsSubmittingStage(true);
 			const newStage = await createEventStageAction(
 				event.id,
 				newStageName,
-				selectedVenue || event.venue
+				event.venue
 			);
 
 			setStages(prev => [...prev, newStage]);
 			setNewStageName("");
-			setSelectedVenue("");
 			close();
 			setShowSuccess(true);
 			setTimeout(() => setShowSuccess(false), 3000);
 		} catch (error) {
 			console.error("Failed to create stage:", error);
 			alert(`Failed to create stage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		} finally {
+			setIsSubmittingStage(false);
 		}
 	};
 
@@ -313,6 +317,29 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 			setScheduledSlots(prev => prev.filter(slot => slot.id !== slotId));
 		} catch (error) {
 			console.error("Failed to remove slot:", error);
+		}
+	};
+
+	const handleDeleteStage = (stageId: string) => {
+		setStageToDelete(stageId);
+		openDeleteConfirm();
+	};
+
+	const confirmDeleteStage = async () => {
+		if (!stageToDelete) return;
+
+		try {
+			await deleteEventStageAction(stageToDelete);
+			setStages(prev => prev.filter(stage => stage.id !== stageToDelete));
+			setScheduledSlots(prev => prev.filter(slot => slot.stage !== stageToDelete));
+			setShowSuccess(true);
+			setTimeout(() => setShowSuccess(false), 3000);
+		} catch (error) {
+			console.error("Failed to delete stage:", error);
+			alert(`Failed to delete stage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		} finally {
+			setStageToDelete(null);
+			closeDeleteConfirm();
 		}
 	};
 
@@ -473,7 +500,18 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 						{stages.map((stage) => (
 							<div key={stage.id} className={classes.stageColumn}>
 								<div className={classes.stageHeader}>
-									{stage.name}
+									<span>{stage.name}</span>
+									{!isLocked && (
+										<ActionIcon
+											size="sm"
+											variant="subtle"
+											color="red"
+											onClick={() => handleDeleteStage(stage.id)}
+											style={{ marginLeft: 'auto' }}
+										>
+											<IconTrash size={14} />
+										</ActionIcon>
+									)}
 								</div>
 								<div className={classes.stageTimeline}>
 									{timeSlots.map((timeSlot) => {
@@ -561,25 +599,40 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 							data-autofocus
 						/>
 
-						{availableVenues.length > 0 && (
-							<Select
-								label="Venue"
-								placeholder="Select a venue"
-								value={selectedVenue}
-								onChange={(value) => setSelectedVenue(value || "")}
-								data={availableVenues.map(venue => ({
-									value: venue.id,
-									label: venue.name
-								}))}
-							/>
-						)}
-
 						<Group justify="flex-end">
-							<Button variant="outline" onClick={close}>
+							<Button variant="outline" onClick={close} disabled={isSubmittingStage}>
 								Cancel
 							</Button>
-							<Button onClick={handleAddStage} disabled={!newStageName.trim()}>
+							<Button
+								onClick={handleAddStage}
+								disabled={!newStageName.trim() || isSubmittingStage}
+								loading={isSubmittingStage}
+							>
 								Add Stage
+							</Button>
+						</Group>
+					</Stack>
+				</Modal>
+
+				{/* Delete Stage Confirmation Modal */}
+				<Modal
+					opened={deleteConfirmOpened}
+					onClose={closeDeleteConfirm}
+					title="Delete Stage"
+					centered
+					size="sm"
+				>
+					<Stack gap="md">
+						<div style={{ textAlign: 'center', color: 'var(--mantine-color-text)' }}>
+							Are you sure you want to delete this stage? This will also remove all artist assignments for this stage. This action cannot be undone.
+						</div>
+
+						<Group justify="center" gap="md">
+							<Button variant="outline" onClick={closeDeleteConfirm}>
+								Cancel
+							</Button>
+							<Button color="red" onClick={confirmDeleteStage}>
+								Delete Stage
 							</Button>
 						</Group>
 					</Stack>

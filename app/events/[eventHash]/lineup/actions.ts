@@ -161,3 +161,27 @@ export async function removeArtistFromStageAction(assignmentId: string) {
     throw new Error(`Failed to remove artist from stage: ${error.message}`);
   }
 }
+
+export async function deleteEventStageAction(stageId: string) {
+  const supabase = await createClient();
+
+  // First, remove all artist assignments for this stage
+  const { error: assignmentError } = await supabase
+    .from("event_stage_artists")
+    .delete()
+    .eq("stage", stageId);
+
+  if (assignmentError) {
+    throw new Error(`Failed to remove stage assignments: ${assignmentError.message}`);
+  }
+
+  // Then delete the stage itself
+  const { error: stageError } = await supabase
+    .from("event_stage")
+    .delete()
+    .eq("id", stageId);
+
+  if (stageError) {
+    throw new Error(`Failed to delete stage: ${stageError.message}`);
+  }
+}
