@@ -32,6 +32,7 @@ import {
 	IconUsers
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import classes from "./TimeBasedLineupPlanner.module.css";
 
 interface Artist {
@@ -118,10 +119,43 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	const [newStageName, setNewStageName] = useState("");
 	const [opened, { open, close }] = useDisclosure(false);
 	const [conflicts, setConflicts] = useState<string[]>([]);
-	const [showSuccess, setShowSuccess] = useState(false);
+	const [savingState, setSavingState] = useState<'saved' | 'saving' | 'error'>('saved');
 	const [isSubmittingStage, setIsSubmittingStage] = useState(false);
 	const [stageToDelete, setStageToDelete] = useState<string | null>(null);
 	const [deleteConfirmOpened, { open: openDeleteConfirm, close: closeDeleteConfirm }] = useDisclosure(false);
+	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
+	const [draggedItem, setDraggedItem] = useState<{ artist: Artist; offset: { x: number; y: number } } | null>(null);
+	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+	const [isDragging, setIsDragging] = useState(false);
+
+	useEffect(() => {
+		// Create a portal container for drag clones to avoid parent transform interference
+		const portal = document.createElement('div');
+		portal.id = 'dnd-portal';
+		portal.style.position = 'absolute';
+		portal.style.top = '0';
+		portal.style.left = '0';
+		portal.style.zIndex = '9999';
+		portal.style.pointerEvents = 'none';
+		document.body.appendChild(portal);
+		setPortalContainer(portal);
+
+		// Track mouse position for custom drag preview
+		const handleMouseMove = (e: MouseEvent) => {
+			if (isDragging) {
+				setMousePosition({ x: e.clientX, y: e.clientY });
+			}
+		};
+
+		document.addEventListener('mousemove', handleMouseMove, { passive: true });
+
+		return () => {
+			if (document.body.contains(portal)) {
+				document.body.removeChild(portal);
+			}
+			document.removeEventListener('mousemove', handleMouseMove);
+		};
+	}, [isDragging]);
 
 	useEffect(() => {
 		loadEventData();
@@ -191,10 +225,28 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 		return (end.getTime() - start.getTime()) / (1000 * 60);
 	};
 
+	const handleDragStart = (result: any) => {
+		const artist = availableUnassignedArtists.find(a => a.id === result.draggableId);
+		if (artist) {
+			setIsDragging(true);
+			setDraggedItem({ 
+				artist, 
+				offset: { x: 20, y: -10 } // Better offset positioning
+			});
+		}
+	};
+
 	const handleDragEnd = async (result: DropResult) => {
+		// Always clear drag state first, regardless of the result
+		setIsDragging(false);
+		setDraggedItem(null);
+
 		const { destination, source, draggableId } = result;
 
-		if (!destination || isLocked) return;
+		// For unsuccessful drops (no destination or locked), just return
+		if (!destination || isLocked) {
+			return;
+		}
 
 		if (destination.droppableId === source.droppableId && destination.index === source.index) {
 			return;
@@ -219,6 +271,20 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 				return;
 			}
 
+			// Optimistically create the slot with a temporary ID
+			const optimisticSlot: ScheduledSlot = {
+				id: `temp-${Date.now()}`, // Temporary ID
+				artist,
+				stage: stageId,
+				startTime: timeSlot,
+				endTime,
+				duration: 60
+			};
+
+			// Optimistically update the UI
+			setScheduledSlots(prev => [...prev, optimisticSlot]);
+			setSavingState('saving');
+
 			try {
 				const startTimestamp = convertTimeToTimestamp(timeSlot);
 				const endTimestamp = convertTimeToTimestamp(endTime);
@@ -231,21 +297,26 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 					end: endTimestamp,
 				});
 
-				const newSlot: ScheduledSlot = {
-					id: assignment.id,
-					artist,
-					stage: stageId,
-					startTime: timeSlot,
-					endTime,
-					duration: 60
-				};
+				// Replace the optimistic slot with the real one
+				setScheduledSlots(prev => 
+					prev.map(slot => 
+						slot.id === optimisticSlot.id 
+							? { ...slot, id: assignment.id }
+							: slot
+					)
+				);
 
-				setScheduledSlots(prev => [...prev, newSlot]);
-				setShowSuccess(true);
-				setTimeout(() => setShowSuccess(false), 3000);
+				setSavingState('saved');
+				setTimeout(() => setSavingState('saved'), 2000); // Keep saved state visible
 			} catch (error) {
 				console.error("Failed to assign artist:", error);
-				alert("Failed to assign artist");
+				
+				// Revert the optimistic update
+				setScheduledSlots(prev => prev.filter(slot => slot.id !== optimisticSlot.id));
+				setSavingState('error');
+				setTimeout(() => setSavingState('saved'), 3000);
+				
+				alert("Failed to assign artist - reverted to original position");
 			}
 		}
 	};
@@ -292,6 +363,8 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 
 		try {
 			setIsSubmittingStage(true);
+			setSavingState('saving');
+			
 			const newStage = await createEventStageAction(
 				event.id,
 				newStageName,
@@ -301,10 +374,12 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 			setStages(prev => [...prev, newStage]);
 			setNewStageName("");
 			close();
-			setShowSuccess(true);
-			setTimeout(() => setShowSuccess(false), 3000);
+			setSavingState('saved');
+			setTimeout(() => setSavingState('saved'), 2000); // Keep saved state visible
 		} catch (error) {
 			console.error("Failed to create stage:", error);
+			setSavingState('error');
+			setTimeout(() => setSavingState('saved'), 3000);
 			alert(`Failed to create stage: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		} finally {
 			setIsSubmittingStage(false);
@@ -312,11 +387,27 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	};
 
 	const handleRemoveSlot = async (slotId: string) => {
+		// Find the slot to remove for potential restoration
+		const slotToRemove = scheduledSlots.find(slot => slot.id === slotId);
+		if (!slotToRemove) return;
+
+		// Optimistically remove the slot
+		setScheduledSlots(prev => prev.filter(slot => slot.id !== slotId));
+		setSavingState('saving');
+
 		try {
 			await removeArtistFromStageAction(slotId);
-			setScheduledSlots(prev => prev.filter(slot => slot.id !== slotId));
+			setSavingState('saved');
+			setTimeout(() => setSavingState('saved'), 2000); // Keep saved state visible
 		} catch (error) {
 			console.error("Failed to remove slot:", error);
+			
+			// Revert the optimistic update by restoring the slot
+			setScheduledSlots(prev => [...prev, slotToRemove]);
+			setSavingState('error');
+			setTimeout(() => setSavingState('saved'), 3000);
+			
+			alert("Failed to remove artist - reverted to original position");
 		}
 	};
 
@@ -328,15 +419,32 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	const confirmDeleteStage = async () => {
 		if (!stageToDelete) return;
 
+		// Find the stage and its associated slots for potential restoration
+		const stageToRemove = stages.find(stage => stage.id === stageToDelete);
+		const slotsToRemove = scheduledSlots.filter(slot => slot.stage === stageToDelete);
+		
+		if (!stageToRemove) return;
+
+		// Optimistically remove the stage and its slots
+		setStages(prev => prev.filter(stage => stage.id !== stageToDelete));
+		setScheduledSlots(prev => prev.filter(slot => slot.stage !== stageToDelete));
+		setSavingState('saving');
+
 		try {
 			await deleteEventStageAction(stageToDelete);
-			setStages(prev => prev.filter(stage => stage.id !== stageToDelete));
-			setScheduledSlots(prev => prev.filter(slot => slot.stage !== stageToDelete));
-			setShowSuccess(true);
-			setTimeout(() => setShowSuccess(false), 3000);
+			
+			setSavingState('saved');
+			setTimeout(() => setSavingState('saved'), 2000); // Keep saved state visible
 		} catch (error) {
 			console.error("Failed to delete stage:", error);
-			alert(`Failed to delete stage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			
+			// Revert the optimistic updates
+			setStages(prev => [...prev, stageToRemove]);
+			setScheduledSlots(prev => [...prev, ...slotsToRemove]);
+			setSavingState('error');
+			setTimeout(() => setSavingState('saved'), 3000);
+			
+			alert(`Failed to delete stage - reverted to original position: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		} finally {
 			setStageToDelete(null);
 			closeDeleteConfirm();
@@ -359,21 +467,94 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	};
 
 	return (
-		<DragDropContext onDragEnd={handleDragEnd}>
-			<div className={classes.plannerContainer}>
-				{/* Success Notification */}
-				{showSuccess && (
-					<Notification
-						icon={<IconCheck size="1.1rem" />}
-						color="teal"
-						title="Success!"
-						onClose={() => setShowSuccess(false)}
-						style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000 }}
-					>
-						Operation completed successfully
-					</Notification>
-				)}
+		<>
+			{/* Custom drag preview rendered through portal */}
+			{draggedItem && isDragging && portalContainer && createPortal(
+				<div style={{
+					position: 'fixed',
+					left: mousePosition.x + draggedItem.offset.x,
+					top: mousePosition.y + draggedItem.offset.y,
+					zIndex: 10000,
+					background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(99, 102, 241, 0.95) 100%)',
+					border: '2px solid rgba(255, 255, 255, 0.4)',
+					borderRadius: '12px',
+					padding: '0.75rem',
+					color: 'white',
+					boxShadow: '0 15px 35px rgba(139, 92, 246, 0.5), 0 5px 15px rgba(0, 0, 0, 0.2)',
+					transform: 'rotate(3deg) scale(1.02)',
+					pointerEvents: 'none',
+					minWidth: '180px',
+					maxWidth: '250px',
+					backdropFilter: 'blur(8px)',
+					transition: 'none', // Remove transitions to prevent lag
+				}}>
+					<div style={{ 
+						display: 'flex', 
+						alignItems: 'center', 
+						gap: '0.75rem',
+						fontSize: '0.9rem'
+					}}>
+						<div style={{
+							width: '32px',
+							height: '32px',
+							borderRadius: '6px',
+							background: 'rgba(255, 255, 255, 0.25)',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							fontWeight: 'bold',
+							fontSize: '0.8rem'
+						}}>
+							{draggedItem.artist.name.charAt(0).toUpperCase()}
+						</div>
+						<div style={{ minWidth: 0, flex: 1 }}>
+							<div style={{ 
+								fontWeight: '600', 
+								fontSize: '0.85rem',
+								whiteSpace: 'nowrap',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis'
+							}}>
+								{draggedItem.artist.name}
+							</div>
+							{draggedItem.artist.genre && (
+								<div style={{ 
+									color: 'rgba(255, 255, 255, 0.8)', 
+									fontSize: '0.7rem',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									textOverflow: 'ellipsis'
+								}}>
+									{draggedItem.artist.genre}
+								</div>
+							)}
+						</div>
+					</div>
+				</div>,
+				portalContainer
+			)}
 
+			{/* Hide the default drag clone completely */}
+			<style dangerouslySetInnerHTML={{
+				__html: `
+					/* Hide the default drag clone */
+					[data-react-beautiful-dnd-draggable][style*="position: fixed"] {
+						opacity: 0 !important;
+						visibility: hidden !important;
+					}
+				`
+			}} />
+			<DragDropContext 
+				onDragStart={handleDragStart}
+				onDragEnd={handleDragEnd}
+			>
+				{/* Clean container with no transforms to avoid positioning issues */}
+				<div style={{ 
+					transform: 'none', 
+					position: 'relative',
+					isolation: 'isolate'
+				}}>
+				<div className={classes.plannerContainer}>
 				{/* Event Header */}
 				<div className={classes.eventHeader}>
 					<div className={classes.eventTitle}>
@@ -421,9 +602,14 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 								{conflicts.length} conflicts
 							</div>
 						)}
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981' }}>
+						<div style={{ 
+							display: 'flex', 
+							alignItems: 'center', 
+							gap: '0.5rem', 
+							color: savingState === 'saving' ? '#f59e0b' : savingState === 'error' ? '#ef4444' : '#10b981'
+						}}>
 							<IconDeviceFloppy size={16} />
-							Auto-saved
+							{savingState === 'saving' ? 'Saving...' : savingState === 'error' ? 'Save failed' : 'Auto-saved'}
 						</div>
 					</div>
 				</div>
@@ -450,16 +636,9 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 													ref={provided.innerRef}
 													{...provided.draggableProps}
 													{...provided.dragHandleProps}
-													className={`${classes.artistCard} ${snapshot.isDragging ? classes.artistCardDragging : ''
-														}`}
+													className={`${classes.artistCard} ${snapshot.isDragging ? classes.artistCardDragging : ''}`}
+													style={provided.draggableProps.style}
 												>
-													<Avatar
-														src={getAvatarUrl(artist)}
-														size={48}
-														className={classes.artistAvatar}
-													>
-														{artist.name.charAt(0)}
-													</Avatar>
 													<div className={classes.artistInfo}>
 														<div className={classes.artistName}>
 															{artist.name}
@@ -637,7 +816,9 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 						</Group>
 					</Stack>
 				</Modal>
-			</div>
+				</div>
+				</div>
 		</DragDropContext>
+		</>
 	);
 }
