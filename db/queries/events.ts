@@ -203,7 +203,7 @@ export async function getEventStageArtists(supabase: TypedClient, eventId: strin
   }
 
   const { data: assignments, error } = await query
-    .order("set_start", { ascending: true });
+    .order("start", { ascending: true });
 
   if (error) {
     throw new Error(`Failed to get stage artists: ${error.message}`);

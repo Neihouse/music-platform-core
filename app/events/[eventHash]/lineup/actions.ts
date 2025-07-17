@@ -1,7 +1,7 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
 import { TablesInsert, TablesUpdate } from "@/utils/supabase/database.types";
+import { createClient } from "@/utils/supabase/server";
 
 export async function getEventStagesAction(eventId: string) {
   const supabase = await createClient();
@@ -34,7 +34,7 @@ export async function createEventStageAction(
 
   // If no venue is provided, we need to either use the event's venue or create a default
   let stageVenueId = venueId;
-  
+
   if (!stageVenueId) {
     // Get the event's venue
     const { data: event } = await supabase
@@ -42,7 +42,7 @@ export async function createEventStageAction(
       .select("venue")
       .eq("id", eventId)
       .single();
-    
+
     if (event?.venue) {
       stageVenueId = event.venue;
     } else {
@@ -88,7 +88,7 @@ export async function getEventStageArtistsAction(eventId: string, stageId?: stri
   }
 
   const { data: assignments, error } = await query
-    .order("set_start", { ascending: true });
+    .order("start", { ascending: true });
 
   if (error) {
     throw new Error(`Failed to get stage artists: ${error.message}`);
