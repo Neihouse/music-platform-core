@@ -556,6 +556,7 @@ export type Database = {
       }
       invites: {
         Row: {
+          code: string
           created_at: string
           created_by: string
           created_by_email: string
@@ -563,6 +564,7 @@ export type Database = {
           invitee_email: string
         }
         Insert: {
+          code: string
           created_at?: string
           created_by?: string
           created_by_email: string
@@ -570,6 +572,7 @@ export type Database = {
           invitee_email: string
         }
         Update: {
+          code?: string
           created_at?: string
           created_by?: string
           created_by_email?: string
