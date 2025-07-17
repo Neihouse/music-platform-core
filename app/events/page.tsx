@@ -16,7 +16,7 @@ export default async function EventsPage() {
     <Container size="xl" py={{ base: "md", sm: "xl" }}>
       <Stack gap="xl">
         {/* Header Section */}
-        <EventsHeader events={events} />
+        <EventsHeader events={events} userType={userProfile?.type} />
 
         {events.length === 0 ? (
           <Paper shadow="sm" p="xl" style={{ textAlign: "center" }}>
@@ -36,8 +36,8 @@ export default async function EventsPage() {
               ) : (
                 <Text c="dimmed">
                   {userProfile?.type === 'artist'
-                    ? "Events will appear here once collectives start creating them"
-                    : "Only collectives can create events. Sign up as a collective to start planning events."
+                    ? "Events will appear here once promoters start creating them"
+                    : "Only promoters can create events. Sign up as a promoter to start planning events."
                   }
                 </Text>
               )}
