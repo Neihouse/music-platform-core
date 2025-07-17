@@ -102,12 +102,8 @@ function EventCard({ event }: EventCardProps) {
                     <Box
                         style={{
                             position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
-                            borderRadius: '0 0 8px 8px',
-                            padding: '8px',
+                            bottom: 8,
+                            left: 8,
                             zIndex: 10,
                         }}
                     >
@@ -117,7 +113,13 @@ function EventCard({ event }: EventCardProps) {
                             lineClamp={1}
                             style={{
                                 fontSize: '0.65rem',
-                                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                                textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+                                background: 'rgba(0,0,0,0.75)',
+                                backdropFilter: 'blur(4px)',
+                                padding: '3px 8px',
+                                borderRadius: '12px',
+                                display: 'inline-block',
+                                border: '1px solid rgba(255,255,255,0.1)',
                             }}
                         >
                             {event.venues.name}
