@@ -7,7 +7,7 @@ import { nameToUrl } from "@/lib/utils";
 import { Database } from "@/utils/supabase/database.types";
 import { Avatar, Button, Card, Center, Container, Group, Paper, SimpleGrid, Stack, Switch, Text, TextInput, ThemeIcon, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconArrowLeft, IconMapPin, IconMusic, IconSearch, IconUser, IconUserPlus, IconX } from "@tabler/icons-react";
+import { IconArrowLeft, IconCheck, IconMapPin, IconMusic, IconSearch, IconUser, IconUserPlus, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -30,13 +30,15 @@ interface PromoterArtistsClientProps {
   promoterLocalityArtists: ArtistWithLocation[];
   localityName?: string;
   pendingRequests: any[]; // TODO: Type this properly
+  collectiveArtists: any[]; // TODO: Type this properly - artists already in the collective
 }
 
 export default function PromoterArtistsClient({
   localityArtists,
   promoterLocalityArtists,
   localityName,
-  pendingRequests
+  pendingRequests,
+  collectiveArtists
 }: PromoterArtistsClientProps) {
   const [filterByPromoterLocality, setFilterByPromoterLocality] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -77,6 +79,12 @@ export default function PromoterArtistsClient({
     return pendingRequests.find(request =>
       request.invitee_user_id === artist.user_id &&
       request.status === "pending"
+    );
+  };
+
+  const isArtistInCollective = (artist: ArtistWithLocation) => {
+    return collectiveArtists.some(collectiveArtist =>
+      collectiveArtist.id === artist.id
     );
   };
 
@@ -168,6 +176,7 @@ export default function PromoterArtistsClient({
               getLocationText={getLocationText}
               onInviteArtist={handleInviteArtist}
               pendingRequest={getArtistPendingRequest(artist)}
+              isInCollective={isArtistInCollective(artist)}
             />
           ))}
         </SimpleGrid>
@@ -237,12 +246,14 @@ function ArtistCard({
   artist,
   getLocationText,
   onInviteArtist,
-  pendingRequest
+  pendingRequest,
+  isInCollective
 }: {
   artist: ArtistWithLocation;
   getLocationText: (artist: ArtistWithLocation) => string;
   onInviteArtist: (artist: ArtistWithLocation) => void;
   pendingRequest?: any;
+  isInCollective: boolean;
 }) {
   const [cancellingInvite, setCancellingInvite] = useState(false);
 
@@ -344,7 +355,17 @@ function ArtistCard({
           >
             View Profile
           </Button>
-          {pendingRequest ? (
+          {isInCollective ? (
+            <Button
+              size="sm"
+              fullWidth
+              leftSection={<IconCheck size={16} />}
+              color="blue"
+              disabled
+            >
+              In Collective
+            </Button>
+          ) : pendingRequest ? (
             <Button
               size="sm"
               fullWidth
