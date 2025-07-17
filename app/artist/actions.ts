@@ -1,7 +1,7 @@
 "use server";
 
 import { getArtist } from "@/db/queries/artists";
-import { acceptRequest, denyRequest } from "@/db/queries/requests";
+import { acceptRequest, createRequest, denyRequest, getRequestBetweenUsers } from "@/db/queries/requests";
 import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 
@@ -50,5 +50,51 @@ export async function declinePromoterInvitation(requestId: string) {
   } catch (error) {
     console.error("Error declining promoter invitation:", error);
     throw new Error("Failed to decline invitation");
+  }
+}
+
+export async function requestToJoinPromoter(promoterId: string, promoterUserId: string) {
+  const supabase = await createClient();
+
+  // Get current user and verify they are an artist
+  const user = await getUser(supabase);
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const artist = await getArtist(supabase);
+  if (!artist) {
+    throw new Error("User is not an artist");
+  }
+
+  try {
+    // Check if there's already a pending request
+    const existingRequest = await getRequestBetweenUsers(
+      supabase,
+      user.id,
+      promoterUserId,
+      "artist",
+      artist.id
+    );
+
+    if (existingRequest) {
+      throw new Error("Request already exists");
+    }
+
+    // Create the request (artist requesting to join promoter)
+    const request = await createRequest(supabase, {
+      invited_to_entity: "artist",
+      invited_to_entity_id: artist.id,
+      invitee_entity: "promoter",
+      invitee_entity_id: promoterId,
+      invitee_user_id: promoterUserId,
+      inviter_user_id: user.id,
+      status: "pending",
+    });
+
+    return { success: true, request };
+  } catch (error) {
+    console.error("Error creating join request:", error);
+    throw new Error(error instanceof Error ? error.message : "Failed to create join request");
   }
 }
