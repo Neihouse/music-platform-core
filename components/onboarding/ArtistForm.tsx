@@ -6,11 +6,8 @@ import { nameToUrl } from "@/lib/utils";
 import { StoredLocality } from "@/utils/supabase/global.types";
 import {
   Button,
-  Card,
   Container,
   em,
-  Grid,
-  GridCol,
   Group,
   Paper,
   Stack,
@@ -26,14 +23,15 @@ import { useForm } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
-  IconCheck,
-  IconPhoto
+  IconCheck
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import FontSelect from "../FontSelect";
 import { LocationInput } from "../LocationInput";
 import { ArtistArtUpload } from "../Upload/ArtistArtUpload/index";
+import { ThemedCard } from "../shared/ThemedCard";
+import { ThemedPaper } from "../shared/ThemedPaper";
 
 export interface IArtistFormProps {
   artist?: ArtistWithLocation
@@ -106,17 +104,15 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
   return (
     <Container
       size="lg"
-      px={isMobile ? "sm" : isTablet ? "md" : "xl"}
-      py={isMobile ? "md" : "xl"}
+      px={{ base: "sm", sm: "md", lg: "xl" }}
+      py={{ base: "md", lg: "xl" }}
     >
-      <Paper
-        p={isMobile ? "md" : isTablet ? "lg" : "xl"}
-        radius={isMobile ? "md" : "lg"}
-        shadow={isMobile ? "xs" : isTablet ? "sm" : "md"}
-        maw={isMobile ? "100%" : isTablet ? 600 : isSmallScreen ? 700 : 800}
+      <ThemedPaper
+        p={{ base: "md", sm: "lg", lg: "xl" }}
+        radius="lg"
+        shadow="md"
+        maw={{ base: "100%", sm: 600, md: 700, lg: 800 }}
         mx="auto"
-        bg={colorScheme === 'dark' ? 'dark.7' : 'white'}
-        withBorder
       >
         <form
           onSubmit={form.onSubmit(async (values) => {
@@ -131,15 +127,17 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
             await submitArtistBasics();
           })}
         >
-          <Stack gap={isMobile ? "md" : isTablet ? "lg" : "xl"}>
+          <Stack gap="lg">
             {/* Header Section */}
-            <Group justify="center" mb={isMobile ? "md" : "lg"}>
+            <Group justify="center" mb={{ base: "md", lg: "lg" }}>
               <Title
                 order={isMobile ? 2 : 1}
-                size={isMobile ? "1.5rem" : isTablet ? "1.8rem" : "2.2rem"}
                 ta="center"
                 c="blue.7"
-                fw={isMobile ? 600 : 700}
+                fw={{ base: 600, lg: 700 }}
+                style={{
+                  fontSize: isMobile ? "1.5rem" : isTablet ? "1.8rem" : "2.2rem"
+                }}
               >
                 {showUploadSections ? "Upload Your Images" : (!!artist ? "Edit" : "Create") + " Your Artist Profile"}
               </Title>
@@ -154,14 +152,14 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
             >
               {(styles) => (
                 <div style={styles}>
-                  <Stack gap={isMobile ? "md" : isTablet ? "lg" : "xl"}>
+                  <Stack gap="lg">
                     {/* Basic Information Section */}
-                    <Stack gap={isMobile ? "sm" : "md"}>
+                    <Stack gap="md">
                       <TextInput
                         label="Artist Name"
                         placeholder="Enter your artist name"
-                        size={isMobile ? "sm" : "md"}
-                        radius={isMobile ? "sm" : "md"}
+                        size="md"
+                        radius="md"
                         {...form.getInputProps("name")}
                         styles={{
                           label: {
@@ -177,8 +175,8 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
                         placeholder="Tell fans about yourself and your music"
                         minRows={isMobile ? 3 : 4}
                         maxRows={isMobile ? 6 : 8}
-                        size={isMobile ? "sm" : "md"}
-                        radius={isMobile ? "sm" : "md"}
+                        size="md"
+                        radius="md"
                         autosize
                         {...form.getInputProps("bio")}
                         styles={{
@@ -192,15 +190,12 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
                     </Stack>
 
                     {/* Location Section */}
-                    <Paper
-                      p={isMobile ? "sm" : "md"}
-                      bg={colorScheme === 'dark' ? 'dark.6' : 'gray.0'}
-                      radius={isMobile ? "sm" : "md"}
-                      withBorder
+                    <ThemedPaper
+                      p={{ base: "sm", md: "md" }}
                     >
-                      <Stack gap={isMobile ? "sm" : "md"}>
+                      <Stack gap="md">
                         <Text
-                          size={isMobile ? "sm" : "md"}
+                          size="md"
                           fw={500}
                           c={colorScheme === 'dark' ? 'white' : 'dark.8'}
                         >
@@ -215,29 +210,26 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
                           storedLocality={selectedPlace}
                         />
                       </Stack>
-                    </Paper>
+                    </ThemedPaper>
 
                     {/* Font Selection Section */}
-                    <Paper
-                      p={isMobile ? "sm" : "md"}
-                      bg={colorScheme === 'dark' ? 'dark.6' : 'blue.0'}
-                      radius={isMobile ? "sm" : "md"}
-                      withBorder
+                    <ThemedPaper
+                      p={{ base: "sm", md: "md" }}
                     >
-                      <Stack gap={isMobile ? "sm" : "md"}>
+                      <Stack gap="md">
                         <FontSelect
                           label="Brand Font"
                           placeholder="Choose a font for your brand..."
                           description="This font will be used for your artist name and branding"
-                          size={isMobile ? "sm" : "md"}
+                          size="md"
                           {...form.getInputProps("fontFamily")}
                         />
 
                         {form.values.fontFamily && form.values.name && (
                           <Paper
-                            p={isMobile ? "sm" : "md"}
+                            p={{ base: "sm", md: "md" }}
                             bg={colorScheme === 'dark' ? 'dark.7' : 'white'}
-                            radius={isMobile ? "sm" : "md"}
+                            radius="md"
                             withBorder
                           >
                             <Stack gap="xs">
@@ -249,11 +241,12 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
                                 Preview: {form.values.fontFamily}
                               </Text>
                               <Text
-                                size={isMobile ? "lg" : isTablet ? "xl" : "2rem"}
+                                size="xl"
                                 fw={600}
                                 ta="center"
                                 style={{
                                   fontFamily: `"${form.values.fontFamily}", "Inter", sans-serif`,
+                                  fontSize: isMobile ? '1.25rem' : isTablet ? '1.5rem' : '2rem'
                                 }}
                                 c={colorScheme === 'dark' ? 'white' : 'dark.8'}
                               >
@@ -273,17 +266,17 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
                           </Paper>
                         )}
                       </Stack>
-                    </Paper>
+                    </ThemedPaper>
 
                     {/* Submit Button - Only show when not showing upload sections */}
-                    <Group justify="center" mt={isMobile ? "md" : "lg"}>
+                    <Group justify="center" mt={{ base: "md", lg: "lg" }}>
                       <Button
                         disabled={loading}
                         type="submit"
-                        size={isMobile ? "md" : "lg"}
-                        radius={isMobile ? "md" : "lg"}
-                        w={isMobile ? "100%" : "auto"}
-                        px={isMobile ? "xl" : "3rem"}
+                        size="lg"
+                        radius="lg"
+                        w={{ base: "100%", sm: "auto" }}
+                        px={{ base: "xl", lg: "3rem" }}
                         loading={loading}
                         gradient={{ from: "blue", to: "cyan", deg: 45 }}
                         variant="gradient"
@@ -299,7 +292,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
               )}
             </Transition>
 
-            {/* Upload Sections - Show with transition after artist is created */}
+            {/* Upload Sections - Show with transition after artist is created or when editing */}
             <Transition
               mounted={showUploadSections && !!artist?.id}
               transition="fade-up"
@@ -308,31 +301,20 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
             >
               {(styles) => (
                 <div style={styles}>
-                  <Grid gutter="xl" mt="xl" justify="center">
-                    <GridCol span={{ base: 12, sm: 10, md: 8, lg: 6, xl: 5 }}>
-                      <Stack gap="xl">
-                        <Card withBorder p="md" radius="md" shadow="sm">
-                          <Group mb="md" gap="xs">
-                            <IconPhoto size={20} color={theme.colors.blue[6]} />
-                            <Title
-                              order={4}
-                              style={{ color: theme.colors.blue[7] }}
-                            >
-                              Artist Artwork
-                            </Title>
-                          </Group>
-                          <Text size="sm" c="dimmed" mb="xl">
-                            Upload your artist avatar and banner to make your
-                            profile stand out. These images will be displayed on
-                            your artist profile page.
-                          </Text>
-                          <ArtistArtUpload
-                            artistId={artist?.id}
-                          />
-                        </Card>
-                      </Stack>
-                    </GridCol>
-                  </Grid>
+                  <Stack gap="lg">
+                    {/* Upload Card - Full Width on Desktop */}
+                    <ThemedCard
+                      p={{ base: "lg", lg: "2rem" }}
+                      maw={{ base: "100%", lg: "none" }}
+                      style={{
+                        minHeight: isMobile ? 'auto' : '400px'
+                      }}
+                    >
+                      <ArtistArtUpload
+                        artistId={artist?.id}
+                      />
+                    </ThemedCard>
+                  </Stack>
                 </div>
               )}
             </Transition>
@@ -365,7 +347,7 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
             </Transition>
           </Stack>
         </form>
-      </Paper>
+      </ThemedPaper>
     </Container>
   );
 
@@ -400,15 +382,11 @@ export function ArtistForm({ artist: _artist }: IArtistFormProps) {
         color: "green",
       });
 
-      // If this is a new artist, trigger the transition to upload sections
-      if (!artist) {
-        setTimeout(() => {
-          setShowUploadSections(true);
-        }, 800);
-      } else {
-        // Navigate to the artist profile for existing artists
-        router.push(`/artists/${nameToUrl(form.values.name)}`);
-      }
+      // For edit mode, always show upload sections after saving basic info
+      // For new artists, also show upload sections
+      setTimeout(() => {
+        setShowUploadSections(true);
+      }, 800);
     } catch (error) {
       notifications.show({
         title: "Error",

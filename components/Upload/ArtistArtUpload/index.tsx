@@ -1,8 +1,9 @@
 "use client";
 
-import { ArtistBannerUpload } from "./ArtistBannerUpload";
+import { Grid, GridCol, Stack } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { ArtistAvatarUpload } from "./ArtistAvatarUpload";
-import { Stack, Group } from "@mantine/core";
+import { ArtistBannerUpload } from "./ArtistBannerUpload";
 
 export interface IArtistArtUploadProps {
   artistId?: string;
@@ -15,16 +16,39 @@ export function ArtistArtUpload({
   onBannerUploaded,
   onAvatarUploaded,
 }: IArtistArtUploadProps) {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  if (isMobile) {
+    // Mobile: Stack vertically
+    return (
+      <Stack gap="xl">
+        <ArtistBannerUpload
+          artistId={artistId}
+          onBannerUploaded={onBannerUploaded}
+        />
+        <ArtistAvatarUpload
+          artistId={artistId}
+          onAvatarUploaded={onAvatarUploaded}
+        />
+      </Stack>
+    );
+  }
+
+  // Desktop: Side by side with better spacing
   return (
-    <Stack gap="lg">
-      <ArtistBannerUpload
-        artistId={artistId}
-        onBannerUploaded={onBannerUploaded}
-      />
-      <ArtistAvatarUpload
-        artistId={artistId}
-        onAvatarUploaded={onAvatarUploaded}
-      />
-    </Stack>
+    <Grid gutter="xl">
+      <GridCol span={12}>
+        <ArtistBannerUpload
+          artistId={artistId}
+          onBannerUploaded={onBannerUploaded}
+        />
+      </GridCol>
+      <GridCol span={12}>
+        <ArtistAvatarUpload
+          artistId={artistId}
+          onAvatarUploaded={onAvatarUploaded}
+        />
+      </GridCol>
+    </Grid>
   );
 }
