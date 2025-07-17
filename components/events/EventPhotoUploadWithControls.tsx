@@ -1,6 +1,5 @@
 "use client";
 
-import { getUserEventPhotoCount } from "@/db/queries/event_photos";
 import { createClient } from "@/utils/supabase/client";
 import { Button, Group, Loader, Image as MantineImage, Modal, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
@@ -47,15 +46,25 @@ export function EventPhotoUploadWithControls({
     const maxPhotos = 20;
 
     // Calculate remaining photos the user can upload
-    const remainingPhotos = maxPhotos - existingPhotoCount;    // Function to refresh existing photo count
+    const remainingPhotos = maxPhotos - existingPhotoCount;    // Function to refresh existing photo count (client-side)
     const refreshPhotoCount = React.useCallback(async () => {
         if (!currentUserId || !eventId) return;
 
         setIsLoadingExisting(true);
         try {
             const supabase = createClient();
-            const count = await getUserEventPhotoCount(supabase, eventId, currentUserId);
-            setExistingPhotoCount(count);
+            const { count, error } = await supabase
+                .from("event_photos")
+                .select("id", { count: "exact", head: true })
+                .eq("event", eventId)
+                .eq("user", currentUserId);
+
+            if (error) {
+                console.error("Error getting user event photo count:", error);
+                setExistingPhotoCount(0);
+            } else {
+                setExistingPhotoCount(count || 0);
+            }
         } catch (error) {
             console.error("Error refreshing photo count:", error);
         } finally {
@@ -71,11 +80,21 @@ export function EventPhotoUploadWithControls({
             if (user && !user.is_anonymous) {
                 setCurrentUserId(user.id);
 
-                // Fetch existing photo count for this user and event
+                // Fetch existing photo count for this user and event (client-side)
                 setIsLoadingExisting(true);
                 try {
-                    const count = await getUserEventPhotoCount(supabase, eventId, user.id);
-                    setExistingPhotoCount(count);
+                    const { count, error } = await supabase
+                        .from("event_photos")
+                        .select("id", { count: "exact", head: true })
+                        .eq("event", eventId)
+                        .eq("user", user.id);
+
+                    if (error) {
+                        console.error("Error fetching existing photo count:", error);
+                        setExistingPhotoCount(0);
+                    } else {
+                        setExistingPhotoCount(count || 0);
+                    }
                 } catch (error) {
                     console.error("Error fetching existing photo count:", error);
                     setExistingPhotoCount(0);
@@ -92,11 +111,20 @@ export function EventPhotoUploadWithControls({
         const handlePhotosConfirmed = async (event: Event) => {
             const customEvent = event as CustomEvent;
             if (customEvent.detail?.eventId === eventId && currentUserId) {
-                // Refresh the existing photo count
+                // Refresh the existing photo count (client-side)
                 try {
                     const supabase = createClient();
-                    const count = await getUserEventPhotoCount(supabase, eventId, currentUserId);
-                    setExistingPhotoCount(count);
+                    const { count, error } = await supabase
+                        .from("event_photos")
+                        .select("id", { count: "exact", head: true })
+                        .eq("event", eventId)
+                        .eq("user", currentUserId);
+
+                    if (error) {
+                        console.error("Error refreshing photo count:", error);
+                    } else {
+                        setExistingPhotoCount(count || 0);
+                    }
                 } catch (error) {
                     console.error("Error refreshing photo count:", error);
                 }
