@@ -5,19 +5,14 @@ import {
   transformArtistData
 } from "@/components/shared";
 import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
-import { Database } from "@/utils/supabase/database.types";
-import { Artist, Event, StoredLocality, Venue } from "@/utils/supabase/global.types";
-
-// Define types using database-first approach (per TYPE_USAGE_GUIDE.md)
-type PromoterWithImages = Pick<Database['public']['Tables']['promoters']['Row'], 'id' | 'name' | 'bio'> & {
-  avatarUrl?: string | null;
-  bannerUrl?: string | null;
-};
-
-type EventWithDate = Pick<Event, 'id' | 'name' | 'hash' | 'poster_img'> & {
-  date: string | null;
-  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
-};
+import { 
+  Artist, 
+  Event, 
+  StoredLocality, 
+  Venue,
+  EventWithDate,
+  PromoterWithImages
+} from "@/utils/supabase/global.types";
 
 interface ArtistProfileContentProps {
   artist: Artist;

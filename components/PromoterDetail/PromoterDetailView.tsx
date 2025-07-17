@@ -4,7 +4,7 @@ import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
 import StyledTitle from "@/components/StyledTitle";
 import { nameToUrl } from "@/lib/utils";
 import { Database } from "@/utils/supabase/database.types";
-import { Artist, Event, Promoter } from "@/utils/supabase/global.types";
+import { Artist, Event, Promoter, PopularTrack } from "@/utils/supabase/global.types";
 import {
   ActionIcon,
   Avatar,
@@ -39,12 +39,6 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-// Use database-first types as per TYPE_USAGE_GUIDE.md
-type PopularTrack = Pick<Database['public']['Tables']['tracks']['Row'], 'id' | 'title' | 'duration'> & {
-  plays?: number;
-  artist?: Pick<Artist, 'id' | 'name' | 'avatar_img'>;
-};
 
 type PopulatedPromoterLocality = {
   created_at: string;

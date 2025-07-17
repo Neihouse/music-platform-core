@@ -2,7 +2,7 @@
 
 import { updateEventVenue } from "@/app/events/[eventHash]/actions";
 import { VenueSearch } from "@/components/VenueSearch";
-import { Event, Venue } from "@/utils/supabase/global.types";
+import { Event, Venue, EventWithVenue } from "@/utils/supabase/global.types";
 import { Anchor, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { IconCheck, IconEdit, IconMapPin, IconPlus, IconX } from "@tabler/icons-react";
 import Link from "next/link";
@@ -13,10 +13,6 @@ type VenueBasic = Pick<Venue, 'id' | 'name' | 'address'> & {
   capacity?: number | null;
 };
 
-type EventWithVenue = Pick<Event, 'id' | 'name' | 'venue'> & {
-  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
-};
-
 interface VenueSelectorProps {
   event: EventWithVenue;
   availableVenues: VenueBasic[];
@@ -24,11 +20,11 @@ interface VenueSelectorProps {
 
 export function VenueSelector({ event, availableVenues }: VenueSelectorProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedVenue, setSelectedVenue] = useState(event.venue || "");
+  const [selectedVenue, setSelectedVenue] = useState(event.venues?.id || "");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSave = async () => {
-    if (selectedVenue === event.venue) {
+    if (selectedVenue === event.venues?.id) {
       setIsEditing(false);
       return;
     }
@@ -41,14 +37,14 @@ export function VenueSelector({ event, availableVenues }: VenueSelectorProps) {
       console.error("Failed to update venue:", error);
       alert(`Failed to update venue: ${error instanceof Error ? error.message : 'Unknown error'}`);
       // Reset to original value
-      setSelectedVenue(event.venue || "");
+      setSelectedVenue(event.venues?.id || "");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-    setSelectedVenue(event.venue || "");
+    setSelectedVenue(event.venues?.id || "");
     setIsEditing(false);
   };
 

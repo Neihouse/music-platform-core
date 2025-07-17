@@ -1,38 +1,20 @@
 import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
 import { Database } from "@/utils/supabase/database.types";
-import { Artist, Event, StoredLocality, Venue } from "@/utils/supabase/global.types";
+import { 
+  Artist, 
+  Event, 
+  StoredLocality, 
+  Venue,
+  EventWithVenue,
+  EventWithDate,
+  ArtistWithImages,
+  PromoterWithImages,
+  PopularTrack
+} from "@/utils/supabase/global.types";
 import { Container } from "@mantine/core";
 import EventsGrid from "../events/EventsGrid";
 import { ProfileEntity, ProfileTab } from "./ProfileContent";
 import { CollaboratorsGrid, MusicGrid } from "./index";
-
-// Define types using database types and utility types following TYPE_USAGE guide
-type EventWithVenue = Pick<Event, 'id' | 'name' | 'start' | 'hash' | 'poster_img'> & {
-  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
-};
-
-// For events that use 'date' instead of 'start' (legacy interface compatibility)  
-type EventWithDate = Pick<Event, 'id' | 'name' | 'hash' | 'poster_img'> & {
-  date: string | null;
-  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
-};
-
-type PromoterWithImages = Pick<Database['public']['Tables']['promoters']['Row'], 'id' | 'name' | 'bio'> & {
-  avatarUrl?: string | null;
-  bannerUrl?: string | null;
-};
-
-type ArtistWithImages = Pick<Artist, 'id' | 'name' | 'bio'> & {
-  avatarUrl?: string | null;
-  bannerUrl?: string | null;
-};
-
-type PopularTrack = {
-  id: string;
-  title: string;
-  plays: number;
-  artist?: Pick<Artist, 'id' | 'name'>;
-};
 
 /**
  * Transform artist data for ProfileContent component

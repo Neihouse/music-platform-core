@@ -1,15 +1,10 @@
 "use client";
 
 import { getPosterUrl } from "@/lib/images/image-utils-client";
-import { Event, Venue } from "@/utils/supabase/global.types";
+import { Event, Venue, EventWithVenue } from "@/utils/supabase/global.types";
 import { AspectRatio, Badge, Box, Button, Card, Grid, Group, Image, Stack, Text, Title } from "@mantine/core";
 import { IconCalendar, IconMapPin, IconPhoto, IconTicket, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
-
-// Use proper type composition following TYPE_USAGE guide
-type EventWithVenue = Pick<Event, 'id' | 'name' | 'start' | 'hash' | 'poster_img'> & {
-    venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
-};
 
 interface EventsGridProps {
     events: EventWithVenue[];
