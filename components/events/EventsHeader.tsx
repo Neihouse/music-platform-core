@@ -1,10 +1,8 @@
 "use client";
 
 import { Affix, Button, Group, Stack, Text, Title } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 interface Event {
     id: string;
@@ -25,49 +23,53 @@ interface EventsHeaderProps {
 }
 
 export default function EventsHeader({ events, userType }: EventsHeaderProps) {
-    const [mounted, setMounted] = useState(false);
-    const isMobile = useMediaQuery('(max-width: 768px)');
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
     return (
         <>
             <Group justify="space-between" align="start">
                 <Stack gap="xs">
                     <Title
                         order={1}
-                        size={mounted && isMobile ? "1.8rem" : "2.5rem"}
                         fw={700}
+                        style={{
+                            fontSize: 'clamp(1.8rem, 4vw, 2.5rem)'
+                        }}
                     >
                         Events
                     </Title>
-                    <Text size={mounted && isMobile ? "md" : "lg"} c="dimmed">
+                    <Text
+                        c="dimmed"
+                        style={{
+                            fontSize: 'clamp(1rem, 2.5vw, 1.125rem)'
+                        }}
+                    >
                         Discover upcoming music events and performances
                     </Text>
                 </Stack>
-                {userType === 'promoter' && (!mounted || !isMobile) && (
+
+                {/* Desktop Create Button */}
+                {userType === 'promoter' && (
                     <Button
                         component={Link}
                         href="/promoter/events/create"
                         leftSection={<IconPlus size={16} />}
                         size="lg"
                         variant="filled"
+                        display={{ base: 'none', sm: 'block' }}
                     >
                         Create Event
                     </Button>
                 )}
             </Group>
 
-            {/* Floating Action Button for Mobile */}
-            {userType === 'promoter' && mounted && isMobile && (
+            {/* Mobile Floating Action Button */}
+            {userType === 'promoter' && (
                 <Affix position={{ bottom: 20, right: 20 }}>
                     <Button
                         component={Link}
                         href="/promoter/events/create"
                         size="lg"
                         radius="xl"
+                        display={{ base: 'block', sm: 'none' }}
                         style={{
                             width: 56,
                             height: 56,
