@@ -155,16 +155,16 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 			// Load assignments and convert to scheduled slots
 			const allAssignments = await getEventStageArtistsAction(event.id);
 			const slots: ScheduledSlot[] = allAssignments
-				.filter((assignment: any) => assignment.set_start && assignment.set_end)
+				.filter((assignment: any) => assignment.start && assignment.end)
 				.map((assignment: any) => ({
 					id: assignment.id,
 					artist: assignment.artists,
 					stage: assignment.stage,
-					startTime: extractTimeFromTimestamp(assignment.set_start),
-					endTime: extractTimeFromTimestamp(assignment.set_end),
+					startTime: extractTimeFromTimestamp(assignment.start),
+					endTime: extractTimeFromTimestamp(assignment.end),
 					duration: calculateDuration(
-						extractTimeFromTimestamp(assignment.set_start),
-						extractTimeFromTimestamp(assignment.set_end)
+						extractTimeFromTimestamp(assignment.start),
+						extractTimeFromTimestamp(assignment.end)
 					)
 				}));
 
@@ -292,8 +292,8 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 					artist: artist.id,
 					event: event.id,
 					stage: stageId,
-					set_start: startTimestamp,
-					set_end: endTimestamp,
+					start: startTimestamp,
+					end: endTimestamp,
 				});
 
 				const newSlot: ScheduledSlot = {
@@ -389,8 +389,8 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 				artist: artist.id,
 				event: event.id,
 				stage: newSlotData.stageId,
-				set_start: startTimestamp,
-				set_end: endTimestamp,
+				start: startTimestamp,
+				end: endTimestamp,
 			});
 
 			const newSlot: ScheduledSlot = {

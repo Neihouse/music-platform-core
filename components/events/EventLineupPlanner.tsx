@@ -11,7 +11,7 @@ import {
 import StyledTitle from "@/components/StyledTitle";
 import { VenueSearch } from "@/components/VenueSearch";
 import { Database } from "@/utils/supabase/database.types";
-import { Artist, Event, Venue } from "@/utils/supabase/global.types";
+import { Artist, Event, EventStage, Venue } from "@/utils/supabase/global.types";
 import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
 import {
 	ActionIcon,
@@ -42,9 +42,7 @@ type VenueBasic = Pick<Venue, 'id' | 'name' | 'address'> & {
 	capacity?: number | null;
 };
 
-type EventStage = Pick<Database['public']['Tables']['event_stage']['Row'], 'id' | 'name' | 'venue'>;
-
-type StageAssignmentWithArtist = Pick<Database['public']['Tables']['event_stage_artists']['Row'], 'id' | 'artist' | 'stage' | 'set_start' | 'set_end'> & {
+type StageAssignmentWithArtist = Pick<Database['public']['Tables']['event_stage_artists']['Row'], 'id' | 'artist' | 'stage' | 'start' | 'end'> & {
 	artists: ArtistBasic;
 };
 
@@ -142,8 +140,8 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 					artist: artist.id,
 					event: event.id,
 					stage: destStageId,
-					set_start: null,
-					set_end: null,
+					start: null,
+					end: null,
 				});
 
 				setAssignments(prev => ({
@@ -329,11 +327,11 @@ export function EventLineupPlanner({ event, availableArtists, availableVenues = 
 																		</Avatar>
 																		<div>
 																			<Text size="sm" fw={500}>{assignment.artists.name}</Text>
-																			{assignment.set_start && (
+																			{assignment.start && (
 																				<Text size="xs" c="dimmed">
 																					<IconClock size={12} style={{ marginRight: 4 }} />
-																					{assignment.set_start}
-																					{assignment.set_end && ` - ${assignment.set_end}`}
+																					{assignment.start}
+																					{assignment.end && ` - ${assignment.end}`}
 																				</Text>
 																			)}
 																		</div>
