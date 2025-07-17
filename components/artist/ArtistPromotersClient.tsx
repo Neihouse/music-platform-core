@@ -1,29 +1,13 @@
 "use client";
 
-import { cancelJoinRequest } from "@/app/artist/actions";
-import { nameToUrl } from "@/lib/utils";
-import { Database } from "@/utils/supabase/database.types";
-import { Avatar, Button, Card, Center, Container, Group, Paper, SimpleGrid, Stack, Switch, Text, TextInput, ThemeIcon, Title } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
-import { IconArrowLeft, IconMapPin, IconSearch, IconSparkles, IconUser, IconUserPlus, IconX } from "@tabler/icons-react";
+import { Button, Center, Container, Group, Paper, SimpleGrid, Stack, Switch, Text, TextInput, ThemeIcon, Title } from "@mantine/core";
+import { IconArrowLeft, IconSearch, IconSparkles, IconUser, IconUserPlus, IconX } from "@tabler/icons-react";
 import Link from "next/link";
-import { useState } from "react";
 import JoinRequestModal from "./JoinRequestModal";
+import PromoterCard from "./PromoterCard";
+import { PromoterWithLocation, useArtistPromoters } from "./hooks/useArtistPromoters";
 
 // Use database-first types as per TYPE_USAGE_GUIDE.md
-type PromoterWithLocation = Pick<Database['public']['Tables']['promoters']['Row'], 'id' | 'name' | 'bio' | 'avatar_img' | 'user_id'> & {
-  avatarUrl?: string | null;
-  localities?: { id: string; name: string } | null;
-  administrative_areas?: { id: string; name: string } | null;
-  countries?: { id: string; name: string } | null;
-  storedLocality?: {
-    locality: { id: string; name: string };
-    administrativeArea: { id: string; name: string };
-    country: { id: string; name: string };
-    fullAddress: undefined;
-  };
-};
-
 interface ArtistPromotersClientProps {
   localityPromoters: PromoterWithLocation[];
   artistLocalityPromoters: PromoterWithLocation[];
@@ -42,45 +26,24 @@ export default function ArtistPromotersClient({
   localityName,
   pendingRequests
 }: ArtistPromotersClientProps) {
-  const [filterByArtistLocality, setFilterByArtistLocality] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [joinModalOpened, setJoinModalOpened] = useState(false);
-  const [selectedPromoter, setSelectedPromoter] = useState<PromoterWithLocation | null>(null);
-
-  // Determine which promoters to show based on the toggle
-  const basePromoters = filterByArtistLocality ? artistLocalityPromoters : localityPromoters;
-
-  // Filter by search term
-  const filteredPromoters = basePromoters.filter(promoter =>
-    promoter.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    promoter.bio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    getLocationText(promoter).toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const getLocationText = (promoter: PromoterWithLocation) => {
-    if (promoter.storedLocality) {
-      return `${promoter.storedLocality.locality.name}, ${promoter.storedLocality.administrativeArea.name}, ${promoter.storedLocality.country.name}`;
-    }
-    if (promoter.localities?.name) return promoter.localities.name;
-    if (promoter.administrative_areas?.name) return promoter.administrative_areas.name;
-    if (promoter.countries?.name) return promoter.countries.name;
-    return "Location not specified";
-  };
-
-  const handleJoinRequest = (promoter: PromoterWithLocation) => {
-    setSelectedPromoter(promoter);
-    setJoinModalOpened(true);
-  };
-
-  const handleCloseJoinModal = () => {
-    setJoinModalOpened(false);
-    setSelectedPromoter(null);
-  };
-
-  // Helper function to check if a promoter has a pending request
-  const getPromoterRequestStatus = (promoterId: string) => {
-    return pendingRequests.find(request => request.invitee_entity_id === promoterId);
-  };
+  const {
+    filterByArtistLocality,
+    setFilterByArtistLocality,
+    searchTerm,
+    setSearchTerm,
+    joinModalOpened,
+    selectedPromoter,
+    filteredPromoters,
+    getLocationText,
+    handleJoinRequest,
+    handleCloseJoinModal,
+    getPromoterRequestStatus,
+    handleCancelRequest,
+  } = useArtistPromoters({
+    localityPromoters,
+    artistLocalityPromoters,
+    pendingRequests
+  });
 
   return (
     <>
@@ -223,6 +186,7 @@ export default function ArtistPromotersClient({
                 promoter={promoter}
                 getLocationText={getLocationText}
                 onJoinRequest={handleJoinRequest}
+                onCancelRequest={handleCancelRequest}
                 pendingRequest={getPromoterRequestStatus(promoter.id)}
               />
             ))}
@@ -347,151 +311,5 @@ export default function ArtistPromotersClient({
         />
       )}
     </>
-  );
-}
-
-function PromoterCard({
-  promoter,
-  getLocationText,
-  onJoinRequest,
-  pendingRequest
-}: {
-  promoter: PromoterWithLocation;
-  getLocationText: (promoter: PromoterWithLocation) => string;
-  onJoinRequest: (promoter: PromoterWithLocation) => void;
-  pendingRequest?: { id: string; status: string } | undefined;
-}) {
-  return (
-    <Card
-      p={{ base: "sm", sm: "md", lg: "lg" }}
-      radius="xl"
-      withBorder
-      h="100%"
-      style={{
-        transition: "all 0.2s ease",
-        cursor: "pointer",
-      }}
-      styles={{
-        root: {
-          "&:hover": {
-            transform: "translateY(-4px)",
-            boxShadow: "0 12px 24px rgba(0,0,0,0.15)",
-          },
-        },
-      }}
-    >
-      <Stack gap="md" h="100%" align="center">
-        {/* Avatar */}
-        <Avatar
-          src={promoter.avatarUrl}
-          size={60}
-          radius="xl"
-          style={{
-            border: "3px solid var(--mantine-color-orange-3)",
-          }}
-          hiddenFrom="sm"
-        >
-          {promoter.name?.[0]?.toUpperCase()}
-        </Avatar>
-        <Avatar
-          src={promoter.avatarUrl}
-          size={80}
-          radius="xl"
-          style={{
-            border: "3px solid var(--mantine-color-orange-3)",
-          }}
-          visibleFrom="sm"
-        >
-          {promoter.name?.[0]?.toUpperCase()}
-        </Avatar>
-
-        {/* Promoter Info */}
-        <Stack gap="xs" align="center" style={{ flex: 1 }}>
-          <Text
-            fw={700}
-            size="lg"
-            ta="center"
-            lineClamp={1}
-          >
-            {promoter.name}
-          </Text>
-
-          {/* Location */}
-          <Group gap="xs" justify="center" wrap="nowrap">
-            <IconMapPin
-              size={14}
-              style={{ color: "var(--mantine-color-dimmed)", flexShrink: 0 }}
-            />
-            <Text
-              fz={{ base: "xs", sm: "sm" }}
-              c="dimmed"
-              ta="center"
-              lineClamp={1}
-              style={{ minWidth: 0 }}
-            >
-              {getLocationText(promoter)}
-            </Text>
-          </Group>
-
-          {/* Bio */}
-          {promoter.bio && (
-            <Text size="sm" c="dimmed" ta="center" lineClamp={2} style={{ flex: 1 }} hiddenFrom="sm">
-              {promoter.bio}
-            </Text>
-          )}
-          {promoter.bio && (
-            <Text size="sm" c="dimmed" ta="center" lineClamp={3} style={{ flex: 1 }} visibleFrom="sm">
-              {promoter.bio}
-            </Text>
-          )}
-        </Stack>
-
-        {/* Action Buttons - Simplified without responsive text */}
-        <Stack gap="xs" w="100%">
-          <Button
-            variant="light"
-            size="sm"
-            fullWidth
-            leftSection={<IconUser size={16} />}
-            component={Link}
-            href={`/promoters/${nameToUrl(promoter.name)}`}
-          >
-            View Profile
-          </Button>
-          <Button
-            size="sm"
-            fullWidth
-            leftSection={pendingRequest ? <IconX size={16} /> : <IconUserPlus size={16} />}
-            color={pendingRequest ? "red" : "orange"}
-            onClick={async () => {
-              if (pendingRequest) {
-                // Cancel existing request
-                try {
-                  const result = await cancelJoinRequest(pendingRequest.id);
-                  notifications.show({
-                    title: "Request cancelled",
-                    message: "Your join request has been cancelled.",
-                    color: "green",
-                  });
-                  // Refresh the page to update the UI
-                  window.location.reload();
-                } catch (error) {
-                  notifications.show({
-                    title: "Error",
-                    message: "Failed to cancel request",
-                    color: "red",
-                  });
-                }
-              } else {
-                // Create new request
-                onJoinRequest(promoter);
-              }
-            }}
-          >
-            {pendingRequest ? "Cancel Request" : "Request to Join"}
-          </Button>
-        </Stack>
-      </Stack>
-    </Card>
   );
 }
