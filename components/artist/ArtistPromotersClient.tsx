@@ -1,8 +1,10 @@
 "use client";
 
+import { cancelJoinRequest } from "@/app/artist/actions";
 import { nameToUrl } from "@/lib/utils";
 import { Database } from "@/utils/supabase/database.types";
 import { Avatar, Button, Card, Center, Container, Group, Paper, SimpleGrid, Stack, Switch, Text, TextInput, ThemeIcon, Title } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { IconArrowLeft, IconMapPin, IconSearch, IconSparkles, IconUser, IconUserPlus, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -26,12 +28,19 @@ interface ArtistPromotersClientProps {
   localityPromoters: PromoterWithLocation[];
   artistLocalityPromoters: PromoterWithLocation[];
   localityName?: string;
+  pendingRequests: Array<{
+    id: string;
+    invited_to_entity_id: string;
+    invitee_entity_id: string;
+    status: string;
+  }>;
 }
 
 export default function ArtistPromotersClient({
   localityPromoters,
   artistLocalityPromoters,
-  localityName
+  localityName,
+  pendingRequests
 }: ArtistPromotersClientProps) {
   const [filterByArtistLocality, setFilterByArtistLocality] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,6 +75,11 @@ export default function ArtistPromotersClient({
   const handleCloseJoinModal = () => {
     setJoinModalOpened(false);
     setSelectedPromoter(null);
+  };
+
+  // Helper function to check if a promoter has a pending request
+  const getPromoterRequestStatus = (promoterId: string) => {
+    return pendingRequests.find(request => request.invitee_entity_id === promoterId);
   };
 
   return (
@@ -202,12 +216,6 @@ export default function ArtistPromotersClient({
             cols={{ base: 1, xs: 2, sm: 2, md: 3, lg: 4 }}
             spacing={{ base: "sm", sm: "md", lg: "lg" }}
             verticalSpacing={{ base: "sm", sm: "md", lg: "lg" }}
-            style={{
-              // Additional mobile optimizations
-              '@media (maxWidth: 30em)': {
-                gap: '0.75rem',
-              }
-            }}
           >
             {filteredPromoters.map((promoter) => (
               <PromoterCard
@@ -215,6 +223,7 @@ export default function ArtistPromotersClient({
                 promoter={promoter}
                 getLocationText={getLocationText}
                 onJoinRequest={handleJoinRequest}
+                pendingRequest={getPromoterRequestStatus(promoter.id)}
               />
             ))}
           </SimpleGrid>
@@ -344,11 +353,13 @@ export default function ArtistPromotersClient({
 function PromoterCard({
   promoter,
   getLocationText,
-  onJoinRequest
+  onJoinRequest,
+  pendingRequest
 }: {
   promoter: PromoterWithLocation;
   getLocationText: (promoter: PromoterWithLocation) => string;
   onJoinRequest: (promoter: PromoterWithLocation) => void;
+  pendingRequest?: { id: string; status: string } | undefined;
 }) {
   return (
     <Card
@@ -450,11 +461,34 @@ function PromoterCard({
           <Button
             size="sm"
             fullWidth
-            leftSection={<IconUserPlus size={16} />}
-            color="orange"
-            onClick={() => onJoinRequest(promoter)}
+            leftSection={pendingRequest ? <IconX size={16} /> : <IconUserPlus size={16} />}
+            color={pendingRequest ? "red" : "orange"}
+            onClick={async () => {
+              if (pendingRequest) {
+                // Cancel existing request
+                try {
+                  const result = await cancelJoinRequest(pendingRequest.id);
+                  notifications.show({
+                    title: "Request cancelled",
+                    message: "Your join request has been cancelled.",
+                    color: "green",
+                  });
+                  // Refresh the page to update the UI
+                  window.location.reload();
+                } catch (error) {
+                  notifications.show({
+                    title: "Error",
+                    message: "Failed to cancel request",
+                    color: "red",
+                  });
+                }
+              } else {
+                // Create new request
+                onJoinRequest(promoter);
+              }
+            }}
           >
-            Request to Join
+            {pendingRequest ? "Cancel Request" : "Request to Join"}
           </Button>
         </Stack>
       </Stack>

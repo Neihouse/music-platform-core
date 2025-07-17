@@ -38,6 +38,17 @@ export default async function ArtistPromotersPage() {
 
   const localityName = artist?.storedLocality?.locality?.name;
 
+  // Get artist's pending requests to promoters
+  const { data: pendingRequests, error: requestsError } = await supabase
+    .from("requests")
+    .select("id, invited_to_entity_id, invitee_entity_id, status")
+    .eq("inviter_user_id", user.id)
+    .eq("invited_to_entity", "artist")
+    .eq("invitee_entity", "promoter")
+    .eq("status", "pending");
+
+  const artistPendingRequests = pendingRequests || [];
+
   // Fetch avatar URLs for locality-based promoters
   const localityPromotersWithAvatars = await Promise.all(
     promotersToDisplay.map(async (promoter: any) => {
@@ -80,6 +91,7 @@ export default async function ArtistPromotersPage() {
       localityPromoters={localityPromotersWithAvatars}
       artistLocalityPromoters={artistLocalityPromotersWithAvatars}
       localityName={localityName}
+      pendingRequests={artistPendingRequests}
     />
   );
 }
