@@ -11,6 +11,7 @@ import { Avatar, Badge, Button, Center, Container, Grid, GridCol, Group, Paper, 
 import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconMusic, IconSparkles, IconTrendingUp, IconUser, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import styles from "./promoter-dashboard.module.css";
 
 export default async function PromoterDashboardPage() {
   const supabase = await createClient();
@@ -143,64 +144,34 @@ export default async function PromoterDashboardPage() {
           <GridCol span={12}>
             <Stack
               gap="md"
-              align="center"
-              style={{
-                alignItems: 'center',
-                '@media (min-width: 48em)': {
-                  alignItems: 'flex-start',
-                }
-              }}
+              className={styles.heroStack}
             >
               <Group
                 gap="md"
                 align="flex-start"
-                justify="center"
+                className={styles.heroGroup}
                 wrap="nowrap"
                 w="100%"
-                style={{
-                  '@media (min-width: 48em)': {
-                    justifyContent: 'flex-start',
-                  }
-                }}
               >
                 <Avatar
                   src={avatarUrl}
                   size={120}
                   radius="xl"
+                  className={styles.avatar}
                   style={{
                     border: "2px solid var(--mantine-color-dark-5)",
                     background: avatarUrl ? "transparent" : "var(--mantine-color-dark-6)",
-                    width: '80px',
-                    height: '80px',
-                    '@media (min-width: 48em)': {
-                      width: '100px',
-                      height: '100px',
-                    },
-                    '@media (min-width: 62em)': {
-                      width: '120px',
-                      height: '120px',
-                    }
                   }}
                 >
                   {!avatarUrl && <IconSparkles size={32} />}
                 </Avatar>
-                <Stack gap="xs" align="center" style={{ flex: 1, minWidth: 0 }}>
+                <Stack gap="xs" className={styles.titleContainer} style={{ flex: 1, minWidth: 0 }}>
                   <Group gap="sm" align="center" justify="center" wrap="wrap">
                     <Title
                       order={1}
                       fw={600}
                       c="gray.0"
-                      ta="center"
-                      style={{
-                        fontSize: '1.5rem',
-                        '@media (min-width: 48em)': {
-                          fontSize: '1.75rem',
-                          textAlign: 'left',
-                        },
-                        '@media (min-width: 62em)': {
-                          fontSize: '2rem',
-                        }
-                      }}
+                      className={styles.title}
                     >
                       Welcome back, {promoter.name}!
                     </Title>
@@ -237,13 +208,8 @@ export default async function PromoterDashboardPage() {
                     <Text
                       size="sm"
                       c="gray.3"
-                      ta="center"
+                      className={styles.bioText}
                       lineClamp={2}
-                      style={{
-                        '@media (min-width: 48em)': {
-                          textAlign: 'left',
-                        }
-                      }}
                     >
                       {promoter.bio}
                     </Text>
