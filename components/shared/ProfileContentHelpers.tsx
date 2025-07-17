@@ -6,15 +6,15 @@ import EventsGrid from "../events/EventsGrid";
 import { ProfileEntity, ProfileTab } from "./ProfileContent";
 import { CollaboratorsGrid, MusicGrid } from "./index";
 
-// Define types using database types and utility types
-type EventWithVenue = Pick<Event, 'id' | 'name' | 'start'> & {
-  venues?: Pick<Venue, 'id' | 'name'> | null;
+// Define types using database types and utility types following TYPE_USAGE guide
+type EventWithVenue = Pick<Event, 'id' | 'name' | 'start' | 'hash' | 'poster_img'> & {
+  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
 };
 
-// For events that use 'date' instead of 'start' (legacy interface compatibility)
-type EventWithDate = Pick<Event, 'id' | 'name'> & {
+// For events that use 'date' instead of 'start' (legacy interface compatibility)  
+type EventWithDate = Pick<Event, 'id' | 'name' | 'hash' | 'poster_img'> & {
   date: string | null;
-  venues?: Pick<Venue, 'id' | 'name'> | null;
+  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
 };
 
 type PromoterWithImages = Pick<Database['public']['Tables']['promoters']['Row'], 'id' | 'name' | 'bio'> & {
@@ -80,7 +80,7 @@ export function transformArtistData(
     {
       key: "events",
       label: "Events",
-      content: <EventsGrid events={events} artistName={artist.name} />
+      content: <EventsGrid events={events} />
     },
     {
       key: "collaborations",
@@ -138,11 +138,17 @@ export function transformPromoterData(
       id: event.id,
       name: event.name,
       start: event.date,
-      venues: event.venues
+      hash: event.hash,
+      poster_img: event.poster_img,
+      venues: event.venues ? {
+        id: event.venues.id,
+        name: event.venues.name,
+        address: event.venues.address || null
+      } : null
     }));
 
-  const upcomingEventsForList = mapToEventWithVenue(upcomingEvents);
-  const allEventsForList = mapToEventWithVenue(allEvents);
+  const upcomingEventsForGrid = mapToEventWithVenue(upcomingEvents);
+  const allEventsForGrid = mapToEventWithVenue(allEvents);
 
   // Define tabs content
   const tabs: ProfileTab[] = [
@@ -157,11 +163,7 @@ export function transformPromoterData(
             maxItems={8}
           />
           <div style={{ marginTop: '2rem' }}>
-            <EventsList
-              events={upcomingEventsForList}
-              title="Upcoming Events"
-              emptyStateMessage="No upcoming events scheduled."
-            />
+            <EventsGrid events={upcomingEventsForGrid} />
           </div>
         </Container>
       )
@@ -169,7 +171,7 @@ export function transformPromoterData(
     {
       key: "events",
       label: "Events",
-      content: <EventsList events={allEventsForList} title="All Events" />
+      content: <EventsGrid events={allEventsForGrid} />
     },
     {
       key: "artists",
