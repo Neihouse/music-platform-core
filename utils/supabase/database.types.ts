@@ -332,29 +332,29 @@ export type Database = {
         Row: {
           artist: string
           created_at: string
+          end: string | null
           event: string
           id: string
-          set_end: string | null
-          set_start: string | null
           stage: string | null
+          start: string | null
         }
         Insert: {
           artist: string
           created_at?: string
+          end?: string | null
           event: string
           id?: string
-          set_end?: string | null
-          set_start?: string | null
           stage?: string | null
+          start?: string | null
         }
         Update: {
           artist?: string
           created_at?: string
+          end?: string | null
           event?: string
           id?: string
-          set_end?: string | null
-          set_start?: string | null
           stage?: string | null
+          start?: string | null
         }
         Relationships: [
           {
@@ -388,6 +388,7 @@ export type Database = {
           end: string | null
           hash: string | null
           id: string
+          lineup_public: boolean
           locality: string | null
           name: string
           poster_img: string | null
@@ -402,6 +403,7 @@ export type Database = {
           end?: string | null
           hash?: string | null
           id?: string
+          lineup_public?: boolean
           locality?: string | null
           name: string
           poster_img?: string | null
@@ -416,6 +418,7 @@ export type Database = {
           end?: string | null
           hash?: string | null
           id?: string
+          lineup_public?: boolean
           locality?: string | null
           name?: string
           poster_img?: string | null
