@@ -1,0 +1,99 @@
+"use server";
+
+import { getArtist } from "@/db/queries/artists";
+import { acceptRequest, createRequest, denyRequest } from "@/db/queries/requests";
+import { getUser } from "@/db/queries/users";
+import { createClient } from "@/utils/supabase/server";
+
+export async function acceptPromoterInvitation(requestId: string) {
+  const supabase = await createClient();
+
+  // Get current user and verify they are an artist
+  const user = await getUser(supabase);
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const artist = await getArtist(supabase);
+  if (!artist) {
+    throw new Error("User is not an artist");
+  }
+
+  try {
+    // Accept the request (this will automatically create the promoter-artist relationship)
+    const request = await acceptRequest(supabase, requestId);
+
+    return { success: true, request };
+  } catch (error) {
+    console.error("Error accepting promoter invitation:", error);
+    throw new Error("Failed to accept invitation");
+  }
+}
+
+export async function declinePromoterInvitation(requestId: string) {
+  const supabase = await createClient();
+
+  // Get current user and verify they are an artist
+  const user = await getUser(supabase);
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const artist = await getArtist(supabase);
+  if (!artist) {
+    throw new Error("User is not an artist");
+  }
+
+  try {
+    const request = await denyRequest(supabase, requestId);
+    return { success: true, request };
+  } catch (error) {
+    console.error("Error declining promoter invitation:", error);
+    throw new Error("Failed to decline invitation");
+  }
+}
+
+export async function requestToJoinPromoterCollective(promoterId: string, promoterUserId: string) {
+  console.log("requestToJoinPromoter called with:", { promoterId, promoterUserId });
+
+  if (!promoterId || promoterId === "undefined") {
+    throw new Error("Invalid promoter ID");
+  }
+  if (!promoterUserId || promoterUserId === "undefined") {
+    throw new Error("Invalid promoter user ID");
+  }
+
+  const supabase = await createClient();
+
+  // Get current user and verify they are an artist
+  const user = await getUser(supabase);
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const artist = await getArtist(supabase);
+  if (!artist) {
+    throw new Error("User is not an artist");
+  }
+
+  try {
+    // Create the request (artist requesting to join promoter)
+    const request = await createRequest(supabase, {
+      invited_to_entity: "artist",
+      invited_to_entity_id: artist.id,
+      invitee_entity: "promoter",
+      invitee_entity_id: promoterId,
+      invitee_user_id: promoterUserId,
+      inviter_user_id: user.id,
+      status: "pending",
+    });
+
+    return { success: true, request };
+  } catch (error) {
+    console.error("Error creating join request:", error);
+    throw new Error(error instanceof Error ? error.message : "Failed to create join request");
+  }
+}
+
+// Alias for backward compatibility
+export const requestToJoinPromoter = requestToJoinPromoterCollective;
