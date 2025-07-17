@@ -1,6 +1,6 @@
 import PromoterArtistsClient from "@/components/promoter/PromoterArtistsClient";
 import { getAllArtists, getArtistsByLocality } from "@/db/queries/artists";
-import { getArtistsByPromoterLocalities, getPromoter } from "@/db/queries/promoters";
+import { getArtistsByPromoterLocalities, getPromoter, getPromoterArtists } from "@/db/queries/promoters";
 import { getSentRequests } from "@/db/queries/requests";
 import { getUser } from "@/db/queries/users";
 import { getArtistImagesServer } from "@/lib/images/image-utils";
@@ -80,12 +80,16 @@ export default async function PromoterArtistsPage() {
   const sentRequests = await getSentRequests(supabase, user.id);
   const pendingRequests = sentRequests.filter(request => request.status === "pending");
 
+  // Get artists already in the collective
+  const collectiveArtists = await getPromoterArtists(supabase, promoter.id);
+
   return (
     <PromoterArtistsClient
       localityArtists={localityArtistsWithAvatars}
       promoterLocalityArtists={promoterLocalityArtistsWithAvatars}
       localityName={localityName}
       pendingRequests={pendingRequests}
+      collectiveArtists={collectiveArtists}
     />
   );
 }

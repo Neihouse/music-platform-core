@@ -1,12 +1,11 @@
-import { ArtistForm } from "@/components/onboarding/ArtistForm";
-import { ExternalLinksForm } from "@/components/onboarding/ExternalLinksForm";
-import { getArtist, getArtistByName } from "@/db/queries/artists";
+import { ArtistForm } from "@/components/forms/ArtistForm";
+import { ExternalLinksForm } from "@/components/forms/ExternalLinksForm";
+import { getArtistByName } from "@/db/queries/artists";
 import { getUser } from "@/db/queries/users";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
-import { Container, Stack, Divider } from "@mantine/core";
-import { updateExternalLinks } from "../actions";
 import { urlToName } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/server";
+import { Container, Divider, Stack } from "@mantine/core";
+import { redirect } from "next/navigation";
 
 
 export default async function ArtistEditPage({
@@ -31,7 +30,7 @@ export default async function ArtistEditPage({
             <Stack gap="xl">
                 <ArtistForm artist={artist} />
                 <Divider />
-                <ExternalLinksForm 
+                <ExternalLinksForm
                     initialLinks={artist.external_links || []}
                 />
             </Stack>

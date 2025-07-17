@@ -33,7 +33,7 @@ export default async function CreateEventPage() {
 						<Text c="dimmed" size="sm">
 							Only promoters can create events. Please create a promoter profile to access this feature.
 						</Text>
-						<Button component={Link} href="/onboarding" variant="light">
+						<Button component={Link} href="/settings" variant="light">
 							Create Promoter Profile
 						</Button>
 					</Stack>

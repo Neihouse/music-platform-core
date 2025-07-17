@@ -1,15 +1,22 @@
 "use client";
 
+import { ArtistWithLocation } from "@/db/queries/artists";
+import { Promoter } from "@/utils/supabase/global.types";
 import { Container, Stack, Title } from "@mantine/core";
+import { DashboardSection } from "./DashboardSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 import { EmailSection } from "./EmailSection";
 import { PasswordSection } from "./PasswordSection";
+import { UserTypeOnboarding } from "./UserTypeOnboarding";
 
 interface SettingsClientProps {
     userEmail: string;
+    showOnboarding: boolean;
+    artist: (ArtistWithLocation & { avatarUrl?: string | null }) | null;
+    promoter: (Promoter & { avatarUrl?: string | null }) | null;
 }
 
-export function SettingsClient({ userEmail }: SettingsClientProps) {
+export function SettingsClient({ userEmail, showOnboarding, artist, promoter }: SettingsClientProps) {
     return (
         <Container
             size="md"
@@ -25,6 +32,10 @@ export function SettingsClient({ userEmail }: SettingsClientProps) {
                 >
                     Settings
                 </Title>
+
+                {showOnboarding && <UserTypeOnboarding />}
+
+                {(artist || promoter) && <DashboardSection artist={artist} promoter={promoter} />}
 
                 <EmailSection userEmail={userEmail} />
                 <PasswordSection />

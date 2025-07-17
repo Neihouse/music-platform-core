@@ -1,4 +1,4 @@
-import { PromoterForm } from "@/components/onboarding/PromoterForm";
+import { PromoterForm } from "@/components/forms/PromoterForm";
 import { getUserProfile } from "@/db/queries/user";
 import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";

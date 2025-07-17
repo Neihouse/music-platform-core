@@ -1,9 +1,8 @@
-import { VenueForm } from "@/components/onboarding/VenueForm";
-import * as React from "react";
+import { VenueForm } from "@/components/forms/VenueForm";
 
-export interface IVenueOnboardingPageProps {}
+export interface IVenueOnboardingPageProps { }
 
-export default async function VenueOnboardingPage({}: IVenueOnboardingPageProps) {
+export default async function VenueOnboardingPage({ }: IVenueOnboardingPageProps) {
   return (
     <div>
       <VenueForm />

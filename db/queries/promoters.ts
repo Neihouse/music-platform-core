@@ -603,6 +603,7 @@ export async function getPromotersByLocality(
         name,
         bio,
         avatar_img,
+        user_id,
         promoters_localities (
           localities (
             id,
