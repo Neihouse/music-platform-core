@@ -594,12 +594,12 @@ function EventCard({ event, type }: { event: Event; type: "upcoming" | "past" })
           </Text>
         )}
 
-        <Button 
+        <Button
           component={Link}
           href={`/events/${event.hash}`}
-          variant="white" 
-          color="dark" 
-          size="sm" 
+          variant="white"
+          color="dark"
+          size="sm"
           mt="auto"
         >
           View Details
