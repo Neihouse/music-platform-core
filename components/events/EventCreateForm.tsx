@@ -16,18 +16,20 @@ import {
   Title,
   useMantineColorScheme
 } from "@mantine/core";
-import { Calendar } from "@mantine/dates";
+import { DateTimePicker } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconCalendar, IconMapPin, IconPhoto, IconUsers } from "@tabler/icons-react";
 import crypto from "crypto";
+import { formatInTimeZone } from "date-fns-tz";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface EventFormData {
   name: string;
-  date: Date | null;
+  start: Date | null;
+  end: Date | null;
 }
 
 export interface IEventFormProps {
@@ -53,7 +55,8 @@ export function EventForm({ }: IEventFormProps) {
   const form = useForm({
     initialValues: {
       name: "",
-      date: null as Date | null,
+      start: null as Date | null,
+      end: null as Date | null,
     },
     validate: {
       name: (value: string) =>
@@ -84,12 +87,25 @@ export function EventForm({ }: IEventFormProps) {
 
       let posterUrl: string | null = null;
 
+      // Format dates with timezone awareness
+      const formatDateForDB = (date: Date | null): string | null => {
+        if (!date) return null;
+
+        // Ensure we have a proper Date object
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return null;
+
+        // Use date-fns-tz to format with timezone
+        return formatInTimeZone(dateObj, Intl.DateTimeFormat().resolvedOptions().timeZone, "yyyy-MM-dd HH:mm:ssXXX");
+      };
+
       // Create the event
       const { data: event, error: eventError } = await supabase
         .from('events')
         .insert({
           name: values.name,
-          date: values.date ? values.date.toISOString() : null,
+          start: formatDateForDB(values.start),
+          end: formatDateForDB(values.end),
           address: selectedPlace.fullAddress || `${selectedPlace.locality.name}, ${selectedPlace.administrativeArea.name}, ${selectedPlace.country.name}`,
           locality: selectedPlace.locality.id,
           poster_img: posterUrl,
@@ -119,6 +135,41 @@ export function EventForm({ }: IEventFormProps) {
 
       // Update the local event object with the hash for later use
       event.hash = hash;
+
+      // Get the current promoter and create event-promoter relationship
+      try {
+        const { data: promoter, error: promoterError } = await supabase
+          .from("promoters")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (promoter && !promoterError) {
+          const { error: relationshipError } = await supabase
+            .from("events_promoters")
+            .insert({
+              event: event.id,
+              promoter: promoter.id,
+            });
+
+          if (relationshipError) {
+            console.error('Error linking event to promoter:', relationshipError);
+            notifications.show({
+              title: "Warning",
+              message: "Event created but couldn't link to your promoter profile. You can manage this later.",
+              color: "orange",
+            });
+          }
+        }
+      } catch (promoterError) {
+        console.error('Error linking event to promoter:', promoterError);
+        // Don't throw error here, just log it - the event was created successfully
+        notifications.show({
+          title: "Warning",
+          message: "Event created but couldn't link to your promoter profile. You can manage this later.",
+          color: "orange",
+        });
+      }
 
       // Create artist-event relationships if artists are selected
       if (selectedArtists.length > 0) {
@@ -225,7 +276,7 @@ export function EventForm({ }: IEventFormProps) {
                 }}
               />
 
-              {/* Event Date Section */}
+              {/* Event Time Section */}
               <Paper
                 p={isMobile ? "sm" : "md"}
                 bg={colorScheme === 'dark' ? 'dark.6' : 'blue.0'}
@@ -240,34 +291,37 @@ export function EventForm({ }: IEventFormProps) {
                       fw={500}
                       c={colorScheme === 'dark' ? 'white' : 'dark.8'}
                     >
-                      Date (Optional)
+                      Event Times (Optional)
                     </Text>
                   </Group>
                   <Text size="sm" c="dimmed" mb="md">
-                    Select the date when your event will take place.
+                    Select when your event starts and ends. Times will be saved in your local timezone.
                   </Text>
-                  {form.values.date && (
-                    <Group justify="space-between" mb="sm">
-                      <Text size="sm" c="blue.6">
-                        Selected: {form.values.date.toLocaleDateString()}
-                      </Text>
-                      <Text
-                        size="sm"
-                        c="red.6"
-                        style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                        onClick={() => form.setFieldValue('date', null)}
-                      >
-                        Clear
-                      </Text>
-                    </Group>
-                  )}
-                  <Group justify="center">
-                    <Calendar
+
+                  <Group grow={!isMobile} gap={isMobile ? "md" : "lg"} align="flex-start">
+                    <DateTimePicker
+                      label="Start Time"
+                      placeholder="Select start time"
+                      value={form.values.start}
+                      onChange={(value) => form.setFieldValue('start', value as Date | null)}
+                      clearable
+                      valueFormat="MMM DD, YYYY hh:mm A"
                       size={isMobile ? "sm" : "md"}
-                      getDayProps={(date) => ({
-                        selected: form.values.date ? new Date(date).toDateString() === form.values.date.toDateString() : false,
-                        onClick: () => form.setFieldValue('date', new Date(date))
-                      })}
+                      minDate={new Date(new Date().setDate(new Date().getDate() + 1))}
+                      hideWeekdays={false}
+                      weekendDays={[]}
+                    />
+                    <DateTimePicker
+                      label="End Time"
+                      placeholder="Select end time"
+                      value={form.values.end}
+                      onChange={(value) => form.setFieldValue('end', value as Date | null)}
+                      clearable
+                      valueFormat="MMM DD, YYYY hh:mm A"
+                      size={isMobile ? "sm" : "md"}
+                      minDate={form.values.start || new Date(new Date().setDate(new Date().getDate() + 1))}
+                      hideWeekdays={false}
+                      weekendDays={[]}
                     />
                   </Group>
                 </Stack>

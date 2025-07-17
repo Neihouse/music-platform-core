@@ -1,0 +1,76 @@
+.heroStack {
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .heroStack {
+        align-items: flex-start;
+    }
+}
+
+.heroGroup {
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .heroGroup {
+        justify-content: flex-start;
+    }
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+}
+
+@media (min-width: 768px) {
+    .avatar {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+@media (min-width: 992px) {
+    .avatar {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+.titleContainer {
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .titleContainer {
+        align-items: flex-start;
+    }
+}
+
+.title {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .title {
+        text-align: left;
+        font-size: 1.75rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .title {
+        font-size: 2rem;
+    }
+}
+
+.bioText {
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .bioText {
+        text-align: left;
+    }
+}
