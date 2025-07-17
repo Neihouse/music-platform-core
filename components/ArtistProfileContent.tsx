@@ -14,9 +14,9 @@ type PromoterWithImages = Pick<Database['public']['Tables']['promoters']['Row'],
   bannerUrl?: string | null;
 };
 
-type EventWithDate = Pick<Event, 'id' | 'name'> & {
+type EventWithDate = Pick<Event, 'id' | 'name' | 'hash' | 'poster_img'> & {
   date: string | null;
-  venues?: Pick<Venue, 'id' | 'name'> | null;
+  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
 };
 
 interface ArtistProfileContentProps {
@@ -45,6 +45,8 @@ const ArtistProfileContent = ({
     id: event.id,
     name: event.name,
     start: event.date, // Map date to start
+    hash: event.hash,
+    poster_img: event.poster_img,
     venues: event.venues
   }));
 
