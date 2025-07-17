@@ -140,7 +140,11 @@ export async function getPromoterEvents(
     ?.map((ep: any) => ep.events)
     .filter(Boolean)
     .filter((event: any) => event.start && new Date(event.start) >= new Date())
-    .sort((a: any, b: any) => new Date(a.start || 0).getTime() - new Date(b.start || 0).getTime()) || [];
+    .sort((a: any, b: any) => new Date(a.start || 0).getTime() - new Date(b.start || 0).getTime())
+    .map((event: any) => ({
+      ...event,
+      date: event.start  // Map start to date for compatibility with ProfileContent
+    })) || [];
 
   return events;
 }
@@ -174,7 +178,11 @@ export async function getPromoterPastEvents(
     .filter(Boolean)
     .filter((event: any) => event.start && new Date(event.start) < new Date())
     .sort((a: any, b: any) => new Date(b.start || 0).getTime() - new Date(a.start || 0).getTime())
-    .slice(0, 6) || [];
+    .slice(0, 6)
+    .map((event: any) => ({
+      ...event,
+      date: event.start  // Map start to date for compatibility with ProfileContent
+    })) || [];
 
 }
 
