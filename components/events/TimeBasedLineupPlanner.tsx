@@ -16,14 +16,12 @@ import {
 	Button,
 	Group,
 	Modal,
-	Notification,
 	Stack,
 	TextInput
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
 	IconAlertTriangle,
-	IconCheck,
 	IconDeviceFloppy,
 	IconLock,
 	IconMusic,
@@ -31,6 +29,7 @@ import {
 	IconTrash,
 	IconUsers
 } from "@tabler/icons-react";
+import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import classes from "./TimeBasedLineupPlanner.module.css";
@@ -85,29 +84,47 @@ interface TimeBasedLineupPlannerProps {
 const generateEventTimeSlots = (): TimeSlot[] => {
 	const slots: TimeSlot[] = [];
 
-	// 6 PM to 3 AM (30-minute intervals for cleaner UI)
-	for (let hour = 18; hour < 24; hour++) {
-		for (let minute = 0; minute < 60; minute += 30) {
-			slots.push({
-				time: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
-				hour,
-				minute
-			});
-		}
+	// 4 PM to 11 PM (to accommodate existing data)
+	for (let hour = 16; hour < 24; hour++) {
+		slots.push({
+			time: `${hour.toString().padStart(2, '0')}:00`,
+			hour,
+			minute: 0
+		});
 	}
 
-	// 12 AM to 3 AM
-	for (let hour = 0; hour < 4; hour++) {
-		for (let minute = 0; minute < 60; minute += 30) {
-			slots.push({
-				time: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
-				hour,
-				minute
-			});
-		}
+	// 12 AM to 1 AM (midnight to 1 AM)
+	for (let hour = 0; hour <= 1; hour++) {
+		slots.push({
+			time: `${hour.toString().padStart(2, '0')}:00`,
+			hour,
+			minute: 0
+		});
 	}
 
 	return slots;
+};
+
+// Helper function to format time slots for display
+const formatTimeSlot = (timeString: string): string => {
+	// Create a date object with the time string for today
+	const today = new Date();
+	const [hours, minutes] = timeString.split(':').map(Number);
+	const time = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+	return format(time, 'h:mm a');
+};
+
+// Helper function to get the start and end times from time slots
+const getEventTimeRange = (timeSlots: TimeSlot[]) => {
+	if (timeSlots.length === 0) return { start: '', end: '' };
+
+	const startTime = timeSlots[0].time;
+	const endTime = timeSlots[timeSlots.length - 1].time;
+
+	return {
+		start: formatTimeSlot(startTime),
+		end: formatTimeSlot(endTime)
+	};
 };
 
 export function TimeBasedLineupPlanner({ event, availableArtists, availableVenues = [] }: TimeBasedLineupPlannerProps) {
@@ -127,6 +144,9 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 	const [draggedItem, setDraggedItem] = useState<{ artist: Artist; offset: { x: number; y: number } } | null>(null);
 	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 	const [isDragging, setIsDragging] = useState(false);
+
+	// Calculate event time range from time slots
+	const eventTimeRange = useMemo(() => getEventTimeRange(timeSlots), [timeSlots]);
 
 	useEffect(() => {
 		// Create a portal container for drag clones to avoid parent transform interference
@@ -229,8 +249,8 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 		const artist = availableUnassignedArtists.find(a => a.id === result.draggableId);
 		if (artist) {
 			setIsDragging(true);
-			setDraggedItem({ 
-				artist, 
+			setDraggedItem({
+				artist,
 				offset: { x: 20, y: -10 } // Better offset positioning
 			});
 		}
@@ -298,9 +318,9 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 				});
 
 				// Replace the optimistic slot with the real one
-				setScheduledSlots(prev => 
-					prev.map(slot => 
-						slot.id === optimisticSlot.id 
+				setScheduledSlots(prev =>
+					prev.map(slot =>
+						slot.id === optimisticSlot.id
 							? { ...slot, id: assignment.id }
 							: slot
 					)
@@ -310,12 +330,12 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 				setTimeout(() => setSavingState('saved'), 2000); // Keep saved state visible
 			} catch (error) {
 				console.error("Failed to assign artist:", error);
-				
+
 				// Revert the optimistic update
 				setScheduledSlots(prev => prev.filter(slot => slot.id !== optimisticSlot.id));
 				setSavingState('error');
 				setTimeout(() => setSavingState('saved'), 3000);
-				
+
 				alert("Failed to assign artist - reverted to original position");
 			}
 		}
@@ -364,7 +384,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 		try {
 			setIsSubmittingStage(true);
 			setSavingState('saving');
-			
+
 			const newStage = await createEventStageAction(
 				event.id,
 				newStageName,
@@ -401,12 +421,12 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 			setTimeout(() => setSavingState('saved'), 2000); // Keep saved state visible
 		} catch (error) {
 			console.error("Failed to remove slot:", error);
-			
+
 			// Revert the optimistic update by restoring the slot
 			setScheduledSlots(prev => [...prev, slotToRemove]);
 			setSavingState('error');
 			setTimeout(() => setSavingState('saved'), 3000);
-			
+
 			alert("Failed to remove artist - reverted to original position");
 		}
 	};
@@ -422,7 +442,7 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 		// Find the stage and its associated slots for potential restoration
 		const stageToRemove = stages.find(stage => stage.id === stageToDelete);
 		const slotsToRemove = scheduledSlots.filter(slot => slot.stage === stageToDelete);
-		
+
 		if (!stageToRemove) return;
 
 		// Optimistically remove the stage and its slots
@@ -432,18 +452,18 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 
 		try {
 			await deleteEventStageAction(stageToDelete);
-			
+
 			setSavingState('saved');
 			setTimeout(() => setSavingState('saved'), 2000); // Keep saved state visible
 		} catch (error) {
 			console.error("Failed to delete stage:", error);
-			
+
 			// Revert the optimistic updates
 			setStages(prev => [...prev, stageToRemove]);
 			setScheduledSlots(prev => [...prev, ...slotsToRemove]);
 			setSavingState('error');
 			setTimeout(() => setSavingState('saved'), 3000);
-			
+
 			alert(`Failed to delete stage - reverted to original position: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		} finally {
 			setStageToDelete(null);
@@ -488,9 +508,9 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 					backdropFilter: 'blur(8px)',
 					transition: 'none', // Remove transitions to prevent lag
 				}}>
-					<div style={{ 
-						display: 'flex', 
-						alignItems: 'center', 
+					<div style={{
+						display: 'flex',
+						alignItems: 'center',
 						gap: '0.75rem',
 						fontSize: '0.9rem'
 					}}>
@@ -508,8 +528,8 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 							{draggedItem.artist.name.charAt(0).toUpperCase()}
 						</div>
 						<div style={{ minWidth: 0, flex: 1 }}>
-							<div style={{ 
-								fontWeight: '600', 
+							<div style={{
+								fontWeight: '600',
 								fontSize: '0.85rem',
 								whiteSpace: 'nowrap',
 								overflow: 'hidden',
@@ -518,8 +538,8 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 								{draggedItem.artist.name}
 							</div>
 							{draggedItem.artist.genre && (
-								<div style={{ 
-									color: 'rgba(255, 255, 255, 0.8)', 
+								<div style={{
+									color: 'rgba(255, 255, 255, 0.8)',
 									fontSize: '0.7rem',
 									whiteSpace: 'nowrap',
 									overflow: 'hidden',
@@ -544,281 +564,294 @@ export function TimeBasedLineupPlanner({ event, availableArtists, availableVenue
 					}
 				`
 			}} />
-			<DragDropContext 
+			<DragDropContext
 				onDragStart={handleDragStart}
 				onDragEnd={handleDragEnd}
 			>
 				{/* Clean container with no transforms to avoid positioning issues */}
-				<div style={{ 
-					transform: 'none', 
+				<div style={{
+					transform: 'none',
 					position: 'relative',
 					isolation: 'isolate'
 				}}>
-				<div className={classes.plannerContainer}>
-				{/* Event Header */}
-				<div className={classes.eventHeader}>
-					<div className={classes.eventTitle}>
-						{event.name}
-					</div>
-					{event.start && (
-						<div className={classes.eventDate}>
-							{new Date(event.start).toLocaleDateString('en-US', {
-								weekday: 'long',
-								year: 'numeric',
-								month: 'long',
-								day: 'numeric'
-							})}
-						</div>
-					)}
-				</div>
-
-				{/* Controls Bar */}
-				<div className={classes.controlsBar}>
-					<div className={classes.actionButtons}>
-						<button
-							className={classes.actionButton}
-							onClick={open}
-							disabled={isLocked}
-						>
-							<IconPlus size={16} />
-							Add Stage
-						</button>
-						<button
-							className={`${classes.actionButton} ${isLocked ? classes.lockButton : ''}`}
-							onClick={() => setIsLocked(!isLocked)}
-						>
-							<IconLock size={16} />
-							{isLocked ? 'Unlock' : 'Lock'}
-						</button>
-					</div>
-					<div className={classes.statsInfo}>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-							<IconUsers size={16} />
-							{scheduledSlots.length} scheduled
-						</div>
-						{conflicts.length > 0 && (
-							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ef4444' }}>
-								<IconAlertTriangle size={16} />
-								{conflicts.length} conflicts
+					<div className={classes.plannerContainer}>
+						{/* Event Header */}
+						<div className={classes.eventHeader}>
+							<div className={classes.eventTitle}>
+								{event.name}
 							</div>
-						)}
-						<div style={{ 
-							display: 'flex', 
-							alignItems: 'center', 
-							gap: '0.5rem', 
-							color: savingState === 'saving' ? '#f59e0b' : savingState === 'error' ? '#ef4444' : '#10b981'
-						}}>
-							<IconDeviceFloppy size={16} />
-							{savingState === 'saving' ? 'Saving...' : savingState === 'error' ? 'Save failed' : 'Auto-saved'}
+							<div className={classes.eventInfo}>
+								{event.start && (
+									<div className={classes.eventDate}>
+										{new Date(event.start).toLocaleDateString('en-US', {
+											weekday: 'long',
+											year: 'numeric',
+											month: 'long',
+											day: 'numeric'
+										})}
+									</div>
+								)}
+								<div className={classes.eventTiming}>
+									<span className={classes.timingLabel}>Event Hours:</span>
+									<span className={classes.timingStart}>{eventTimeRange.start}</span>
+									<span className={classes.timingSeparator}>→</span>
+									<span className={classes.timingEnd}>{eventTimeRange.end}</span>
+								</div>
+							</div>
 						</div>
-					</div>
-				</div>
 
-				{/* Artist Pool */}
-				<div className={classes.artistPool}>
-					<div className={classes.poolTitle}>
-						<IconMusic size={20} />
-						Available Artists ({availableUnassignedArtists.length})
-					</div>
-					<Droppable droppableId="artist-pool" direction="horizontal" isDropDisabled>
-						{(provided) => (
-							<div {...provided.droppableProps} ref={provided.innerRef}>
-								<div className={classes.artistGrid}>
-									{availableUnassignedArtists.map((artist, index) => (
-										<Draggable
-											key={artist.id}
-											draggableId={artist.id}
-											index={index}
-											isDragDisabled={isLocked}
-										>
-											{(provided, snapshot) => (
-												<div
-													ref={provided.innerRef}
-													{...provided.draggableProps}
-													{...provided.dragHandleProps}
-													className={`${classes.artistCard} ${snapshot.isDragging ? classes.artistCardDragging : ''}`}
-													style={provided.draggableProps.style}
+						{/* Controls Bar */}
+						<div className={classes.controlsBar}>
+							<div className={classes.actionButtons}>
+								<button
+									className={classes.actionButton}
+									onClick={open}
+									disabled={isLocked}
+								>
+									<IconPlus size={16} />
+									Add Stage
+								</button>
+								<button
+									className={`${classes.actionButton} ${isLocked ? classes.lockButton : ''}`}
+									onClick={() => setIsLocked(!isLocked)}
+								>
+									<IconLock size={16} />
+									{isLocked ? 'Unlock' : 'Lock'}
+								</button>
+							</div>
+							<div className={classes.statsInfo}>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+									<IconUsers size={16} />
+									{scheduledSlots.length} scheduled
+								</div>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+									<span>{timeSlots.length - 1} hours total</span>
+									<span>•</span>
+									<span>{timeSlots.length} time slots</span>
+								</div>
+								{conflicts.length > 0 && (
+									<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ef4444' }}>
+										<IconAlertTriangle size={16} />
+										{conflicts.length} conflicts
+									</div>
+								)}
+								<div style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									color: savingState === 'saving' ? '#f59e0b' : savingState === 'error' ? '#ef4444' : '#10b981'
+								}}>
+									<IconDeviceFloppy size={16} />
+									{savingState === 'saving' ? 'Saving...' : savingState === 'error' ? 'Save failed' : 'Auto-saved'}
+								</div>
+							</div>
+						</div>
+
+						{/* Artist Pool */}
+						<div className={classes.artistPool}>
+							<div className={classes.poolTitle}>
+								<IconMusic size={20} />
+								Available Artists ({availableUnassignedArtists.length})
+							</div>
+							<Droppable droppableId="artist-pool" direction="horizontal" isDropDisabled>
+								{(provided) => (
+									<div {...provided.droppableProps} ref={provided.innerRef}>
+										<div className={classes.artistGrid}>
+											{availableUnassignedArtists.map((artist, index) => (
+												<Draggable
+													key={artist.id}
+													draggableId={artist.id}
+													index={index}
+													isDragDisabled={isLocked}
 												>
-													<div className={classes.artistInfo}>
-														<div className={classes.artistName}>
-															{artist.name}
-														</div>
-														{artist.genre && (
-															<div className={classes.artistGenre}>
-																{artist.genre}
-															</div>
-														)}
-													</div>
-													{conflicts.includes(artist.id) && (
-														<div className={classes.conflictIndicator} />
-													)}
-												</div>
-											)}
-										</Draggable>
-									))}
-								</div>
-								{provided.placeholder}
-							</div>
-						)}
-					</Droppable>
-				</div>
-
-				{/* Lineup Board */}
-				<div className={classes.lineupBoard}>
-					{/* Time Column */}
-					<div className={classes.timeColumn}>
-						{timeSlots.map((timeSlot) => (
-							<div key={timeSlot.time} className={classes.timeSlot}>
-								{timeSlot.time}
-							</div>
-						))}
-					</div>
-
-					{/* Stages Container */}
-					<div className={classes.stagesContainer}>
-						{stages.map((stage) => (
-							<div key={stage.id} className={classes.stageColumn}>
-								<div className={classes.stageHeader}>
-									<span>{stage.name}</span>
-									{!isLocked && (
-										<ActionIcon
-											size="sm"
-											variant="subtle"
-											color="red"
-											onClick={() => handleDeleteStage(stage.id)}
-											style={{ marginLeft: 'auto' }}
-										>
-											<IconTrash size={14} />
-										</ActionIcon>
-									)}
-								</div>
-								<div className={classes.stageTimeline}>
-									{timeSlots.map((timeSlot) => {
-										const slot = getSlotForStageAndTime(stage.id, timeSlot.time);
-										const dropId = `${stage.id}__${timeSlot.time}`;
-
-										return (
-											<Droppable key={dropId} droppableId={dropId} isDropDisabled={isLocked}>
-												{(provided, snapshot) => (
-													<div
-														ref={provided.innerRef}
-														{...provided.droppableProps}
-														className={`${classes.stageSlot} ${snapshot.isDraggingOver ? classes.stageSlotDragOver : ''
-															} ${slot ? classes.stageSlotActive : ''}`}
-													>
-														{slot ? (
-															<div className={classes.performanceCard}>
-																<div className={classes.performanceInfo}>
-																	<Avatar
-																		src={getAvatarUrl(slot.artist)}
-																		size={40}
-																		className={classes.performanceAvatar}
-																	>
-																		{slot.artist.name.charAt(0)}
-																	</Avatar>
-																	<div className={classes.performanceDetails}>
-																		<div className={classes.performanceName}>
-																			{slot.artist.name}
-																		</div>
-																		<div className={classes.performanceTime}>
-																			{slot.startTime} - {slot.endTime}
-																		</div>
-																	</div>
-																	<ActionIcon
-																		size="sm"
-																		variant="subtle"
-																		color="white"
-																		onClick={() => handleRemoveSlot(slot.id)}
-																		disabled={isLocked}
-																	>
-																		<IconTrash size={14} />
-																	</ActionIcon>
+													{(provided, snapshot) => (
+														<div
+															ref={provided.innerRef}
+															{...provided.draggableProps}
+															{...provided.dragHandleProps}
+															className={`${classes.artistCard} ${snapshot.isDragging ? classes.artistCardDragging : ''}`}
+															style={provided.draggableProps.style}
+														>
+															<div className={classes.artistInfo}>
+																<div className={classes.artistName}>
+																	{artist.name}
 																</div>
-																{conflicts.includes(slot.artist.id) && (
-																	<div className={classes.conflictIndicator} />
+																{artist.genre && (
+																	<div className={classes.artistGenre}>
+																		{artist.genre}
+																	</div>
 																)}
 															</div>
-														) : (
-															<div className={classes.emptySlot}>
-																Drop artist here
+															{conflicts.includes(artist.id) && (
+																<div className={classes.conflictIndicator} />
+															)}
+														</div>
+													)}
+												</Draggable>
+											))}
+										</div>
+										{provided.placeholder}
+									</div>
+								)}
+							</Droppable>
+						</div>
+
+						{/* Lineup Board */}
+						<div className={classes.lineupBoard}>
+							{/* Time Column */}
+							<div className={classes.timeColumn}>
+								{timeSlots.map((timeSlot) => (
+									<div key={timeSlot.time} className={classes.timeSlot}>
+										{timeSlot.time}
+									</div>
+								))}
+							</div>
+
+							{/* Stages Container */}
+							<div className={classes.stagesContainer}>
+								{stages.map((stage) => (
+									<div key={stage.id} className={classes.stageColumn}>
+										<div className={classes.stageHeader}>
+											<span>{stage.name}</span>
+											{!isLocked && (
+												<ActionIcon
+													size="sm"
+													variant="subtle"
+													color="red"
+													onClick={() => handleDeleteStage(stage.id)}
+													style={{ marginLeft: 'auto' }}
+												>
+													<IconTrash size={14} />
+												</ActionIcon>
+											)}
+										</div>
+										<div className={classes.stageTimeline}>
+											{timeSlots.map((timeSlot) => {
+												const slot = getSlotForStageAndTime(stage.id, timeSlot.time);
+												const dropId = `${stage.id}__${timeSlot.time}`;
+
+												return (
+													<Droppable key={dropId} droppableId={dropId} isDropDisabled={isLocked}>
+														{(provided, snapshot) => (
+															<div
+																ref={provided.innerRef}
+																{...provided.droppableProps}
+																className={`${classes.stageSlot} ${snapshot.isDraggingOver ? classes.stageSlotDragOver : ''
+																	} ${slot ? classes.stageSlotActive : ''}`}
+															>
+																{slot ? (
+																	<div className={classes.performanceCard}>
+																		<div className={classes.performanceInfo}>
+																			<Avatar
+																				src={getAvatarUrl(slot.artist)}
+																				size={40}
+																				className={classes.performanceAvatar}
+																			>
+																				{slot.artist.name.charAt(0)}
+																			</Avatar>
+																			<div className={classes.performanceDetails}>
+																				<div className={classes.performanceName}>
+																					{slot.artist.name}
+																				</div>
+																				<div className={classes.performanceTime}>
+																					{slot.startTime} - {slot.endTime}
+																				</div>
+																			</div>
+																			<ActionIcon
+																				size="sm"
+																				variant="subtle"
+																				color="white"
+																				onClick={() => handleRemoveSlot(slot.id)}
+																				disabled={isLocked}
+																			>
+																				<IconTrash size={14} />
+																			</ActionIcon>
+																		</div>
+																		{conflicts.includes(slot.artist.id) && (
+																			<div className={classes.conflictIndicator} />
+																		)}
+																	</div>
+																) : (
+																	<div className={classes.emptySlot}>
+																		Drop artist here
+																	</div>
+																)}
+																{provided.placeholder}
 															</div>
 														)}
-														{provided.placeholder}
-													</div>
-												)}
-											</Droppable>
-										);
-									})}
+													</Droppable>
+												);
+											})}
+										</div>
+									</div>
+								))}
+
+								{/* Add Stage Button */}
+								<div className={classes.addStageButton} onClick={open}>
+									<IconPlus size={24} />
+									<div>Add New Stage</div>
 								</div>
 							</div>
-						))}
-
-						{/* Add Stage Button */}
-						<div className={classes.addStageButton} onClick={open}>
-							<IconPlus size={24} />
-							<div>Add New Stage</div>
 						</div>
+
+						{/* Add Stage Modal */}
+						<Modal
+							opened={opened}
+							onClose={close}
+							title="Add New Stage"
+							classNames={{ content: classes.modal, title: classes.modalTitle }}
+							centered
+						>
+							<Stack gap="md">
+								<TextInput
+									label="Stage Name"
+									placeholder="Enter stage name"
+									value={newStageName}
+									onChange={(e) => setNewStageName(e.currentTarget.value)}
+									data-autofocus
+								/>
+
+								<Group justify="flex-end">
+									<Button variant="outline" onClick={close} disabled={isSubmittingStage}>
+										Cancel
+									</Button>
+									<Button
+										onClick={handleAddStage}
+										disabled={!newStageName.trim() || isSubmittingStage}
+										loading={isSubmittingStage}
+									>
+										Add Stage
+									</Button>
+								</Group>
+							</Stack>
+						</Modal>
+
+						{/* Delete Stage Confirmation Modal */}
+						<Modal
+							opened={deleteConfirmOpened}
+							onClose={closeDeleteConfirm}
+							title="Delete Stage"
+							centered
+							size="sm"
+						>
+							<Stack gap="md">
+								<div style={{ textAlign: 'center', color: 'var(--mantine-color-text)' }}>
+									Are you sure you want to delete this stage? This will also remove all artist assignments for this stage. This action cannot be undone.
+								</div>
+
+								<Group justify="center" gap="md">
+									<Button variant="outline" onClick={closeDeleteConfirm}>
+										Cancel
+									</Button>
+									<Button color="red" onClick={confirmDeleteStage}>
+										Delete Stage
+									</Button>
+								</Group>
+							</Stack>
+						</Modal>
 					</div>
 				</div>
-
-				{/* Add Stage Modal */}
-				<Modal
-					opened={opened}
-					onClose={close}
-					title="Add New Stage"
-					classNames={{ content: classes.modal, title: classes.modalTitle }}
-					centered
-				>
-					<Stack gap="md">
-						<TextInput
-							label="Stage Name"
-							placeholder="Enter stage name"
-							value={newStageName}
-							onChange={(e) => setNewStageName(e.currentTarget.value)}
-							data-autofocus
-						/>
-
-						<Group justify="flex-end">
-							<Button variant="outline" onClick={close} disabled={isSubmittingStage}>
-								Cancel
-							</Button>
-							<Button
-								onClick={handleAddStage}
-								disabled={!newStageName.trim() || isSubmittingStage}
-								loading={isSubmittingStage}
-							>
-								Add Stage
-							</Button>
-						</Group>
-					</Stack>
-				</Modal>
-
-				{/* Delete Stage Confirmation Modal */}
-				<Modal
-					opened={deleteConfirmOpened}
-					onClose={closeDeleteConfirm}
-					title="Delete Stage"
-					centered
-					size="sm"
-				>
-					<Stack gap="md">
-						<div style={{ textAlign: 'center', color: 'var(--mantine-color-text)' }}>
-							Are you sure you want to delete this stage? This will also remove all artist assignments for this stage. This action cannot be undone.
-						</div>
-
-						<Group justify="center" gap="md">
-							<Button variant="outline" onClick={closeDeleteConfirm}>
-								Cancel
-							</Button>
-							<Button color="red" onClick={confirmDeleteStage}>
-								Delete Stage
-							</Button>
-						</Group>
-					</Stack>
-				</Modal>
-				</div>
-				</div>
-		</DragDropContext>
+			</DragDropContext>
 		</>
 	);
 }
