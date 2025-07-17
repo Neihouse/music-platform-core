@@ -1,7 +1,7 @@
 "use server";
 
 import { getPromoter } from "@/db/queries/promoters";
-import { cancelRequest, createRequest, getRequestBetweenUsers } from "@/db/queries/requests";
+import { cancelRequest, createRequest } from "@/db/queries/requests";
 import { getUser } from "@/db/queries/users";
 import { createClient } from "@/utils/supabase/server";
 
@@ -62,34 +62,5 @@ export async function cancelInviteAction(requestId: string) {
   } catch (error) {
     console.error("Error cancelling invite request:", error);
     throw new Error("Failed to cancel invite");
-  }
-}
-
-export async function checkExistingInvite(artistUserId: string) {
-  const supabase = await createClient();
-
-  // Get current user and verify they are a promoter
-  const user = await getUser(supabase);
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
-
-  const promoter = await getPromoter(supabase);
-  if (!promoter) {
-    throw new Error("User is not a promoter");
-  }
-
-  try {
-    return await getRequestBetweenUsers(
-      supabase,
-      user.id,
-      artistUserId,
-      "promoter",
-      promoter.id
-    );
-
-  } catch (error) {
-    console.error("Error checking existing invite:", error);
-    return null;
   }
 }

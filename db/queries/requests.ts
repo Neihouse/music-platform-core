@@ -1,6 +1,6 @@
 "use server";
-import { TypedClient } from "@/utils/supabase/global.types";
 import { Database } from "@/utils/supabase/database.types";
+import { TypedClient } from "@/utils/supabase/global.types";
 import { createPromoterArtistRelationship } from "./promoters_artists";
 
 export async function createRequest(
@@ -182,9 +182,9 @@ export async function getReceivedPromoterInvitations(
 
   // Combine the data
   return requests.map(request => ({
-      ...request,
-      promoters: promoters?.find(promoter => promoter.id === request.invited_to_entity_id) || null
-    }));
+    ...request,
+    promoters: promoters?.find(promoter => promoter.id === request.invited_to_entity_id) || null
+  }));
 
 }
 
@@ -195,6 +195,7 @@ export async function getRequestBetweenUsers(
   invitedToEntity: string,
   invitedToEntityId: string
 ) {
+  console.log("props:", inviterUserId, inviteeUserId, invitedToEntity, invitedToEntityId);
   const { data: request, error } = await supabase
     .from("requests")
     .select("*")

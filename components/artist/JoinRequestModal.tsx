@@ -1,10 +1,10 @@
 "use client";
 
-import { requestToJoinPromoter } from "@/app/artist/actions";
 import { Alert, Avatar, Button, Group, Loader, Modal, Paper, Stack, Text, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconInfoCircle, IconUserPlus, IconX } from "@tabler/icons-react";
 import { useState } from "react";
+import { requestToJoinPromoter } from "@/app/artist/actions";
 
 type PromoterData = {
     id: string;
@@ -27,6 +27,7 @@ const JoinRequestModal = ({ promoter, opened, onClose }: JoinRequestModalProps) 
     const handleSubmitRequest = async () => {
         try {
             setIsLoading(true);
+            console.log("Submitting join request for promoter:", promoter.id, promoter.user_id);
             await requestToJoinPromoter(promoter.id, promoter.user_id);
 
             setRequestSent(true);
