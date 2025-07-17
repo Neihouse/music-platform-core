@@ -1,6 +1,7 @@
 "use client";
 
 import { ArtistWithLocation } from "@/db/queries/artists";
+import { Promoter } from "@/utils/supabase/global.types";
 import { Container, Stack, Title } from "@mantine/core";
 import { DashboardSection } from "./DashboardSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
@@ -11,8 +12,8 @@ import { UserTypeOnboarding } from "./UserTypeOnboarding";
 interface SettingsClientProps {
     userEmail: string;
     showOnboarding: boolean;
-    artist: ArtistWithLocation | null;
-    promoter: any | null; // TODO: Add proper promoter type
+    artist: (ArtistWithLocation & { avatarUrl?: string | null }) | null;
+    promoter: (Promoter & { avatarUrl?: string | null }) | null;
 }
 
 export function SettingsClient({ userEmail, showOnboarding, artist, promoter }: SettingsClientProps) {

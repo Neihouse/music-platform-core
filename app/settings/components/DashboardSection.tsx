@@ -1,6 +1,7 @@
 "use client";
 
 import { ArtistWithLocation } from "@/db/queries/artists";
+import { Promoter } from "@/utils/supabase/global.types";
 import {
     Avatar,
     Button,
@@ -18,8 +19,8 @@ import {
 } from "@tabler/icons-react";
 
 interface DashboardSectionProps {
-    artist: ArtistWithLocation | null;
-    promoter: (any & { avatarUrl?: string | null }) | null; // TODO: Add proper promoter type
+    artist: (ArtistWithLocation & { avatarUrl?: string | null }) | null;
+    promoter: (Promoter & { avatarUrl?: string | null }) | null;
 }
 
 export function DashboardSection({ artist, promoter }: DashboardSectionProps) {
@@ -73,9 +74,18 @@ export function DashboardSection({ artist, promoter }: DashboardSectionProps) {
                 </Group>
 
                 {entityName && (
-                    <Text size="sm" c="dimmed">
-                        Logged in as: <strong>{entityName}</strong>
-                    </Text>
+                    <Group gap="sm" align="center">
+                        <Avatar
+                            src={artist ? artist.avatarUrl : promoter?.avatarUrl}
+                            size={40}
+                            radius="xl"
+                        >
+                            <IconUser size={20} />
+                        </Avatar>
+                        <Text size="sm" c="dimmed">
+                            Logged in as: <strong>{entityName}</strong>
+                        </Text>
+                    </Group>
                 )}
             </Stack>
         </Paper>
