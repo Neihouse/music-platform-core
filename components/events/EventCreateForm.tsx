@@ -120,6 +120,41 @@ export function EventForm({ }: IEventFormProps) {
       // Update the local event object with the hash for later use
       event.hash = hash;
 
+      // Get the current promoter and create event-promoter relationship
+      try {
+        const { data: promoter, error: promoterError } = await supabase
+          .from("promoters")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (promoter && !promoterError) {
+          const { error: relationshipError } = await supabase
+            .from("events_promoters")
+            .insert({
+              event: event.id,
+              promoter: promoter.id,
+            });
+
+          if (relationshipError) {
+            console.error('Error linking event to promoter:', relationshipError);
+            notifications.show({
+              title: "Warning",
+              message: "Event created but couldn't link to your promoter profile. You can manage this later.",
+              color: "orange",
+            });
+          }
+        }
+      } catch (promoterError) {
+        console.error('Error linking event to promoter:', promoterError);
+        // Don't throw error here, just log it - the event was created successfully
+        notifications.show({
+          title: "Warning",
+          message: "Event created but couldn't link to your promoter profile. You can manage this later.",
+          color: "orange",
+        });
+      }
+
       // Create artist-event relationships if artists are selected
       if (selectedArtists.length > 0) {
         const artistEventData = selectedArtists.map(artist => ({
