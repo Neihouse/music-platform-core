@@ -82,7 +82,7 @@ export function Signup(props: PaperProps) {
 
       // Signup successful
       if (data.session) {
-        router.push("/onboarding");
+        router.push("/settings");
         router.refresh();
       }
     } catch (err) {
