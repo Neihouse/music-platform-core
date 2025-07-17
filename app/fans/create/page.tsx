@@ -1,9 +1,8 @@
-import { FanForm } from "@/components/onboarding/FanForm";
-import * as React from "react";
+import { FanForm } from "@/components/forms/FanForm";
 
-export interface IFanOnboardingPageProps {}
+export interface IFanOnboardingPageProps { }
 
-export default async function FanOnboardingPage({}: IFanOnboardingPageProps) {
+export default async function FanOnboardingPage({ }: IFanOnboardingPageProps) {
   return (
     <div>
       <FanForm />

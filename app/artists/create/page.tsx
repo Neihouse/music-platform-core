@@ -1,4 +1,4 @@
-import { ArtistForm } from "@/components/onboarding/ArtistForm";
+import { ArtistForm } from "@/components/forms/ArtistForm";
 import { getArtist } from "@/db/queries/artists";
 import { canCreateProfile, getUserProfile } from "@/db/queries/user";
 import { getUser } from "@/db/queries/users";
