@@ -1,12 +1,12 @@
 "use client";
 
+import { ArtistWithLocation } from "@/db/queries/artists";
 import { Container, Stack, Title } from "@mantine/core";
+import { DashboardSection } from "./DashboardSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 import { EmailSection } from "./EmailSection";
 import { PasswordSection } from "./PasswordSection";
 import { UserTypeOnboarding } from "./UserTypeOnboarding";
-import { DashboardSection } from "./DashboardSection";
-import { ArtistWithLocation } from "@/db/queries/artists";
 
 interface SettingsClientProps {
     userEmail: string;
@@ -33,9 +33,9 @@ export function SettingsClient({ userEmail, showOnboarding, artist, promoter }: 
                 </Title>
 
                 {showOnboarding && <UserTypeOnboarding />}
-                
+
                 {(artist || promoter) && <DashboardSection artist={artist} promoter={promoter} />}
-                
+
                 <EmailSection userEmail={userEmail} />
                 <PasswordSection />
                 <DeleteAccountSection />
