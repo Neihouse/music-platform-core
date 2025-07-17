@@ -2,8 +2,9 @@ import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
 import { Database } from "@/utils/supabase/database.types";
 import { Artist, Event, StoredLocality, Venue } from "@/utils/supabase/global.types";
 import { Container } from "@mantine/core";
+import EventsGrid from "../events/EventsGrid";
 import { ProfileEntity, ProfileTab } from "./ProfileContent";
-import { CollaboratorsGrid, EventsList, MusicGrid } from "./index";
+import { CollaboratorsGrid, MusicGrid } from "./index";
 
 // Define types using database types and utility types
 type EventWithVenue = Pick<Event, 'id' | 'name' | 'start'> & {
@@ -79,7 +80,7 @@ export function transformArtistData(
     {
       key: "events",
       label: "Events",
-      content: <EventsList events={events} artistName={artist.name} />
+      content: <EventsGrid events={events} artistName={artist.name} />
     },
     {
       key: "collaborations",
