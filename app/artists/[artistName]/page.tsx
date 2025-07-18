@@ -49,10 +49,14 @@ export default async function ArtistPage({
   // Get artist events
   const events = artist.id ? await getArtistEvents(supabase, artist.id) : [];
 
-  // Map events to match the expected interface (start -> date)
+  // Map events to match the expected EventWithDate interface
   const eventsWithDate = events.map(event => ({
-    ...event,
-    date: event.start,
+    id: event.id,
+    name: event.name,
+    hash: event.hash,
+    poster_img: event.poster_img,
+    date: event.start, // Map start to date for compatibility
+    venues: event.venues,
   }));
 
   // Create StoredLocality from the first locality (if available)

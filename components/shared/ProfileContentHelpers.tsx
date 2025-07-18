@@ -1,37 +1,20 @@
 import { ArtistTrackWithPlayCount } from "@/db/queries/tracks";
 import { Database } from "@/utils/supabase/database.types";
-import { Artist, Event, StoredLocality, Venue } from "@/utils/supabase/global.types";
+import { 
+  Artist, 
+  Event, 
+  StoredLocality, 
+  Venue,
+  EventWithVenue,
+  EventWithDate,
+  ArtistWithImages,
+  PromoterWithImages,
+  PopularTrack
+} from "@/utils/supabase/global.types";
 import { Container } from "@mantine/core";
+import EventsGrid from "../events/EventsGrid";
 import { ProfileEntity, ProfileTab } from "./ProfileContent";
-import { CollaboratorsGrid, EventsList, MusicGrid } from "./index";
-
-// Define types using database types and utility types
-type EventWithVenue = Pick<Event, 'id' | 'name' | 'start'> & {
-  venues?: Pick<Venue, 'id' | 'name'> | null;
-};
-
-// For events that use 'date' instead of 'start' (legacy interface compatibility)
-type EventWithDate = Pick<Event, 'id' | 'name'> & {
-  date: string | null;
-  venues?: Pick<Venue, 'id' | 'name'> | null;
-};
-
-type PromoterWithImages = Pick<Database['public']['Tables']['promoters']['Row'], 'id' | 'name' | 'bio'> & {
-  avatarUrl?: string | null;
-  bannerUrl?: string | null;
-};
-
-type ArtistWithImages = Pick<Artist, 'id' | 'name' | 'bio'> & {
-  avatarUrl?: string | null;
-  bannerUrl?: string | null;
-};
-
-type PopularTrack = {
-  id: string;
-  title: string;
-  plays: number;
-  artist?: Pick<Artist, 'id' | 'name'>;
-};
+import { CollaboratorsGrid, MusicGrid } from "./index";
 
 /**
  * Transform artist data for ProfileContent component
@@ -79,7 +62,7 @@ export function transformArtistData(
     {
       key: "events",
       label: "Events",
-      content: <EventsList events={events} artistName={artist.name} />
+      content: <EventsGrid events={events} />
     },
     {
       key: "collaborations",
@@ -137,11 +120,17 @@ export function transformPromoterData(
       id: event.id,
       name: event.name,
       start: event.date,
-      venues: event.venues
+      hash: event.hash,
+      poster_img: event.poster_img,
+      venues: event.venues ? {
+        id: event.venues.id,
+        name: event.venues.name,
+        address: event.venues.address || null
+      } : null
     }));
 
-  const upcomingEventsForList = mapToEventWithVenue(upcomingEvents);
-  const allEventsForList = mapToEventWithVenue(allEvents);
+  const upcomingEventsForGrid = mapToEventWithVenue(upcomingEvents);
+  const allEventsForGrid = mapToEventWithVenue(allEvents);
 
   // Define tabs content
   const tabs: ProfileTab[] = [
@@ -156,11 +145,7 @@ export function transformPromoterData(
             maxItems={8}
           />
           <div style={{ marginTop: '2rem' }}>
-            <EventsList
-              events={upcomingEventsForList}
-              title="Upcoming Events"
-              emptyStateMessage="No upcoming events scheduled."
-            />
+            <EventsGrid events={upcomingEventsForGrid} />
           </div>
         </Container>
       )
@@ -168,7 +153,7 @@ export function transformPromoterData(
     {
       key: "events",
       label: "Events",
-      content: <EventsList events={allEventsForList} title="All Events" />
+      content: <EventsGrid events={allEventsForGrid} />
     },
     {
       key: "artists",

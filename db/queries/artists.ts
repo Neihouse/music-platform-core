@@ -551,9 +551,12 @@ export async function getArtistEvents(
         id,
         name,
         start,
+        hash,
+        poster_img,
         venues (
           id,
-          name
+          name,
+          address
         )
       )
     `)

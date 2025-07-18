@@ -5,24 +5,15 @@ import {
   transformPromoterData,
   transformPromoterLocalities
 } from "@/components/shared";
-import { Database } from "@/utils/supabase/database.types";
-import { AdministrativeArea, Artist, Country, Event, Locality, Promoter, Venue } from "@/utils/supabase/global.types";
-
-// Use database-first types as per TYPE_USAGE_GUIDE.md
-type EventWithDate = Pick<Event, 'id' | 'name'> & {
-  date: string | null;
-  venues?: Pick<Venue, 'id' | 'name'> | null;
-};
-
-type ArtistWithImages = Pick<Artist, 'id' | 'name' | 'bio'> & {
-  avatarUrl?: string | null;
-  bannerUrl?: string | null;
-};
-
-type PopularTrack = Pick<Database['public']['Tables']['tracks']['Row'], 'id' | 'title'> & {
-  plays: number;
-  artist?: Pick<Artist, 'id' | 'name'>;
-};
+import { 
+  AdministrativeArea, 
+  Country, 
+  Locality, 
+  Promoter,
+  EventWithDate,
+  ArtistWithImages,
+  PopularTrack
+} from "@/utils/supabase/global.types";
 
 // Use database-first types for locality relationships as per TYPE_USAGE_GUIDE.md
 type PromoterLocalityWithRelations = {
