@@ -8,7 +8,7 @@ import { getAvatarUrlServer, getPromoterImagesServer } from "@/lib/images/image-
 import { nameToUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { Avatar, Badge, Button, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
-import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconMusic, IconSparkles, IconTrendingUp, IconUser, IconUserPlus, IconUsers } from "@tabler/icons-react";
+import { IconArrowLeft, IconCalendarEvent, IconMusic, IconSparkles, IconTrendingUp, IconUser, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import styles from "./promoter-dashboard.module.css";
@@ -602,14 +602,7 @@ export default async function PromoterDashboardPage() {
           >
             Add Artists
           </Button>
-          <Button
-            variant="light"
-            leftSection={<IconChartBar size={16} />}
-            w={{ base: "100%", sm: "auto" }}
-            maw={{ base: "none", sm: 200 }}
-          >
-            View Analytics
-          </Button>
+
         </Group>
       </ThemedCard>
     </Container>
