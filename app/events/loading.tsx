@@ -31,11 +31,7 @@ function EventCardSkeleton() {
           {/* Date badge skeleton */}
           <Skeleton
             height={20}
-<<<<<<< HEAD
             width={30}
-=======
-            width={40}
->>>>>>> 4d2f55d14721e1661d6ee09553f46d4e3598bd1c
             radius="sm"
             style={{
               position: 'absolute',
