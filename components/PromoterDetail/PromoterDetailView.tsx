@@ -1,10 +1,9 @@
 "use client";
 
-import { ExternalLinksDisplay } from "@/components/ExternalLinksDisplay";
+import { ArtistCard as SharedArtistCard } from "@/components/shared/ArtistCard";
 import StyledTitle from "@/components/StyledTitle";
 import { nameToUrl } from "@/lib/utils";
-import { Database } from "@/utils/supabase/database.types";
-import { Artist, Event, Promoter, PopularTrack } from "@/utils/supabase/global.types";
+import { Artist, Event, PopularTrack, Promoter } from "@/utils/supabase/global.types";
 import {
   ActionIcon,
   Avatar,
@@ -38,6 +37,7 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type PopulatedPromoterLocality = {
@@ -84,6 +84,7 @@ export function PromoterDetailView({
   bannerUrl,
 }: PromoterDetailViewProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const router = useRouter();
 
   // Load the promoter's selected font - simplified approach
   useEffect(() => {
@@ -438,31 +439,92 @@ export function PromoterDetailView({
 
         <Tabs.Panel value="artists">
           <Stack gap="xl">
-            <Group justify="space-between">
-              <Title order={2}>Artist Collective</Title>
-              <Badge size="lg" variant="light" color="purple">
-                {artists.length} Artists
+            <Group justify="space-between" align="center">
+              <Title order={2} style={{
+                background: 'linear-gradient(45deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-6))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>
+                Artist Collective
+              </Title>
+              <Badge
+                size="lg"
+                variant="gradient"
+                gradient={{ from: 'blue', to: 'cyan' }}
+                style={{
+                  fontWeight: 700,
+                  fontSize: '0.75rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}
+              >
+                {artists.length} {artists.length === 1 ? 'Artist' : 'Artists'}
               </Badge>
             </Group>
 
             {artists.length > 0 ? (
-              <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+              <SimpleGrid
+                cols={{ base: 1, xs: 2, sm: 2, md: 3, lg: 4 }}
+                spacing={{ base: 'md', sm: 'lg' }}
+                verticalSpacing={{ base: 'lg', sm: 'xl' }}
+              >
                 {artists.map((artist) => (
-                  <ArtistCard key={artist.id} artist={artist} />
+                  <SharedArtistCard
+                    key={artist.id}
+                    artist={{
+                      id: artist.id,
+                      name: artist.name,
+                      bio: artist.bio,
+                      avatarUrl: artist.avatar_img,
+                      bannerUrl: artist.banner_img,
+                      // Add any additional computed fields
+                      // You could add these from additional queries or calculations:
+                      // followerCount: artist.follower_count,
+                      // trackCount: artist.track_count,
+                      // genre: artist.genre,
+                    }}
+                    size="md"
+                    onClick={() => {
+                      // Navigate to artist profile using Next.js router
+                      router.push(`/artists/${nameToUrl(artist.name)}`);
+                    }}
+                    onFollow={() => {
+                      console.log('Follow artist:', artist.name);
+                      // TODO: Implement follow functionality
+                      // This could make an API call to follow/unfollow the artist
+                    }}
+                    onFavorite={() => {
+                      console.log('Favorite artist:', artist.name);
+                      // TODO: Implement favorite functionality
+                      // This could add the artist to user's favorites
+                    }}
+                  />
                 ))}
               </SimpleGrid>
             ) : (
-              <Center py="xl">
-                <Stack align="center" gap="md">
-                  <ThemeIcon size={80} radius="xl" variant="light" color="gray">
+              <Center py={{ base: 'xl', sm: '80px' }}>
+                <Stack align="center" gap="lg" maw={400}>
+                  <ThemeIcon
+                    size={80}
+                    radius="xl"
+                    variant="gradient"
+                    gradient={{ from: 'blue', to: 'cyan' }}
+                    style={{
+                      opacity: 0.8,
+                      boxShadow: '0 8px 32px rgba(34, 139, 230, 0.3)'
+                    }}
+                  >
                     <IconUsers size={40} />
                   </ThemeIcon>
-                  <Text size="xl" fw={600} c="dimmed">
-                    No artists yet
-                  </Text>
-                  <Text c="dimmed" ta="center">
-                    This collective is still building their roster. Check back soon!
-                  </Text>
+                  <Stack gap="sm" align="center">
+                    <Text size="xl" fw={600} c="dimmed" ta="center">
+                      No artists yet
+                    </Text>
+                    <Text size="sm" c="dimmed" ta="center" lineClamp={2}>
+                      This collective is still building their roster. Check back soon to discover amazing artists!
+                    </Text>
+                  </Stack>
                 </Stack>
               </Center>
             )}
@@ -597,58 +659,6 @@ function EventCard({ event, type }: { event: Event; type: "upcoming" | "past" })
           mt="auto"
         >
           View Details
-        </Button>
-      </Stack>
-    </Card>
-  );
-}
-
-function ArtistCard({ artist }: { artist: Artist }) {
-  return (
-    <Card
-      p="lg"
-      radius="xl"
-      withBorder
-      style={{
-        transition: "transform 0.2s ease",
-        cursor: "pointer",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-4px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-      }}
-    >
-      <Stack gap="md" align="center">
-        <Avatar
-          src={artist.avatar_img}
-          size={80}
-          radius="xl"
-          style={{
-            border: "3px solid var(--mantine-color-blue-3)",
-          }}
-        >
-          {artist.name?.[0]}
-        </Avatar>
-
-        <Stack gap="xs" align="center">
-          <Text fw={700} size="lg" ta="center">
-            {artist.name}
-          </Text>
-          {artist.bio && (
-            <Text size="sm" c="dimmed" ta="center" lineClamp={2}>
-              {artist.bio}
-            </Text>
-          )}
-        </Stack>
-
-        {artist.external_links && artist.external_links.length > 0 && (
-          <ExternalLinksDisplay links={artist.external_links} />
-        )}
-
-        <Button variant="light" size="sm" fullWidth>
-          View Profile
         </Button>
       </Stack>
     </Card>

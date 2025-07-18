@@ -1,207 +1,382 @@
+/**
+ * ArtistCard Component
+ * 
+ * A reusable artist card component that follows the same design patterns as MusicCard and EventCard.
+ * Supports both grid and card layouts with responsive sizing and interactive elements.
+ * 
+ * Features:
+ * - Two layout modes: 'grid' (compact) and card layouts ('sm', 'md', 'lg')
+ * - Hover animations and interactive overlays
+ * - Follow/favorite functionality
+ * - Artist avatar and banner image support
+ * - Follower count and track count display
+ * - Gradient accents and modern styling
+ * - TypeScript types based on database-first approach using global.types
+ * 
+ * Design Patterns:
+ * - Grid layout: Square aspect ratio with overlay actions, similar to MusicCard grid
+ * - Card layout: Vertical card with header, content, and actions, similar to EventCard
+ * - Hover effects: Transform and shadow animations consistent with other cards
+ * - Color scheme: Blue/cyan gradient theme for artist-specific branding
+ * 
+ * @example
+ * // Basic usage
+ * <ArtistCard
+ *   artist={{
+ *     id: '1',
+ *     name: 'John Doe',
+ *     bio: 'Electronic music producer',
+ *     avatarUrl: '/avatar.jpg',
+ *     followerCount: 1250,
+ *     trackCount: 12
+ *   }}
+ *   onFollow={() => console.log('Following artist')}
+ *   onClick={() => console.log('Navigate to artist')}
+ * />
+ * 
+ * // Grid layout for compact displays
+ * <ArtistCard
+ *   artist={artistData}
+ *   size="grid"
+ *   onFollow={handleFollow}
+ * />
+ */
 "use client";
 
+import { getBannerUrl } from "@/lib/images/image-utils-client";
+import { ArtistWithImages } from "@/utils/supabase/global.types";
 import {
+  ActionIcon,
+  Avatar,
+  Badge,
   Box,
   Card,
-  Image,
-  Text,
   Group,
-  Badge,
+  Image,
   Stack,
+  Text,
   rem,
-  Avatar,
-  Button,
 } from "@mantine/core";
-import { IconUsers, IconCalendarEvent } from "@tabler/icons-react";
-import { getAvatarUrl, getBannerUrl } from "@/lib/images/image-utils-client";
-import { StyledTitle } from "@/components/StyledTitle";
+import { IconDots, IconHeart, IconMicrophone, IconUser, IconUsers } from "@tabler/icons-react";
 
 interface ArtistCardProps {
-  id: string;
-  name: string;
-  bio?: string;
-  avatarUrl?: string;
-  bannerUrl?: string;
-  genre?: string;
-  followerCount?: number;
-  location?: string;
-  upcomingShows?: number;
-  isVerified?: boolean;
-  selectedFont?: string;
-  size?: 'sm' | 'md' | 'lg';
+  artist: Pick<ArtistWithImages, 'id' | 'name' | 'bio'> & {
+    avatarUrl?: string | null;
+    bannerUrl?: string | null;
+    followerCount?: number;
+    trackCount?: number;
+    isFollowing?: boolean;
+    genre?: string;
+  };
+  size?: 'sm' | 'md' | 'lg' | 'grid';
   onClick?: () => void;
   onFollow?: () => void;
+  onFavorite?: () => void;
 }
 
 export function ArtistCard({
-  id,
-  name,
-  bio,
-  avatarUrl,
-  bannerUrl,
-  genre,
-  followerCount,
-  location,
-  upcomingShows,
-  isVerified = false,
-  selectedFont,
+  artist,
   size = 'md',
   onClick,
   onFollow,
+  onFavorite,
 }: ArtistCardProps) {
   const cardSize = {
-    sm: { minWidth: 200, maxWidth: 240, height: 260 },
-    md: { minWidth: 240, maxWidth: 280, height: 300 },
-    lg: { minWidth: 280, maxWidth: 320, height: 340 }
-  }[size];
+    sm: { minWidth: 160, maxWidth: 180, height: 240 },
+    md: { minWidth: 180, maxWidth: 200, height: 260 },
+    lg: { minWidth: 200, maxWidth: 220, height: 280 },
+    grid: { width: '100%', height: 'auto' }
+  }[size] || { minWidth: 180, maxWidth: 200, height: 260 };
 
-  const bannerImageUrl = bannerUrl ? getBannerUrl(bannerUrl) : null;
-  const avatarImageUrl = avatarUrl ? getAvatarUrl(avatarUrl) : null;
+  const artistImageUrl = artist.avatarUrl ? getBannerUrl(artist.avatarUrl) : null;
+  const bannerImageUrl = artist.bannerUrl ? getBannerUrl(artist.bannerUrl) : null;
 
-  return (
+  return size === 'grid' ? (
+    // Grid layout - mobile-first responsive design
+    <Box
+      style={{
+        cursor: 'pointer',
+        transition: 'transform 0.3s ease',
+      }}
+      onClick={() => {
+        onClick?.();
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.05)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+      }}
+    >
+      <Box style={{ position: 'relative' }}>
+        {/* Banner or Avatar as main image */}
+        <Image
+          src={bannerImageUrl || artistImageUrl || '/placeholder-artist.jpg'}
+          alt={artist.name}
+          style={{
+            aspectRatio: '1',
+            borderRadius: '8px',
+            width: '100%'
+          }}
+          fallbackSrc="https://via.placeholder.com/200x200/2C2E33/FFFFFF?text=Artist"
+        />
+
+        {/* Artist Avatar overlay if we have a banner */}
+        {bannerImageUrl && artistImageUrl && (
+          <Avatar
+            src={artistImageUrl}
+            alt={artist.name}
+            size="lg"
+            style={{
+              position: 'absolute',
+              bottom: rem(8),
+              left: rem(8),
+              border: '3px solid white',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+            }}
+          />
+        )}
+
+        {/* Follow button overlay */}
+        <ActionIcon
+          size="lg"
+          radius="xl"
+          variant="filled"
+          color="blue"
+          style={{
+            position: 'absolute',
+            top: rem(8),
+            right: rem(8),
+            opacity: 0,
+            transition: 'all 0.3s ease',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
+          }}
+          className="follow-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onFollow?.();
+          }}
+        >
+          <IconUser size={16} />
+        </ActionIcon>
+      </Box>
+
+      <Stack gap="xs" mt="sm">
+        <Text
+          size="sm"
+          fw={500}
+          c="gray.0"
+          ta="center"
+        >
+          {artist.name}
+        </Text>
+        <Group gap="xs" justify="center">
+          {artist.followerCount && (
+            <Text size="xs" c="dimmed">
+              {artist.followerCount.toLocaleString()} followers
+            </Text>
+          )}
+          {artist.trackCount && (
+            <Text size="xs" c="dimmed">
+              • {artist.trackCount} tracks
+            </Text>
+          )}
+        </Group>
+      </Stack>
+    </Box>
+  ) : (
+    // Card layout - consistent with EventCard and MusicCard patterns
     <Card
-      p={0}
       radius="xl"
+      shadow="lg"
+      p="lg"
+      withBorder
       style={{
         width: '100%',
         minWidth: cardSize.minWidth,
         maxWidth: cardSize.maxWidth,
         height: cardSize.height,
-        background: 'var(--mantine-color-dark-8)',
-        border: '1px solid var(--mantine-color-dark-6)',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
         overflow: 'hidden',
-        boxSizing: 'border-box',
+        transition: 'all 0.3s ease',
+        border: '1px solid var(--mantine-color-gray-2)',
+        background: 'linear-gradient(135deg, rgba(var(--mantine-color-blue-1-rgb), 0.5), rgba(255,255,255,0.9))',
+        position: 'relative',
+        cursor: 'pointer',
       }}
-      onClick={onClick}
+      onClick={() => {
+        onClick?.();
+      }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-8px)';
-        e.currentTarget.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.4)';
-        e.currentTarget.style.borderColor = 'var(--mantine-color-gray-6)';
+        e.currentTarget.style.transform = 'translateY(-4px)';
+        e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.3)';
+        // Show follow button
+        const followButton = e.currentTarget.querySelector('[data-follow-button]') as HTMLElement;
+        if (followButton) {
+          followButton.style.opacity = '1';
+          followButton.style.transform = 'translateY(0)';
+        }
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = '';
-        e.currentTarget.style.borderColor = 'var(--mantine-color-dark-6)';
+        // Hide follow button
+        const followButton = e.currentTarget.querySelector('[data-follow-button]') as HTMLElement;
+        if (followButton && !artist.isFollowing) {
+          followButton.style.opacity = '0';
+          followButton.style.transform = 'translateY(8px)';
+        }
       }}
     >
-      {/* Banner Section */}
+      {/* Gradient top accent */}
       <Box
-        h={120}
         style={{
-          background: bannerImageUrl
-            ? `url(${bannerImageUrl})`
-            : 'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-6))',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          position: 'relative',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 4,
+          background: 'linear-gradient(90deg, var(--mantine-color-blue-5), var(--mantine-color-cyan-5))',
         }}
-      >
-        {genre && (
-          <Badge
-            size="sm"
-            variant="filled"
-            color="dark"
-            style={{
-              position: 'absolute',
-              top: rem(12),
-              right: rem(12),
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            }}
-          >
-            {genre}
-          </Badge>
-        )}
-      </Box>
+      />
 
-      {/* Content */}
-      <Box p="lg" style={{ position: 'relative', height: cardSize.height - 120 }}>
-        {/* Avatar overlapping banner */}
+      {/* Header with avatar and badges */}
+      <Group justify="space-between" mb="md" align="flex-start">
         <Avatar
-          src={avatarImageUrl}
-          alt={name}
-          size={60}
+          src={artistImageUrl}
+          alt={artist.name}
+          size="xl"
           radius="xl"
           style={{
-            position: 'absolute',
-            top: -30,
-            left: rem(20),
-            border: '3px solid var(--mantine-color-dark-8)',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
+            border: '3px solid var(--mantine-color-blue-1)',
+            boxShadow: '0 4px 20px rgba(34, 139, 230, 0.3)',
+            flexShrink: 0
           }}
         />
 
-        <Stack justify="space-between" h="100%" pt="xs">
-          <Stack gap="sm">
-            <Group align="center" gap="xs">
-              <StyledTitle
-                selectedFont={selectedFont}
-                as="h3"                  style={{
-                    fontSize: rem(18),
-                    fontWeight: 700,
-                    color: 'var(--mantine-color-white)',
-                    lineHeight: 1.2,
-                    margin: 0,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    maxWidth: '140px',
-                  }}
-              >
-                {name}
-              </StyledTitle>
-              {isVerified && (
-                <Badge size="xs" color="blue" variant="filled">
-                  ✓
-                </Badge>
-              )}
-            </Group>
-
-            {bio && (
-              <Text size="sm" c="dimmed" lineClamp={2} style={{ lineHeight: 1.4 }}>
-                {bio}
-              </Text>
-            )}
-
-            <Stack gap="xs">
-              {followerCount !== undefined && (
-                <Group gap="xs" align="center">
-                  <IconUsers size={14} color="var(--mantine-color-dimmed)" />
-                  <Text size="xs" c="dimmed">
-                    {followerCount.toLocaleString()} followers
-                  </Text>
-                </Group>
-              )}
-
-              {upcomingShows !== undefined && (
-                <Group gap="xs" align="center">
-                  <IconCalendarEvent size={14} color="var(--mantine-color-dimmed)" />
-                  <Text size="xs" c="dimmed">
-                    {upcomingShows} upcoming shows
-                  </Text>
-                </Group>
-              )}
-            </Stack>
-          </Stack>
-
-          {onFollow && (
-            <Button
+        <Stack gap={4} align="flex-end" style={{ flex: 1, minWidth: 0 }}>
+          {artist.genre && (
+            <Badge
+              size="sm"
+              variant="light"
+              color="blue"
+              style={{ fontWeight: 600 }}
+            >
+              {artist.genre}
+            </Badge>
+          )}
+          {artist.isFollowing && (
+            <Badge
               size="sm"
               variant="gradient"
               gradient={{ from: 'blue', to: 'cyan' }}
-              fullWidth
-              radius="xl"
-              onClick={(e) => {
-                e.stopPropagation();
-                onFollow();
-              }}
+              style={{ fontWeight: 600 }}
             >
-              Follow
-            </Button>
+              Following
+            </Badge>
           )}
         </Stack>
-      </Box>
+      </Group>
+
+      {/* Artist Details */}
+      <Stack gap="sm" mb="lg">
+        <Text
+          fw={700}
+          size={rem(18)}
+          lineClamp={1}
+          style={{ lineHeight: 1.3 }}
+        >
+          {artist.name}
+        </Text>
+
+        {artist.bio && (
+          <Text
+            size="sm"
+            c="dimmed"
+            lineClamp={2}
+            style={{ lineHeight: 1.4 }}
+          >
+            {artist.bio}
+          </Text>
+        )}
+
+        {/* Stats */}
+        <Group gap="lg" mt="xs">
+          {artist.followerCount !== undefined && (
+            <Group gap="xs" align="center">
+              <ActionIcon
+                size="sm"
+                variant="light"
+                color="gray"
+                radius="xl"
+              >
+                <IconUsers size={12} />
+              </ActionIcon>
+              <Text size="sm" c="dimmed" fw={500}>
+                {artist.followerCount.toLocaleString()} followers
+              </Text>
+            </Group>
+          )}
+
+          {artist.trackCount !== undefined && (
+            <Group gap="xs" align="center">
+              <ActionIcon
+                size="sm"
+                variant="light"
+                color="blue"
+                radius="xl"
+              >
+                <IconMicrophone size={12} />
+              </ActionIcon>
+              <Text size="sm" fw={600} c="blue.7">
+                {artist.trackCount} tracks
+              </Text>
+            </Group>
+          )}
+        </Group>
+      </Stack>
+
+      {/* Action Section */}
+      <Group justify="space-between" align="center" mt="auto">
+        <ActionIcon
+          data-follow-button
+          size="lg"
+          radius="xl"
+          variant="gradient"
+          gradient={{ from: 'blue', to: 'cyan' }}
+          style={{
+            opacity: artist.isFollowing ? 1 : 0,
+            transform: artist.isFollowing ? 'translateY(0)' : 'translateY(8px)',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 4px 15px rgba(34, 139, 230, 0.3)',
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onFollow?.();
+          }}
+        >
+          <IconUser size={16} />
+        </ActionIcon>
+
+        <ActionIcon
+          size="md"
+          variant="subtle"
+          color="gray"
+          onClick={(e) => {
+            e.stopPropagation();
+            onFavorite?.();
+          }}
+        >
+          <IconHeart size={16} />
+        </ActionIcon>
+
+        <ActionIcon
+          size="md"
+          variant="subtle"
+          color="gray"
+        >
+          <IconDots size={16} />
+        </ActionIcon>
+      </Group>
     </Card>
   );
 }
