@@ -22,3 +22,31 @@ export type StoredLocality = {
     country: Country;
     fullAddress?: string; // Optional full formatted address
 }
+
+// Shared event types following database-first approach
+export type EventWithVenue = Pick<Event, 'id' | 'name' | 'start' | 'hash' | 'poster_img'> & {
+  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
+};
+
+export type EventWithDate = Pick<Event, 'id' | 'name' | 'hash' | 'poster_img'> & {
+  date: string | null;
+  venues?: Pick<Venue, 'id' | 'name' | 'address'> | null;
+};
+
+// Shared artist types
+export type ArtistWithImages = Pick<Artist, 'id' | 'name' | 'bio'> & {
+  avatarUrl?: string | null;
+  bannerUrl?: string | null;
+};
+
+export type PromoterWithImages = Pick<Promoter, 'id' | 'name' | 'bio'> & {
+  avatarUrl?: string | null;
+  bannerUrl?: string | null;
+};
+
+// Popular track type
+export type PopularTrack = Pick<Track, 'id' | 'title'> & {
+  plays: number;
+  duration?: number;
+  artist?: Pick<Artist, 'id' | 'name' | 'avatar_img'>;
+};

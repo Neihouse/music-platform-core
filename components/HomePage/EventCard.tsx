@@ -1,6 +1,6 @@
 "use client"
 
-import { Event, Venue } from "@/utils/supabase/global.types";
+import { Event, Venue, EventWithVenue } from "@/utils/supabase/global.types";
 import {
   Badge,
   Box,
@@ -20,12 +20,6 @@ import {
   IconTicket,
 } from "@tabler/icons-react";
 import Link from "next/link";
-
-// Use database-first types as per TYPE_USAGE_GUIDE.md
-type EventWithVenue = Pick<Event, 'id' | 'name' | 'start'> & {
-  hash?: string;
-  venues: Pick<Venue, 'id' | 'name' | 'address'> | null;
-};
 
 interface EventCardProps {
   event: EventWithVenue;

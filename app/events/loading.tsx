@@ -2,28 +2,40 @@
 
 import { AspectRatio, Box, Container, Grid, Skeleton, Stack } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { useEffect, useState } from "react";
 
 function EventCardSkeleton() {
+  const [mounted, setMounted] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isMedium = useMediaQuery('(min-width: 769px) and (max-width: 1024px)');
 
-  // Mobile skeleton - just poster
-  if (isMobile) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent flash during hydration - show adaptive skeleton based on likely viewport
+  if (!mounted) {
+    // Use a more adaptive fallback based on common screen sizes
+    // Default to tablet layout (span=6) as a middle ground
     return (
-      <Grid.Col span={6} p={0}>
+      <Grid.Col span={{ base: 4, sm: 6, md: 4, lg: 3 }}>
         <Box pos="relative">
           <AspectRatio ratio={3 / 4}>
-            <Skeleton 
-              height="100%" 
-              radius="md" 
+            <Skeleton
+              height="100%"
+              radius="md"
               animate={true}
               style={{ width: '100%', height: '100%' }}
             />
           </AspectRatio>
           {/* Date badge skeleton */}
-          <Skeleton 
-            height={20} 
-            width={30} 
+          <Skeleton
+            height={20}
+<<<<<<< HEAD
+            width={30}
+=======
+            width={40}
+>>>>>>> 4d2f55d14721e1661d6ee09553f46d4e3598bd1c
             radius="sm"
             style={{
               position: 'absolute',
@@ -35,15 +47,51 @@ function EventCardSkeleton() {
           <Box
             style={{
               position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: 'linear-gradient(transparent, rgba(0,0,0,0.3))',
-              borderRadius: '0 0 8px 8px',
-              padding: '8px',
+              bottom: 8,
+              left: 8,
+              right: 8,
             }}
           >
-            <Skeleton height={12} width="70%" />
+            <Skeleton height={12} width="60%" radius="xl" />
+          </Box>
+        </Box>
+      </Grid.Col>
+    );
+  }
+
+  // Mobile skeleton - just poster
+  if (isMobile) {
+    return (
+      <Grid.Col span={{ base: 4, sm: 6, md: 4, lg: 3 }}>
+        <Box pos="relative">
+          <AspectRatio ratio={3 / 4}>
+            <Skeleton
+              height="100%"
+              radius="md"
+              animate={true}
+              style={{ width: '100%', height: '100%' }}
+            />
+          </AspectRatio>
+          {/* Date badge skeleton */}
+          <Skeleton
+            height={20}
+            width={40}
+            radius="sm"
+            style={{
+              position: 'absolute',
+              top: 6,
+              right: 6,
+            }}
+          />
+          {/* Venue overlay skeleton */}
+          <Box
+            style={{
+              position: 'absolute',
+              bottom: 8,
+              left: 8,
+            }}
+          >
+            <Skeleton height={12} width="60%" radius="xl" />
           </Box>
         </Box>
       </Grid.Col>
@@ -67,9 +115,9 @@ function EventCardSkeleton() {
               <AspectRatio ratio={3 / 4}>
                 <Skeleton height="100%" radius="md" />
               </AspectRatio>
-              <Skeleton 
-                height={24} 
-                width={50} 
+              <Skeleton
+                height={24}
+                width={50}
                 radius="sm"
                 style={{
                   position: 'absolute',
@@ -78,14 +126,14 @@ function EventCardSkeleton() {
                 }}
               />
             </Box>
-            
+
             {/* Event details skeleton */}
             <Stack gap="xs" style={{ flex: 1 }}>
               <div>
                 <Skeleton height={18} width="85%" mb={4} />
                 <Skeleton height={14} width="65%" />
               </div>
-              
+
               {/* Button skeleton */}
               <Skeleton height={32} mt="auto" radius="sm" />
             </Stack>
@@ -111,9 +159,9 @@ function EventCardSkeleton() {
             <AspectRatio ratio={3 / 4}>
               <Skeleton height="100%" radius="md" />
             </AspectRatio>
-            <Skeleton 
-              height={28} 
-              width={60} 
+            <Skeleton
+              height={28}
+              width={60}
               radius="sm"
               style={{
                 position: 'absolute',
@@ -160,7 +208,7 @@ export default function Loading() {
         </Stack>
 
         {/* Events Grid Skeleton */}
-        <Grid gutter={{ base: "xs", sm: "md", md: "xl" }}>
+        <Grid gutter={{ base: "sm", sm: "md", md: "xl" }}>
           {Array.from({ length: 12 }).map((_, index) => (
             <EventCardSkeleton key={index} />
           ))}
