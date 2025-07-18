@@ -1,6 +1,6 @@
 import { RequestActions } from "@/components/promoter/RequestActions";
 import { ThemedCard } from "@/components/shared/ThemedCard";
-import { getPromoter, getPromoterArtists, getPromoterEvents, getPromoterShowCount, getPromoterTrackCount } from "@/db/queries/promoters";
+import { getPromoter, getPromoterArtists, getPromoterEvents, getPromoterShowCount, getPromoterTrackCount, getPromoterTrackPlaysLast30Days } from "@/db/queries/promoters";
 import { getReceivedArtistRequests, getSentRequests } from "@/db/queries/requests";
 import { getUserProfile } from "@/db/queries/user";
 import { getUser } from "@/db/queries/users";
@@ -8,7 +8,7 @@ import { getAvatarUrlServer, getPromoterImagesServer } from "@/lib/images/image-
 import { nameToUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { Avatar, Badge, Button, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
-import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconMusic, IconSparkles, IconTrendingUp, IconUser, IconUserPlus, IconUsers } from "@tabler/icons-react";
+import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconMusic, IconPlayerPlay, IconSparkles, IconUser, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import styles from "./promoter-dashboard.module.css";
@@ -87,7 +87,7 @@ export default async function PromoterDashboardPage() {
   }
 
   // Fetch all promoter metrics in parallel
-  const [upcomingEvents, artists, trackMetrics, showMetrics, promoterImages, sentRequests, receivedArtistRequests] = await Promise.all([
+  const [upcomingEvents, artists, trackMetrics, showMetrics, promoterImages, sentRequests, receivedArtistRequests, trackPlaysLast30Days] = await Promise.all([
     getPromoterEvents(supabase, promoter.id),
     getPromoterArtists(supabase, promoter.id),
     getPromoterTrackCount(supabase, promoter.id),
@@ -95,6 +95,7 @@ export default async function PromoterDashboardPage() {
     getPromoterImagesServer(supabase, promoter.id),
     getSentRequests(supabase, user.id),
     getReceivedArtistRequests(supabase, promoter.id),
+    getPromoterTrackPlaysLast30Days(supabase, promoter.id),
   ]);
 
   // Process artist avatar URLs (separate from promoter images to avoid double calls)
@@ -369,26 +370,26 @@ export default async function PromoterDashboardPage() {
                   c="gray.5"
                   mb={4}
                 >
-                  Performance
+                  Track Plays
                 </Text>
                 <Text
                   fw={700}
                   size="xl"
                   c="gray.0"
                 >
-                  {Math.round((trackMetrics.recent / Math.max(trackMetrics.total, 1)) * 100)}%
+                  {trackPlaysLast30Days.toLocaleString()}
                 </Text>
                 <Text size="xs" c="gray.6">
-                  Activity rate
+                  Last 30 days
                 </Text>
               </div>
               <ThemeIcon
                 size={60}
                 radius="xl"
                 variant="light"
-                color="blue"
+                color="green"
               >
-                <IconTrendingUp size={30} />
+                <IconPlayerPlay size={30} />
               </ThemeIcon>
             </Group>
           </ThemedCard>

@@ -317,6 +317,49 @@ export async function getPromoterTrackCount(supabase: TypedClient, promoterId: s
   return { total: totalTracks, recent: recentTracks };
 }
 
+export async function getPromoterTrackPlaysLast30Days(supabase: TypedClient, promoterId: string) {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const { data, error } = await supabase
+    .from("promoters_artists")
+    .select(`
+      artists (
+        artists_tracks (
+          tracks (
+            id,
+            track_plays!inner (
+              created_at
+            )
+          )
+        )
+      )
+    `)
+    .eq("promoter", promoterId);
+
+  if (error) {
+    console.error("Error fetching promoter track plays:", error);
+    return 0;
+  }
+
+  let totalPlays = 0;
+
+  data?.forEach(pa => {
+    pa.artists?.artists_tracks?.forEach(at => {
+      if (at.tracks?.track_plays) {
+        at.tracks.track_plays.forEach(play => {
+          const playDate = new Date(play.created_at);
+          if (playDate >= thirtyDaysAgo) {
+            totalPlays++;
+          }
+        });
+      }
+    });
+  });
+
+  return totalPlays;
+}
+
 export async function getPromoterShowCount(supabase: TypedClient, promoterId: string) {
   const { data, error } = await supabase
     .from("events_promoters")
