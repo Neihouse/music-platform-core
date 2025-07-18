@@ -6,6 +6,52 @@ import { AspectRatio, Badge, Box, Button, Card, Grid, Group, Image, Stack, Text,
 import { IconCalendar, IconMapPin, IconPhoto, IconTicket, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 
+// Helper to render the event poster with fallback
+function renderEventPoster(event: EventWithVenue, ratio: number = 3/4, borderRadius: string = '8px', showNameInFallback: boolean = false, iconSize: number = 24) {
+    const posterUrl = event.poster_img ? getPosterUrl(event.poster_img) : null;
+    return (
+        <AspectRatio ratio={ratio}>
+            {posterUrl ? (
+                <Image
+                    src={posterUrl}
+                    alt={`${event.name} poster`}
+                    style={{
+                        objectFit: 'cover',
+                        borderRadius,
+                        width: '100%',
+                        height: '100%',
+                    }}
+                    fallbackSrc="/artist-not-found.svg"
+                />
+            ) : (
+                <Box
+                    style={{
+                        background: 'linear-gradient(135deg, var(--mantine-color-blue-6) 0%, var(--mantine-color-blue-8) 100%)',
+                        borderRadius,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#ffffff',
+                        width: '100%',
+                        height: '100%',
+                    }}
+                >
+                    {showNameInFallback ? (
+                        <Stack align="center" gap="xs">
+                            <IconPhoto size={iconSize} opacity={0.7} />
+                            <Text size="sm" fw={500} ta="center">
+                                {event.name}
+                            </Text>
+                        </Stack>
+                    ) : (
+                        <IconPhoto size={iconSize} opacity={0.7} />
+                    )}
+                </Box>
+            )}
+        </AspectRatio>
+    );
+}
+
 interface EventsGridProps {
     events: EventWithVenue[];
 }
@@ -15,7 +61,6 @@ interface EventCardProps {
 }
 
 function EventCard({ event }: EventCardProps) {
-    const posterUrl = event.poster_img ? getPosterUrl(event.poster_img) : null;
     const eventDate = event.start ? new Date(event.start) : null;
 
     return (
@@ -38,38 +83,9 @@ function EventCard({ event }: EventCardProps) {
                     e.currentTarget.style.transform = 'scale(1)';
                 }}
             >
-                <AspectRatio ratio={3 / 4}>
-                    {posterUrl ? (
-                        <Image
-                            src={posterUrl}
-                            alt={`${event.name} poster`}
-                            style={{
-                                objectFit: 'cover',
-                                borderRadius: '8px',
-                                width: '100%',
-                                height: '100%',
-                            }}
-                            fallbackSrc="/artist-not-found.svg"
-                        />
-                    ) : (
-                        <Box
-                            style={{
-                                background: 'linear-gradient(135deg, var(--mantine-color-blue-6) 0%, var(--mantine-color-blue-8) 100%)',
-                                borderRadius: '8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#ffffff',
-                                width: '100%',
-                                height: '100%',
-                            }}
-                        >
-                            <IconPhoto size={24} opacity={0.7} />
-                        </Box>
-                    )}
-                </AspectRatio>
+                {renderEventPoster(event)}
 
-                {/* Mobile Date Badge */}
+                {/* Mobile Date Badge - Fixed to include month abbreviation */}
                 {eventDate && (
                     <Badge
                         size="xs"
@@ -88,7 +104,7 @@ function EventCard({ event }: EventCardProps) {
                             zIndex: 10,
                         }}
                     >
-                        {eventDate.getDate()}
+                        {`${eventDate.getDate()} ${eventDate.toLocaleString('default', { month: 'short' })}`}
                     </Badge>
                 )}
 
@@ -149,37 +165,7 @@ function EventCard({ event }: EventCardProps) {
                 >
                     <Stack gap="xs" h="100%">
                         <Box pos="relative" mb="xs">
-                            <AspectRatio ratio={3 / 4}>
-                                {posterUrl ? (
-                                    <Image
-                                        src={posterUrl}
-                                        alt={`${event.name} poster`}
-                                        style={{
-                                            objectFit: 'cover',
-                                            borderRadius: '10px',
-                                        }}
-                                        fallbackSrc="/artist-not-found.svg"
-                                    />
-                                ) : (
-                                    <Box
-                                        style={{
-                                            background: 'linear-gradient(135deg, var(--mantine-color-blue-6) 0%, var(--mantine-color-blue-8) 100%)',
-                                            borderRadius: '10px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: 'var(--mantine-color-white)',
-                                        }}
-                                    >
-                                        <Stack align="center" gap="xs">
-                                            <IconPhoto size={28} opacity={0.7} />
-                                            <Text size="sm" fw={500} ta="center">
-                                                {event.name}
-                                            </Text>
-                                        </Stack>
-                                    </Box>
-                                )}
-                            </AspectRatio>
+                            {renderEventPoster(event, 3/4, '10px', true, 28)}
 
                             {eventDate && (
                                 <Badge
@@ -278,37 +264,7 @@ function EventCard({ event }: EventCardProps) {
                 >
                     <Stack gap={0} h="100%">
                         <Box pos="relative" mb="xs">
-                            <AspectRatio ratio={3 / 4}>
-                                {posterUrl ? (
-                                    <Image
-                                        src={posterUrl}
-                                        alt={`${event.name} poster`}
-                                        style={{
-                                            objectFit: 'cover',
-                                            borderRadius: '12px',
-                                        }}
-                                        fallbackSrc="/artist-not-found.svg"
-                                    />
-                                ) : (
-                                    <Box
-                                        style={{
-                                            background: 'linear-gradient(135deg, var(--mantine-color-blue-6) 0%, var(--mantine-color-blue-8) 100%)',
-                                            borderRadius: '12px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: 'var(--mantine-color-white)',
-                                        }}
-                                    >
-                                        <Stack align="center" gap="xs">
-                                            <IconPhoto size={32} opacity={0.7} />
-                                            <Text size="sm" fw={500} ta="center">
-                                                {event.name}
-                                            </Text>
-                                        </Stack>
-                                    </Box>
-                                )}
-                            </AspectRatio>
+                            {renderEventPoster(event, 3/4, '12px', true, 32)}
 
                             {eventDate && (
                                 <Badge

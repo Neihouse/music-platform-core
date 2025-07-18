@@ -13,10 +13,12 @@ function EventCardSkeleton() {
     setMounted(true);
   }, []);
 
-  // Prevent flash during hydration - show mobile skeleton by default
+  // Prevent flash during hydration - show adaptive skeleton based on likely viewport
   if (!mounted) {
+    // Use a more adaptive fallback based on common screen sizes
+    // Default to tablet layout (span=6) as a middle ground
     return (
-      <Grid.Col span={4}>
+      <Grid.Col span={{ base: 4, sm: 6, md: 4, lg: 3 }}>
         <Box pos="relative">
           <AspectRatio ratio={3 / 4}>
             <Skeleton
@@ -29,7 +31,7 @@ function EventCardSkeleton() {
           {/* Date badge skeleton */}
           <Skeleton
             height={20}
-            width={30}
+            width={40}
             radius="sm"
             style={{
               position: 'absolute',
@@ -41,15 +43,12 @@ function EventCardSkeleton() {
           <Box
             style={{
               position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: 'linear-gradient(transparent, rgba(0,0,0,0.3))',
-              borderRadius: '0 0 8px 8px',
-              padding: '8px',
+              bottom: 8,
+              left: 8,
+              right: 8,
             }}
           >
-            <Skeleton height={12} width="70%" />
+            <Skeleton height={12} width="60%" radius="xl" />
           </Box>
         </Box>
       </Grid.Col>
@@ -59,7 +58,7 @@ function EventCardSkeleton() {
   // Mobile skeleton - just poster
   if (isMobile) {
     return (
-      <Grid.Col span={4}>
+      <Grid.Col span={{ base: 4, sm: 6, md: 4, lg: 3 }}>
         <Box pos="relative">
           <AspectRatio ratio={3 / 4}>
             <Skeleton
@@ -72,7 +71,7 @@ function EventCardSkeleton() {
           {/* Date badge skeleton */}
           <Skeleton
             height={20}
-            width={30}
+            width={40}
             radius="sm"
             style={{
               position: 'absolute',
@@ -84,15 +83,11 @@ function EventCardSkeleton() {
           <Box
             style={{
               position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: 'linear-gradient(transparent, rgba(0,0,0,0.3))',
-              borderRadius: '0 0 8px 8px',
-              padding: '8px',
+              bottom: 8,
+              left: 8,
             }}
           >
-            <Skeleton height={12} width="70%" />
+            <Skeleton height={12} width="60%" radius="xl" />
           </Box>
         </Box>
       </Grid.Col>
