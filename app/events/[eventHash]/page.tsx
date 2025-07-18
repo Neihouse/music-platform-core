@@ -34,7 +34,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     const eventPhotos = event.id ? await getPhotosByEvent(supabase, event.id) : [];
 
     return (
-      <Container size="lg" pt="xl">
+      <Container size="lg" pt="xl" pb={{ base: 'md', sm: 'xl' }}>
         {/* Desktop Layout */}
         <Box display={{ base: 'none', md: 'block' }}>
           <Group align="flex-start" gap="xl" style={{ minHeight: '100vh' }}>
