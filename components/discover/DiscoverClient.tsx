@@ -327,13 +327,14 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
                   {cityData.artists.map((artist) => (
                     <ArtistCard
                       key={artist.id}
-                      id={artist.id}
-                      name={artist.name}
-                      bio={artist.bio}
-                      avatarUrl={artist.avatar_img}
-                      bannerUrl={artist.banner_img}
-                      genre={artist.genre}
-                      selectedFont={artist.selectedFont}
+                      artist={{
+                        id: artist.id,
+                        name: artist.name,
+                        bio: artist.bio || '',
+                        avatarUrl: artist.avatar_img,
+                        bannerUrl: artist.banner_img,
+                        genre: artist.genre,
+                      }}
                       onClick={() => router.push(`/artists/${nameToUrl(artist.name)}`)}
                     />
                   ))}
@@ -375,12 +376,13 @@ export function DiscoverClient({ initialData, initialCity, popularCities, isLogg
                   {cityData.promoters.map((promoter) => (
                     <ArtistCard
                       key={promoter.id}
-                      id={promoter.id}
-                      name={promoter.name}
-                      bio={promoter.bio}
-                      avatarUrl={promoter.avatar_img}
-                      bannerUrl={promoter.banner_img}
-                      selectedFont={promoter.selectedFont}
+                      artist={{
+                        id: promoter.id,
+                        name: promoter.name,
+                        bio: promoter.bio || '',
+                        avatarUrl: promoter.avatar_img,
+                        bannerUrl: promoter.banner_img,
+                      }}
                       onClick={() => router.push(`/promoters/${nameToUrl(promoter.name)}`)}
                     />
                   ))}
