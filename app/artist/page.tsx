@@ -8,7 +8,7 @@ import { getArtistImagesServer, getAvatarUrlServer, getPromoterImagesServer } fr
 import { nameToUrl } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import { Avatar, Badge, Box, Button, Card, Center, Container, Grid, GridCol, Group, Paper, Stack, Text, ThemeIcon, Title } from "@mantine/core";
-import { IconArrowLeft, IconCalendarEvent, IconChartBar, IconHeadphones, IconMusic, IconSparkles, IconUser, IconUsers } from "@tabler/icons-react";
+import { IconArrowLeft, IconCalendarEvent, IconHeadphones, IconMusic, IconSparkles, IconUser, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -646,9 +646,7 @@ export default async function ArtistDashboardPage() {
           <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/artist/promoters" fullWidth size="sm">
             Find Promoters
           </Button>
-          <Button variant="light" leftSection={<IconChartBar size={16} />} fullWidth size="sm">
-            View Analytics
-          </Button>
+
         </Stack>
         <Group visibleFrom="sm" gap="sm" wrap="wrap" hiddenFrom="md">
           <Button leftSection={<IconMusic size={16} />} component={Link} href="/upload/tracks" size="sm">
@@ -657,9 +655,7 @@ export default async function ArtistDashboardPage() {
           <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/artist/promoters" size="sm">
             Find Promoters
           </Button>
-          <Button variant="light" leftSection={<IconChartBar size={16} />} size="sm">
-            View Analytics
-          </Button>
+
         </Group>
         <Group visibleFrom="md" gap="md" wrap="wrap">
           <Button leftSection={<IconMusic size={16} />} component={Link} href="/upload/tracks" size="md">
@@ -668,9 +664,7 @@ export default async function ArtistDashboardPage() {
           <Button variant="light" leftSection={<IconUsers size={16} />} component={Link} href="/artist/promoters" size="md">
             Find Promoters
           </Button>
-          <Button variant="light" leftSection={<IconChartBar size={16} />} size="md">
-            View Analytics
-          </Button>
+
         </Group>
       </Card>
     </Container>

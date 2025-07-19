@@ -34,7 +34,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     const eventPhotos = event.id ? await getPhotosByEvent(supabase, event.id) : [];
 
     return (
-      <Container size="lg" pt="xl">
+      <Container size="lg" pt="xl" pb={{ base: 'md', sm: 'xl' }}>
         {/* Desktop Layout */}
         <Box display={{ base: 'none', md: 'block' }}>
           <Group align="flex-start" gap="xl" style={{ minHeight: '100vh' }}>
@@ -151,32 +151,6 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                     </Stack>
                   </Paper>
                 )}
-
-                {/* Additional Event Information */}
-                <Paper shadow="sm" p="xl" radius="md">
-                  <Stack gap="md">
-                    <Title order={3}>Event Details</Title>
-
-                    <Group gap="xl">
-                      {event.venues?.capacity && (
-                        <Box>
-                          <Text size="sm" c="dimmed" fw={500}>CAPACITY</Text>
-                          <Text size="lg" fw={600}>{event.venues.capacity.toLocaleString()}</Text>
-                        </Box>
-                      )}
-
-                      <Box>
-                        <Text size="sm" c="dimmed" fw={500}>EVENT TYPE</Text>
-                        <Text size="lg" fw={600}>Live Performance</Text>
-                      </Box>
-
-                      <Box>
-                        <Text size="sm" c="dimmed" fw={500}>STATUS</Text>
-                        <Text size="lg" fw={600} c="green">Active</Text>
-                      </Box>
-                    </Group>
-                  </Stack>
-                </Paper>
               </Stack>
             </Box>
           </Group>
@@ -284,32 +258,6 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 </Stack>
               </Paper>
             )}
-
-            {/* Mobile Additional Event Information */}
-            <Paper shadow="sm" p="lg" radius="md">
-              <Stack gap="md">
-                <Title order={3}>Event Details</Title>
-
-                <Stack gap="md">
-                  {event.venues?.capacity && (
-                    <Group justify="space-between">
-                      <Text size="sm" c="dimmed" fw={500}>CAPACITY</Text>
-                      <Text fw={600}>{event.venues.capacity.toLocaleString()}</Text>
-                    </Group>
-                  )}
-
-                  <Group justify="space-between">
-                    <Text size="sm" c="dimmed" fw={500}>EVENT TYPE</Text>
-                    <Text fw={600}>Live Performance</Text>
-                  </Group>
-
-                  <Group justify="space-between">
-                    <Text size="sm" c="dimmed" fw={500}>STATUS</Text>
-                    <Text fw={600} c="green">Active</Text>
-                  </Group>
-                </Stack>
-              </Stack>
-            </Paper>
           </Stack>
         </Box>
       </Container>
