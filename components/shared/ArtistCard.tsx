@@ -7,7 +7,7 @@
  * Features:
  * - Two layout modes: 'grid' (compact) and card layouts ('sm', 'md', 'lg')
  * - Hover animations and interactive overlays
- * - Follow/favorite functionality
+ * - Favorite functionality
  * - Artist avatar and banner image support
  * - Follower count and track count display
  * - Gradient accents and modern styling
@@ -30,7 +30,6 @@
  *     followerCount: 1250,
  *     trackCount: 12
  *   }}
- *   onFollow={() => console.log('Following artist')}
  *   onClick={() => console.log('Navigate to artist')}
  * />
  * 
@@ -38,7 +37,6 @@
  * <ArtistCard
  *   artist={artistData}
  *   size="grid"
- *   onFollow={handleFollow}
  * />
  */
 "use client";
@@ -57,7 +55,7 @@ import {
   Text,
   rem,
 } from "@mantine/core";
-import { IconDots, IconHeart, IconMicrophone, IconUser, IconUsers } from "@tabler/icons-react";
+import { IconDots, IconHeart, IconMicrophone, IconUsers } from "@tabler/icons-react";
 
 interface ArtistCardProps {
   artist: Pick<ArtistWithImages, 'id' | 'name' | 'bio'> & {
@@ -65,12 +63,10 @@ interface ArtistCardProps {
     bannerUrl?: string | null;
     followerCount?: number;
     trackCount?: number;
-    isFollowing?: boolean;
     genre?: string;
   };
   size?: 'sm' | 'md' | 'lg' | 'grid';
   onClick?: () => void;
-  onFollow?: () => void;
   onFavorite?: () => void;
 }
 
@@ -78,7 +74,6 @@ export function ArtistCard({
   artist,
   size = 'md',
   onClick,
-  onFollow,
   onFavorite,
 }: ArtistCardProps) {
   const cardSize = {
@@ -136,29 +131,6 @@ export function ArtistCard({
             }}
           />
         )}
-
-        {/* Follow button overlay */}
-        <ActionIcon
-          size="lg"
-          radius="xl"
-          variant="filled"
-          color="blue"
-          style={{
-            position: 'absolute',
-            top: rem(8),
-            right: rem(8),
-            opacity: 0,
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
-          }}
-          className="follow-button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onFollow?.();
-          }}
-        >
-          <IconUser size={16} />
-        </ActionIcon>
       </Box>
 
       <Stack gap="xs" mt="sm">
@@ -209,22 +181,10 @@ export function ArtistCard({
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
         e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.3)';
-        // Show follow button
-        const followButton = e.currentTarget.querySelector('[data-follow-button]') as HTMLElement;
-        if (followButton) {
-          followButton.style.opacity = '1';
-          followButton.style.transform = 'translateY(0)';
-        }
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = '';
-        // Hide follow button
-        const followButton = e.currentTarget.querySelector('[data-follow-button]') as HTMLElement;
-        if (followButton && !artist.isFollowing) {
-          followButton.style.opacity = '0';
-          followButton.style.transform = 'translateY(8px)';
-        }
       }}
     >
       {/* Gradient top accent */}
@@ -262,16 +222,6 @@ export function ArtistCard({
               style={{ fontWeight: 600 }}
             >
               {artist.genre}
-            </Badge>
-          )}
-          {artist.isFollowing && (
-            <Badge
-              size="sm"
-              variant="gradient"
-              gradient={{ from: 'blue', to: 'cyan' }}
-              style={{ fontWeight: 600 }}
-            >
-              Following
             </Badge>
           )}
         </Stack>
@@ -337,26 +287,6 @@ export function ArtistCard({
 
       {/* Action Section */}
       <Group justify="space-between" align="center" mt="auto">
-        <ActionIcon
-          data-follow-button
-          size="lg"
-          radius="xl"
-          variant="gradient"
-          gradient={{ from: 'blue', to: 'cyan' }}
-          style={{
-            opacity: artist.isFollowing ? 1 : 0,
-            transform: artist.isFollowing ? 'translateY(0)' : 'translateY(8px)',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 15px rgba(34, 139, 230, 0.3)',
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onFollow?.();
-          }}
-        >
-          <IconUser size={16} />
-        </ActionIcon>
-
         <ActionIcon
           size="md"
           variant="subtle"

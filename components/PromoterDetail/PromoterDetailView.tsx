@@ -489,11 +489,6 @@ export function PromoterDetailView({
                       // Navigate to artist profile using Next.js router
                       router.push(`/artists/${nameToUrl(artist.name)}`);
                     }}
-                    onFollow={() => {
-                      console.log('Follow artist:', artist.name);
-                      // TODO: Implement follow functionality
-                      // This could make an API call to follow/unfollow the artist
-                    }}
                     onFavorite={() => {
                       console.log('Favorite artist:', artist.name);
                       // TODO: Implement favorite functionality
